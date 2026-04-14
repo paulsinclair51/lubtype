@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/paulsinclair51/lubtype/actions/workflows/ci.yml/badge.svg)](https://github.com/paulsinclair51/lubtype/actions/workflows/ci.yml)
 
-Single-header C11 library for Latin (`uint8_t`) and Unicode (`uint16_t`) string operations.
+Single-header C90 library for Latin (`uint8_t`) and Unicode (`uint16_t`) string operations.
 Drop `lubtype.h` into your project — no build step required.
 
 ## Types
