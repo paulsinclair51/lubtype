@@ -221,8 +221,7 @@ typedef uint8_t byte_t;
  * @defgroup CharacterLimits Character Limits
  * @name LUB_MAX_LCHAR, LUB_MAX_UCHAR, LUB_MAX_BYTE
  * @brief Maximum values for lchar_t, uchar_t, and byte_t.
- * @{
- */
+ * @{ */
 
 #if defined(LUB_MAX_LCHAR) || defined(LUB_MAX_UCHAR) || defined(LUB_MAX_BYTE)
 #error "lubtype.h: A character limit LUB_MAX_* "\
@@ -249,8 +248,7 @@ typedef uint8_t byte_t;
  *        Maximum number of bytes for a byte_t string or byte option.
  * @note MAX_LNAMELEN and MAX_LQNAMELEN are not provided since
  *       names are Unicode.
- * @{
- */
+ * @{ */
 
 #if defined(LUB_MAX_LSTRLEN) || defined(LUB_MAX_USTRLEN) || \
     defined(LUB_MAX_UNAMELEN) || defined(LUB_MAX_UQNAMELEN) || \
@@ -290,8 +288,7 @@ typedef uint8_t byte_t;
  *       value for s1 > s2. Returning specific values
  *       allows for error return values that are between -99 and -2
  *       that are distinct from valid comparison return values.
- * @{
- */
+ * @{ */
 
 #if defined(LUB_CMP_GREATER_THAN) || \
     defined(LUB_CMP_EQUAL) || \
@@ -340,8 +337,7 @@ typedef uint8_t byte_t;
  * from valid results.
  * @note For pointer returning functions with a target
  *       parameter t, NULL is returned when t is NULL.
- * @{
- */
+ * @{ */
 
 #if defined(LUB_BAD_PTR) || \
     defined(LUB_UNTERMINATED) || \
@@ -412,8 +408,7 @@ typedef uint8_t byte_t;
  *     indicates an invalid pointer. In this case, return LUB_BAD_PTR:
  *
  *     * if (LUB_PTR_ERR(s, 0)) return LUB_SIZE_ERR(LUB_BAD_PTR, 0);
- * @{
- */
+ * @{ */
 
 #if defined(LUB_PTR_ERR) || \
     defined(LUB_SIZE_ERR) || \
@@ -578,7 +573,7 @@ typedef char __check_size_intptr_same_size__
  *     cnt/CNT = count occurrences of characters or substrings
  * 
  *     vprintf/printf = format string
-* 
+ * 
  *    Examples: lusnncpy, ulsnnCATC, uusnCMP, ulsnnSTRM, ulnpbrkm, ulnncatqnamec,
  *              ulsnnCATQNAMEQC, ulsncpyqnamec, ulsncpyqname.
  *
@@ -590,7 +585,6 @@ typedef char __check_size_intptr_same_size__
  *   uppercase operation with 'C' = case-mapped to uppercase
  * 
  * @subsection  CommonParameters Common Parameters
-
  * @brief Commonly used parameters for the functions in this API.
  *        Specific functions may use a subset of these parameters,
  *        have additional parameters, or have additional details
@@ -714,8 +708,7 @@ typedef char __check_size_intptr_same_size__
  *       other than for the first character in an unquoted name, i.e.,
  *       a Latin alphabetic, numeric, or '_' character.
  * @note islname1c and islnamec are not provided since names are Unicode.
- * @{
- */
+ * @{ */
 
 static inline int isualpha(const uchar_t c)
     {return iswalpha((wchar_t)c);}
@@ -791,8 +784,7 @@ static inline int isuhexdigit(const uchar_t c)
  * @note For lutocase/lutoupper/lutolower, if converted c is not a valid
  *       Latin chararacter and c is a valid Latin characer,
  *       return c, otherwise return err_c.
- * @{
- */
+ * @{ */
 
 // To case-preserve conversion.
 
