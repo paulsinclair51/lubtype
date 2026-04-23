@@ -468,7 +468,7 @@ typedef char __check_size_intptr_same_size__
  *             blank, space, hexdigit
  *
  *    Note: islname1c and islnamec are not
- *    provided since names are always Unicode.
+ *    provided since names are Unicode.
  *
  *    Examples: isualpha, islhexdigit, isunamec
  * 
@@ -479,14 +479,14 @@ typedef char __check_size_intptr_same_size__
  *    <s> = l for classify Latin string.
  *          u for classify Unicode string.
  * 
- *    n = bounded source with an sn parameter for the  bound.
+ *    n = bounded source with an sn parameter for the bound.
  * 
  *    <kind> = RESERVED, QNAME, truncstr, hexdigits
  *
  *    Note: RESERVED and QNAME are case-insensitive.
  * 
- *    Note: islRESERVED and islQNAME are not supported
- *          since names are always Unicode.
+ *    Note: islRESERVED and islQNAME are not provided
+ *          since names are Unicode.
  * 
  *    Note: isutruncstr is not provided string is always Latin.
  *
@@ -503,9 +503,11 @@ typedef char __check_size_intptr_same_size__
  *         ul - Unicode result and Latin source character
  *         uu - Unicode result and source character
  * 
- *    <case> = lower, upper
+ *    <case> = case, lower, upper
  *
- *    Examples: ultoupper, lutolower
+ *.   Note: case indicates case-preserving transform.
+ *
+ *    Examples: ultoupper, lutolower, lutocase
  *
  * 4. int <- character transforms:
  *
@@ -552,39 +554,40 @@ typedef char __check_size_intptr_same_size__
  * 
  *   <op> = operation:
  *
- *     cat/catc/CATC = concatenate to target
- *     catq/catqc/CATQc = concatenate to target with quoting
+ *     cat/catc/CATC = concatenate to target.
+ *     catq/catqc/CATQC = concatenate to target with quoting.
  *     catqnameq/catqnamec/CATQNAMEQC = concatenate to target
- *                                      with quoting for a name
+ *                                      with quoting for a name.
  *
- *     cpy/cpyc/CPYC = copy to target
- *     cpyq/cpyqc/CPYQC = copy to target with quoting
+ *     cpy/cpyc/CPYC = copy to target.
+ *     cpyq/cpyqc/CPYQC = copy to target with quoting.
  *     cpyqnameq/cpyqnamec/CPYQNAMEQC = copy to target with quoting
- *                                      for a name
+ *                                      for a name.
  * 
- *     trim/reverse/pad = copy modified string to target
- *     replace/REPLACE = character/string replacement
+ *     trim/reverse/pad = copy modified string to target.
+ *     replace/REPLACE = character/string replacement.
  * 
- *     cmp/CMP = compare
- *     fxdcmp//FXDCMP = fixed-length leading substring compare
- *     pfxcmp/PFXCMP = prefix compare
- *     sfxcmp/SFXCMP = suffix compare
+ *     cmp/CMP = compare.
+ *     fxdcmp//FXDCMP = fixed-length leading substring compare.
+ *     pfxcmp/PFXCMP = prefix compare.
+ *     sfxcmp/SFXCMP = suffix compare.
  * 
  *     ptrim = return pointer into string to start of trimmed
- *             substring plus length of trimmed substring
+ *             substring plus length of trimmed substring.
  * 
- *     skip = character set skip search
+ *     skip = character set skip search.
  *
- *     strm/STRM = character/string search for mth occurrence
+ *     strm/STRM = character/string search for mth occurrence.
  * 
- *     cnt/CNT = count occurrences of characters or substrings
+ *     cnt/CNT = count occurrences of characters or substrings.
  * 
- *     vprintf/printf = format string
+ *     vprintf/printf = format string.
  * 
  *    Examples: lusnncpy, ulsnnCATC, uusnCMP, ulsnnSTRM, ulnpbrkm, ulnncatqnamec,
  *              ulsnnCATQNAMEQC, ulsncpyqnamec, ulsncpyqname.
  *
  * @note Operations with case handling
+ *
  *   lowercase operation (no 'c') = case-sensitive character comparison or
  *                                  no case mapping
  *   uppercase operation (no 'C') = case-insensitive matching/comparison
@@ -594,11 +597,12 @@ typedef char __check_size_intptr_same_size__
 
 /**
  * @subsection  CommonParameters Common Parameters
- * @brief Commonly used parameters for the functions in this API.
- *        Specific functions may use a subset of these parameters,
- *        have additional parameters, or have additional details
- *        or requirements for these parameters (see specific
- *        function declarations and definitions for details).
+ *
+ * Commonly used parameters for the functions in this API.
+ * Specific functions may use a subset of these parameters,
+ * have additional parameters, or have additional details
+ * or requirements for these parameters (see specific
+ * function declarations and definitions for details).
  * 
  * @param t Pointer to target buffer (destination for operations such as
  *          concatenate, copy, trim, replace, and pad).
@@ -657,14 +661,14 @@ typedef char __check_size_intptr_same_size__
  *.            If the result is truncated, error LUB_TRUNCATED is
  *.            returned by the funcion.
  * 
- * @param q Quote character (' or ") to enclose result (quotes in the
+ * @param q Quote character (' or ") to enclose result (a q character in the
  *          source are doubled in the target buffer).
  * 
  * @param delim Defines a delimiter character to delimit substrings in a 
  *              map string for replacment, s2 string for search functions,
  *              or substrings in a trimmed result.
  * 
- *              For example, if delim is a comma. ',', the string is treated as
+ *              For example, if delim is a comma, the string is treated as
  *              a comma separated list of substrings (e.g., "sub1,sub2,sub3").
  *              A substring may be empty (e.g., the second substring is empty
  *              in "sub1,,sub3", the first substring is empty in ",sub2,sub3"
@@ -681,7 +685,7 @@ typedef char __check_size_intptr_same_size__
  *          m == 0 returns NULL for search functions.
  *          m == 0 means replace all occurrences for replace functions.
  *          m < 0 counts from the end of the string (-1 means last
- *          occurrence) when the operation supports reverse search.
+ *                occurrence) when the operation supports reverse search.
  * 
  * @param err_c For Unicode target with Latin source functions only, replacement
  *              character to use when neither the Unicode source 
