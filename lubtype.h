@@ -628,14 +628,14 @@ typedef char __check_size_intptr_same_size__
  * 
  *              The string has the form:
  * 
- *                [<truncate mode>][<truncate replacement string>]
+ *                [<truncate mode>][<truncated replacement string>]
  * 
- *              where <truncate mode> is an optional alphabetic character
+ *              where <truncate mode> is an optional alphabetic character.
  * 
- *              - If trunc is NULL, truncate mode defaults "B" and truncated
- *                replacement string is 0-length.
+ *              - If trunc is NULL, truncate mode defaults to "B" and truncated
+ *                replacement string defaults to a 0-length string.
  *              - If the first character is alphabetic, it specifies
- *                the truncate mode and is followed by truncated replacement string.
+ *                the truncate mode and is followed by the truncated replacement string.
  *              - If the first character is not alphbetic, truncate
  *                mode defaults to 'B' and trunc is the truncated replacement
  *                string.
@@ -648,14 +648,16 @@ typedef char __check_size_intptr_same_size__
  *               replacement string added on the right.
  *             - If 'C' or 'c', truncate in
  *               the center with the truncated replacement string added in the center.
- *             - If 'B' or 'b', truncate on both left and
- *               right (to 0-length) and add the truncated replacement string.
+ *             - If 'B' or 'b', the result is the truncated replacement string.
  * 
  *             Truncated replacement string:
  * 
  *             - May be a 0-length string.
+ *
+ *.            If the result is truncated, error LUB_TRUNCATED is
+ *.            returned by the funcion.
  * 
- * @param q Quote character (' or "") to use quoting (quotes in the
+ * @param q Quote character (' or ") to use quoting (quotes in the
  *          source are doubled in the target buffer).
  * 
  * @param delim Defines a delimiter character to delimit substrings in a 
