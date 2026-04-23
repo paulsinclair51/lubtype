@@ -221,7 +221,8 @@ typedef uint8_t byte_t;
  * @defgroup CharacterLimits Character Limits
  * @name LUB_MAX_LCHAR, LUB_MAX_UCHAR, LUB_MAX_BYTE
  * @brief Maximum values for lchar_t, uchar_t, and byte_t.
- * @{ */
+ * @{
+ */
 
 #if defined(LUB_MAX_LCHAR) || defined(LUB_MAX_UCHAR) || defined(LUB_MAX_BYTE)
 #error "lubtype.h: A character limit LUB_MAX_* "\
@@ -248,7 +249,8 @@ typedef uint8_t byte_t;
  *        Maximum number of bytes for a byte_t string or byte option.
  * @note MAX_LNAMELEN and MAX_LQNAMELEN are not provided since
  *       names are Unicode.
- * @{ */
+ * @{
+ */
 
 #if defined(LUB_MAX_LSTRLEN) || defined(LUB_MAX_USTRLEN) || \
     defined(LUB_MAX_UNAMELEN) || defined(LUB_MAX_UQNAMELEN) || \
@@ -288,7 +290,8 @@ typedef uint8_t byte_t;
  *       value for s1 > s2. Returning specific values
  *       allows for error return values that are between -99 and -2
  *       that are distinct from valid comparison return values.
- * @{ */
+ * @{
+ */
 
 #if defined(LUB_CMP_GREATER_THAN) || \
     defined(LUB_CMP_EQUAL) || \
@@ -329,15 +332,15 @@ typedef uint8_t byte_t;
  *       LUB_OVERLAP
  *       LUB_TRUNCATED
  * @brief Reserved error values for size_t, pointer, and
- * int-returning functions (for use with LUB_*_ERR macros).
+ * int error-returning functions (for use with LUB_*_ERR macros,
+ * see @ref ErrorClassificationAndCast).
  *
  * Error values are reserved in the range -99 to -2 for int,
  * (size_t)-99 to (size_t)-2 for size_t, and (void *)-99 to
  * (void *)-2 for pointer types. These values are distinct
  * from valid results.
- * @note For pointer returning functions with a target
- *       parameter t, NULL is returned when t is NULL.
- * @{ */
+ * @{
+ */
 
 #if defined(LUB_BAD_PTR) || \
     defined(LUB_UNTERMINATED) || \
@@ -367,7 +370,7 @@ typedef uint8_t byte_t;
 /** @} */
 
 /**
- * @defgroup ClassifyError Classify Error
+ * @defgroup ErrorClassificationAndCast Error Classification and Cast
  * @name LUB_PTR_ERR, LUB_SIZE_ERR, LUB_INT_ERR
  * @brief Macros for classifying and casting error values to
  *        pointer, size_t, and int types.
@@ -408,7 +411,8 @@ typedef uint8_t byte_t;
  *     indicates an invalid pointer. In this case, return LUB_BAD_PTR:
  *
  *     * if (LUB_PTR_ERR(s, 0)) return LUB_SIZE_ERR(LUB_BAD_PTR, 0);
- * @{ */
+ * @{
+ */
 
 #if defined(LUB_PTR_ERR) || \
     defined(LUB_SIZE_ERR) || \
@@ -443,6 +447,9 @@ typedef char __check_size_intptr_same_size__
 
 /**
  * @section Functions Functions
+ */
+
+/**
  * @subsection FunctionNamingConventions Function Naming Conventions
  *
  * {} required. [] optional. <> token. | alternatives.
@@ -521,7 +528,7 @@ typedef char __check_size_intptr_same_size__
  * 
  *  Examples: lcsnlen, ucsnlen
  * 
- * 7. Other functions:
+ * 6. Other functions:
  *
  *    <ts>s[nn|n]<op>
  *
@@ -583,7 +590,9 @@ typedef char __check_size_intptr_same_size__
  *   uppercase operation (no 'C') = case-insensitive matching/comparison
  *   lowercase operation with 'c' = case-mapped to lowercase
  *   uppercase operation with 'C' = case-mapped to uppercase
- * 
+ */
+
+/**
  * @subsection  CommonParameters Common Parameters
  * @brief Commonly used parameters for the functions in this API.
  *        Specific functions may use a subset of these parameters,
@@ -708,7 +717,8 @@ typedef char __check_size_intptr_same_size__
  *       other than for the first character in an unquoted name, i.e.,
  *       a Latin alphabetic, numeric, or '_' character.
  * @note islname1c and islnamec are not provided since names are Unicode.
- * @{ */
+ * @{
+ */
 
 static inline int isualpha(const uchar_t c)
     {return iswalpha((wchar_t)c);}
@@ -784,7 +794,8 @@ static inline int isuhexdigit(const uchar_t c)
  * @note For lutocase/lutoupper/lutolower, if converted c is not a valid
  *       Latin chararacter and c is a valid Latin characer,
  *       return c, otherwise return err_c.
- * @{ */
+ * @{
+ */
 
 // To case-preserve conversion.
 
