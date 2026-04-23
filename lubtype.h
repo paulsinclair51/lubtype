@@ -657,7 +657,7 @@ typedef char __check_size_intptr_same_size__
  *.            If the result is truncated, error LUB_TRUNCATED is
  *.            returned by the funcion.
  * 
- * @param q Quote character (' or ") to use quoting (quotes in the
+ * @param q Quote character (' or ") to enclose result (quotes in the
  *          source are doubled in the target buffer).
  * 
  * @param delim Defines a delimiter character to delimit substrings in a 
@@ -912,7 +912,7 @@ extern size_t ucsnlen(const uchar_t *s, size_t sn)
 /**
  * @defgroup StringClassification String Classification
  * @name isuRESERVED, isuQNAME (case-insensitive)
- *       isltruncstr,
+ *       isltruncstr, isneedlestr
  *       islnhexdigits, isunhexdigits
  * @brief Latin and Unicode string classification.
  * @param s Source string.
@@ -933,6 +933,11 @@ extern size_t ucsnlen(const uchar_t *s, size_t sn)
  *              is not a name character (see iunamec).
  * @note isltruncstr: Classify whether s is a valid truncated string for use as value
  *                    for as an trunc parameter. A valid string is NULL,
+ *                    null-terminated by the bound LUB_MAX_LOPTLEN,
+ *                    an empty string, and the first character is 
+ *                    not a reserved alphabetic character (see trunc parameter for details).
+* @note islneedlestr: Classify whether s is a valid needle string for use as value
+ *                    for as an search parameter. A valid string is NULL,
  *                    null-terminated by the bound LUB_MAX_LOPTLEN,
  *                    an empty string, and the first character is 
  *                    not a reserved alphabetic character (see trunc parameter for details).
