@@ -2,7 +2,7 @@
  * @file lubtype.h
  * @mainpage Latin/Unicode/Byte API
  * @brief This API header provides robust and portable Latin-8,
- *        Unicode-16, and byte types, macros, extern function
+ *        Unicode-16, and byte types, plus associated macros, extern function
  *        declarations (protypes), and static inline function
  *        definitions.
  * 
@@ -12,18 +12,18 @@
  * 
  *        before including this header.
  * 
- *        Functions for classification, character conversion,
- *        length, concatenate, copy, search, compare, mem compare,
- *        prefix, suffix, transform, replace, format, validation,
- *        split, span, character substitutiion, and count functions.
+ *        Functions include classification, character transformation,
+ *        length, concatenate, copy, search, compare, fixed/prefix/suffix
+ *        compare, transform, replace, format, validation,
+ *        split, span, character substitutiion, and count.
  * 
  *        - Variants for Latin/Unicode/Byte <- Latin/Unicode/Byte.
  *        - Variants for explicit/default bounds on source length.
- *        - Explicit bounds on target buffer when required.
- *        - Variants for character case-preserving and mapping to
- *          uppercase/lowercase characters.
+ *        - Explicit bound on target buffer size.
+ *        - Explicit or default bound on source length.
+ *        - Variants for character case-preserving
+ *          uppercase, lowercase mapping.
  *        - Case-sensitive/insensitive character matching.
- * 
  * @note Not all variants are provided for all functions due a
  *       variant not being meaningful/useful for a particular function
  *       or the variant being easily implemented by the caller
@@ -295,7 +295,7 @@ typedef uint8_t byte_t;
 
 #if defined(LUB_CMP_GREATER_THAN) || \
     defined(LUB_CMP_EQUAL) || \
-    defined(LUB_CMP_LESS_THAN)
+    defined(LUB_CMP_LESS_THAN)(
 #error "lubtype.h: A special value LUB_CMP_* " \
        "macro is unexpectedly already defined. " \
        "#undef before including lubtype.h. " \
@@ -372,13 +372,13 @@ typedef uint8_t byte_t;
 /**
  * @defgroup ErrorClassificationAndCast Error Classification and Cast
  * @name LUB_PTR_ERR, LUB_SIZE_ERR, LUB_INT_ERR
- * @brief Macros for classifying and casting error values to
+ * @brief Macros for classifying value as an error value and casting error values to
  *        pointer, size_t, and int types.
- * @param value The value returned by a function to check for error.
+ * @param value The value returned by a function to be classified or cast.
  * @param error 0 (any error) or a specific error value.
  * @return The value (if it is error value) or 0 (not an error)
  *         cast to the corresponding type:
- * 
+ *
  *             LUB_PTR_ERR -> void *
  *             LUB_SIZE_ERR -> size_t
  *             LUB_INT_ERR -> int
@@ -402,10 +402,11 @@ typedef uint8_t byte_t;
  * 
  *     * if (LUB_PTR_ERR(result, LUB_BAD_PTR)) { handle bad pointer error }
  * 
- *   * Use the LUB_*_ERR macros to cast an error to another type to
- *     propagate an error from a called function that returns a different type:
+ *   * Use the LUB_*_ERR macros to cast an error value
+ *     from a called function to thr return type
+ *.    of the calling function:
  * 
- *     * if (LUB_SIZE_ERR(result, 0)) return (uchar_t)LUB_PTR_ERR(result, 0);
+ *     * if (LUB_SIZE_ERR(result, 0)) return (uchar_t *)LUB_PTR_ERR(result, 0);
  *
  *   * For input pointer arguments (e.g., s), encountering an error value
  *     indicates an invalid pointer. In this case, return LUB_BAD_PTR:
@@ -425,6 +426,8 @@ typedef uint8_t byte_t;
 #endif
 
 #if defined(LUB_DEFINITIONS)
+// This API expects size_t and intptr_t are the same size,
+// If not, force a compile error.
 typedef char __check_size_intptr_same_size__
                  [(sizeof(size_t) == sizeof(intptr_t)) ? 1 : -1];
 #endif // LUB_DEFINITIONS
@@ -561,8 +564,9 @@ typedef char __check_size_intptr_same_size__
  *
  *     cpy/cpyc/CPYC = copy to target.
  *     cpyq/cpyqc/CPYQC = copy to target with quoting.
- *     cpyqnameq/cpyqnamec/CPYQNAMEQC = copy to target with quoting
- *                                      for a name.
+ *     cpyqname/cpyqnamec/CPYQNAMEC = copy to target with quoting
+ *                                    for a name (maximum length of source
+ *.                                   is implicitly bounded to 128).
  * 
  *     trim/reverse/pad = copy modified string to target.
  *     replace/REPLACE = character/string replacement.
@@ -575,7 +579,7 @@ typedef char __check_size_intptr_same_size__
  *     ptrim = return pointer into string to start of trimmed
  *             substring plus length of trimmed substring.
  * 
- *     skip = character set skip search.
+ *     skip = skip characters.
  *
  *     strm/STRM = character/string search for mth occurrence.
  * 
@@ -583,8 +587,8 @@ typedef char __check_size_intptr_same_size__
  * 
  *     vprintf/printf = format string.
  * 
- *    Examples: lusnncpy, ulsnnCATC, uusnCMP, ulsnnSTRM, ulnpbrkm, ulnncatqnamec,
- *              ulsnnCATQNAMEQC, ulsncpyqnamec, ulsncpyqname.
+ *    Examples: lusnncpy, ulsnnCATC, uusnCMP, ulsnnSTRM, uusncatqnamec,
+ *              uusnCATQNAMEC, ulsncpyqname, ulsncpyqnamec.
  *
  * @note Operations with case handling
  *
@@ -624,11 +628,12 @@ typedef char __check_size_intptr_same_size__
  *           or LUB_MAX_BSTRLEN based on the type of the source string
  *           and operation. If sn is omitted in a function declaration,
  *           the source is bounded by LUB_MAX_UQNAMELEN.
- *           Note sn is required if the source is a byte string (*byte_t).
+ *           Note sn is required if the source is a byte string (*byte_t)
+ *.          and specifies the length of th source.
  * 
  * @param trunc Pointer to a string that specifies how to handle truncation
  *              when the result would otherwise exceed the
- *              maximum length (tn) of the target buffer.
+ *              size (tn) of the target buffer.
  * 
  *              The string has the form:
  * 
@@ -657,12 +662,14 @@ typedef char __check_size_intptr_same_size__
  *             Truncated replacement string:
  * 
  *             - May be a 0-length string.
+ *.            - If this string is longer than the target buffer size (tn),
+ *.              a 0-length string is used instaead.
  *
- *.            If the result is truncated, error LUB_TRUNCATED is
+ *.            If a result is truncated, error LUB_TRUNCATED is
  *.            returned by the funcion.
  * 
- * @param q Quote character (' or ") to enclose result (a q character in the
- *          source are doubled in the target buffer).
+ * @param q Quote character (' or ") to enclose result. Each q character in the
+ *          source is doubled in the target buffer).
  * 
  * @param delim Defines a delimiter character to delimit substrings in a 
  *              map string for replacment, s2 string for search functions,
@@ -735,15 +742,15 @@ static inline int isudigit(const uchar_t c)
 static inline int isldigit(const lchar_t c)
     {return isdigit((unsigned char)c);}
 static inline int isualnum(const uchar_t c)
-    {return iswalnum((wchar_t)c);}
+    {return (iswalnum((wchar_t)c);}
 static inline int islalnum(const lchar_t c)
     {return isalnum((unsigned char)c);}
 static inline int isuname1c(const uchar_t c)
-    {return c <= LUB_MAX_LCHAR &&
+    {return (size_t)c <= LUB_MAX_LCHAR &&
        (islalpha((lchar_t)c) || (lchar_t)c == '_');
     }
 static inline int isunamec(const uchar_t c)
-    {return c <= LUB_MAX_LCHAR &&
+    {return (size_t)c <= LUB_MAX_LCHAR &&
        (islalnum((lchar_t)c) || (lchar_t)c == '_');
     }
 static inline int isuupper(const uchar_t c)
@@ -808,7 +815,7 @@ static inline int isuhexdigit(const uchar_t c)
 static inline lchar_t lltocase(const lchar_t c)
     {return c;}
 static inline lchar_t lutocase(const uchar_t c, lchar_t err_c)
-    {return c > LUB_MAX_LCHAR ? err_c : (lchar_t)c;}
+    {return (size_t)c > LUB_MAX_LCHAR ? err_c : (lchar_t)c;}
 static inline uchar_t ultocase(const lchar_t c)
     {return (uchar_t)c;}
 static inline uchar_t uutocase(const uchar_t c)
