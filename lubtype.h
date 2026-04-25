@@ -182,6 +182,16 @@ __LUB_STATIC_ASSERT__(LUB_VERSION_NUM < 100000000, version_num_reasonable);
 
 // End of Versioning.
 
+#if defined(LUB_DEFINITIONS)
+// This API expects size_t and intptr_t are the same size,
+// short is 2 bytes, and int is 4 bytes, and
+// wchar_t is 4 bytes. If not, force a compile error (incalid typydef).
+typedef char __verify_type_sizes__
+                 [(sizeof(size_t) == sizeof(intptr_t) &&
+                   sizeof(short) == 2 && sizeof(int) == 4 &&
+                   sizeof(wchar_t) == 4) ? 1 : -1];
+#endif // LUB_DEFINITIONS
+
 /**
  * @section Types Types
  * 
@@ -424,13 +434,6 @@ typedef uint8_t byte_t;
        "After including, undef and define again as needed if " \
        "a LUB_*_ERR definition is not required."
 #endif
-
-#if defined(LUB_DEFINITIONS)
-// This API expects size_t and intptr_t are the same size,
-// If not, force a compile error.
-typedef char __check_size_intptr_same_size__
-                 [(sizeof(size_t) == sizeof(intptr_t)) ? 1 : -1];
-#endif // LUB_DEFINITIONS
 
 #define LUB_PTR_ERR(value, error) \
     ((!(error) && \
