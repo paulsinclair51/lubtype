@@ -51,6 +51,39 @@
 extern "C" {
 #endif
 
+/*--------------------------------------
+ *  Token pasting helpers
+ *-------------------------------------*/
+#define LUB_PASTE(a, b) a##b
+#define LUB_XPASTE(a, b) LUB_PASTE(a, b)
+
+/*--------------------------------------
+ *  Stringification helpers
+ *-------------------------------------*/
+#define LUB_STR(x) #x
+#define LUB_XSTR(x) LUB_STR(x)
+
+/*--------------------------------------
+ *  STATIC_ASSERT
+ *
+ *  Usage:
+ *      LUB_STATIC_ASSERT(sizeof(int) == 4, int_must_be_4_bytes);
+ *
+ *  Expands (C99 fallback) to:
+ *      typedef char LUB_STATIC_ASSERT__int_must_be_4_bytes[1];
+ *
+ *  Or (if false):
+ *      typedef char LUB_STATIC_ASSERT__int_must_be_4_bytes[-1];
+ *-------------------------------------*/
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+    /* C11 and later: use the built‑in */
+    #define LUB_STATIC_ASSERT(cond, msg) _Static_assert(cond, #msg)
+#else
+    /* C99 fallback: typedef with negative array size */
+    #define LUB_STATIC_ASSERT(cond, msg) \
+        typedef char LUB_XPASTE(LUB_STATIC_ASSERT__, msg)[(cond) ? 1 : -1]
+#endif
+
 /**
  * @section Versioning Versioning
  * @defgroup LUBVersioningMacros LUB Versioning Macros
@@ -186,7 +219,7 @@ __LUB_STATIC_ASSERT__(LUB_VERSION_NUM < 100000000, version_num_reasonable);
 // This API expects size_t and intptr_t are the same size,
 // short is 2 bytes, and int is 4 bytes, and
 // wchar_t is 4 bytes. If not, force a compile error (invalid typedef).
-typedef char __verify_type_sizes__
+typedef char static_assert_unexpected_type_sizes
                  [(sizeof(size_t) == sizeof(intptr_t) &&
                    sizeof(short) == 2 && sizeof(int) == 4 &&
                    sizeof(wchar_t) == 4) ? 1 : -1];
