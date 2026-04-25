@@ -1,14 +1,14 @@
 /**
  * @file lubtype.h
  * @mainpage Latin/Unicode/Byte API
- * @brief This API header provides robust and portable Latin-8,
+ * @brief This API header for C and C++ provides robust and portable Latin-8,
  *        Unicode-16, and byte types, plus associated macros, extern function
  *        declarations (protypes), and static inline function
  *        definitions.
  * 
  *        To include definitions of extern functions,
  * 
- *             #define LUB_DEFINITIONS 
+ *             #define __LUB_DEFINITIONS__
  * 
  *        before including this header.
  * 
@@ -47,8 +47,19 @@
 #include <wchar.h>
 #include <wctype.h>
 
+// Allow functions to be invoked from C++
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+// Preprocessor token pasting and stringification helpers
+//
+#if defined(__LUB_PASTE2__) || defined(__LUB_PASTE__)
+#error "lubtype.h: A __LUB_PASTE2__ or __LUB_PASTE__ " \
+       "macro is unexpectedly already defined. " \
+       "#undef before including lubtype.h. " \
+       "These macros are undefined after their last use " \
+       "by this include. After including, define again as needed."
 #endif
 
 #if defined(__LUB_STRINGIFY2__) || defined(__LUB_STRINGIFY__) || \
@@ -60,7 +71,6 @@ extern "C" {
        "by this include. After including, define again as needed."
 #endif
 
-// Token pasting and stringification helpers (undefined after versioning set).
 #define __LUB_PASTE2__(a, b) a##b
 #define __LUB_PASTE__(a, b) __LUB_PASTE2__(a, b)
 #define __LUB_STRINGIFY2__(x) #x
@@ -71,12 +81,21 @@ extern "C" {
 // Usage:
 //   LUB_STATIC_ASSERT(sizeof(int) == 4, int_must_be_4_bytes);
 //
-// Expands (C99 fallback) to:
+// Expands (C99 fallback) if true to:
 //   typedef char LUB_STATIC_ASSERT__int_must_be_4_bytes[1];
 //
-//  Or (if false):
+//  Or if false to:
 //    typedef char LUB_STATIC_ASSERT__int_must_be_4_bytes[-1];
+//    that raises a compiler error.
 //
+#if defined(__LUB_STATIC_ASSERT__)
+#error "lubtype.h: A __LUB_STATIC_ASSERT__ macro is unexpectedly " \
+       "already defined. " \
+       "#undef before including lubtype.h. " \
+       "These macros are undefined after their last use " \
+       "by this include. After including, define again as needed."
+#endif
+
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
     /* C11 and later: use the built‑in */
     #define LUB_STATIC_ASSERT(cond, msg) _Static_assert(cond, #msg)
@@ -178,11 +197,10 @@ extern "C" {
 // True if the current library version is at least the specified version.
 #define LUB_VERSION_AT_LEAST(maj, min, pat) \
     (LUB_VERSION_NUM >= ((maj) * 10000 + (min) * 100 + (pat)))
-
-// Compile-time validation of version macros (C99).
-#define __LUB_STATIC_ASSERT__(cond, msg) \
-    typedef char static_assert_##msg[(cond) ? 1 : -1]
-
+/** @} */
+// End of Versioning.
+    
+#if defined(LUB_DEFINITIONS)
 // Ensure version components are within expected ranges.
 __LUB_STATIC_ASSERT__(LUB_VERSION_MAJOR >= 0, major_must_be_nonnegative);
 __LUB_STATIC_ASSERT__(LUB_VERSION_MINOR >= 0, minor_must_be_nonnegative);
@@ -197,30 +215,27 @@ __LUB_STATIC_ASSERT__(LUB_VERSION_PATCH <= 255, patch_fits_in_hex_field);
 __LUB_STATIC_ASSERT__(LUB_VERSION_NUM >= 0, version_num_nonnegative);
 __LUB_STATIC_ASSERT__(LUB_VERSION_NUM < 100000000, version_num_reasonable);
 
-// Undefine version helper macros to avoid namespace pollution.
-#undef __LUB_STRINGIFY2__
-#undef __LUB_STRINGIFY__
-#undef __LUB_STATIC_ASSERT__
-/** @} */
-
-// End of Versioning.
-
-#if defined(LUB_DEFINITIONS)
-// This API expects size_t and intptr_t are the same size,
+// Ensure size_t and intptr_t are both the same number of bytes (4 or 8),
 // short is 2 bytes, and int is 4 bytes, and
-// wchar_t is 4 bytes. If not, force a compile error (invalid typedef).
-typedef char static_assert_unexpected_type_sizes
-                 [(sizeof(size_t) == sizeof(intptr_t) &&
-                   sizeof(short) == 2 && sizeof(int) == 4 &&
-                   sizeof(wchar_t) == 4) ? 1 : -1];
+// wchar_t is 4 bytes.
+__LUB_STATIC_ASSERT__(sizeof(size_t) == 4 ||
+                       sizeof(size_t) == 8,
+                       sixe_t_must_4_or_8_bytes);
+__LUB_STATIC_ASSERT__(sizeof(intptr_t) == sizeof(intptr),
+                       intptr_t_bytes_must_be_same_as_size_t bytes);
+__LUB_STATIC_ASSERT__(sizeof(short) == 2, short_must_be _2_bytes);
+__LUB_STATIC_ASSERT__(sizeof(int) == 4, int_must_4_bytes);
+__LUB_STATIC_ASSERT__(sizeof(wchar_t) == 4, wchar_t_must_4_bytes);
 #endif // LUB_DEFINITIONS
 
 /**
  * @section Types Types
- * 
+ */
+
+/**
  * @defgroup LatinCharacterType Latin Character Type
  * @name lchar_t
- * @brief Latin-8 character type (1 byte)
+ * @brief Latin-8 character type (1 byte) 
  *        Base type: uint8_t, Values: 0-255 (0x00-0xFF).
  * @{
  */
@@ -5254,6 +5269,17 @@ extern size_t uusnCNT(const uchar_t *s1, const uchar_t *const s2, size_t sn,
  *     A character string that does not have a null terminator at or before
  *     the specified or default bound.
  */
+
+#if defined(__LUB_DEFINITIONS__)
+// Undefine helper macros to avoid namespace pollution.
+#undef __LUB_PASTE2__
+#undef __LUB_PASTE__
+#undef __LUB_STRINGIFY2__
+#undef __LUB_STRINGIFY__
+#undef __LUB_STATIC_ASSERT__
+#undef __LUB_OP_HELPER__
+#undef __LUB_DEFINITIONS__
+#endif // LUB_DEFINITIONS
 
 #ifdef __cplusplus
 }
