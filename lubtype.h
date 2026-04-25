@@ -185,7 +185,7 @@ __LUB_STATIC_ASSERT__(LUB_VERSION_NUM < 100000000, version_num_reasonable);
 #if defined(LUB_DEFINITIONS)
 // This API expects size_t and intptr_t are the same size,
 // short is 2 bytes, and int is 4 bytes, and
-// wchar_t is 4 bytes. If not, force a compile error (incalid typydef).
+// wchar_t is 4 bytes. If not, force a compile error (invalid typedef).
 typedef char __verify_type_sizes__
                  [(sizeof(size_t) == sizeof(intptr_t) &&
                    sizeof(short) == 2 && sizeof(int) == 4 &&
