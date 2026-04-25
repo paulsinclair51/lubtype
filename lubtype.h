@@ -51,37 +51,39 @@
 extern "C" {
 #endif
 
-/*--------------------------------------
- *  Token pasting helpers
- *-------------------------------------*/
-#define LUB_PASTE(a, b) a##b
-#define LUB_XPASTE(a, b) LUB_PASTE(a, b)
+#if defined(__LUB_STRINGIFY2__) || defined(__LUB_STRINGIFY__) || \
+    defined(__LUB_STATIC_ASSERT__)
+#error "lubtype.h: A __LUB_STRINGIFY2__, __LUB_STRINGIFY__, " \
+       "or __LUB_STATIC_ASSERT__ macro is unexpectedly already defined. " \
+       "#undef before including lubtype.h. " \
+       "These macros are undefined after their last use " \
+       "by this include. After including, define again as needed."
+#endif
 
-/*--------------------------------------
- *  Stringification helpers
- *-------------------------------------*/
-#define LUB_STR(x) #x
-#define LUB_XSTR(x) LUB_STR(x)
+// Token pasting and stringification helpers (undefined after versioning set).
+#define __LUB_PASTE2__(a, b) a##b
+#define __LUB_PASTE__(a, b) __LUB_PASTE2__(a, b)
+#define __LUB_STRINGIFY2__(x) #x
+#define __LUB_STRINGIFY__(x) __LUB_STRINGIFY2__(x)
 
-/*--------------------------------------
- *  STATIC_ASSERT
- *
- *  Usage:
- *      LUB_STATIC_ASSERT(sizeof(int) == 4, int_must_be_4_bytes);
- *
- *  Expands (C99 fallback) to:
- *      typedef char LUB_STATIC_ASSERT__int_must_be_4_bytes[1];
- *
- *  Or (if false):
- *      typedef char LUB_STATIC_ASSERT__int_must_be_4_bytes[-1];
- *-------------------------------------*/
+// STATIC_ASSERT
+//
+// Usage:
+//   LUB_STATIC_ASSERT(sizeof(int) == 4, int_must_be_4_bytes);
+//
+// Expands (C99 fallback) to:
+//   typedef char LUB_STATIC_ASSERT__int_must_be_4_bytes[1];
+//
+//  Or (if false):
+//    typedef char LUB_STATIC_ASSERT__int_must_be_4_bytes[-1];
+//
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
     /* C11 and later: use the built‑in */
     #define LUB_STATIC_ASSERT(cond, msg) _Static_assert(cond, #msg)
 #else
     /* C99 fallback: typedef with negative array size */
     #define LUB_STATIC_ASSERT(cond, msg) \
-        typedef char LUB_XPASTE(LUB_STATIC_ASSERT__, msg)[(cond) ? 1 : -1]
+        typedef char __LUB_PASTE__(LUB_STATIC_ASSERT__, msg)[(cond) ? 1 : -1]
 #endif
 
 /**
@@ -146,23 +148,11 @@ extern "C" {
        "After including, undef and define again as needed if " \
        "a LUB_VERSION_* definition is not required."
 #endif
-#if defined(__LUB_STRINGIFY2__) || defined(__LUB_STRINGIFY__) || \
-    defined(__LUB_STATIC_ASSERT__)
-#error "lubtype.h: A __LUB_STRINGIFY2__, __LUB_STRINGIFY__, " \
-       "or __LUB_STATIC_ASSERT__ macro is unexpectedly already defined. " \
-       "#undef before including lubtype.h. " \
-       "These macros are undefined after their last use " \
-       "by this include. After including, define again as needed."
-#endif
 
 // Library version major, minor, patch.
 #define LUB_VERSION_MAJOR 1
 #define LUB_VERSION_MINOR 0
 #define LUB_VERSION_PATCH 0
-
-// Define version helper macros (undefined after versioning set).
-#define __LUB_STRINGIFY2__(x) #x
-#define __LUB_STRINGIFY__(x) __LUB_STRINGIFY2__(x)
 
 // Library version string in "major.minor.patch" format.
 #define LUB_VERSION \
