@@ -54,27 +54,34 @@ extern "C" {
 
 // Preprocessor token pasting and stringification helpers
 //
-#if defined(__LUB_PASTE2__) || defined(__LUB_PASTE__)
-#error "lubtype.h: A __LUB_PASTE2__ or __LUB_PASTE__ " \
+#if defined(__LUB_PASTE__) || defined(__LUB_XPASTE__)
+#error "lubtype.h: A __LUB_PASTE__ or __LUB_XPASTE__ " \
        "macro is unexpectedly already defined. " \
        "#undef before including lubtype.h. " \
        "These macros are undefined after their last use " \
        "by this include. After including, define again as needed."
 #endif // defined macros
 
-#if defined(__LUB_STRINGIFY2__) || defined(__LUB_STRINGIFY__) || \
-    defined(__LUB_STATIC_ASSERT__)
-#error "lubtype.h: A __LUB_STRINGIFY2__, __LUB_STRINGIFY__, " \
-       "or __LUB_STATIC_ASSERT__ macro is unexpectedly already defined. " \
+#if defined(__LUB_STRINGIFY__) || defined(__LUB_XSTRINGIFY__)
+#error "lubtype.h: A __LUB_STRINGIFY__ or __LUB_XSTRINGIFY__ " \
+       "macro is unexpectedly already defined. " \
        "#undef before including lubtype.h. " \
        "These macros are undefined after their last use " \
        "by this include. After including, define again as needed."
 #endif // defined macros
 
-#define __LUB_PASTE__(a, b) a##b
-#define __LUB_XPASTE__(a, b) __LUB_PASTE__(a, b)
-#define __LUB_STRINGIFY__(x) #x
-#define __LUB_XSTRINGIFY__(x) __LUB_STRINGIFY__(x)
+#if defined(__LUB_STATIC_ASSERT__)
+#error "lubtype.h: A __LUB_STATIC_ASSERT__ " \
+       "macro is unexpectedly already defined. " \
+       "#undef before including lubtype.h. " \
+       "This macro is undefined after its last use " \
+       "by this include. After including, define again as needed."
+#endif // defined macros
+
+#define __LUB_PASTE__(a, b) a##b // Paste before expanding tokens.
+#define __LUB_XPASTE__(a, b) __LUB_PASTE__(a, b) // Expand tokens before pasting.
+#define __LUB_STRINGIFY__(x) #x // Stringify before expanding tokens.
+#define __LUB_XSTRINGIFY__(x) __LUB_STRINGIFY__(x) // Expand tokens before stringify.
 
 // STATIC_ASSERT
 //
@@ -89,20 +96,20 @@ extern "C" {
 //    that raises a compiler error.
 //
 #if defined(__LUB_STATIC_ASSERT__)
-#error "lubtype.h: A __LUB_STATIC_ASSERT__ macro is unexpectedly " \
-       "already defined. " \
+#error "lubtype.h: A __LUB_STATIC_ASSERT__ " \
+       "macro is unexpectedly already defined. " \
        "#undef before including lubtype.h. " \
        "These macros are undefined after their last use " \
        "by this include. After including, define again as needed."
 #endif // defined macrp
 
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-    /* C11 and later: use the built‑in */
-    #define __LUB_STATIC_ASSERT__(cond, msg) _Static_assert(cond, #msg)
+/* C11 and later: use the built‑in */
+#define __LUB_STATIC_ASSERT__(cond, msg) _Static_assert(cond, #msg)
 #else
-    /* C99 fallback: typedef with invalid negative array size */
-    #define LUB_STATIC_ASSERT(cond, msg) \
-        typedef char __LUB_XPASTE__(__LUB_STATIC_ASSERT__, msg)[(cond) ? 1 : -1]
+/* C99 fallback: typedef with invalid negative array size */
+#define __LUB_STATIC_ASSERT__(cond, msg) \
+    typedef char __LUB_XPASTE__(__LUB_STATIC_ASSERT__, msg)[(cond) ? 1 : -1]
 #endif // defined
 
 /**
@@ -5288,11 +5295,11 @@ extern size_t uusnCNT(const uchar_t *s1, const uchar_t *const s2, size_t sn,
  */
 
 // Undefine helper macros to avoid namespace pollution.
-#undef __LUB_PASTE2__
-#undef __LUB_PASTE__
-#undef __LUB_STRINGIFY2__
-#undef __LUB_STRINGIFY__
 #undef __LUB_STATIC_ASSERT__
+#undef __LUB_XPASTE__
+#undef __LUB_PASTE__
+#undef __LUB_XSTRINGIFY__
+#undef __LUB_STRINGIFY__
 
 #if defined(__LUB_DEFINITIONS__)
 #undef __LUB_OP_HELPER__
