@@ -1,7 +1,7 @@
 /**
  * @file lubtype.h
  * @mainpage Latin/Unicode/Byte API
- * @brief This API header for C and C++ provides robust and portable Latin-8,
+ * @brief This C/C++ API header provides robust and portable Latin-8,
  *        Unicode-16, and byte types, plus associated macros, extern function
  *        declarations (protypes), and static inline function
  *        definitions.
@@ -200,7 +200,7 @@ extern "C" {
 /** @} */
 // End of Versioning.
     
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 // Ensure version components are within expected ranges.
 __LUB_STATIC_ASSERT__(LUB_VERSION_MAJOR >= 0, major_must_be_nonnegative);
 __LUB_STATIC_ASSERT__(LUB_VERSION_MINOR >= 0, minor_must_be_nonnegative);
@@ -226,7 +226,7 @@ __LUB_STATIC_ASSERT__(sizeof(intptr_t) == sizeof(intptr),
 __LUB_STATIC_ASSERT__(sizeof(short) == 2, short_must_be _2_bytes);
 __LUB_STATIC_ASSERT__(sizeof(int) == 4, int_must_4_bytes);
 __LUB_STATIC_ASSERT__(sizeof(wchar_t) == 4, wchar_t_must_4_bytes);
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 /**
  * @section Types Types
@@ -1472,24 +1472,24 @@ static void *__target_source_helper__
             st, Err_c); \
 }
 
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Concatenate case-preserving.
 
 extern lchar_t *llsnncat(lchar_t *t, size_t tn,
                          lchar_t *s, size_t sn, const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'l', 'l', (lchar_t)'\0', '\0', '\0',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern lchar_t *lusnncat(lchar_t *t, size_t tn,
                          uchar_t *s, size_t sn, const lchar_t *st,
                          const lchar_t err_c)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'l', 'u', (lchar_t)'\0', '\0', '\0',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, err_c)
@@ -5270,16 +5270,17 @@ extern size_t uusnCNT(const uchar_t *s1, const uchar_t *const s2, size_t sn,
  *     the specified or default bound.
  */
 
-#if defined(__LUB_DEFINITIONS__)
 // Undefine helper macros to avoid namespace pollution.
 #undef __LUB_PASTE2__
 #undef __LUB_PASTE__
 #undef __LUB_STRINGIFY2__
 #undef __LUB_STRINGIFY__
 #undef __LUB_STATIC_ASSERT__
+
+#if defined(__LUB_DEFINITIONS__
 #undef __LUB_OP_HELPER__
 #undef __LUB_DEFINITIONS__
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 #ifdef __cplusplus
 }
