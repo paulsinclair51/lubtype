@@ -1,7 +1,7 @@
 /**
  * @file lubtype.h
  * @mainpage Latin/Unicode/Byte API
- * @brief This C/C++ API header provides robust and portable Latin-8,
+ * @brief This C/C++ API header provides Latin-8,
  *        Unicode-16, and byte types, plus associated macros, extern function
  *        declarations (protypes), and static inline function
  *        definitions.
