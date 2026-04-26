@@ -52,17 +52,17 @@
 extern "C" {
 #endif
 
-// Preprocessor token pasting and stringification helpers
+// Preprocessor token gluing and stringification helpers
 //
-#if defined(__LUB_PASTE2__) || defined(__LUB_PASTE__)
-#error "lubtype.h: A __LUB_PASTE2__ or __LUB_PASTE__ " \
+#if defined(__LUB_GLUE2__) || defined(__LUB_GLUE__)
+#error "lubtype.h: A __LUB_GLUE2__ or __LUB_GLUE__ " \
        "macro is unexpectedly already defined. " \
        "#undef before including lubtype.h. " \
        "These macros are undefined after their last use " \
        "by this include. After including, define again as needed."
 #endif // defined macros
 
-#if defined(__LUB_STRINGIFY2__) || defined(__LUB_STRINGIFY__) || \
+#if defined(__LUB_STRINGIFY2__) || defined(__LUB_STRINGIFY__) || \2
     defined(__LUB_STATIC_ASSERT__)
 #error "lubtype.h: A __LUB_STRINGIFY2__, __LUB_STRINGIFY__, " \
        "or __LUB_STATIC_ASSERT__ macro is unexpectedly already defined. " \
@@ -71,8 +71,8 @@ extern "C" {
        "by this include. After including, define again as needed."
 #endif // defined macros
 
-#define __LUB_PASTE2__(a, b) a##b
-#define __LUB_PASTE__(a, b) __LUB_PASTE2__(a, b)
+#define __LUB_GLUE2__(a, b) a##b
+#define __LUB_GLUE__(a, b) __LUB_GLUE2__(a, b)
 #define __LUB_STRINGIFY2__(x) #x
 #define __LUB_STRINGIFY__(x) __LUB_STRINGIFY2__(x)
 
@@ -102,7 +102,7 @@ extern "C" {
 #else
     /* C99 fallback: typedef with invalid negative array size */
     #define LUB_STATIC_ASSERT(cond, msg) \
-        typedef char __LUB_PASTE__(LUB_STATIC_ASSERT__, msg)[(cond) ? 1 : -1]
+        typedef char __LUB_GLUE__(LUB_STATIC_ASSERT__, msg)[(cond) ? 1 : -1]
 #endif // defined
 
 /**
@@ -5288,8 +5288,8 @@ extern size_t uusnCNT(const uchar_t *s1, const uchar_t *const s2, size_t sn,
  */
 
 // Undefine helper macros to avoid namespace pollution.
-#undef __LUB_PASTE2__
-#undef __LUB_PASTE__
+#undef __LUB_GLUE2__
+#undef __LUB_GLUE__
 #undef __LUB_STRINGIFY2__
 #undef __LUB_STRINGIFY__
 #undef __LUB_STATIC_ASSERT__
