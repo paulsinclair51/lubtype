@@ -70,14 +70,6 @@ extern "C" {
        "by this include. After including, define again as needed."
 #endif // defined macros
 
-#if defined(__LUB_STATIC_ASSERT__)
-#error "lubtype.h: A __LUB_STATIC_ASSERT__ " \
-       "macro is unexpectedly already defined. " \
-       "#undef before including lubtype.h. " \
-       "This macro is undefined after its last use " \
-       "by this include. After including, define again as needed."
-#endif // defined macros
-
 #define __LUB_PASTE__(a, b) a##b // Paste before expanding tokens.
 #define __LUB_XPASTE__(a, b) __LUB_PASTE__(a, b) // Expand tokens before pasting.
 #define __LUB_STRINGIFY__(x) #x // Stringify before expanding tokens.
