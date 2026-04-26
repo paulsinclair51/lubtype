@@ -60,7 +60,7 @@ extern "C" {
        "#undef before including lubtype.h. " \
        "These macros are undefined after their last use " \
        "by this include. After including, define again as needed."
-#endif
+#endif // defined macros
 
 #if defined(__LUB_STRINGIFY2__) || defined(__LUB_STRINGIFY__) || \
     defined(__LUB_STATIC_ASSERT__)
@@ -69,7 +69,7 @@ extern "C" {
        "#undef before including lubtype.h. " \
        "These macros are undefined after their last use " \
        "by this include. After including, define again as needed."
-#endif
+#endif // defined macros
 
 #define __LUB_PASTE2__(a, b) a##b
 #define __LUB_PASTE__(a, b) __LUB_PASTE2__(a, b)
@@ -94,19 +94,22 @@ extern "C" {
        "#undef before including lubtype.h. " \
        "These macros are undefined after their last use " \
        "by this include. After including, define again as needed."
-#endif
+#endif // defined macrp
 
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
     /* C11 and later: use the built‑in */
     #define LUB_STATIC_ASSERT(cond, msg) _Static_assert(cond, #msg)
 #else
-    /* C99 fallback: typedef with negative array size */
+    /* C99 fallback: typedef with invalid negative array size */
     #define LUB_STATIC_ASSERT(cond, msg) \
         typedef char __LUB_PASTE__(LUB_STATIC_ASSERT__, msg)[(cond) ? 1 : -1]
-#endif
+#endif // defined
 
 /**
  * @section Versioning Versioning
+ */
+
+/**
  * @defgroup LUBVersioningMacros LUB Versioning Macros
  * @name LUB_VERSION_MAJOR, LUB_VERSION_MINOR, LUB_VERSION_PATCH,
  *       LUB_VERSION, LUB_VERSION_NUM, LUB_VERSION_HEX, 
@@ -166,7 +169,7 @@ extern "C" {
        "already defined. #undef before including lubtype.h. " \
        "After including, undef and define again as needed if " \
        "a LUB_VERSION_* definition is not required."
-#endif
+#endif // definrd macrps
 
 // Library version major, minor, patch.
 #define LUB_VERSION_MAJOR 1
@@ -219,11 +222,11 @@ __LUB_STATIC_ASSERT__(LUB_VERSION_NUM < 100000000, version_num_reasonable);
 // short is 2 bytes, and int is 4 bytes, and
 // wchar_t is 4 bytes.
 __LUB_STATIC_ASSERT__(sizeof(size_t) == 4 ||
-                       sizeof(size_t) == 8,
-                       sixe_t_must_4_or_8_bytes);
+                      sizeof(size_t) == 8,
+                      sixe_t_must_be_4_or_8_bytes);
 __LUB_STATIC_ASSERT__(sizeof(intptr_t) == sizeof(intptr),
                        intptr_t_bytes_must_be_same_as_size_t bytes);
-__LUB_STATIC_ASSERT__(sizeof(short) == 2, short_must_be _2_bytes);
+__LUB_STATIC_ASSERT__(sizeof(short) == 2, short_must_be_2_bytes);
 __LUB_STATIC_ASSERT__(sizeof(int) == 4, int_must_4_bytes);
 __LUB_STATIC_ASSERT__(sizeof(wchar_t) == 4, wchar_t_must_4_bytes);
 #endif // __LUB_DEFINITIONS__
@@ -278,7 +281,7 @@ typedef uint8_t byte_t;
        "#undef before including lubtype.h. " \
        "After including, undef and define again as needed ' \
        "if the LUB_MAX_* definition is not required."
-#endif
+#endif // defined macros
 
 #define LUB_MAX_LCHAR ((size_t)255)
 #define LUB_MAX_UCHAR ((size_t)65535)
@@ -309,7 +312,7 @@ typedef uint8_t byte_t;
        "#undef before including lubtype.h. " \
        "After including, undef and define again as needed if " \
        "a LUB_MAX_* definition is not required."
-#endif
+#endif // defined macros
 
 #define LUB_MAX_LSTRLEN    ((size_t)1000000)
 #define LUB_MAX_USTRLEN    ((size_t)500000)
@@ -349,7 +352,7 @@ typedef uint8_t byte_t;
        "#undef before including lubtype.h. " \
        "After including, undef and define again as needed if " \
        "a LUB_CMP_* definition is not required."
-#endif
+#endif // defined macros
 
 #if defined(LUB_QUOTEDNAME) || \
     defined(LUB_UNQUOTEDNAME)
@@ -358,7 +361,7 @@ typedef uint8_t byte_t;
        "#undef before including lubtype.h. " \
        "After including, undef and define again as needed if " \
        "a LUB_*QUOTEDNAME definition is not required."
-#endif
+#endif // defined macros
 
 //Special values for comparison result.
 #define LUB_CMP_GREATER_THAN       (1)
@@ -402,7 +405,7 @@ typedef uint8_t byte_t;
        "already defined. #undef before including lubtype.h. " \
        "After including, undef and define again as needed if " \
        "a LUB_* definition is not required."
-#endif
+#endif // defined macros
 
 // Error values.
 #define LUB_BAD_PTR                (-2)
@@ -471,7 +474,7 @@ typedef uint8_t byte_t;
        "#undef before including lubtype.h. " \
        "After including, undef and define again as needed if " \
        "a LUB_*_ERR definition is not required."
-#endif
+#endif // defined macros
 
 #define LUB_PTR_ERR(value, error) \
     ((!(error) && \
@@ -704,10 +707,10 @@ typedef uint8_t byte_t;
  * 
  *             - May be a 0-length string.
  *             - If this string is longer than the target buffer size (tn),
- *.              a 0-length string is used instaead.
+ *               a 0-length string is used instaead.
  *
- *.            If a result is truncated, error LUB_TRUNCATED is
- *.            returned by the funcion.
+ *             If a result is truncated, error LUB_TRUNCATED is
+ *             returned by the funcion.
  * 
  * @param q Quote character (' or ") to enclose result. Each q character in the
  *          source is doubled in the target buffer).
@@ -945,7 +948,7 @@ extern size_t lcsnlen(const lchar_t *s, size_t sn)
 }
 #else
     ;
-#endif
+#endif // __LUB_DEFINITIONS__
 
 extern size_t ucsnlen(const uchar_t *s, size_t sn)
 #if defined(__LUB_DEFINITIONS__)
@@ -1138,7 +1141,7 @@ extern int isuQNAME(const uchar_t *s)
 }
 #else
     ;
-#endif
+#endif // __LUB_DEFINITIONS__
 
 extern int isltruncstr(const lchar_t *s)
 #if defined(__LUB_DEFINITIONS__)
@@ -2367,7 +2370,7 @@ extern byte_t *bbsnncpy(byte_t *t, size_t tn, const byte_t *s, size_t sn)
 }
 #else
 ;
-#endif
+#endif // __LUB_DEFINITIONS__
 /** @} */
 
 /**
@@ -2436,7 +2439,7 @@ extern byte_t *bbsnncpy(byte_t *t, size_t tn, const byte_t *s, size_t sn)
        "already defined. #undef before including lubtype.h. " \
        "These macros are undefined after their last use " \
        "by the include. After including, define again as needed."
-#endif
+#endif // defined macros
 
 #define __LUB_TRIM_LEFT_MODE__(trim) \
     ((trim) == 'L' || (trim) == 'B' || (trim) == 'l' || (trim) == 'b')
@@ -2563,6 +2566,7 @@ extern uchar_t *uusnntrim
  * @note lus and uls variants are not supported.
  * @{
  */
+
 extern const lchar_t *llsnptrim(const lchar_t *s, size_t sn,
                         size_t *const trimlen,
                         const char trim, const char *trimset)
@@ -2602,6 +2606,7 @@ extern const lchar_t *llsnptrim(const lchar_t *s, size_t sn,
 #else
     ;
 #endif // __LUB_DEFINITIONS__ for llsptrim.
+
 extern const uchar_t *uunptrim(const uchar_t *s,  size_t sn,
                                size_t *const trimlen,
                                const char trim, const uchar_t *trimset)
@@ -2762,7 +2767,7 @@ extern uchar_t *uusnnreverse(uchar_t *t, const uchar_t *s, size_t sn)
  *       - Source longer than tn.
  * @{
  */
-// Pad.
+
 extern lchar_t *llsnnpad(lchar_t *t, size_t tn, const lchar_t *s, size_t sn,
                              char pad, lchar_t pad_c)
 #if defined(__LUB_DEFINITIONS__)
@@ -3186,14 +3191,14 @@ extern uchar_t *uusnnrepeat(
  * @note If map has more than one pair, m must be 0.
  * @note For multi-pair maps, the first matching needle in map order wins.
  *       List longer needles before shorter ones if overlap matters.
- 
  * @{
  */
 
 // Replace case-sensitive.
-static inline lchar_t *llsnnreplace
+extern lchar_t *llsnnreplace
        (lchar_t *t, size_t tn, const lchar_t *s, size_t sn,
         const lchar_t *map, lchar_t delim, ptrdiff_t m)
+#if defined(__LUB_DEFINITIONS__)
 {   if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0) || LUB_PTR_ERR(map, 0))
       return LUB_PTR_ERR(LUB_BAD_PTR, 0);
     if (!t || !s || !map || !delim) return (lchar_t *)NULL;
@@ -3331,10 +3336,14 @@ static inline lchar_t *llsnnreplace
     t[ti] = (lchar_t)0;
     return t;
 }
+#else
+    ;
+#endif // __LUB_DEFINITIONS__ for uusnnrepeat
 
 extern uchar_t *ulsnnreplace(
      uchar_t *t, size_t tn, const lchar_t *s, size_t sn,
     const lchar_t *map, lchar_t delim, ptrdiff_t m)
+#if defined(__LUB_DEFINITIONS__)
 {   if (!t || !s || !map || !delim) return (uchar_t *)NULL;
     if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
     if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
@@ -3471,10 +3480,14 @@ extern uchar_t *ulsnnreplace(
     t[ti] = (uchar_t)0;
     return t;
 }
+#else
+    ;
+#endif // __LUB_DEFINITIONS__ for uusnnrepeat
 
 extern uchar_t *uusnnreplace(
-     uchar_t *t, size_t tn, const uchar_t *s, size_t sn, const lchar_t *st,
+    uchar_t *t, size_t tn, const uchar_t *s, size_t sn, const lchar_t *st,
     const uchar_t *map, uchar_t delim, ptrdiff_t m)
+#if defined(__LUB_DEFINITIONS__)
 {   if (!t || !s || !map || !delim) return (uchar_t *)NULL;
     if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
     if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
@@ -3610,6 +3623,9 @@ extern uchar_t *uusnnreplace(
     t[ti] = (uchar_t)0;
     return t;
 }
+#else
+    ;
+#endif // __LUB_DEFINITIONS__
 
 // Replace case-insensitive.
 extern lchar_t *llsnnREPLACE(
@@ -3758,12 +3774,14 @@ extern lchar_t *llsnnREPLACE(
 }
 #else
     ;
-#endif // __LUB_DEFINITIONS__ for llsnnREPLACE.
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *ulsnnREPLACE(
-     uchar_t *t, size_t tn, const uchar_t *s, const lchar_t *map, lchar_t delim, size_t n,
-    ptrdiff_t m) {
-    if (!t || !s || !map || !delim) return (uchar_t *)NULL;
+     uchar_t *t, size_t tn, const uchar_t *s,
+     const lchar_t *map, lchar_t delim, size_t n,
+     ptrdiff_t m)
+#if defined(__LUB_DEFINITIONS__)
+{   if (!t || !s || !map || !delim) return (uchar_t *)NULL;
     if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
     if (n > LUB_MAX_USTRLEN) n = LUB_MAX_USTRLEN;
 
@@ -3902,11 +3920,15 @@ extern uchar_t *ulsnnREPLACE(
     t[ti] = (uchar_t)0;
     return t;
 }
+#else
+    ;
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *uusnnREPLACE(
      uchar_t *t, size_t tn, const uchar_t *s, size_t sn, const lchar_t *st,
-    const uchar_t *map, uchar_t delim, ptrdiff_t m) {
-    if (!t || !s || !map || !delim) return (uchar_t *)NULL;
+    const uchar_t *map, uchar_t delim, ptrdiff_t m)
+#if defined(__LUB_DEFINITIONS__)
+{   if (!t || !s || !map || !delim) return (uchar_t *)NULL;
     if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
     if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
 
@@ -4039,6 +4061,9 @@ extern uchar_t *uusnnREPLACE(
     t[ti] = (uchar_t)0;
     return t;
 }
+#else
+    ;
+#endif // __LUB_DEFINITIONS__
 /** @} */
 
 /**
@@ -4072,14 +4097,21 @@ extern int llsnvprintf(lchar_t *t, size_t tn, const lchar_t *fmt, va_list ap)
     }
     return rc;
 }
+#else
+    ;
+#endif // __LUB_DEFINITIONS__
 
-extern int llsnprintf(lchar_t *t, size_t tn, const lchar_t *fmt, ...) {
-    va_list ap;
+extern int llsnprintf(lchar_t *t, size_t tn, const lchar_t *fmt, ...)
+#if defined(__LUB_DEFINITIONS__)
+{   va_list ap;
     va_start(ap, fmt);
     int rc = llsnvprintf(t, tn, fmt, ap);
     va_end(ap);
     return rc;
 }
+#else
+    ;
+#endif // __LUB_DEFINITIONS__
 /** @} */
 
  /**
@@ -4129,6 +4161,8 @@ extern int llsnprintf(lchar_t *t, size_t tn, const lchar_t *fmt, ...) {
     return c1 < c2 ? \
            LUB_CMP_LESS_THAN : LUB_CMP_GREATER_THAN; \  
 }
+#else
+    ;
 #endif // __LUB_DEFINITIONS__
 
 // compare case-sensitive.
@@ -4219,10 +4253,6 @@ extern int uusnCMP(const uchar_t *s1, const uchar_t *s2, size_t n)
                       (wint_t)towupper((wint_t)(unsigned short)(*s2)))
 #else
     ;
-#endif // __LUB_DEFINITIONS__
-
-#if defined(__LUB_DEFINITIONS__)
-#undef __LUB_OP_HELPER__
 #endif // __LUB_DEFINITIONS__
 
 /**
@@ -4378,10 +4408,6 @@ extern int uusnFXDCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
 #else
     ;
 #endif // __LUB_DEFINITIONS__
-
-#if defined(__LUB_DEFINITIONS__)
-#undef __LUB_OP_HELPER__
-#endif // __LUB_DEFINITIONS__
 /** @} */
 
 /**
@@ -4525,10 +4551,6 @@ extern int uusnPFXCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
                      (wint_t)towupper((wint_t)(unsigned short)(*s2)))
 #else
     ;
-#endif // __LUB_DEFINITIONS__
-
-#if defined(__LUB_DEFINITIONS__)
-#undef __LUB_OP_HELPER__
 #endif // __LUB_DEFINITIONS__
 
 /** @} */
@@ -4676,11 +4698,6 @@ extern int uusnSFXCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
 #else
     ;
 #endif // __LUB_DEFINITIONS__
-
-#if defined(__LUB_DEFINITIONS__)
-#undef __LUB_OP_HELPER__
-#endif // __LUB_DEFINITIONS__
-/** @} */
 
 /**
  * @defgroup StringSearch String Search
