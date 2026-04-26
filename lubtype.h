@@ -62,7 +62,7 @@ extern "C" {
        "by this include. After including, define again as needed."
 #endif // defined macros
 
-#if defined(__LUB_STRINGIFY2__) || defined(__LUB_STRINGIFY__) || \2
+#if defined(__LUB_STRINGIFY2__) || defined(__LUB_STRINGIFY__) || \
     defined(__LUB_STATIC_ASSERT__)
 #error "lubtype.h: A __LUB_STRINGIFY2__, __LUB_STRINGIFY__, " \
        "or __LUB_STATIC_ASSERT__ macro is unexpectedly already defined. " \
@@ -224,11 +224,11 @@ __LUB_STATIC_ASSERT__(LUB_VERSION_NUM < 100000000, version_num_reasonable);
 __LUB_STATIC_ASSERT__(sizeof(size_t) == 4 ||
                       sizeof(size_t) == 8,
                       sixe_t_must_be_4_or_8_bytes);
-__LUB_STATIC_ASSERT__(sizeof(intptr_t) == sizeof(intptr),
+__LUB_STATIC_ASSERT__(sizeof(intptr_t) == sizeof(size_t),
                        intptr_t_bytes_must_be_same_as_size_t bytes);
 __LUB_STATIC_ASSERT__(sizeof(short) == 2, short_must_be_2_bytes);
-__LUB_STATIC_ASSERT__(sizeof(int) == 4, int_must_4_bytes);
-__LUB_STATIC_ASSERT__(sizeof(wchar_t) == 4, wchar_t_must_4_bytes);
+__LUB_STATIC_ASSERT__(sizeof(int) == 4, int_must_be_4_bytes);
+__LUB_STATIC_ASSERT__(sizeof(wchar_t) == 4, wchar_t_must_be_4_bytes);
 #endif // __LUB_DEFINITIONS__
 
 /**
