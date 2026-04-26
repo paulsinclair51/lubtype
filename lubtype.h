@@ -71,21 +71,21 @@ extern "C" {
        "by this include. After including, define again as needed."
 #endif // defined macros
 
-#define __LUB_PASTE2__(a, b) a##b
-#define __LUB_PASTE__(a, b) __LUB_PASTE2__(a, b)
-#define __LUB_STRINGIFY2__(x) #x
-#define __LUB_STRINGIFY__(x) __LUB_STRINGIFY2__(x)
+#define __LUB_PASTE__(a, b) a##b
+#define __LUB_XPASTE__(a, b) __LUB_PASTE__(a, b)
+#define __LUB_STRINGIFY__(x) #x
+#define __LUB_XSTRINGIFY__(x) __LUB_STRINGIFY__(x)
 
 // STATIC_ASSERT
 //
 // Usage:
-//   LUB_STATIC_ASSERT(sizeof(int) == 4, int_must_be_4_bytes);
+//   __LUB_STATIC_ASSERT__(sizeof(int) == 4, int_must_be_4_bytes);
 //
 // Expands (C99 fallback) if true to:
-//   typedef char LUB_STATIC_ASSERT__int_must_be_4_bytes[1];
+//   typedef char __LUB_STATIC_ASSERT__int_must_be_4_bytes[1];
 //
 //  Or if false to:
-//    typedef char LUB_STATIC_ASSERT__int_must_be_4_bytes[-1];
+//    typedef char __LUB_STATIC_ASSERT__int_must_be_4_bytes[-1];
 //    that raises a compiler error.
 //
 #if defined(__LUB_STATIC_ASSERT__)
@@ -98,11 +98,11 @@ extern "C" {
 
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
     /* C11 and later: use the built‑in */
-    #define LUB_STATIC_ASSERT(cond, msg) _Static_assert(cond, #msg)
+    #define __LUB_STATIC_ASSERT__(cond, msg) _Static_assert(cond, #msg)
 #else
     /* C99 fallback: typedef with invalid negative array size */
     #define LUB_STATIC_ASSERT(cond, msg) \
-        typedef char __LUB_PASTE__(LUB_STATIC_ASSERT__, msg)[(cond) ? 1 : -1]
+        typedef char __LUB_XPASTE__(__LUB_STATIC_ASSERT__, msg)[(cond) ? 1 : -1]
 #endif // defined
 
 /**
@@ -178,9 +178,9 @@ extern "C" {
 
 // Library version string in "major.minor.patch" format.
 #define LUB_VERSION \
-    __LUB_STRINGIFY__(LUB_VERSION_MAJOR) "." \
-    __LUB_STRINGIFY__(LUB_VERSION_MINOR) "." \
-    __LUB_STRINGIFY__(LUB_VERSION_PATCH)
+    __LUB_XSTRINGIFY__(LUB_VERSION_MAJOR) "." \
+    __LUB_XSTRINGIFY__(LUB_VERSION_MINOR) "." \
+    __LUB_XSTRINGIFY__(LUB_VERSION_PATCH)
 
 // Library version as an integer for comparisons.
 #define LUB_VERSION_NUM \
@@ -223,9 +223,9 @@ __LUB_STATIC_ASSERT__(LUB_VERSION_NUM < 100000000, version_num_reasonable);
 // wchar_t is 4 bytes.
 __LUB_STATIC_ASSERT__(sizeof(size_t) == 4 ||
                       sizeof(size_t) == 8,
-                      sixe_t_must_be_4_or_8_bytes);
+                      size_t_must_be_4_or_8_bytes);
 __LUB_STATIC_ASSERT__(sizeof(intptr_t) == sizeof(size_t),
-                       intptr_t_bytes_must_be_same_as_size_t bytes);
+                      intptr_t_bytes_must_be_same_as_size_t_bytes);
 __LUB_STATIC_ASSERT__(sizeof(short) == 2, short_must_be_2_bytes);
 __LUB_STATIC_ASSERT__(sizeof(int) == 4, int_must_be_4_bytes);
 __LUB_STATIC_ASSERT__(sizeof(wchar_t) == 4, wchar_t_must_be_4_bytes);
