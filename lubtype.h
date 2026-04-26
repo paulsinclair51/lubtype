@@ -549,7 +549,7 @@ typedef uint8_t byte_t;
  * 
  *    <case> = case, lower, upper
  *
- *.   Note: case indicates case-preserving transform.
+ *    Note: case indicates case-preserving transform.
  *
  *    Examples: ultoupper, lutolower, lutocase
  *
@@ -607,7 +607,7 @@ typedef uint8_t byte_t;
  *     cpyq/cpyqc/CPYQC = copy to target with quoting.
  *     cpyqname/cpyqnamec/CPYQNAMEC = copy to target with quoting
  *                                    for a name (maximum length of source
- *.                                   is implicitly bounded to 128).
+ *                                    is implicitly bounded to 128).
  * 
  *     trim/reverse/pad = copy modified string to target.
  *     replace/REPLACE = character/string replacement.
@@ -670,7 +670,7 @@ typedef uint8_t byte_t;
  *           and operation. If sn is omitted in a function declaration,
  *           the source is bounded by LUB_MAX_UQNAMELEN.
  *           Note sn is required if the source is a byte string (*byte_t)
- *.          and specifies the length of th source.
+ *           and specifies the length of th source.
  * 
  * @param trunc Pointer to a string that specifies how to handle truncation
  *              when the result would otherwise exceed the
@@ -703,7 +703,7 @@ typedef uint8_t byte_t;
  *             Truncated replacement string:
  * 
  *             - May be a 0-length string.
- *.            - If this string is longer than the target buffer size (tn),
+ *             - If this string is longer than the target buffer size (tn),
  *.              a 0-length string is used instaead.
  *
  *.            If a result is truncated, error LUB_TRUNCATED is
@@ -836,7 +836,7 @@ static inline int isuhexdigit(const uchar_t c)
  /** @} */
 
  /**
- * @defgroup Preserve/UpperLowerCaseConversion Preserve/Upper/Lower Case Conversion
+ * @defgroup PreserveUpperLowerCaseConversion Preserve/Upper/Lower Case Conversion
  * @name lltocase, lutocase, ultocase, uutocase
  *       lltoupper, lutoupper, ultoupper, uutoupper
  *       lltolower, lutolower, ultolower, uutolower
@@ -934,7 +934,7 @@ static inline int ilhexdigit(const lchar_t c)
  */
 
 extern size_t lcsnlen(const lchar_t *s, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (!s) return (int)0;
     if (LUB_PTR_ERR(s, 0)) return LUB_SIZE_ERR(LUB_BAD_PTR, 0);
     if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
@@ -948,7 +948,7 @@ extern size_t lcsnlen(const lchar_t *s, size_t sn)
 #endif
 
 extern size_t ucsnlen(const uchar_t *s, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (!s) return (int)0;
     if (LUB_PTR_ERR(s, 0)) return LUB_SIZE_ERR(LUB_BAD_PTR, 0);
     if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
@@ -959,7 +959,7 @@ extern size_t ucsnlen(const uchar_t *s, size_t sn)
 }
 #else
     ;
-#endif
+#endif // __LUB_DEFINITIONS__
 
 /**
  * @defgroup StringClassification String Classification
@@ -999,7 +999,7 @@ extern size_t ucsnlen(const uchar_t *s, size_t sn)
  */
 
 extern int isuRESERVED(const uchar_t *s)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (!s || !*s) return (int)0;
     if (LUB_PTR_ERR(s, 0)) return (int)0;
 
@@ -1113,10 +1113,10 @@ extern int isuRESERVED(const uchar_t *s)
 }
 #else
     ;
-#endif
+#endif // __LUB_DEFINITIONS__
 
 extern int isuQNAME(const uchar_t *s)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (LUB_PTR_ERR(s, 0)) return LUB_INT_ERR(LUB_BAD_PTR, 0);
     size_t len = ucsnlen(s, LUB_MAX_UNAMELEN);
     if (LUB_SIZE_ERR(len, 0)) return LUB_INT_ERR(len, 0);
@@ -1141,7 +1141,7 @@ extern int isuQNAME(const uchar_t *s)
 #endif
 
 extern int isltruncstr(const lchar_t *s)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (LUB_PTR_ERR(s, 0))
       return LUB_INT_ERR(LUB_BAD_PTR, 0);
     size_t len = lcsnlen(s, LUB_MAX_LOPTLEN);
@@ -1152,11 +1152,11 @@ extern int isltruncstr(const lchar_t *s)
 }
 #else
     ;
-#endif
+#endif // __LUB_DEFINITIONS__
 
 // Hex digit string classification.
 extern int islnhexdigits(const lchar_t *s, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (!s) return (int)1;
     if (LUB_PTR_ERR(s, 0)) return LUB_INT_ERR(LUB_BAD_PTR, 0);
     if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
@@ -1166,10 +1166,10 @@ extern int islnhexdigits(const lchar_t *s, size_t sn)
 }
 #else
     ;
-#endif
+#endif // __LUB_DEFINITIONS__
 
 extern int isunhexdigits(const uchar_t *s, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (!s) return (int)1;
     if (LUB_PTR_ERR(s, 0)) return LUB_INT_ERR(LUB_BAD_PTR, 0);
     if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
@@ -1179,7 +1179,7 @@ extern int isunhexdigits(const uchar_t *s, size_t sn)
 }
 #else
     ;
-#endif
+#endif // __LUB_DEFINITIONS__
 /** @} */
 
 /**
@@ -1240,7 +1240,7 @@ extern int isunhexdigits(const uchar_t *s, size_t sn)
 
 // Concatenate/copy function and macro helpers.
 
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 
 static inline void __t_set__
     (char xt, const void *t, const size_t t_len,
@@ -1444,7 +1444,7 @@ static void *__target_source_helper__
        "already defined. #undef before including lubtype.h. " \
        "This macro is undefined after its last use " \
        "by the include. After including, define again as needed."
-#endif
+#endif // __LUB_OP_HELPER__
 
 #define __LUB_OP_HELPER__(cat, xt, xs, Quote, Name, Case, \
                           t_xchar_t, t_max_xstrlen, t_xscnlen, \
@@ -1495,307 +1495,307 @@ extern lchar_t *lusnncat(lchar_t *t, size_t tn,
                       LUB_MAX_USTRLEN, ucsnlen, err_c)
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *ulsnncat(uchar_t *t, size_t tn,
                          lchar_t *s, size_t sn,
                          const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'u', 'l', (lchar_t)'\0', '\0', '\0',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *uusnncat(uchar_t *t, size_t tn,
                          uchar_t *s, size_t sn,
                          const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'u', 'u', (lchar_t)'\0', '\0', '\0',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Concatenate lowercase.
 
 extern lchar_t *llsnncatc(lchar_t *t, size_t tn,
                           lchar_t *s, size_t sn,
                           const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'l', 'l', (lchar_t)'\0', '\0', 'c',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern lchar_t *lusnncatc(lchar_t *t, size_t tn,
                           uchar_t *s, size_t sn,
                           const lchar_t *st,
                           const lchar_t err_c)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'u', 'l', (lchar_t)'\0', '\0', 'c',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, err_c)
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *ulsnncatc(uchar_t *t, size_t tn,
                           lchar_t *s, size_t sn,
                           const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'u', 'l', (lchar_t)'\0', '\0', 'c',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *uusnncatc(uchar_t *t, size_t tn,
                           uchar_t *s, size_t sn,
                           const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'u', 'u', (lchar_t)'\0', '\0', 'c',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Concatenate uppercase.
 
 extern lchar_t *llsnnCATC(lchar_t *t, size_t tn,
                           lchar_t *s, size_t sn,
                           const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'l', 'l', (lchar_t)'\0', '\0', 'C',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern lchar_t *lusnnCATC(lchar_t *t, size_t tn,
                           uchar_t *s, size_t sn,
                           const lchar_t *st,
                           const lchar_t err_c)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'l', 'u', (lchar_t)'\0', '\0', 'C',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, err_c)
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *ulsnnCATC(uchar_t *t, size_t tn,
                           lchar_t *s, size_t sn,
                           const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'u', 'l', (lchar_t)'\0', '\0', 'C',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *uusnnCATC(uchar_t *t, size_t tn,
                           const uchar_t *s, size_t sn,
                           const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'u', 'u', (lchar_t)'\0', '\0', 'C',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Concatenate quoted case-preserving.
 
 extern lchar_t *llsnncatq(lchar_t *t, size_t tn,
                           const lchar_t *s, size_t sn,
                           const lchar_t *st, lchar_t q)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'l', 'l', q, '\0', '\0',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern lchar_t *lusnncatq(lchar_t *t, size_t tn,
                           const uchar_t *s, size_t sn,
                           const lchar_t *st, lchar_t q,
                           const lchar_t err_c)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'l', 'u', q, '\0', '\0',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, err_c)
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *ulsnncatq(uchar_t *t, size_t tn,
                           const lchar_t *s, size_t sn,
                           const lchar_t *st, lchar_t q)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'u', 'l', q, '\0', '\0',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *uusnncatq(uchar_t *t, size_t tn,
                           const uchar_t *s, size_t sn,
                           const lchar_t *st, lchar_t q)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'u', 'u', q, '\0', '\0',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Concatenate quoted lowercase.
 
 extern lchar_t *llsnncatqc(lchar_t *t, size_t tn,
                            const lchar_t *s, size_t sn,
                            const lchar_t *st, lchar_t q)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'l', 'l',  q, '\0', '\0',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern lchar_t *lusnncatqc(lchar_t *t, size_t tn,
                            const uchar_t *s, size_t sn,
                            const lchar_t *st, lchar_t q,
                            const lchar_t err_c)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'l', 'u',  q, '\0', '\0',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, err_c)
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *ulsnncatqc(uchar_t *t, size_t tn,
                            const lchar_t *s, size_t sn,
                            const lchar_t *st, lchar_t q)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'u', 'l',  q, '\0', '\0',
                       uchar_t, LUB_MAX_USTRLEN, lcsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *uusnncatqc(uchar_t *t, size_t tn,
                            const uchar_t *s, size_t sn,
                            const lchar_t *st, lchar_t q)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'u', 'u',  q, '\0', '\0',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Concatenate quoted uppercase.
 
 extern lchar_t *llsnnCATQC(lchar_t *t, size_t tn,
                            const lchar_t *s, size_t sn,
                            const lchar_t *st, lchar_t q)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'l', 'l',  q, '\0', 'C',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern lchar_t *lusnnCATQC(lchar_t *t, size_t tn,
                            const uchar_t *s, size_t sn,
                            const lchar_t *st, lchar_t q,
                            const lchar_t err_c)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'l', 'u',  q, '\0', 'C',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, err_c)
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *ulsnnCATQC(uchar_t *t, size_t tn,
                            const lchar_t *s, size_t sn,
                            const lchar_t *st, lchar_t q)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'u', 'l',  q, '\0', 'C',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *uusnnCATQC(uchar_t *t, size_t tn,
                            const uchar_t *s, size_t sn,
                            const lchar_t *st, lchar_t q)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'u', 'u',  q, '\0', 'C',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Concatenate name case-preserving.
 
 extern uchar_t *uusncatname(uchar_t *t, size_t tn,
                             const uchar_t *s,
                             lchar_t q, const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'u', 'u', q, 'N', '\0',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Concatenate name lowercase.
 
 extern uchar_t *uusncatnamec(uchar_t *t, size_t tn,
                              const uchar_t *s,
                              lchar_t q, const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'u', 'u', q, 'N', 'c',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Concatenate name uppercase.
 
 extern uchar_t *uusnCATNAMEC(uchar_t *t, size_t tn,
                              const uchar_t *s,
                              lchar_t q, const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(1, 'u', 'u', q, 'N', 'C',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Concatenate hex digit characters <- bytes function helpers.
 
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 static lchar_t __lbtohexdigit__
   (const byte_t b, int shift, const uint8_t Case)
 {   if (shift) shift = 4;
@@ -1842,47 +1842,47 @@ static uchar_t *__ubsnncatc__(uchar_t *t, size_t tn,
     *t = (uchar_t)0;
     return t;
 }
-#endif // LUB_DEFINITIONS.
+#endif // __LUB_DEFINITIONS__.
 
 // Concatenate hex digit characters (lowercase) <- bytes.
 
 extern lchar_t *lbsnncatc(lchar_t *t, size_t tn,
                           const byte_t *s, size_t sn,
                           const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     {return __lbsnncatc__(t, tn, s, sn, st, -1);}
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *ubsnncatc(uchar_t *t, size_t tn,
                           const byte_t *s, size_t sn,
                           const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     {return __ubsnncatc__(t, tn, s, sn, st, -1);}
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Concatenate hex digit characters (uppercase) <- bytes.
 
 extern lchar_t *lbsnnCATC(lchar_t *t, size_t tn,
                           const byte_t *s, size_t sn,
                           const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     {return __lbsnncatc__(t, tn, s, sn, st, 1);}
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *ubsnnCATC(uchar_t *t, size_t tn,
                           const byte_t *s, size_t sn,
                           const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     {return __ubsnncatc__(t, tn, s, sn, st, 1);}
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 /** @} */
 
 /**
@@ -1952,316 +1952,316 @@ extern uchar_t *ubsnnCATC(uchar_t *t, size_t tn,
 
 extern lchar_t *llsnncpy(lchar_t *t, size_t tn, const lchar_t *s, size_t sn,
                                 const lchar_t *st)
-#if defined(LUB_DEFINITIONS)                              
+#if defined(__LUB_DEFINITIONS__)                              
     __LUB_OP_HELPER__(0, 'l', 'l', (lchar_t)'\0', '\0', '\0',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern lchar_t *lusnncpy(lchar_t *t, size_t tn,  uchar_t *s, size_t sn,
                                 const lchar_t *st, const lchar_t err_c)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'l', 'u', (lchar_t)'\0', '\0', '\0',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, err_c)
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *ulsnncpy(uchar_t *t, size_t tn, lchar_t *s, size_t sn,
                                  const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'u', 'l', (lchar_t)'\0', '\0', '\0',
                       lchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *uusnncpy(uchar_t *t, size_t tn,  uchar_t *s, size_t sn,
                                  const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'u', 'u', (lchar_t)'\0', '\0', '\0',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Copy lowercase.
 
 extern lchar_t *llsnncpyc(lchar_t *t, size_t tn,
                           const lchar_t *s, size_t sn,
                           const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'l', 'l', (lchar_t)'\0', '\0', 'c',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern lchar_t *lusnncpyc(lchar_t *t, size_t tn,
                           uchar_t *s, size_t sn,
                           const lchar_t *st, const lchar_t err_c)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'l', 'u', (lchar_t)'\0', '\0', 'c',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, err_c)
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *ulsnncpyc(uchar_t *t, size_t tn,
                           lchar_t *s, size_t sn,
                           const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'u', 'l', (lchar_t)'\0', '\0', 'c',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *uusnncpyc(uchar_t *t, size_t tn,
                           uchar_t *s, size_t sn,
                                  const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'u', 'u', (lchar_t)'\0', '\0', 'c',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Copy uppercase.
 
 extern lchar_t *llsnnCPYC(lchar_t *t, size_t tn,
                                  const lchar_t *s, size_t sn,
                                  const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'l', 'l', (lchar_t)'\0', '\0', 'C',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern lchar_t *lusnnCPYC(lchar_t *t, size_t tn, uchar_t *s, size_t sn,
                                  const lchar_t *st, const lchar_t err_c)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'l', 'u', (lchar_t)'\0', '\0', 'C',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, err_c)
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *ulsnnCPYC(uchar_t *t, size_t tn, uchar_t *s, size_t sn,
                                  const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'u', 'l', (lchar_t)'\0', '\0', 'C',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *uusnnCPYC(uchar_t *t, size_t tn,  uchar_t *s, size_t sn,
                                   const lchar_t *st)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'u', 'u', (lchar_t)'\0', '\0', 'C',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Copy quoted case-preserving.
 
 extern lchar_t *llsnncpyq(lchar_t *t, size_t tn,
                           const lchar_t *s, size_t sn,
                           const lchar_t *st, const lchar_t q)
-#if defined(LUB_DEFINITIONS)                              
+#if defined(__LUB_DEFINITIONS__)                              
     __LUB_OP_HELPER__(0, 'l', 'l', q, '\0', '\0',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern lchar_t *lusnncpyq(lchar_t *t, size_t tn,
                           const uchar_t *s, size_t sn,
                           const lchar_t *st, const lchar_t q,
                           const lchar_t err_c)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'l', 'u', q, '\0', '\0',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, err_c)
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *ulsnncpyq(uchar_t *t, size_t tn,
                           const lchar_t *s, size_t sn,
                           const lchar_t *st, const lchar_t q)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'u', 'l', q, '\0', '\0',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *uusnncpyq(uchar_t *t, size_t tn,
                           const uchar_t *s, size_t sn,
                           const lchar_t *st, const lchar_t q)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'u', 'u', q, '\0', '\0',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Copy quoted lowercase.
 
 extern lchar_t *llsnncpyqc(lchar_t *t, size_t tn,
                            const lchar_t *s, size_t sn,
                            const lchar_t *st, const lchar_t q)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'l', 'l', q, '\0', 'c',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern lchar_t *lusnncpyqc(lchar_t *t, size_t tn,
                            const uchar_t *s, size_t sn,
                            const lchar_t *st, const lchar_t q,
                            const lchar_t err_c)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'l', 'u', q, '\0', 'c',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, err_c)
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *ulsnncpyqc(uchar_t *t, size_t tn,
                            const lchar_t *s, size_t sn,
                            const lchar_t *st, const lchar_t q)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'u', 'l', q, '\0', 'c',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *uusnncpyqc(uchar_t *t, size_t tn,
                            const uchar_t *s, size_t sn,
                            const lchar_t *st, const lchar_t q)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'u', 'u', q, '\0', 'c',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Copy quoted uppercase.
 
 extern lchar_t *llsnnCPYQC(lchar_t *t, size_t tn,
                            const lchar_t *s, size_t sn,
                            const lchar_t *st, const lchar_t q)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'l', 'l', q, '\0', 'C',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern lchar_t *lusnnCPYQC(lchar_t *t, size_t tn,
                            const uchar_t *s, size_t sn,
                            const lchar_t *st, const lchar_t q,
                            const lchar_t err_c)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'l', 'u', q, '\0', 'C',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, err_c)
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *ulsnnCPYQC(uchar_t *t, size_t tn,
                            const lchar_t *s, size_t sn,
                            const lchar_t *st, const lchar_t q)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'u', 'l', q, '\0', 'C',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *uusnnCPYQC(uchar_t *t, size_t tn,
                            const uchar_t *s, size_t sn,
                            const lchar_t *st, const lchar_t q)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'u', 'u', q, '\0', 'C',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Copy quoted/unquoted name case-preserving.
 
 extern uchar_t *uusncpyname(uchar_t *t, size_t tn,
                             const uchar_t *s, // sn defaults to LUB_MAX_UNAMELEN
                             const lchar_t *st, const lchar_t q)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'u', 'u', q, 'N', '\0',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Copy quoted/unquoted name lowercase.
 
 extern uchar_t *uusncpynamec(uchar_t *t, size_t tn,
                              const uchar_t *s, // sn defaults to LUB_MAX_UNAMELEN
                              const lchar_t *st, const lchar_t q)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'u', 'u', q, 'N', 'c',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Copy quoted/unquoted name uppercase.
 
 extern uchar_t *uusnCPYNAMEC(uchar_t *t, size_t tn,
                              const uchar_t *s, // sn defaults to LUB_MAX_UNAMELEN
                              const lchar_t *st, const lchar_t q)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(0, 'u', 'u', q, 'N', 'C',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, (lchar_t)'\0')
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 #undef __LUB_OP_HELPER__  // For concatenate/copy functions.
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Copy hex digit characters lowercase <- bytes.
 
@@ -2302,7 +2302,7 @@ static inline  uchar_t *ubsnnCPYC(uchar_t *t, size_t tn,
 // Copy bytes <- hex digit characters.
 
 extern byte_t *blsnncpy(byte_t *t, size_t tn, const lchar_t *s, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0))
       return (byte_t *)LUB_PTR_ERR(LUB_BAD_PTR, 0); 
     if (!t || !s) return t;
@@ -2319,10 +2319,10 @@ extern byte_t *blsnncpy(byte_t *t, size_t tn, const lchar_t *s, size_t sn)
 }
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern byte_t *busnncpy(byte_t *t, size_t tn, const uchar_t *s)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0))
       return (byte_t *)LUB_PTR_ERR(LUB_BAD_PTR, 0); 
     if (!t || !s) return t;
@@ -2340,12 +2340,12 @@ extern byte_t *busnncpy(byte_t *t, size_t tn, const uchar_t *s)
 }
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Copy bytes <- bytes.
 
 extern byte_t *bbsnncpy(byte_t *t, size_t tn, const byte_t *s, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (!t) return (byte_t *)NULL;
     if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0))
       return (byte_t *)LUB_PTR_ERR(LUB_BAD_PTR, 0);
@@ -2428,7 +2428,7 @@ extern byte_t *bbsnncpy(byte_t *t, size_t tn, const byte_t *s, size_t sn)
  * @{
  */
 
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 
 #if defined(__LUB_TRIM_LEFT_MODE__) || \
     defined(__LUB_TRIM_RIGHT_MODE__)
@@ -2477,7 +2477,7 @@ extern byte_t *bbsnncpy(byte_t *t, size_t tn, const byte_t *s, size_t sn)
         return t; \
     }
 
-#endif // LUB_DEFINITIONS for trim mode macros.
+#endif // __LUB_DEFINITIONS__ for trim mode macros.
 
 // Trim (case-preserving).
 extern lchar_t *llsnntrim
@@ -2485,12 +2485,12 @@ extern lchar_t *llsnntrim
      const lchar_t *s, size_t sn, const lchar_t st,
      const lchar_t *trimset, const char trim, const lchar_t delim
     )
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(lchar_t, lchar_t,
                       LUB_MAX_LSTRLEN, lcsnlen, islspace, )
 #else
 ;
-#endif // LUB_DEFINITIONS for llsntrim.
+#endif // __LUB_DEFINITIONS__ for llsntrim.
 
 extern uchar_t *lusnntrim
     (lchar_t *t, size_t tn,
@@ -2498,41 +2498,41 @@ extern uchar_t *lusnntrim
      const lchar_t *trimset, const char trim, const lchar_t delim,
      const lchar_t err_c
     )
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(lchar_t, uchar_t,
                       LUB_MAX_LSTRLEN, ucsnlen, isuspace, (lchar_t))
 #else
 ;
-#endif // LUB_DEFINITIONS for lusnntrim.
+#endif // __LUB_DEFINITIONS__ for lusnntrim.
 
 extern uchar_t *ulsnntrim
     (uchar_t *t, size_t tn,
      const lchar_t *s, size_t sn, const lchar_t st,
      const lchar_t *trimset, const char trim, const uchar_t delim
     )
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(uchar_t, lchar_t,
                       LUB_MAX_USTRLEN, lcsnlen, islspace, (uchar_t))
 #else
 ;
-#endif // LUB_DEFINITIONS for ulsnnbtrim.
+#endif // __LUB_DEFINITIONS__ for ulsnnbtrim.
 
 extern uchar_t *uusnntrim
     (uchar_t *t, size_t tn, const uchar_t *s, size_t sn,
      const lchar_t st,
      const uchar_t *trimset, const char trim, const uchar_t delim, 
     )
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(uchar_t, uchar_t,
                       LUB_MAX_USTRLEN, ucsnlen, isuspace, )
 #else
 ;
-#endif // LUB_DEFINITIONS for uusnntrim.
+#endif // __LUB_DEFINITIONS__ for uusnntrim.
 /** @} */
 
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 #undef __LUB_OP_HELPER__  // For trim functions.
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 /**
  * @defgroup PointerTrim Pointer Trim
@@ -2566,7 +2566,7 @@ extern uchar_t *uusnntrim
 extern const lchar_t *llsnptrim(const lchar_t *s, size_t sn,
                         size_t *const trimlen,
                         const char trim, const char *trimset)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (LUB_PTR_ERR(s, 0) || LUB_PTR_ERR(trimset, 0))
       return LUB_PTR_ERR(LUB_BAD_PTR, 0);
     if (!trimlen) return (lchar_t *)NULL;
@@ -2601,11 +2601,11 @@ extern const lchar_t *llsnptrim(const lchar_t *s, size_t sn,
 }
 #else
     ;
-#endif // LUB_DEFINITIONS for llsptrim.
+#endif // __LUB_DEFINITIONS__ for llsptrim.
 extern const uchar_t *uunptrim(const uchar_t *s,  size_t sn,
                                size_t *const trimlen,
                                const char trim, const uchar_t *trimset)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {
         if (!trimlen) return (uchar_t *)NULL;
         *trimlen = 0;
@@ -2639,13 +2639,13 @@ extern const uchar_t *uunptrim(const uchar_t *s,  size_t sn,
 }
 #else
     ;
-#endif // LUB_DEFINITIONS for uunptrim.
+#endif // __LUB_DEFINITIONS__ for uunptrim.
 /** @} */
 
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 #undef __LUB_TRIM_LEFT_MODE__
 #undef __LUB_TRIM_RIGHT_MODE__
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 /**
  * @defgroup Reverse Reverse
@@ -2670,7 +2670,7 @@ extern const uchar_t *uunptrim(const uchar_t *s,  size_t sn,
  * @{
  */
 
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 #undef __LUB_OP_HELPER__
 #define __LUB_OP_HELPER__(t_t, s_t, xxslen, LUB_MAX_xstrlen) \
 {   if (!t) return (t_t)NULL; \
@@ -2709,30 +2709,30 @@ extern const uchar_t *uunptrim(const uchar_t *s,  size_t sn,
     for (; len; len--)  *--t = *s++; \
     return t; \
 }
-#endif // LUB_DEFINITIONS for reverse macro helper.
+#endif // __LUB_DEFINITIONS__ for reverse macro helper.
 
 // Reverse.
 extern lchar_t *llsnnreverse(lchar_t *t, const lchar_t *s, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     {__LUB_OP_HELPER__(lchar_t *, const lchar_t *, lcsnlen, LUB_MAX_LSTRLEN)}
 #else
     ;
-#endif // LUB_DEFINITIONS for llsnnreverse.
+#endif // __LUB_DEFINITIONS__ for llsnnreverse.
 
 extern uchar_t *ulsnnreverse(uchar_t *t, const lchar_t *s, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     {__LUB_OP_HELPER__(uchar_t *, const lchar_t *, lcsnlen, LUB_MAX_LSTRLEN)}
 #else
     ;
-#endif // LUB_DEFINITIONS for ulsnnreverse.
+#endif // __LUB_DEFINITIONS__ for ulsnnreverse.
 
 extern uchar_t *uusnnreverse(uchar_t *t, const uchar_t *s, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     {__LUB_OP_HELPER__(uchar_t *, constuchar_t *, ucsnlen, LUB_MAX_USTRLEN)}
 #else
     ;
 #undef __LUB_OP_HELPER__
-#endif // LUB_DEFINITIONS for uusnnreverse.
+#endif // __LUB_DEFINITIONS__ for uusnnreverse.
 /** @} */
 
 /**
@@ -2765,7 +2765,7 @@ extern uchar_t *uusnnreverse(uchar_t *t, const uchar_t *s, size_t sn)
 // Pad.
 extern lchar_t *llsnnpad(lchar_t *t, size_t tn, const lchar_t *s, size_t sn,
                              char pad, lchar_t pad_c)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0))
       return LUB_PTR_ERR(LUB_BAD_PTR, 0);
     if (!t || !s) return (lchar_t *)NULL;
@@ -2800,11 +2800,11 @@ extern lchar_t *llsnnpad(lchar_t *t, size_t tn, const lchar_t *s, size_t sn,
 }
 #else
 ;
-#endif // LUB_DEFINITIONS for llsnnpad.
+#endif // __LUB_DEFINITIONS__ for llsnnpad.
 
 extern uchar_t *ulsnnpad(uchar_t *t, size_t tn, const lchar_t *s, size_t sn,
                              char pad, uchar_t pad_c)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (!t || !s) return (uchar_t *)NULL;
     if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
     if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
@@ -2837,11 +2837,11 @@ extern uchar_t *ulsnnpad(uchar_t *t, size_t tn, const lchar_t *s, size_t sn,
 }
 #else
 ;
-#endif // LUB_DEFINITIONS for ulsnnpad.
+#endif // __LUB_DEFINITIONS__ for ulsnnpad.
 
 extern uchar_t *uusnnpad(uchar_t *t, size_t tn, const uchar_t *s, size_t sn,
                          char pad, uchar_t pad_c)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (!t || !s) return (uchar_t *)NULL;
     if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
     if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
@@ -2874,7 +2874,7 @@ extern uchar_t *uusnnpad(uchar_t *t, size_t tn, const uchar_t *s, size_t sn,
 }
 #else
 ;
-#endif // LUB_DEFINITIONS for uusnnpad.
+#endif // __LUB_DEFINITIONS__ for uusnnpad.
 /** @} */
 
 /**
@@ -2901,7 +2901,7 @@ extern uchar_t *uusnnpad(uchar_t *t, size_t tn, const uchar_t *s, size_t sn,
 
 extern lchar_t *llsnnrepeat(
     lchar_t *t, size_t tn, const lchar_t *s, size_t sn, size_t times)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (!t || !s) return (lchar_t *)NULL;
     if (tn > LUB_MAX_LSTRLEN) tn = LUB_MAX_LSTRLEN;
     if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
@@ -2935,7 +2935,7 @@ extern lchar_t *llsnnrepeat(
 
 extern uchar_t *ulsnnrepeat(
      uchar_t *t, size_t tn, const lchar_t *s, size_t sn, size_t times)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (!t || !s) return (uchar_t *)NULL;
     if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
     if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
@@ -2971,11 +2971,11 @@ extern uchar_t *ulsnnrepeat(
 }
 #else
     ;
-#endif // LUB_DEFINITIONS for ulsnnrepeat.
+#endif // __LUB_DEFINITIONS__ for ulsnnrepeat.
 
 extern uchar_t *uusnnrepeat(
      uchar_t *t, size_t tn, const uchar_t *s, size_t sn, size_t times)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (!t || !s) return (uchar_t *)NULL;
     if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
     if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
@@ -3011,11 +3011,11 @@ extern uchar_t *uusnnrepeat(
 }
 #else
     ;
-#endif // LUB_DEFINITIONS for uusnnrepeat.
+#endif // __LUB_DEFINITIONS__ for uusnnrepeat.
 
 extern uchar_t *uusnnrepeat(
      uchar_t *t, size_t tn, const uchar_t *s, size_t sn, size_t times)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {    t[tn] = (lchar_t)0; return (uchar_t *)NULL;
 
     if (times == 0) {
@@ -3040,11 +3040,11 @@ extern uchar_t *uusnnrepeat(
 }
 #else
     ;
-#endif // LUB_DEFINITIONS for uusnnrepeat.
+#endif // __LUB_DEFINITIONS__ for uusnnrepeat.
 
 extern uchar_t *ulsnnrepeat(
      uchar_t *t, size_t tn, const lchar_t *s, size_t sn, size_t times)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (!t || !s) return (uchar_t *)NULL;
     if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
     if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
@@ -3080,11 +3080,11 @@ extern uchar_t *ulsnnrepeat(
 }
 #else
     ;
-#endif // LUB_DEFINITIONS for ulsnnrepeat.
+#endif // __LUB_DEFINITIONS__ for ulsnnrepeat.
 
 extern uchar_t *uusnnrepeat(
      uchar_t *t, size_t tn, const uchar_t *s, size_t sn, size_t times)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (!t || !s) return (uchar_t *)NULL;
     if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
     if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
@@ -3120,7 +3120,7 @@ extern uchar_t *uusnnrepeat(
 }
 #else
     ;
-#endif // LUB_DEFINITIONS for uusnnrepeat.
+#endif // __LUB_DEFINITIONS__ for uusnnrepeat.
 /** @} */
 
 /**
@@ -3615,7 +3615,7 @@ extern uchar_t *uusnnreplace(
 extern lchar_t *llsnnREPLACE(
     lchar_t *t, size_t tn, const lchar_t *s, const lchar_t *map, lchar_t delim, size_t n,
     ptrdiff_t m)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0)) \
       return LUB_PTR_ERR(LUB_BAD_PTR, 0); \
     if (!t || !s || !map || !delim) return (lchar_t *)NULL;
@@ -3758,7 +3758,7 @@ extern lchar_t *llsnnREPLACE(
 }
 #else
     ;
-#endif // LUB_DEFINITIONS for llsnnREPLACE.
+#endif // __LUB_DEFINITIONS__ for llsnnREPLACE.
 
 extern uchar_t *ulsnnREPLACE(
      uchar_t *t, size_t tn, const uchar_t *s, const lchar_t *map, lchar_t delim, size_t n,
@@ -4100,7 +4100,7 @@ extern int llsnprintf(lchar_t *t, size_t tn, const lchar_t *fmt, ...) {
  * @{
  */
 
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 // Compare macro helper.
 #undef __LUB_OP_HELPER__
 #define __LUB_OP_HELPER__(s1_max_xstrlen, s2_max_xstrlen, \
@@ -4129,11 +4129,11 @@ extern int llsnprintf(lchar_t *t, size_t tn, const lchar_t *fmt, ...) {
     return c1 < c2 ? \
            LUB_CMP_LESS_THAN : LUB_CMP_GREATER_THAN; \  
 }
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // compare case-sensitive.
 extern int llsncmp(const lchar_t *s1, const lchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(LUB_MAX_LSTRLEN, LUB_MAX_LSTRLEN,
                       (wint_t)(unsigned char)(*s1),
                       (wint_t)(unsigned char)(*s2),
@@ -4141,10 +4141,10 @@ extern int llsncmp(const lchar_t *s1, const lchar_t *s2, size_t sn)
                       (wint_t)(unsigned char)(*s2))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int lusncmp(const lchar_t *s1, const uchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(LUB_MAX_LSTRLEN, LUB_MAX_USTRLEN,
                       (wint_t)(unsigned char)(*s1),
                       (wint_t)(unsigned short)(*s2),
@@ -4152,10 +4152,10 @@ extern int lusncmp(const lchar_t *s1, const uchar_t *s2, size_t sn)
                       (wint_t)(unsigned short)(*s2))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int ulsncmp(const uchar_t *s1, const lchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(LUB_MAX_USTRLEN, LUB_MAX_LSTRLEN,
                       (wint_t)(unsigned short)(*s1),
                       (wint_t)(unsigned char)(*s2),
@@ -4163,10 +4163,10 @@ extern int ulsncmp(const uchar_t *s1, const lchar_t *s2, size_t sn)
                       (wint_t)(unsigned char)(*s2))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int uusncmp(const uchar_t *s1, const uchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(LUB_MAX_USTRLEN, LUB_MAX_USTRLEN,
                       (wint_t)(unsigned short)(*s1),
                       (wint_t)(unsigned short)(*s2),
@@ -4174,11 +4174,11 @@ extern int uusncmp(const uchar_t *s1, const uchar_t *s2, size_t sn)
                       (wint_t)(unsigned short)(*s2))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // compare case-insensitive.
 extern int llsnCMP(const lchar_t *s1, const lchar_t *s2, size_t n)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(LUB_MAX_LSTRLEN, LUB_MAX_LSTRLEN,
                       (wint_t)(unsigned char)(*s1),
                       (wint_t)(unsigned short)(*s2),
@@ -4186,10 +4186,10 @@ extern int llsnCMP(const lchar_t *s1, const lchar_t *s2, size_t n)
                       (wint_t)towupper((wint_t)(unsigned short)(*s2)))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int lusnCMP(const lchar_t *s1, const uchar_t *s2, size_t n)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(LUB_MAX_LSTRLEN, LUB_MAX_USTRLEN,
                       (wint_t)(unsigned char)(*s1),
                       (wint_t)(unsigned short)(*s2),
@@ -4197,10 +4197,10 @@ extern int lusnCMP(const lchar_t *s1, const uchar_t *s2, size_t n)
                       (wint_t)towupper((wint_t)(unsigned short)(*s2)))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int ulsnCMP(const uchar_t *s1, const lchar_t *s2, size_t n)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(LUB_MAX_USTRLEN, LUB_MAX_LSTRLEN,
                       (wint_t)(unsigned char)(*s1),
                       (wint_t)(unsigned short)(*s2),
@@ -4208,10 +4208,10 @@ extern int ulsnCMP(const uchar_t *s1, const lchar_t *s2, size_t n)
                       (wint_t)toupper((int)(unsigned char)(*s2))))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int uusnCMP(const uchar_t *s1, const uchar_t *s2, size_t n)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(LUB_MAX_USTRLEN, LUB_MAX_USTRLEN,
                       (wint_t)(unsigned char)(*s1),
                       (wint_t)(unsigned short)(*s2),
@@ -4219,11 +4219,11 @@ extern int uusnCMP(const uchar_t *s1, const uchar_t *s2, size_t n)
                       (wint_t)towupper((wint_t)(unsigned short)(*s2)))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 #undef __LUB_OP_HELPER__
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 /**
  *TBD: byte to byte compare
@@ -4257,7 +4257,7 @@ extern int uusnCMP(const uchar_t *s1, const uchar_t *s2, size_t n)
  * @{
  */
 
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 // Fixed-length leading substring compare macro helper.
 #undef __LUB_OP_HELPER__
 #define __LUB_OP_HELPER__(max_xstrlen \
@@ -4288,11 +4288,11 @@ extern int uusnCMP(const uchar_t *s1, const uchar_t *s2, size_t n)
     return c1 < c2 ? \  
            LUB_CMP_LESS_THAN : LUB_CMP_GREATER_THAN; \                     
 }
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Fixed-length compare case-sensitive.
 extern int llsnfxdcmp(const lchar_t *s1, const lchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(LUB_MAX_LSTRLEN,
                       (wint_t)(unsigned char)(*s1),
                       (wint_t)(unsigned char)(*s2),
@@ -4300,10 +4300,10 @@ extern int llsnfxdcmp(const lchar_t *s1, const lchar_t *s2, size_t sn)
                       (wint_t)(unsigned char)(*s2))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int lusnfxdcmp(const lchar_t *s1, const uchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(LUB_MAX_USTRLEN,
                       (wint_t)(unsigned char)(*s1),
                       (wint_t)(unsigned short)(*s2),
@@ -4311,10 +4311,10 @@ extern int lusnfxdcmp(const lchar_t *s1, const uchar_t *s2, size_t sn)
                       (wint_t)(unsigned short)(*s2))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int ulsnfxdcmp(const uchar_t *s1, const lchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(LUB_MAX_USTRLEN,
                       (wint_t)(unsigned short)(*s1),
                       (wint_t)(unsigned char)(*s2),
@@ -4322,10 +4322,10 @@ extern int ulsnfxdcmp(const uchar_t *s1, const lchar_t *s2, size_t sn)
                       (wint_t)(unsigned char)(*s2))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int uusnfxdcmp(const uchar_t *s1, const uchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(LUB_MAX_USTRLEN,
                     (wint_t)(unsigned short)(*s1),
                       (wint_t)(unsigned short)(*s2),
@@ -4333,11 +4333,11 @@ extern int uusnfxdcmp(const uchar_t *s1, const uchar_t *s2, size_t sn)
                       (wint_t)(unsigned short)(*s2))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Fixed-length compare case-insensitive.
 extern int llsnFXDCMP(const lchar_t *s1, const lchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(LUB_MAX_LSTRLEN,
                       (wint_t)(unsigned char)(*s1),
                       (wint_t)(unsigned char)(*s2),
@@ -4345,10 +4345,10 @@ extern int llsnFXDCMP(const lchar_t *s1, const lchar_t *s2, size_t sn)
                       (wint_t)toupper((int)(unsigned char)(*s2))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int lusnFXDCMP(const lchar_t *s1, const uchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(LUB_MAX_USTRLEN,
                       (wint_t)(unsigned char)(*s1),
                       (wint_t)(unsigned short)(*s2),
@@ -4356,20 +4356,20 @@ extern int lusnFXDCMP(const lchar_t *s1, const uchar_t *s2, size_t sn)
                       (wint_t)towupper((wint_t)(unsigned short)(*s2)))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int ulsnFXDCMP(const uchar_t *s1, const lchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(LUB_MAX_USTRLEN,
                       (wint_t)(unsigned char)(*s2),
                       (wint_t)towupper((wint_t)(unsigned short)(*s1)),
                       (wint_t)toupper((wint_t)(unsigned char)(*s2)))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int uusnFXDCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(LUB_MAX_USTRLEN,
                       (wint_t)(unsigned short)(*s1),
                       (wint_t)(unsigned short)(*s2),
@@ -4377,11 +4377,11 @@ extern int uusnFXDCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
                       (wint_t)towupper((wint_t)(unsigned short)(*s2)))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 #undef __LUB_OP_HELPER__
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 /** @} */
 
 /**
@@ -4403,7 +4403,7 @@ extern int uusnFXDCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
  * @{
  */
 
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 // Prefix compare macro helper.
 #undef __LUB_OP_HELPER__
 #define __LUB_OP_HELPER__(s1_XCSNLEN, s2_XCSNLEN, \
@@ -4427,11 +4427,11 @@ extern int uusnFXDCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
     if (s2_len <= s1_len) return LUB_CMP_EQUAL; \
     return LUB_CMP_LESS_THAN; \
 }
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Prefix check (case-sensitive).
 extern int llsnpfxcmp(const lchar_t *s1, const lchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(lcsnlen, lcsnlen,
                       LUB_MAX_LSTRLEN, LUB_MAX_LSTRLEN,
                       (wint_t)(unsigned char)(*s1),
@@ -4440,10 +4440,10 @@ extern int llsnpfxcmp(const lchar_t *s1, const lchar_t *s2, size_t sn)
                       (wint_t)(unsigned char)(*s2))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int lusnpfxcmp(const lchar_t *s1, const uchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(lcsnlen, ucsnlen,
                       LUB_MAX_LSTRLEN, LUB_MAX_USTRLEN,
                       (wint_t)(unsigned char)(*s1),
@@ -4452,10 +4452,10 @@ extern int lusnpfxcmp(const lchar_t *s1, const uchar_t *s2, size_t sn)
                       (wint_t)(unsigned short)(*s2)) 
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int ulsnpfxcmp(const uchar_t *s1, const lchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(ucsnlen, lcsnlen,
                       LUB_MAX_USTRLEN, LUB_MAX_LSTRLEN,
                       (wint_t)(unsigned short)(*s1),
@@ -4464,10 +4464,10 @@ extern int ulsnpfxcmp(const uchar_t *s1, const lchar_t *s2, size_t sn)
                       (wint_t)(unsigned char)(*s2)) 
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int uusnpfxcmp(const uchar_t *s1, const uchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
    __LUB_OP_HELPER__(ucsnlen, ucsnlen,
                      LUB_MAX_USTRLEN, LUB_MAX_USTRLEN,
                      (wint_t)(unsigned short)(*s1),
@@ -4476,11 +4476,11 @@ extern int uusnpfxcmp(const uchar_t *s1, const uchar_t *s2, size_t sn)
                      (wint_t)(unsigned short)(*s2))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Prefix check (case-insensitive).
 extern int llsnPFXCMP(const lchar_t *s1, const lchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
    __LUB_OP_HELPER__(lcsnlen, lcsnlen,
                      LUB_MAX_LSTRLEN, LUB_MAX_LSTRLEN,
                      (wint_t)(unsigned char)(*s1),
@@ -4489,10 +4489,10 @@ extern int llsnPFXCMP(const lchar_t *s1, const lchar_t *s2, size_t sn)
                      (wint_t)toupper((int)(unsigned char)(*s2)), 1)
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int lusnPFXCMP(const lchar_t *s1, const uchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
    __LUB_OP_HELPER__(lcsnlen, ucsnlen,
                      LUB_MAX_LSTRLEN, LUB_MAX_USTRLEN,
                      (wint_t)(unsigned char)(*s1),
@@ -4501,10 +4501,10 @@ extern int lusnPFXCMP(const lchar_t *s1, const uchar_t *s2, size_t sn)
                      (wint_t)towupper((wint_t)(unsigned short)(*s2)))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int ulsnPFXCMP(const uchar_t *s1, const lchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
    __LUB_OP_HELPER__(ucsnlen, lcsnlen,
                      LUB_MAX_USTRLEN, LUB_MAX_LSTRLEN,
                      (wint_t)(unsigned short)(*s1),
@@ -4513,10 +4513,10 @@ extern int ulsnPFXCMP(const uchar_t *s1, const lchar_t *s2, size_t sn)
                      (wint_t)toupper((int)(unsigned char)(*s2)))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int uusnPFXCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
    __LUB_OP_HELPER__(ucsnlen, ucsnlen,
                      LUB_MAX_USTRLEN, LUB_MAX_USTRLEN,
                      (wint_t)(unsigned short)(*s1),
@@ -4525,11 +4525,11 @@ extern int uusnPFXCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
                      (wint_t)towupper((wint_t)(unsigned short)(*s2)))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 #undef __LUB_OP_HELPER__
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 /** @} */
 
@@ -4552,7 +4552,7 @@ extern int uusnPFXCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
  * @{
  */
 
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 // Suffix compare macro helper.
 #undef __LUB_OP_HELPER__
 #define __LUB_OP_HELPER__(s1_XCSNLEN, s2_XCSNLEN, \
@@ -4577,11 +4577,11 @@ extern int uusnPFXCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
     } \
     return LUB_CMP_EQUAL; \
 }
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Suffix check (case-sensitive).
 extern int llsnsfxcmp(const lchar_t *s1, const lchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
    __LUB_OP_HELPER__(lcsnlen, lcsnlen,
                      LUB_MAX_LSTRLEN, LUB_MAX_LSTRLEN,
                      (wint_t)(unsigned char)(*s1),
@@ -4590,10 +4590,10 @@ extern int llsnsfxcmp(const lchar_t *s1, const lchar_t *s2, size_t sn)
                      (wint_t)(unsigned char)(*s2))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int lusnsfxcmp(const lchar_t *s1, const uchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
    __LUB_OP_HELPER__(lcsnlen, ucsnlen,
                      LUB_MAX_LSTRLEN, LUB_MAX_USTRLEN,
                      (wint_t)(unsigned char)(*s1),
@@ -4602,10 +4602,10 @@ extern int lusnsfxcmp(const lchar_t *s1, const uchar_t *s2, size_t sn)
                      (wint_t)(unsigned short)(*s2))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int ulsnsfxcmp(const uchar_t *s1, const lchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
    __LUB_OP_HELPER__(ucsnlen, lcsnlen,
                      LUB_MAX_USTRLEN, LUB_MAX_LSTRLEN,
                      (wint_t)(unsigned short)(*s1),
@@ -4614,10 +4614,10 @@ extern int ulsnsfxcmp(const uchar_t *s1, const lchar_t *s2, size_t sn)
                      (wint_t)(unsigned char)(*s2))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int uusnsfxcmp(const uchar_t *s1, const uchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
    __LUB_OP_HELPER__(ucsnlen, ucsnlen,
                      LUB_MAX_USTRLEN, LUB_MAX_USTRLEN,
                      (wint_t)(unsigned short)(*s1),
@@ -4626,11 +4626,11 @@ extern int uusnsfxcmp(const uchar_t *s1, const uchar_t *s2, size_t sn)
                      (wint_t)(int)(unsigned short)(*s2))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // Suffix check (case-insensitive).
 extern int llsnSFXCMP(const lchar_t *s1, const lchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
    __LUB_OP_HELPER__(lcsnlen, lcsnlen,
                      LUB_MAX_LSTRLEN, LUB_MAX_LSTRLEN,
                      (wint_t)(unsigned char)(*s1),
@@ -4639,10 +4639,10 @@ extern int llsnSFXCMP(const lchar_t *s1, const lchar_t *s2, size_t sn)
                      (wint_t)toupper((int)(unsigned char)(*s2)))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int lusnSFXCMP(const lchar_t *s1, const uchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
    __LUB_OP_HELPER__(lcsnlen, ucsnlen,
                      LUB_MAX_LSTRLEN, LUB_MAX_USTRLEN,
                      (wint_t)(unsigned char)(*s1),
@@ -4651,10 +4651,10 @@ extern int lusnSFXCMP(const lchar_t *s1, const uchar_t *s2, size_t sn)
                      (wint_t)towupper((wint_t)(unsigned short)(*s2)))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int ulsnSFXCMP(const uchar_t *s1, const lchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
    __LUB_OP_HELPER__(ucsnlen, lcsnlen,
                      LUB_MAX_USTRLEN, LUB_MAX_LSTRLEN,
                      (wint_t)(unsigned short)(*s1),
@@ -4663,10 +4663,10 @@ extern int ulsnSFXCMP(const uchar_t *s1, const lchar_t *s2, size_t sn)
                      (wint_t)toupper((int)(unsigned char)(*s2)))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern int uusnSFXCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
    __LUB_OP_HELPER__(ucsnlen, ucsnlen,
                      LUB_MAX_USTRLEN, LUB_MAX_USTRLEN,
                      (wint_t)(unsigned short)(*s1),
@@ -4675,11 +4675,11 @@ extern int uusnSFXCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
                      (wint_t)towupper((wint_t)(unsigned short)(*s2)))
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 #undef __LUB_OP_HELPER__
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 /** @} */
 
 /**
@@ -4717,7 +4717,7 @@ extern int uusnSFXCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
 extern lchar_t *llsnstrm(
     const lchar_t *s1, const lchar_t *const s2, size_t sn,
     const lchar_t delim, int m)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (LUB_PTR_ERR(s1, 0) || LUB_PTR_ERR(s2, 0))
         return LUB_INT_ERR(LUB_BAD_PTR, 0);
     if (!s1 || !s2 || !m) return (lchar_t *)NULL;
@@ -4809,12 +4809,12 @@ extern lchar_t *llsnstrm(
 }
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *ulsnstrm(
     const uchar_t *s1, const lchar_t *const s2, const size_t sn,
     const uchar_t delim, const int m)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (!s1 || !s2 || !m) return (uchar_t *)NULL;
     if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
     size_t s1_len = ucsnlen(s1, sn);
@@ -4835,12 +4835,12 @@ extern uchar_t *ulsnstrm(
 }
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *uusnstrm(
     const uchar_t *const s1, const uchar_t *const s2, size_t sn,
     const uchar_t delim, const int m)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (!s1 || !s2 || !m) return (uchar_t *)NULL;
     if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
     size_t s1_len = ucsnlen(s1, sn);
@@ -4861,14 +4861,14 @@ extern uchar_t *uusnstrm(
 }
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 // String search (case-insensitive).
 
 extern lchar_t *llsnSTRM(
     const lchar_t *s1, const lchar_t *const s2, const size_t sn,
     const uchar_t delim, const int m)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (!s1 || !s2 || !m)
         return (lchar_t *)NULL;
     if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
@@ -4890,12 +4890,12 @@ extern lchar_t *llsnSTRM(
 }
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *ulsnSTRM(
     const uchar_t *s1, const lchar_t *const s2, const size_t sn,
     const uchar_t delim, const int m)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (!s1 || !s2 || !m) return (uchar_t *)NULL;
     if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
     size_t s1_len = ucsnlen(s1, sn);
@@ -4917,12 +4917,12 @@ extern uchar_t *ulsnSTRM(
 }
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern uchar_t *uusnSTRM(
     const uchar_t *s1, const uchar_t *const s2, const size_t sn,
     const uchar_t delim, const int m)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (!s1 || !s2 || !m) return (uchar_t *)NULL;
     if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
     size_t s1_len = ucsnlen(s1, sn);
@@ -4943,7 +4943,7 @@ extern uchar_t *uusnSTRM(
 }
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 /** @} */
 
 /**
@@ -4970,7 +4970,7 @@ extern uchar_t *uusnSTRM(
 
 extern size_t llsncnt(const lchar_t *s1, const lchar_t *const s2, size_t sn,
                       const lchar_t delim)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
     size_t s1_len = lcsnlen(s1, sn);
     if (s1_len >= LUB_SIZE_ERRORS) s1_len;
@@ -4987,11 +4987,11 @@ extern size_t llsncnt(const lchar_t *s1, const lchar_t *const s2, size_t sn,
 }
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern size_t ulsncnt(const uchar_t *s1, const lchar_t *const s2, size_t sn,
                       const lchar_t delim)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
     size_t s1_len = ucsnlen(s1, sn);
     if (s1_len >= LUB_SIZE_ERRORS) s1_len;
@@ -5008,11 +5008,11 @@ extern size_t ulsncnt(const uchar_t *s1, const lchar_t *const s2, size_t sn,
 }
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern size_t uusncnt(const uchar_t *s1, const uchar_t *const s2, size_t sn,
                       const uchar_t delim)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
     size_t s1_len = ucsnlen(s1, sn);
     if (s1_len >= LUB_SIZE_ERRORS) s1_len;
@@ -5030,13 +5030,13 @@ extern size_t uusncnt(const uchar_t *s1, const uchar_t *const s2, size_t sn,
 }
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 //n Count of matches of string s2 in string s1 (case-insensitive).
 
 extern size_t llsnCNT(const lchar_t *s1, const lchar_t *s2, size_t sn,
                       const lchar_t delim)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
     size_t s1_len = lcsnlen(s1, sn);
     if (s1_len >= LUB_SIZE_ERRORS) return s1_len;
@@ -5054,11 +5054,11 @@ extern size_t llsnCNT(const lchar_t *s1, const lchar_t *s2, size_t sn,
 }
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern size_t ulsnCNT(const uchar_t *s1, const lchar_t *const s2, size_t sn,
                       const lchar_t delim)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
     size_t s1_len = ucsnlen(s1, sn);
     if (s1_len >= LUB_SIZE_ERRORS) return s1_len;
@@ -5076,11 +5076,11 @@ extern size_t ulsnCNT(const uchar_t *s1, const lchar_t *const s2, size_t sn,
 }
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 
 extern size_t uusnCNT(const uchar_t *s1, const uchar_t *const s2, size_t sn,
                       const uchar_t delim)
-#if defined(LUB_DEFINITIONS)
+#if defined(__LUB_DEFINITIONS__)
 {   if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
     size_t s1_len = ucsnlen(s1, sn);
     if (s1_len >= LUB_SIZE_ERRORS) return s1_len;
@@ -5098,7 +5098,7 @@ extern size_t uusnCNT(const uchar_t *s1, const uchar_t *const s2, size_t sn,
 }
 #else
     ;
-#endif // LUB_DEFINITIONS
+#endif // __LUB_DEFINITIONS__
 /** @} */
 
 /**
@@ -5277,7 +5277,7 @@ extern size_t uusnCNT(const uchar_t *s1, const uchar_t *const s2, size_t sn,
 #undef __LUB_STRINGIFY__
 #undef __LUB_STATIC_ASSERT__
 
-#if defined(__LUB_DEFINITIONS__
+#if defined(__LUB_DEFINITIONS__)
 #undef __LUB_OP_HELPER__
 #undef __LUB_DEFINITIONS__
 #endif // __LUB_DEFINITIONS__
