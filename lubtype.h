@@ -1,7 +1,11 @@
 /**
  * @file lubtype.h
  * @mainpage Latin/Unicode/Byte API
- * @brief This C/C++ API header provides Latin-8,
+ */
+
+/**
+ * @section Overview Overview
+ * @brief This C/C++ API header provides robust and portable Latin-8,
  *        Unicode-16, and byte types, plus associated macros, extern function
  *        declarations (protypes), and static inline function
  *        definitions.
@@ -35,6 +39,73 @@
  * @copyright Copyright (c) 2026 paulsinclair51
  * @license SPDX-License-Identifier: MIT
  * For license details, see the LICENSE file in the project root.
+ */
+
+/**
+ * @section GuidingPrinciples Guiding Principles:
+ * - Symmetry:       Operation exists for every encoding direction
+ *                   except where explicitly noted. For example,
+ *                   Lating (l) <- Unicoce (u) ivariants are not provided
+ *                   comparison search functions.
+ * - Clarity:        Function names encode direction/type, bound, operation,
+ *                   and case (sensitive/insensitive, preserving/lowercase/uppercase).
+ * - Safety:         Explicit/default bounds, terminator validation,
+ *                   representability checks, error checking.
+ * - Predictability: Behavior mirrors familiar C string patterns while
+ *                   making bounds, defined (instead of undefined or
+ *                   implementation-defined) return values, error
+ *                   values.
+ * - Portability:    Fixed-width types, no wchar_t size assumptions.
+ *                   No API-managed locale state. However, Unicode
+ *                   classification and case conversion use C runtime
+ *                   wide-character routines (isw* and tow*) via wchar_t
+ *                   casts and, therefore, results are locale- and
+ *                   CRT-dependent.
+ * - Compatibility:  Usable in both C and C++ projects with compatibility
+ *                   with C89/C90 (ANSI C) compilers. No C99/C11 features
+ *                   are used.
+ *
+ * @warning Unicode classification and case conversion use the C runtime's
+ * wide-character routines (isw*, tow*), which are locale- and CRT-dependent.
+ * Results may differ across platforms or locale settings.
+ *
+ * @earning This API does not perform Unicode normalization or surrogate pair
+ * handling; all operations are on individual code units.
+ */
+
+/**
+ * @section APINotes API Notes
+ *
+ * @note For functions that return NULL on error, the output buffer is always
+ * null-terminated on error if possible, to help prevent buffer overreads.
+ *
+ * @note Some search and replace functions (e.g., substring search, multi-pair
+ * replace) may have worst-case O(n*m) complexity, where n is the length of the
+ * input and m is the pattern or map size. Most other operations are O(n).
+ *
+ * @note All functions are `static inline`; no dynamic memory is allocated or freed.
+ * This keeps the implementation lightweight and enables compiler inlining.
+ * All string types are simple pointer aliases; no metadata is stored.
+ *
+ * @note Overlapping source/target buffers produce implementation-defined behavior.
+ *
+ * @note The API is thread-safe provided threads do not share target buffers without
+ * external synchronization. Character classification relies on <ctype.h> and
+ * <wctype.h>, which are thread-safe when the locale is not modified.
+ *
+ * @note No recursion or dynamic allocation occurs.
+ *
+ * @note This header was reviewed and refined with assistance from Microsoft Copilot.
+ */
+
+/**
+ * @section EncodingAssumptions Encoding Assumptions
+ * - lchar_t = uint8_t (Latin-8, values 1-255, 0 reserved for null terminator)
+ * - uchar_t = uint16_t (Unicode BMP, values 1-65535, 0 reserved for null terminator)
+ * - byte_t = uint8_t  (raw byte, values x'00'-x'FF', no null terminator semantics)
+ * - wchar_t width is not assumed; all casts include explicit bounds checks.
+ * - No normalization, surrogate handling, or multi-code-unit processing.
+ * - All operations act on individual characters only.
  */
 
 #pragma once
@@ -5175,67 +5246,9 @@ extern size_t uusnCNT(const uchar_t *s1, const uchar_t *const s2, size_t sn,
  * - Format:
  *   llsnprintf(dst_l, 64, "id=%u", (unsigned)42);
  *   // -> "id=42"
- *
- * @section DesignNotes Design Notes
- * Six principles guide this API:
- * - Symmetry:       Operation exists for every encoding direction
- *                   except where explicitly noted. For example,
- *                   Lating (l) <- Unicoce (u) ivariants are not provided
- *                   comparison search functions.
- * - Clarity:        Function names encode direction/type, bound, operation,
- *                   and case (sensitive/insensitive, preserving/lowercase/uppercase).
- * - Safety:         Explicit/default bounds, terminator validation,
- *                   representability checks, error checking.
- * - Predictability: Behavior mirrors familiar C string patterns while
- *                   making bounds, defined (instead of undefined or
- *                   implementation-defined) return values, error
- *                   values.
- * - Portability:    Fixed-width types, no wchar_t size assumptions.
- *                   No API-managed locale state. However, Unicode
- *                   classification and case conversion use C runtime
- *                   wide-character routines (isw* and tow*) via wchar_t
- *                   casts and, therefore, results are locale- and
- *                   CRT-dependent.
- * - Compatibility:  Usable in both C and C++ projects with compatibility
- *                   with C89/C90 (ANSI C) compilers. No C99/C11 features
- *                   are used.
- *
- * @warning Unicode classification and case conversion use the C runtime's
- * wide-character routines (isw*, tow*), which are locale- and CRT-dependent.
- * Results may differ across platforms or locale settings.
- *
- * @note This API does not perform Unicode normalization or surrogate pair
- * handling; all operations are on individual code units.
- *
- * @note For functions that return NULL on error, the output buffer is always
- * null-terminated on error if possible, to help prevent buffer overreads.
- *
- * @note Some search and replace functions (e.g., substring search, multi-pair
- * replace) may have worst-case O(n*m) complexity, where n is the length of the
- * input and m is the pattern or map size. Most other operations are O(n).
- *
- * All functions are `static inline`; no dynamic memory is allocated or freed.
- * This keeps the implementation lightweight and enables compiler inlining.
- * All string types are simple pointer aliases; no metadata is stored.
- *
- * Overlapping source/target buffers produce implementation-defined behavior.
- *
- * The API is thread-safe provided threads do not share target buffers without
- * external synchronization. Character classification relies on <ctype.h> and
- * <wctype.h>, which are thread-safe when the locale is not modified.
- *
- * All operations run in O(n) time; no recursion or dynamic allocation occurs.
- *
- * This header was reviewed and refined with assistance from Microsoft Copilot.
- *
- * @section EncodingAssumptions Encoding Assumptions
- * - lchar_t = uint8_t  (Latin-8, values 1-255, 0 reserved for null terminator)
- * - uchar_t = uint16_t (Unicode BMP, values 1-65535, 0 reserved for null terminator)
- * - byte_t = uint8_t  (raw byte, values x'00'-x'FF', no null terminator semantics)
- * - wchar_t width is not assumed; all casts include explicit bounds checks.
- * - No normalization, surrogate handling, or multi-code-unit processing.
- * - All operations act on individual characters only.
- *
+ */
+
+/**
  * @section GlossaryOfTerms Glossary
  * lchar_t
  *     Latin-8 character (uint8_t). Values 1-255.
