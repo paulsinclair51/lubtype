@@ -287,9 +287,7 @@ extern "C" {
 // True if the current library version is at least the specified version.
 #define LUB_VERSION_AT_LEAST(maj, min, pat) \
     (LUB_VERSION_NUM >= ((maj) * 10000 + (min) * 100 + (pat)))
-/** @} */
-// End of Versioning.
-    
+
 #if defined(__LUB_DEFINITIONS__)
 // Ensure version components are within expected ranges.
 __LUB_STATIC_ASSERT__(LUB_VERSION_MAJOR >= 0, major_must_be_nonnegative);
@@ -304,18 +302,23 @@ __LUB_STATIC_ASSERT__(LUB_VERSION_PATCH <= 255, patch_fits_in_hex_field);
 // Ensure the numeric encoding cannot overflow int.
 __LUB_STATIC_ASSERT__(LUB_VERSION_NUM >= 0, version_num_nonnegative);
 __LUB_STATIC_ASSERT__(LUB_VERSION_NUM < 100000000, version_num_reasonable);
+#endif // __LUB_DEFINITIONS__
+/** @} */ // End of Versioning.
 
-// Ensure size_t and intptr_t are both the same number of bytes (4 or 8),
-// short is 2 bytes, and int is 4 bytes, and
-// wchar_t is 4 bytes.
-__LUB_STATIC_ASSERT__(sizeof(size_t) == 4 ||
+#if defined(__LUB_DEFINITIONS__)
+// Ensure short is 2 bytes, int is 4 bytes, and
+// wchar_t is 2 or 4 bytes.
+__LUB_STATIC_ASSERT__(sizeof(short) == 2, short_must_be_2_bytes);
+__LUB_STATIC_ASSERT__(sizeof(int) == 4, int_must_be_4_bytes);
+__LUB_STATIC_ASSERT__(sizeof(wchar_t) == 2 || sizeof(wchar_t) == 4,
+                      wchar_t_must_be_2_or_4_bytes);
+                     
+// Ensure ind, size_t, and intptr_t are compatible for casting error values.
+__LUB_STATIC_ASSERT__((size_t)
                       sizeof(size_t) == 8,
                       size_t_must_be_4_or_8_bytes);
 __LUB_STATIC_ASSERT__(sizeof(intptr_t) == sizeof(size_t),
                       intptr_t_bytes_must_be_same_as_size_t_bytes);
-__LUB_STATIC_ASSERT__(sizeof(short) == 2, short_must_be_2_bytes);
-__LUB_STATIC_ASSERT__(sizeof(int) == 4, int_must_be_4_bytes);
-__LUB_STATIC_ASSERT__(sizeof(wchar_t) == 4, wchar_t_must_be_4_bytes);
 #endif // __LUB_DEFINITIONS__
 
 /**
