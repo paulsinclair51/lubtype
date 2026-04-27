@@ -328,9 +328,9 @@ __LUB_STATIC_ASSERT__((int)-2 == (int)(size_t)-2 &&
                       (intptr_t)-2 == (intptr_t)(int)-2 &&
                       (intptr_t)-2 == (intptr_t)(size_t)-2 &&
                       (intptr_t)-2 == (intptr_t)(void *)-2 &&
-                      (intptr_t)-2 == (intptr_t)(int)-2 &&
-                      (intptr_t)-2 == (intptr_t)(size_t)-2 &&
-                      (intptr_t)-2 == (intptr_t)(void *)-2 &&
+                      (void *)-2 == (void *)(int)-2 &&
+                      (void *)-2 == (void *)(size_t)-2 &&
+                      (void *)-2 == (void *)(intptr_t)-2 &&
                       (int)-99 == (int)(size_t)-99 &&
                       (int)-99 == (int)(intptr_t)-99 &&
                       (int)-99 == (int)(void *)-99 &&
@@ -339,7 +339,10 @@ __LUB_STATIC_ASSERT__((int)-2 == (int)(size_t)-2 &&
                       (size_t)-99 == (size_t)(void *)-99 &&
                       (intptr_t)-99 == (intptr_t)(int)-99 &&
                       (intptr_t)-99 == (intptr_t)(size_t)-99 &&
-                      (intptr_t)-2 == (intptr_t)(void *)-99,
+                      (intptr_t)-99 == (intptr_t)(void *)-99 &&
+                      (void *)-99 == (void *)(int)-99 &&
+                      (void *)-99 == (void *)(size_t)-99 &&
+                      (void *)-99 == (void *)(intptr_t)-99,
                       error_values_must_be_compatible_across_types);
 #endif // __LUB_DEFINITIONS__
 
@@ -488,7 +491,7 @@ typedef uint8_t byte_t;
 #define LUB_UNQUOTEDNAME           (0)
 
 /**
- * @defgroup Erroralues Error Values
+ * @defgroup ErrorValues Error Values
  * @name LUB_BAD_PTR
  *       LUB_UNTERMINATED
  *       LUB_INVALID_NAME
@@ -515,7 +518,8 @@ typedef uint8_t byte_t;
     defined(LUB_OPT_INVALID) || \
     defined(LUB_OPT_RESERVED) || \
     defined(LUB_OVERLAP) || \
-    defined(LUB_TRUNCATED)
+    defined(LUB_TRUNCATED) || \
+    defined(LUB_OPERATION_INVALID)
 #error "lubtype.h: An error value LUB_* macro is unexpectedly " \
        "already defined. #undef before including lubtype.h. " \
        "After including, undef and define again as needed if " \
@@ -523,9 +527,9 @@ typedef uint8_t byte_t;
 #endif // defined macros
 
 // Error values.
-#define LUB_BAD_PTR                (-2)
+#define LUB_PTR_INVALID            (-2)
 #define LUB_UNTERMINATED           (-3)
-#define LUB_INVALID_NAME           (-4)
+#define LUB_NAME_INVALID           (-4)
 #define LUB_OPT_TOO_LONG           (-5)
 #define LUB_OPT_INVALID            (-6)
 #define LUB_OPT_RESERVED           (-7)
@@ -541,9 +545,9 @@ typedef uint8_t byte_t;
  * @brief Macros for classifying value as an error value and casting error values to
  *        pointer, size_t, and int types.
  * @param value The value returned by a function to be classified or cast.
- * @param error 0 (any error) or a specific error value.
- * @return The value (if it is error value) or 0 (not an error)
- *         cast to the corresponding type:
+ * @param error 0 (indicating any error) or a specific error value.
+ * @return The value (if it is an error value) or 0 (not an error value)
+ *         cast to the function type:
  *
  *             LUB_PTR_ERR -> void *
  *             LUB_SIZE_ERR -> size_t
@@ -551,7 +555,7 @@ typedef uint8_t byte_t;
  * @example
  *   Examples of using error values and macros:
  * 
- *   * Use the LUB_*_ERR macros to check if a returned value is an error:
+ *   * Use a  LUB_*_ERR macro to check if a returned value is an error:
  * 
  *     * if (LUB_SIZE_ERR(result, 0)) { error handling }
  *       else { handle non-error result }
@@ -575,9 +579,9 @@ typedef uint8_t byte_t;
  *     * if (LUB_SIZE_ERR(result, 0)) return (uchar_t *)LUB_PTR_ERR(result, 0);
  *
  *   * For input pointer arguments (e.g., s), encountering an error value
- *     indicates an invalid pointer. In this case, return LUB_BAD_PTR:
+ *     indicates an invalid pointer. In this case, returns LUB_PTR_INVALID:
  *
- *     * if (LUB_PTR_ERR(s, 0)) return LUB_SIZE_ERR(LUB_BAD_PTR, 0);
+ *     * if (LUB_PTR_ERR(s, 0)) return LUB_SIZE_ERR(LUB_PTR_INVALID, 0);
  * @{
  */
 
