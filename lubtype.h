@@ -5,7 +5,7 @@
 
 /**
  * @section Overview Overview
- * This C/C++ API header provides robust and portable Latin-8,
+ * This C/C++ API header provides Latin-8,
  * Unicode-16, and byte types, plus associated macros, extern function
  * declarations (protypes), and static inline function
  * definitions.
@@ -51,12 +51,12 @@
  *
  * - Symmetry:      Operation exists for every encoding direction
  *                  except where explicitly noted. For example,
- *                  Latin (l) <- Unicoce (u) variants are not provided
- *                  for comparison search functions simce Unicode character
- *                  outside the range of Latin would not match.
+ *                   Latin (l) <- Unicoce (u) variants are not provided
+ *                   for comparison search functions simce a Unicode character
+ *                   outside the range of Latin would not match.
  *
- * - Clarity:       Function names encode direction/type, bound, operation,
- *                  and case (sensitive/insensitive, preserving/lowercase/uppercase).
+ * - Clarity:        Function names encode direction/type, bound, operation,
+ *                   and case (sensitive/insensitive, preserving/lowercase/uppercase).
  *
  * - Safety:         Explicit/default bounds, terminator validation,
  *                   representability checks, error checking.
@@ -74,11 +74,11 @@
  *                   CRT-dependent and results may differ across platforms
  *                   or locale settings.
  *
- * - Compatibility:  Usable in both C and C++ projects with compatibility
+ * - Compatibility:  Usable with both C and C++ with compatibility
  *                   with C89/C90 (ANSI C) compilers. No C99/C11 features
  *                   are required.
  * 
- * @earning This API does not perform Unicode normalization or surrogate pair
+ * @warning This API does not perform Unicode normalization or surrogate pair
  * handling; all operations are on individual code units.
  */
 
@@ -87,7 +87,7 @@
  *
  * @note For functions with a target buffer t parameter
  * and t is not NULL, the target buffer is always
- * null-terminated on error, to help avoid subsequent buffer overreads.
+ * null-terminated on error. This avoids subsequent buffer overreads.
  *
  * @note Some search and replace functions (e.g., search,
  * replace) may have worst-case O(n*m) complexity, where n is the length of the
@@ -96,7 +96,7 @@
  * @note When appropriate, functions are `static inline`.
  *
  * @note Overlapping source/target buffers produce implementation-defined behavior
- * (correct result in target buffer or error)..
+ * (correct result in target buffer or error).
  *
  * @note No dynamic memory is allocated or freed.
  *
@@ -142,12 +142,12 @@
 #include <wchar.h>
 #include <wctype.h>
 
-// Allow functions to be invoked from C++
+// Allow functions to be invoked from C++.
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// Preprocessor token pasting and stringification helpers
+// Preprocessor token pasting and stringification helpers.
 //
 #if defined(__LUB_PASTE__) || defined(__LUB_XPASTE__)
 #error "lubtype.h: A __LUB_PASTE__ or __LUB_XPASTE__ " \
@@ -243,12 +243,8 @@ extern "C" {
  * .
  *        LUB_VERSION_AT_LEAST(maj,min,pat)
  *           True if current version is at least maj.min.pat.
- * @note An error is raised if any of the versioning macros (or
- *       __LUB_STRINGIFY2__, __LUB_STRINGIFY__, __LUB_STATIC_ASSERT__)
+ * @note A compiler error is raised if any of the versioning macros
  *       are already defined before including lubtype.h.
- * @note Helper macros __LUB_STRINGIFY2__, __LUB_STRINGIFY__,
- *       and __LUB_STATIC_ASSERT__ are undefined after use by
- *       lubtype.h to avoid namespace pollution.
  * @note The naming conventions, error semantics, and safety guarantees
  *       are part of the stable API and will not change without a
  *       major version increment.
@@ -277,7 +273,7 @@ extern "C" {
     __LUB_XSTRINGIFY__(LUB_VERSION_MINOR) "." \
     __LUB_XSTRINGIFY__(LUB_VERSION_PATCH)
 
-// LUBAPI version as an integer for comparisons.
+// LUB API version as an integer for comparisons.
 #define LUB_VERSION_NUM \
     ((int)((LUB_VERSION_MAJOR * 10000) + \
     (LUB_VERSION_MINOR * 100) + (LUB_VERSION_PATCH)))
@@ -321,21 +317,29 @@ __LUB_STATIC_ASSERT__(sizeof(int) == 4, int_must_be_4_bytes);
 __LUB_STATIC_ASSERT__(sizeof(wchar_t) == 2 || sizeof(wchar_t) == 4,
                       wchar_t_must_be_2_or_4_bytes);
                      
-// Ensure ind, size_t, and intptr_t are compatible for casting error values.
+// Ensure int, size_t, void *, and intptr_t are compatible
+// for casting error values.
 __LUB_STATIC_ASSERT__((int)-2 == (int)(size_t)-2 &&
-                      (int)-2 == (int)(intptr_t)-3 &&
-                      (int)-2 == (int)(void *)-3 &&
+                      (int)-2 == (int)(intptr_t)-2 &&
+                      (int)-2 == (int)(void *)-2 &&
                       (size_t)-2 == (size_t)(int)-2 &&
                       (size_t)-2 == (size_t)(intptr_t)-2 &&
                       (size_t)-2 == (size_t)(void *)-2 &&
-                      (intptr_t)-2 == (intptt_t)(int)-2 &&
-                      (intptr_t)-2 == (intptt_t)(size_t)-2 &&
+                      (intptr_t)-2 == (intptr_t)(int)-2 &&
+                      (intptr_t)-2 == (intptr_t)(size_t)-2 &&
+                      (intptr_t)-2 == (intptr_t)(void *)-2 &&
+                      (intptr_t)-2 == (intptr_t)(int)-2 &&
+                      (intptr_t)-2 == (intptr_t)(size_t)-2 &&
+                      (intptr_t)-2 == (intptr_t)(void *)-2 &&
                       (int)-99 == (int)(size_t)-99 &&
                       (int)-99 == (int)(intptr_t)-99 &&
+                      (int)-99 == (int)(void *)-99 &&
                       (size_t)-99 == (size_t)(int)-99 &&
                       (size_t)-99 == (size_t)(intptr_t)-99 &&
-                      (intptr_t)-99 == (intptt_t)(int)-99 &&
-                      (intptr_t)-99 == (intptt_t)(size_t)-99,
+                      (size_t)-99 == (size_t)(void *)-99 &&
+                      (intptr_t)-99 == (intptr_t)(int)-99 &&
+                      (intptr_t)-99 == (intptr_t)(size_t)-99 &&
+                      (intptr_t)-2 == (intptr_t)(void *)-99,
                       error_values_must_be_compatible_across_types);
 #endif // __LUB_DEFINITIONS__
 
