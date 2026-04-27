@@ -28,49 +28,55 @@
  *   - Variants for character case-preserving
  *     uppercase, lowercase mapping.
  *   - Case-sensitive/insensitive character matching.
+ *
  * @note Not all variants are provided for all functions due a
  *       variant not being meaningful/useful for a particular function
  *       or the variant being easily implemented by the caller
  *       using a combination of provided variants.
+ *
  * @warning Due to the naming conventions used in this API for types, macros,
  *          and functions, it is not expected name conflicts will arise.
  *          If a conflict does arise, it must be resolved by updating
  *          the caller code or the API.
+ */
+
+/**
  * @copyright Copyright (c) 2026 paulsinclair51
  * @license SPDX-License-Identifier: MIT
  * For license details, see the LICENSE file in the project root.
  */
 
 /**
- * @section GuidingPrinciples Guiding Principles:
- * - Symmetry:       Operation exists for every encoding direction
- *                   except where explicitly noted. For example,
- *                   Latin (l) <- Unicoce (u) variants are not provided
- *                   for comparison search functions simce Unicode character
- *                    outside the range of Latin would not match.
+ * @section GuidingPrinciples Guiding Principles
  *
- * - Clarity:        Function names encode direction/type, bound, operation,
- *                   and case (sensitive/insensitive, preserving/lowercase/uppercase).
+ * - Symmetry:      Operation exists for every encoding direction
+ *                  except where explicitly noted. For example,
+ *                  Latin (l) <- Unicoce (u) variants are not provided
+ *                  for comparison search functions simce Unicode character
+ *                  outside the range of Latin would not match.
+ *
+ * - Clarity:       Function names encode direction/type, bound, operation,
+ *                  and case (sensitive/insensitive, preserving/lowercase/uppercase).
  *
  * - Safety:         Explicit/default bounds, terminator validation,
  *                   representability checks, error checking.
  *
- * - Predictability:  Behavior mirrors familiar C string patterns while
- *                    making bounds, defined (instead of undefined or
- *                    implementation-defined) return values, error
- *                    values.
+ * - Predictability: Behavior mirrors familiar C string patterns while
+ *                   making bounds, defined (instead of undefined or
+ *                   implementation-defined) return values, error
+ *                   values.
  *
- * - Portability:     Fixed-width types, wchar_t size may be 2 or 4 bytes.
- *                    No API-managed locale state. However, Unicode
- *                    classification and case conversion use C runtime
- *                    wide-character routines (isw* and tow*) via wchar_t
- *                    casts and, therefore, results are locale- and
- *                    CRT-dependent and results may differ across platforms
- *                     or locale settings.
+ * - Portability:    Fixed-width types, wchar_t size may be 2 or 4 bytes.
+ *                   No API-managed locale state. However, Unicode
+ *                   classification and case conversion use C runtime
+ *                   wide-character routines (isw* and tow*) via wchar_t
+ *                   casts and, therefore, results are locale- and
+ *                   CRT-dependent and results may differ across platforms
+ *                   or locale settings.
  *
- * - Compatibility:   Usable in both C and C++ projects with compatibility
- *                    with C89/C90 (ANSI C) compilers. No C99/C11 features
- *                    are required.
+ * - Compatibility:  Usable in both C and C++ projects with compatibility
+ *                   with C89/C90 (ANSI C) compilers. No C99/C11 features
+ *                   are required.
  * 
  * @earning This API does not perform Unicode normalization or surrogate pair
  * handling; all operations are on individual code units.
@@ -79,20 +85,20 @@
 /**
  * @section APINotes API Notes
  *
- * @note For functions with a target buffer t parameter and t is not NULL, the target buffer is always
- * null-terminated on error, to help avoid buffer overreads.
+ * @note For functions with a target buffer t parameter
+ * and t is not NULL, the target buffer is always
+ * null-terminated on error, to help avoid subsequent buffer overreads.
  *
- * @note Some search and replace functions (e.g., substring search, multi-pair
+ * @note Some search and replace functions (e.g., search,
  * replace) may have worst-case O(n*m) complexity, where n is the length of the
  * input and m is the pattern or map size. Most other operations are O(n).
  *
- * @note Where appropriate, functions are `static inline`.
- * This keeps the implementation lightweight and enables compiler inlining.
+ * @note When appropriate, functions are `static inline`.
  *
- * @note Overlapping source/target buffers produce implementation-defined behavior.
+ * @note Overlapping source/target buffers produce implementation-defined behavior
+ * (correct result in target buffer or error)..
  *
  * @note No dynamic memory is allocated or freed.
- * This improves safety for the implementation 
  *
  * @note The API is thread-safe provided threads do not share target buffers without
  * external synchronization. Character classification relies on <ctype.h> and
@@ -105,6 +111,7 @@
 
 /**
  * @section Assumptions Assumptions
+ *
  * - lchar_t = uint8_t (Latin-8, values 1-255, 0 reserved for null terminator).
  *
  * - uchar_t = uint16_t (Unicode BMP, values 1-65535, 0 reserved
@@ -112,7 +119,7 @@
  *   or multi-code-unit processing. All operations act on
  *   individual characters only.
  *
- * - byte_t = uint8_t  (raw byte, values x'00'-x'FF', no null
+ * - byte_t = uint8_t (raw byte, values x'00'-x'FF', no null
  *   terminator semantics).
  *
  * - wchar_t width is usually expected to be 4 bytes but may
@@ -122,7 +129,7 @@
  * - Casting of error values between int, size_t, and pointers
  *   maintains integrity of error values. For example,
  *   (size_t)<error value> is equal to (size_t)(void *)<error value>
- *   and to (size_t)(int)<error value>. See @ref ErrorReturnValues.
+ *   and to (size_t)(int)<error value>. See @ref ErrorValues.
  */
 
 #pragma once
@@ -168,26 +175,27 @@ extern "C" {
 // Usage:
 //   __LUB_STATIC_ASSERT__(sizeof(int) == 4, int_must_be_4_bytes);
 //
-// Expands (C99 fallback) if true to:
+// Expands (C99) if true to:
 //   typedef char __LUB_STATIC_ASSERT__int_must_be_4_bytes[1];
+//.  // Assertion satisfied; compiler error not raised.
 //
 //  Or if false to:
 //    typedef char __LUB_STATIC_ASSERT__int_must_be_4_bytes[-1];
-//    that raises a compiler error.
+//    // Assertion fails; compiler error raised.
 //
 #if defined(__LUB_STATIC_ASSERT__)
 #error "lubtype.h: A __LUB_STATIC_ASSERT__ " \
        "macro is unexpectedly already defined. " \
        "#undef before including lubtype.h. " \
-       "These macros are undefined after their last use " \
+       "This macro is undefined after its last use " \
        "by this include. After including, define again as needed."
 #endif // defined macrp
 
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-/* C11 and later: use the built‑in */
+// C11 and later: use the built‑in assertion macrp.
 #define __LUB_STATIC_ASSERT__(cond, msg) _Static_assert(cond, #msg)
 #else
-/* C99 fallback: typedef with invalid negative array size */
+// C99: typedef with invalid negative array size if assertion not satisfied.
 #define __LUB_STATIC_ASSERT__(cond, msg) \
     typedef char __LUB_XPASTE__(__LUB_STATIC_ASSERT__, msg)[(cond) ? 1 : -1]
 #endif // defined
@@ -197,7 +205,7 @@ extern "C" {
  */
 
 /**
- * @defgroup LUBVersioningMacros LUB Versioning Macros
+ * @defgroup LUBAPIVersioningMacros LUB API Versioning Macros
  * @name LUB_VERSION_MAJOR, LUB_VERSION_MINOR, LUB_VERSION_PATCH,
  *       LUB_VERSION, LUB_VERSION_NUM, LUB_VERSION_HEX, 
  *       LUB_VERSION_EQ, LUB_VERSION_AT_LEAST
@@ -258,33 +266,33 @@ extern "C" {
        "a LUB_VERSION_* definition is not required."
 #endif // definrd macrps
 
-// Library version major, minor, patch.
+// LUB API version major, minor, patch.
 #define LUB_VERSION_MAJOR 1
 #define LUB_VERSION_MINOR 0
 #define LUB_VERSION_PATCH 0
 
-// Library version string in "major.minor.patch" format.
+// LUB API version string in "major.minor.patch" format.
 #define LUB_VERSION \
     __LUB_XSTRINGIFY__(LUB_VERSION_MAJOR) "." \
     __LUB_XSTRINGIFY__(LUB_VERSION_MINOR) "." \
     __LUB_XSTRINGIFY__(LUB_VERSION_PATCH)
 
-// Library version as an integer for comparisons.
+// LUBAPI version as an integer for comparisons.
 #define LUB_VERSION_NUM \
     ((int)((LUB_VERSION_MAJOR * 10000) + \
     (LUB_VERSION_MINOR * 100) + (LUB_VERSION_PATCH)))
 
-// Library version encoded as 0xMMmmpp (major, minor, patch) for display/debug.
+// LUB API version encoded as 0xMMmmpp (major, minor, patch) for display/debug.
 #define LUB_VERSION_HEX \
     (((LUB_VERSION_MAJOR) << 16) | \
      ((LUB_VERSION_MINOR) << 8) | \
      (LUB_VERSION_PATCH))
 
-// True if the current library version is the specified version.
+// True if the current LUB API version is the specified version.
 #define LUB_VERSION_EQ(maj, min, pat) \
     (LUB_VERSION_NUM == ((maj) * 10000 + (min) * 100 + (pat)))
 
-// True if the current library version is at least the specified version.
+// True if the current LUB API version is at least the specified version.
 #define LUB_VERSION_AT_LEAST(maj, min, pat) \
     (LUB_VERSION_NUM >= ((maj) * 10000 + (min) * 100 + (pat)))
 
@@ -314,15 +322,25 @@ __LUB_STATIC_ASSERT__(sizeof(wchar_t) == 2 || sizeof(wchar_t) == 4,
                       wchar_t_must_be_2_or_4_bytes);
                      
 // Ensure ind, size_t, and intptr_t are compatible for casting error values.
-__LUB_STATIC_ASSERT__((size_t)
-                      sizeof(size_t) == 8,
-                      size_t_must_be_4_or_8_bytes);
-__LUB_STATIC_ASSERT__(sizeof(intptr_t) == sizeof(size_t),
-                      intptr_t_bytes_must_be_same_as_size_t_bytes);
+__LUB_STATIC_ASSERT__((int)-2 == (int)(size_t)-2 &&
+                      (int)-2 == (int)(intptr_t)-3 &&
+                      (int)-2 == (int)(void *)-3 &&
+                      (size_t)-2 == (size_t)(int)-2 &&
+                      (size_t)-2 == (size_t)(intptr_t)-2 &&
+                      (size_t)-2 == (size_t)(void *)-2 &&
+                      (intptr_t)-2 == (intptt_t)(int)-2 &&
+                      (intptr_t)-2 == (intptt_t)(size_t)-2 &&
+                      (int)-99 == (int)(size_t)-99 &&
+                      (int)-99 == (int)(intptr_t)-99 &&
+                      (size_t)-99 == (size_t)(int)-99 &&
+                      (size_t)-99 == (size_t)(intptr_t)-99 &&
+                      (intptr_t)-99 == (intptt_t)(int)-99 &&
+                      (intptr_t)-99 == (intptt_t)(size_t)-99,
+                      error_values_must_be_compatible_across_types);
 #endif // __LUB_DEFINITIONS__
 
 /**
- * @section Types Types
+ * @section LUBTypes LUB Types
  */
 
 /**
@@ -415,6 +433,9 @@ typedef uint8_t byte_t;
 /** @} */
 
 /**
+ * @section SpecialReturnAndErrorValues Special Return and Error Values
+
+/**
  * @defgroup SpecialReturnValues Special Return Values
  * @name LUB_CMP_GREATER_THAN, LUB_CMP_EQUAL, LUB_CMP_LESS_THAN,
  *       LUB_QUOTEDNAME, LUB_UNQUOTEDNAME
@@ -463,7 +484,7 @@ typedef uint8_t byte_t;
 #define LUB_UNQUOTEDNAME           (0)
 
 /**
- * @defgroup ErrorReturnValues Error Return Values
+ * @defgroup Erroralues Error Values
  * @name LUB_BAD_PTR
  *       LUB_UNTERMINATED
  *       LUB_INVALID_NAME
