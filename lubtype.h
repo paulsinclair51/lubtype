@@ -190,7 +190,7 @@ extern "C" {
        "#undef before including lubtype.h. " \
        "This macro is undefined after its last use " \
        "by this include. After including, define again as needed."
-#endif // defined macrp
+#endif // defined macro
 
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 // C11 and later: use the built‑in assertion macrp.
@@ -231,7 +231,7 @@ extern "C" {
  *           version 0, patch version 0.
  * 
  *        LUB_VERSION_NUM
- *           Integer form MMmmpp for comparisons, e.g., 10000 for
+ *           unsigned int form MMmmpp for comparisons, e.g., 10000 for
  *           version 1.0.0, 10200 for version 1.2.0, or 11212 for version 1.12.12.
  * 
  *        LUB_VERSION_HEX
@@ -263,7 +263,7 @@ extern "C" {
        "already defined. #undef before including lubtype.h. " \
        "After including, undef and define again as needed if " \
        "a LUB_VERSION_* definition is not required."
-#endif // definrd macrps
+#endif // defined macros
 
 // LUB API version major, minor, patch.
 #define LUB_VERSION_MAJOR 1
@@ -278,7 +278,7 @@ extern "C" {
 
 // LUB API version as an integer for comparisons.
 #define LUB_VERSION_NUM \
-    ((int)((LUB_VERSION_MAJOR * 10000) + \
+    ((unsigned int)((LUB_VERSION_MAJOR * 10000) + \
     (LUB_VERSION_MINOR * 100) + (LUB_VERSION_PATCH)))
 
 // LUB API version encoded as 0xMMmmpp (major, minor, patch) for display/debug.
@@ -306,8 +306,7 @@ __LUB_STATIC_ASSERT__(LUB_VERSION_MAJOR <= 255, major_fits_in_hex_field);
 __LUB_STATIC_ASSERT__(LUB_VERSION_MINOR <= 255, minor_fits_in_hex_field);
 __LUB_STATIC_ASSERT__(LUB_VERSION_PATCH <= 255, patch_fits_in_hex_field);
 
-// Ensure the numeric encoding cannot overflow int.
-__LUB_STATIC_ASSERT__(LUB_VERSION_NUM >= 0, version_num_nonnegative);
+// Ensure the numeric encoding cannot overflow int. 
 __LUB_STATIC_ASSERT__(LUB_VERSION_NUM < 100000000, version_num_reasonable);
 #endif // __LUB_DEFINITIONS__
 /** @} */ // End of Versioning.
