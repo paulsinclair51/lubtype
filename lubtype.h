@@ -5,6 +5,7 @@
 
 /**
  * @section Overview Overview
+ *
  * This C/C++ API header provides Latin-8,
  * Unicode-16, and byte types, plus associated macros, extern function
  * declarations (protypes), and static inline function
@@ -49,8 +50,8 @@
 /**
  * @section GuidingPrinciples Guiding Principles
  *
- * - Symmetry:      Operation exists for every encoding direction
- *                  except where explicitly noted. For example,
+ * - Symmetry:       Operation exists for every encoding direction
+ *                   except where explicitly noted. For example,
  *                   Latin (l) <- Unicoce (u) variants are not provided
  *                   for comparison search functions simce a Unicode character
  *                   outside the range of Latin would not match.
@@ -243,8 +244,10 @@ extern "C" {
  * .
  *        LUB_VERSION_AT_LEAST(maj,min,pat)
  *           True if current version is at least maj.min.pat.
+ *
  * @note A compiler error is raised if any of the versioning macros
  *       are already defined before including lubtype.h.
+ *
  * @note The naming conventions, error semantics, and safety guarantees
  *       are part of the stable API and will not change without a
  *       major version increment.
