@@ -131,9 +131,12 @@
  *   explicit bounds checks.
  *
  * - Casting of error values between int, size_t, and pointers
- *   maintains integrity of error values. For example,
+ *   maintains integrity of error values. That is,
+ *   pointer–int-size_t round‑tripping is required to preserve bit patterns
+ *   fot error values. For example,
  *   (size_t)<error value> is equal to (size_t)(void *)<error value>
  *   and to (size_t)(int)<error value>. See @ref ErrorValues.
+ *   Only platforms where this is true are supported.
  */
 
 #pragma once
@@ -143,7 +146,7 @@
 #include <ctype.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <wchar.h>
+#include <wchar.h> 
 #include <wctype.h>
 
 // Allow functions to be invoked from C++.
