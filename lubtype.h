@@ -199,7 +199,7 @@ extern "C" {
 #endif // defined macro
 
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-// C11 and later: use the built‑in assertion macrp.
+// C11 and later: use the built‑in assertion macro.
 #define __LUB_STATIC_ASSERT__(cond, msg) _Static_assert(cond, #msg)
 #else
 // C99: typedef with invalid negative array size if assertion not satisfied.
