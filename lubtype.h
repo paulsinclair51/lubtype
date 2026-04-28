@@ -50,7 +50,7 @@
 /**
  * @section GuidingPrinciples Guiding Principles
  *
- * - Symmetry:       Operation exists for every encoding direction
+ * - Symmetry:      Functions exist for every encoding direction
  *                   except where explicitly noted. For example,
  *                   Latin (l) <- Unicoce (u) variants are not provided
  *                   for comparison search functions simce a Unicode character
@@ -74,6 +74,9 @@
  *                   casts and, therefore, results are locale- and
  *                   CRT-dependent and results may differ across platforms
  *                   or locale settings.
+ *
+ *                   See also @ref Assumptions which may limit portability to
+ *                   some platforms.
  *
  * - Compatibility:  Usable with both C and C++ with compatibility
  *                   with C89/C90 (ANSI C) compilers. No C99/C11 features
@@ -312,10 +315,7 @@ __LUB_STATIC_ASSERT__(LUB_VERSION_NUM < 100000000, version_num_reasonable);
 /** @} */ // End of Versioning.
 
 #if defined(__LUB_DEFINITIONS__)
-// Ensure short is 2 bytes, int is 4 bytes, and
-// wchar_t is 2 or 4 bytes.
-__LUB_STATIC_ASSERT__(sizeof(short) == 2, short_must_be_2_bytes);
-__LUB_STATIC_ASSERT__(sizeof(int) == 4, int_must_be_4_bytes);
+// Ensure wchar_t is 2 or 4 bytes.
 __LUB_STATIC_ASSERT__(sizeof(wchar_t) == 2 || sizeof(wchar_t) == 4,
                       wchar_t_must_be_2_or_4_bytes);
                      
