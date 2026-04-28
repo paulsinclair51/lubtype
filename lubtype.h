@@ -8,7 +8,7 @@
  *
  * This C/C++ API header provides Latin-8,
  * Unicode-16, and byte types, plus associated macros, extern function
- * declarations (protypes), and static inline function
+ * declarations (prototypes), and static inline function
  * definitions.
  * 
  * To include definitions of extern functions,
@@ -20,7 +20,7 @@
  * Functions include classification, character transformation,
  * length, concatenate, copy, search, compare, fixed/prefix/suffix
  * compare, transform, replace, format, validation,
- * split, span, character substitutiion, and count.
+ * split, span, character substitution, and count.
  * 
  *   - Variants for Latin/Unicode/Byte <- Latin/Unicode/Byte.
  *   - Variants for explicit/default bounds on source length.
@@ -52,8 +52,8 @@
  *
  * - Symmetry:      Functions exist for every encoding direction
  *                   except where explicitly noted. For example,
- *                   Latin (l) <- Unicoce (u) variants are not provided
- *                   for comparison search functions simce a Unicode character
+ *                   Latin (l) <- Unicode (u) variants are not provided
+ *                   for comparison search functions since a Unicode character
  *                   outside the range of Latin would not match.
  *
  * - Clarity:        Function names encode direction/type, bound, operation,
@@ -4204,7 +4204,7 @@ extern uchar_t *uusnnREPLACE(
  */
 
 extern int llsnvprintf(lchar_t *t, size_t tn, const lchar_t *fmt, va_list ap)
-#if defined(LUB_DEFINTIIONS)
+#if defined(LUB_DEFINITIONS)
 {   if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(fmt, 0))
       return LUB_INT_ERR(LUB_BAD_PTR, 0);
     if (!t || !fmt || !tn) {
