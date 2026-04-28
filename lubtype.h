@@ -560,7 +560,10 @@ typedef uint8_t byte_t;
  * @brief Macros for classifying value as an error value and casting error
  *        values to pointer, size_t, and int types. Only values in the reserved
  *        error range (-99 to -2) are considered error values; any non‑error
- *        value yields 0.
+ *        value yields 0, Error values are
+ *        representable across int, size_t, intptr_t, and void *.
+ *        See @ref ErrorValues and @ref GuidingPrinciples.
+ *
  * @param value The value returned by a function to be classified or cast.
  * @param error 0 (indicating any error) or a specific error value.
  * @return The value (if it is an error value) or 0 (not an error value)
