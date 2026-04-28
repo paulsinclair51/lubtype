@@ -116,8 +116,9 @@
  *
  * @note When appropriate, functions are `static inline`.
  *
- * @note Overlapping source/target buffers produce implementation-defined behavior
- * (correct result in target buffer or error).
+ * @note Overlapping source and target buffers result in
+ * implementation‑defined behavior; functions may return an error or
+ * produce a correct result depending on the operstion.
  *
  * @note No dynamic memory is allocated or freed.
  *
@@ -463,6 +464,10 @@ typedef uint8_t byte_t;
  *       value for s1 > s2. Returning specific values
  *       allows for error return values that are between -99 and -2
  *       that are distinct from valid comparison return values.
+ * @note Special values (-1, 0, +1) are intentionally outside the
+ *       reserved error range (-99 to -2) and can never be misclassified as
+ *       error values.
+
  * @{
  */
 
@@ -546,8 +551,10 @@ typedef uint8_t byte_t;
 /**
  * @defgroup ErrorClassificationAndCast Error Classification and Cast
  * @name LUB_PTR_ERR, LUB_SIZE_ERR, LUB_INT_ERR
- * @brief Macros for classifying value as an error value and casting error values to
- *        pointer, size_t, and int types.
+ * @brief Macros for classifying value as an error value and casting error
+ *        values to pointer, size_t, and int types. Only values in the reserved
+ *        error range (-99 to -2) are considered error values; any non‑error
+ *        value yields 0.
  * @param value The value returned by a function to be classified or cast.
  * @param error 0 (indicating any error) or a specific error value.
  * @return The value (if it is an error value) or 0 (not an error value)
