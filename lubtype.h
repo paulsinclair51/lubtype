@@ -76,7 +76,7 @@
  *
  *                   Comparison functions operate strictly on raw code units.
  *                   They do not apply character substitution, normalization, or any mapping beyond
- *                   the specified case‑sensitivity rules. This ensures predictable, strcmp‑like
+ *                   the specified case (sensitive or insensitive) rules. This ensures predictable, strcmp‑like
  *                   ordering and keeps comparison return values (-1, 0, +1) distinct from the
  *                   reserved error range (-99 to -2).
  *
