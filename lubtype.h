@@ -205,7 +205,7 @@ extern "C" {
 // C99: typedef with invalid negative array size if assertion not satisfied.
 #define __LUB_STATIC_ASSERT__(cond, msg) \
     typedef char __LUB_XPASTE__(__LUB_STATIC_ASSERT__, msg)[(cond) ? 1 : -1]
-#endif // defined
+#endif
 
 /**
  * @section Versioning Versioning
