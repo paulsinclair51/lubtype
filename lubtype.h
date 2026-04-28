@@ -237,7 +237,7 @@ extern "C" {
  *           version 0, patch version 0.
  * 
  *        LUB_VERSION_NUM
- *           unsigned int form MMmmpp for comparisons, e.g., 10000 for
+ *           uint32_t form MMmmpp for comparisons, e.g., 10000 for
  *           version 1.0.0, 10200 for version 1.2.0, or 11212 for version 1.12.12.
  * 
  *        LUB_VERSION_HEX
@@ -272,9 +272,9 @@ extern "C" {
 #endif // defined macros
 
 // LUB API version major, minor, patch.
-#define LUB_VERSION_MAJOR 1
-#define LUB_VERSION_MINOR 0
-#define LUB_VERSION_PATCH 0
+#define LUB_VERSION_MAJOR (uint8_t)1
+#define LUB_VERSION_MINOR (uint8_t)0
+#define LUB_VERSION_PATCH (uint8_t)0
 
 // LUB API version string in "major.minor.patch" format.
 #define LUB_VERSION \
@@ -284,36 +284,33 @@ extern "C" {
 
 // LUB API version as an integer for comparisons.
 #define LUB_VERSION_NUM \
-    ((unsigned int)((LUB_VERSION_MAJOR * 10000) + \
-    (LUB_VERSION_MINOR * 100) + (LUB_VERSION_PATCH)))
+    ((uint32_t)LUB_VERSION_MAJOR * 10000 + \
+     (uint32_t)LUB_VERSION_MINOR * 100 + \
+     (uint32_t)LUB_VERSION_PATCH)
 
 // LUB API version encoded as 0xMMmmpp (major, minor, patch) for display/debug.
 #define LUB_VERSION_HEX \
-    (((LUB_VERSION_MAJOR) << 16) | \
-     ((LUB_VERSION_MINOR) << 8) | \
-     (LUB_VERSION_PATCH))
+    (((uint32_t)LUB_VERSION_MAJOR) << 16) | \
+     ((uint32_t)LUB_VERSION_MINOR) << 8) | \
+     (uint32_t)LUB_VERSION_PATCH)
 
 // True if the current LUB API version is the specified version.
 #define LUB_VERSION_EQ(maj, min, pat) \
-    (LUB_VERSION_NUM == ((maj) * 10000 + (min) * 100 + (pat)))
+    (LUB_VERSION_NUM == (uint32_t)(maj) * 10000 + \
+                        (uint32_t)(min) * 100 + \
+                        (uint32_t)(pat)
 
 // True if the current LUB API version is at least the specified version.
 #define LUB_VERSION_AT_LEAST(maj, min, pat) \
-    (LUB_VERSION_NUM >= ((maj) * 10000 + (min) * 100 + (pat)))
+    (LUB_VERSION_NUM >=  (uint32_t)(maj) * 10000 + \
+                         (uint32_t)(min) * 100 + \
+                         (uint32_t)(pat)
 
 #if defined(__LUB_DEFINITIONS__)
-// Ensure version components are within expected ranges.
-__LUB_STATIC_ASSERT__(LUB_VERSION_MAJOR >= 0, major_must_be_nonnegative);
-__LUB_STATIC_ASSERT__(LUB_VERSION_MINOR >= 0, minor_must_be_nonnegative);
-__LUB_STATIC_ASSERT__(LUB_VERSION_PATCH >= 0, patch_must_be_nonnegative);
-
-// Ensure version components fit in the hex encoding fields.
-__LUB_STATIC_ASSERT__(LUB_VERSION_MAJOR <= 255, major_fits_in_hex_field);
-__LUB_STATIC_ASSERT__(LUB_VERSION_MINOR <= 255, minor_fits_in_hex_field);
-__LUB_STATIC_ASSERT__(LUB_VERSION_PATCH <= 255, patch_fits_in_hex_field);
-
-// Ensure the numeric encoding cannot overflow int. 
-__LUB_STATIC_ASSERT__(LUB_VERSION_NUM < 100000000, version_num_reasonable);
+// Ensure version components fit in the encoding fields.
+__LUB_STATIC_ASSERT__(LUB_VERSION_MAJOR <= 99, major_fits_in_field);
+__LUB_STATIC_ASSERT__(LUB_VERSION_MINOR <= 99, minor_fits_in_field);
+__LUB_STATIC_ASSERT__(LUB_VERSION_PATCH <= 99, patch_fits_in_field);
 #endif // __LUB_DEFINITIONS__
 /** @} */ // End of Versioning.
 
