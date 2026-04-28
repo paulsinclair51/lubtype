@@ -50,7 +50,7 @@
 /**
  * @section GuidingPrinciples Guiding Principles
  *
- * - Symmetry:      Functions exist for every encoding direction
+ * - Symmetry:       Functions exist for every encoding direction
  *                   except where explicitly noted. For example,
  *                   Latin (l) <- Unicode (u) variants are not provided
  *                   for comparison search functions since a Unicode character
@@ -62,12 +62,23 @@
  * - Safety:         Explicit/default bounds, terminator validation,
  *                   representability checks, error checking.
  *
+ *                    Casts to lchar_t and uchar_t include
+ *                    explicit bounds checks.
+ *
+ *                    The API is thread-safe provided threads do not share target buffers without
+ *                    external synchronization. Character classification relies on <ctype.h> and
+ *                    <wctype.h>, which are thread-safe when the locale is not modified.
+ *
  * - Predictability: Behavior mirrors familiar C string patterns while
  *                   making bounds, defined (instead of undefined or
  *                   implementation-defined) return values, error
  *                   values.
  *
- * - Portability:    Fixed-width types, wchar_t size may be 2 or 4 bytes.
+ * - Portability:    Only platforms that support include files <stddef.h>,
+ *                    <stdint.h>, <ctype.h>, <stdarg.h>, <stdio.h>,
+ *                    <wchar.h>, and <wctype.h> are supported.
+ ^
+ *                    Fixed-width types, wchar_t size must be 2 or 4 bytes.
  *                   No API-managed locale state. However, Unicode
  *                   classification and case conversion use C runtime
  *                   wide-character routines (isw* and tow*) via wchar_t
@@ -75,11 +86,17 @@
  *                   CRT-dependent and results may differ across platforms
  *                   or locale settings.
  *
- *                   See also @ref Assumptions which may limit portability to
- *                   some platforms.
+ *                    This API intentionally relies on two’s‑complement integer
+ *                    representation and on pointer–integer round‑tripping for
+ *                    error‑value encoding. Platforms must support casting between
+ *                    int, size_t, intptr_t, and void * without loss of bit
+ *                    patterns for values in the range -99 to -2. These
+ *                    requirements are validated at compile time via static
+ *                    assertions; platforms that do not satisfy them are not
+ *                    supported.
  *
  * - Compatibility:  Usable with both C and C++ with compatibility
- *                   with C89/C90 (ANSI C) compilers. No C99/C11 features
+ *                   with C90 (ANSI C) compilers. No C11 features
  *                   are required.
  * 
  * @warning This API does not perform Unicode normalization or surrogate pair
@@ -104,10 +121,6 @@
  *
  * @note No dynamic memory is allocated or freed.
  *
- * @note The API is thread-safe provided threads do not share target buffers without
- * external synchronization. Character classification relies on <ctype.h> and
- * <wctype.h>, which are thread-safe when the locale is not modified.
- *
  * @note No recursion or dynamic allocation occurs.
  *
  * @note This header was reviewed and refined with assistance from Microsoft Copilot.
@@ -125,18 +138,6 @@
  *
  * - byte_t = uint8_t (raw byte, values x'00'-x'FF', no null
  *   terminator semantics).
- *
- * - wchar_t width is usually expected to be 4 bytes but may
- *   be 2 bytes; all casts to lchar_t and uchar_t include
- *   explicit bounds checks.
- *
- * - Casting of error values between int, size_t, and pointers
- *   maintains integrity of error values. That is,
- *   pointer–int-size_t round‑tripping is required to preserve bit patterns
- *   fot error values. For example,
- *   (size_t)<error value> is equal to (size_t)(void *)<error value>
- *   and to (size_t)(int)<error value>. See @ref ErrorValues.
- *   Only platforms where this is true are supported.
  */
 
 #pragma once
@@ -272,15 +273,15 @@ extern "C" {
 #endif // defined macros
 
 // LUB API version major, minor, patch.
-#define LUB_VERSION_MAJOR (uint8_t)1
-#define LUB_VERSION_MINOR (uint8_t)0
-#define LUB_VERSION_PATCH (uint8_t)0
+#define LUB_VERSION_MAJOR ((uint8_t)1)
+#define LUB_VERSION_MINOR ((uint8_t)0)
+#define LUB_VERSION_PATCH ((uint8_t)0)
 
 // LUB API version string in "major.minor.patch" format.
 #define LUB_VERSION \
-    __LUB_XSTRINGIFY__(LUB_VERSION_MAJOR) "." \
+    (__LUB_XSTRINGIFY__(LUB_VERSION_MAJOR) "." \
     __LUB_XSTRINGIFY__(LUB_VERSION_MINOR) "." \
-    __LUB_XSTRINGIFY__(LUB_VERSION_PATCH)
+    __LUB_XSTRINGIFY__(LUB_VERSION_PATCH))
 
 // LUB API version as an integer for comparisons.
 #define LUB_VERSION_NUM \
@@ -290,7 +291,7 @@ extern "C" {
 
 // LUB API version encoded as 0xMMmmpp (major, minor, patch) for display/debug.
 #define LUB_VERSION_HEX \
-    (((uint32_t)LUB_VERSION_MAJOR) << 16) | \
+    ((uint32_t)LUB_VERSION_MAJOR) << 16) | \
      ((uint32_t)LUB_VERSION_MINOR) << 8) | \
      (uint32_t)LUB_VERSION_PATCH)
 
@@ -298,13 +299,13 @@ extern "C" {
 #define LUB_VERSION_EQ(maj, min, pat) \
     (LUB_VERSION_NUM == (uint32_t)(maj) * 10000 + \
                         (uint32_t)(min) * 100 + \
-                        (uint32_t)(pat)
+                        (uint32_t)(pat))
 
 // True if the current LUB API version is at least the specified version.
 #define LUB_VERSION_AT_LEAST(maj, min, pat) \
     (LUB_VERSION_NUM >=  (uint32_t)(maj) * 10000 + \
                          (uint32_t)(min) * 100 + \
-                         (uint32_t)(pat)
+                         (uint32_t)(pat))
 
 #if defined(__LUB_DEFINITIONS__)
 // Ensure version components fit in the encoding fields.
@@ -396,7 +397,7 @@ typedef uint8_t byte_t;
 #error "lubtype.h: A character limit LUB_MAX_* "\
        "macro is unexpectedly already defined. " \
        "#undef before including lubtype.h. " \
-       "After including, undef and define again as needed ' \
+       "After including, undef and define again as needed " \
        "if the LUB_MAX_* definition is not required."
 #endif // defined macros
 
@@ -443,6 +444,7 @@ typedef uint8_t byte_t;
 
 /**
  * @section SpecialReturnAndErrorValues Special Return and Error Values
+ */
 
 /**
  * @defgroup SpecialReturnValues Special Return Values
@@ -466,7 +468,7 @@ typedef uint8_t byte_t;
 
 #if defined(LUB_CMP_GREATER_THAN) || \
     defined(LUB_CMP_EQUAL) || \
-    defined(LUB_CMP_LESS_THAN)(
+    defined(LUB_CMP_LESS_THAN)
 #error "lubtype.h: A special value LUB_CMP_* " \
        "macro is unexpectedly already defined. " \
        "#undef before including lubtype.h. " \
@@ -494,9 +496,9 @@ typedef uint8_t byte_t;
 
 /**
  * @defgroup ErrorValues Error Values
- * @name LUB_BAD_PTR
+ * @name LUB_PTR_INVALID
  *       LUB_UNTERMINATED
- *       LUB_INVALID_NAME
+ *       LUB_NAME_INVALID
  *       LUB_OPT_TOO_LONG
  *       LUB_OPT_INVALID
  *       LUB_OPT_RESERVED
@@ -513,9 +515,9 @@ typedef uint8_t byte_t;
  * @{
  */
 
-#if defined(LUB_BAD_PTR) || \
+#if defined(LUB_PTR_INVALID) || \
     defined(LUB_UNTERMINATED) || \
-    defined(LUB_INVALID_NAME) || \
+    defined(LUB_NAME_INVALID) || \
     defined(LUB_OPT_TOO_LONG) || \
     defined(LUB_OPT_INVALID) || \
     defined(LUB_OPT_RESERVED) || \
