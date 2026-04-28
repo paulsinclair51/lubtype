@@ -74,6 +74,12 @@
  *                   implementation-defined) return values, error
  *                   values.
  *
+ *                   Comparison functions operate strictly on raw code units.
+ *                   They do not apply character substitution, normalization, or any mapping beyond
+ *                   the specified case‑sensitivity rules. This ensures predictable, strcmp‑like
+ *                   ordering and keeps comparison return values (-1, 0, +1) distinct from the
+ *                   reserved error range (-99 to -2).
+ *
  * - Portability:    Only platforms that have include files <stddef.h>,
  *                   <stdint.h>, <ctype.h>, <stdarg.h>, <stdio.h>,
  *                   <wchar.h>, and <wctype.h> are supported.
