@@ -62,23 +62,23 @@
  * - Safety:         Explicit/default bounds, terminator validation,
  *                   representability checks, error checking.
  *
- *                    Casts to lchar_t and uchar_t include
- *                    explicit bounds checks.
+ *                   Casts to lchar_t and uchar_t include
+ *                   explicit bounds checks.
  *
- *                    The API is thread-safe provided threads do not share target buffers without
- *                    external synchronization. Character classification relies on <ctype.h> and
- *                    <wctype.h>, which are thread-safe when the locale is not modified.
+ *                   The API is thread-safe provided threads do not share target buffers without
+ *                   external synchronization. Character classification relies on <ctype.h> and
+ *                   <wctype.h>, which are thread-safe when the locale is not modified.
  *
  * - Predictability: Behavior mirrors familiar C string patterns while
  *                   making bounds, defined (instead of undefined or
  *                   implementation-defined) return values, error
  *                   values.
  *
- * - Portability:    Only platforms that support include files <stddef.h>,
- *                    <stdint.h>, <ctype.h>, <stdarg.h>, <stdio.h>,
- *                    <wchar.h>, and <wctype.h> are supported.
- ^
- *                    Fixed-width types, wchar_t size must be 2 or 4 bytes.
+ * - Portability:    Only platforms that have include files <stddef.h>,
+ *                   <stdint.h>, <ctype.h>, <stdarg.h>, <stdio.h>,
+ *                   <wchar.h>, and <wctype.h> are supported.
+ *
+ *                   Fixed-width types, wchar_t size must be 2 or 4 bytes.
  *                   No API-managed locale state. However, Unicode
  *                   classification and case conversion use C runtime
  *                   wide-character routines (isw* and tow*) via wchar_t
@@ -86,14 +86,14 @@
  *                   CRT-dependent and results may differ across platforms
  *                   or locale settings.
  *
- *                    This API intentionally relies on two’s‑complement integer
- *                    representation and on pointer–integer round‑tripping for
- *                    error‑value encoding. Platforms must support casting between
- *                    int, size_t, intptr_t, and void * without loss of bit
- *                    patterns for values in the range -99 to -2. These
- *                    requirements are validated at compile time via static
- *                    assertions; platforms that do not satisfy them are not
- *                    supported.
+ *                   This API intentionally relies on two’s‑complement integer
+ *                   representation and on pointer–integer round‑tripping for
+ *                   error‑value encoding. Platforms must support casting between
+ *                   int, size_t, intptr_t, and void * without loss of bit
+ *                   patterns for values in the range -99 to -2. These
+ *                   requirements are validated at compile time via static
+ *                   assertions; platforms that do not satisfy them are not
+ *                   supported.
  *
  * - Compatibility:  Usable with both C and C++ with compatibility
  *                   with C90 (ANSI C) compilers. No C11 features
@@ -291,8 +291,8 @@ extern "C" {
 
 // LUB API version encoded as 0xMMmmpp (major, minor, patch) for display/debug.
 #define LUB_VERSION_HEX \
-    ((uint32_t)LUB_VERSION_MAJOR) << 16) | \
-     ((uint32_t)LUB_VERSION_MINOR) << 8) | \
+    (((uint32_t)LUB_VERSION_MAJOR << 16) | \
+     ((uint32_t)LUB_VERSION_MINOR << 8) | \
      (uint32_t)LUB_VERSION_PATCH)
 
 // True if the current LUB API version is the specified version.
