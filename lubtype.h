@@ -226,38 +226,38 @@ extern "C" {
  *       LUB_VERSION_EQ, LUB_VERSION_AT_LEAST
  * @brief Versioning macros for the LUB API (lubtype.h):
  * 
- *        LUB_VERSION_MAJOR
- *           Major version number, incremented for incompatible API changes.
- *           String form, e.g., "1" for major version 1.
+ * LUB_VERSION_MAJOR
+ *    Major version number, incremented for incompatible API changes.
+ *    String form, e.g., "1" for major version 1.
  * 
- *        LUB_VERSION_MINOR
- *           Minor version number, incremented for backward-compatible additions.
- *           String form, e.g., "0" for minor version 0,
- *           or "22" for minor version 22.
+ * LUB_VERSION_MINOR
+ *    Minor version number, incremented for backward-compatible additions.
+ *    String form, e.g., "0" for minor version 0,
+ *    or "22" for minor version 22.
  * 
- *        LUB_VERSION_PATCH
- *           Patch version number, incremented for bug fixes or internal improvements.
- *           String form, e.g., "0" for patch version 0,
- *           or "12" for patch version 12.
+ * LUB_VERSION_PATCH
+ *    Patch version number, incremented for bug fixes or internal improvements.
+ *    String form, e.g., "0" for patch version 0,
+ *    or "12" for patch version 12.
  * 
- *        LUB_VERSION
- *           String form, e.g., "1.0.0" for major version 1, minor
- *           version 0, patch version 0.
+ * LUB_VERSION
+ *    String form, e.g., "1.0.0" for major version 1, minor
+ *    version 0, patch version 0.
  * 
- *        LUB_VERSION_NUM
- *           uint32_t form MMmmpp for comparisons, e.g., 10000 for
- *           version 1.0.0, 10200 for version 1.2.0, or 11212 for version 1.12.12.
+ * LUB_VERSION_NUM
+ *    uint32_t form MMmmpp for comparisons, e.g., 10000 for
+ *    version 1.0.0, 10200 for version 1.2.0, or 11212 for version 1.12.12.
  * 
- *        LUB_VERSION_HEX
- *           Hexadecimal form 0xMMmmpp for display/debugging, e.g.,
- *           0x010000 for version 1.0.0, 0x010200 for version 1.2.0,
- *           or 0x011212 for version 1.12.12.
+ * LUB_VERSION_HEX
+ *    Hexadecimal form 0xMMmmpp for display/debugging, e.g.,
+ *    0x010000 for version 1.0.0, 0x010200 for version 1.2.0,
+ *    or 0x011212 for version 1.12.12.
  * 
- *        LUB_VERSION_EQ(maj,min,pat)
- *           True if current version is exactly maj.min.pat
- * .
- *        LUB_VERSION_AT_LEAST(maj,min,pat)
- *           True if current version is at least maj.min.pat.
+ * LUB_VERSION_EQ(maj,min,pat)
+ *    True if current version is exactly maj.min.pat
+ *
+ * LUB_VERSION_AT_LEAST(maj,min,pat)
+ *    True if current version is at least maj.min.pat.
  *
  * @note A compiler error is raised if any of the versioning macros
  *       are already defined before including lubtype.h.
@@ -420,11 +420,12 @@ typedef uint8_t byte_t;
  *       LUB_MAX_LOPTLEN, LUB_MAX_UOPTLEN,
  *       LUB_MAX_BSTRLEN, LUB_MAX_BOPTLEN
  * @brief Maximum number of characters for an lchar_t string,
- *        uchar_t string, name, quoted name, or option (not
- *        including the null terminator)
- *        Maximum number of bytes for a byte_t string or byte option.
+ * uchar_t string, name, quoted name, or option (not
+ * including the null terminator).
+ *
+ * Maximum number of bytes for a byte_t string or byte option.
  * @note MAX_LNAMELEN and MAX_LQNAMELEN are not provided since
- *       names are Unicode.
+ * names are Unicode.
  * @{
  */
 
@@ -458,10 +459,13 @@ typedef uint8_t byte_t;
  * @name LUB_CMP_GREATER_THAN, LUB_CMP_EQUAL, LUB_CMP_LESS_THAN,
  *       LUB_QUOTEDNAME, LUB_UNQUOTEDNAME
  * @brief Special values for int-returning comparison and name classification.
+ *
  * @note For int returning comparison functions:
  * 
  *         LUB_CMP_LESS_THAN (-1) indicates s1 < s2.
+ *
  *         LUB_CMP_EQUAL (0) indicates s1 == s2.
+ *
  *         LUB_CMP_GREATER_THAN (1) indicates s1 > s2.
  * 
  *       Note that this differs from the standard strcmp
@@ -470,10 +474,10 @@ typedef uint8_t byte_t;
  *       value for s1 > s2. Returning specific values
  *       allows for error return values that are between -99 and -2
  *       that are distinct from valid comparison return values.
+ *
  * @note Special values (-1, 0, +1) are intentionally outside the
  *       reserved error range (-99 to -2) and can never be misclassified as
  *       error values.
-
  * @{
  */
 
@@ -497,13 +501,13 @@ typedef uint8_t byte_t;
 #endif // defined macros
 
 //Special values for comparison result.
-#define LUB_CMP_GREATER_THAN       (1)
-#define LUB_CMP_EQUAL              (0)
-#define LUB_CMP_LESS_THAN          (-1)
+#define LUB_CMP_GREATER_THAN       ((int)1)
+#define LUB_CMP_EQUAL              ((int)0)
+#define LUB_CMP_LESS_THAN          ((int)-1)
 
 // Special values for names.
-#define LUB_QUOTEDNAME             (1)
-#define LUB_UNQUOTEDNAME           (0)
+#define LUB_QUOTEDNAME             ((int)1)
+#define LUB_UNQUOTEDNAME           ((int)0)
 
 /**
  * @defgroup ErrorValues Error Values
@@ -515,8 +519,8 @@ typedef uint8_t byte_t;
  *       LUB_OPT_RESERVED
  *       LUB_OVERLAP
  *       LUB_TRUNCATED
- * @brief Reserved error values for size_t, pointer, and
- * int error-returning functions (for use with LUB_*_ERR macros,
+ * @brief Error values for size_t, pointer, and
+ * int error-returning functions (for use with LUB_*_ERR macros;
  * see @ref ErrorClassificationAndCast).
  *
  * Error values are reserved in the range -99 to -2 for int,
@@ -558,11 +562,11 @@ typedef uint8_t byte_t;
  * @defgroup ErrorClassificationAndCast Error Classification and Cast
  * @name LUB_PTR_ERR, LUB_SIZE_ERR, LUB_INT_ERR
  * @brief Macros for classifying value as an error value and casting error
- *        values to pointer, size_t, and int types. Only values in the reserved
- *        error range (-99 to -2) are considered error values; any non‑error
- *        value yields 0, Error values are
- *        representable across int, size_t, intptr_t, and void *.
- *        See @ref ErrorValues and @ref GuidingPrinciples.
+ * values to pointer, size_t, and int types. Only values in the reserved
+ * error range (-99 to -2) are considered error values; any non‑error
+ * value yields 0, Error values are
+ * representable across int, size_t, intptr_t, and void *.
+ * See @ref ErrorValues and @ref GuidingPrinciples.
  *
  * @param value The value returned by a function to be classified or cast.
  * @param error 0 (indicating any error) or a specific error value.
@@ -572,8 +576,7 @@ typedef uint8_t byte_t;
  *             LUB_PTR_ERR -> void *
  *             LUB_SIZE_ERR -> size_t
  *             LUB_INT_ERR -> int
- * @example
- *   Examples of using error values and macros:
+ * @example Examples of using error values and macros
  * 
  *   * Use a  LUB_*_ERR macro to check if a returned value is an error:
  * 
@@ -714,7 +717,7 @@ typedef uint8_t byte_t;
  *    n = bounded source with an sn
  *        parameter for the bound.
  * 
- *  Examples: lcsnlen, ucsnlen
+ *    Examples: lcsnlen, ucsnlen
  * 
  * 6. Other functions:
  *
@@ -734,6 +737,7 @@ typedef uint8_t byte_t;
  *   nn = bounded target buffer and bounded source(s) with
  *        tn and sn parameters for the target bound
  *        and source bound(s), respectively.
+ *
  *   n = bounded target with tn parameter for the
  *       bound (implicit bound on source) or bounded source (s) with an sn
  *       parameter for the bound depending on the operation.
@@ -776,10 +780,10 @@ typedef uint8_t byte_t;
  * @note Operations with case handling
  *
  *   lowercase operation (no 'c') = case-sensitive character comparison or
- *                                  no case mapping
- *   uppercase operation (no 'C') = case-insensitive matching/comparison
- *   lowercase operation with 'c' = case-mapped to lowercase
- *   uppercase operation with 'C' = case-mapped to uppercase
+ *                                  no case mapping.
+ *   uppercase operation (no 'C') = case-insensitive matching/comparison.
+ *   lowercase operation with 'c' = case-mapped to lowercase.
+ *   uppercase operation with 'C' = case-mapped to uppercase.
  */
 
 /**
@@ -887,6 +891,7 @@ typedef uint8_t byte_t;
  * @defgroup CharacterClassification Character Classification
  * @name isualpha, islalpha
  *       isudigit, isldigit, isualnum, islalnum
+ *       isulatin
  *       isuupper, islupper, isulower, isllower
  *       isucntrl, islcntrl, isuprint, islprint
  *       isugraph, islgraph, isupunct, islpunct
@@ -896,22 +901,29 @@ typedef uint8_t byte_t;
  * @brief Latin and Unicode character classification functions.
  * @param c Character to classify.
  * @return Non-zero if the character satisfies the condition, otherwise zero.
+ *
  * @note islblank and isublank classify whether c is a Latin ' ' character.
+ *
  * @note islspace classifies whether c is a Latin whitespace character,
  *       i.e., ' ', '\t', '\v', '\f', '\n', or '\r' character.
+ *
  * @note isuspace classifies whether c is a Unicode whitespace character,
  *       which includes Latin whitespace characters plus additional Unicode
  *       whitespace characters (e.g., U+00A0 NO-BREAK SPACE,
  *       U+2003 EM SPACE, etc.).
+ *
  * @note isuhexdigit/islhexdigit classifies whether c is a
  *       hexadecimal digit character, i.e., ('0' to '9',
  *       'A' to 'F', or 'a' to 'f').
+ *
  * @note isuname1c classifies whether c is valid for the first character
  *       of a Unicode unquoted name, i.e., a Latin alphabetic
  *       or '_' character.
+ *
  * @note isunamec classifies whether c is valid in a Unicode unquoted name
  *       other than for the first character in an unquoted name, i.e.,
  *       a Latin alphabetic, numeric, or '_' character.
+ *
  * @note islname1c and islnamec are not provided since names are Unicode.
  * @{
  */
@@ -928,6 +940,8 @@ static inline int isualnum(const uchar_t c)
     {return (iswalnum((wchar_t)c);}
 static inline int islalnum(const lchar_t c)
     {return isalnum((unsigned char)c);}
+static inline int isulatin(const luchar_t c)
+    {return c > MAX_LCHAR ? 0 : 1;}
 static inline int isuname1c(const uchar_t c)
     {return (size_t)c <= LUB_MAX_LCHAR &&
        (islalpha((lchar_t)c) || (lchar_t)c == '_');
@@ -1107,6 +1121,7 @@ extern size_t ucsnlen(const uchar_t *s, size_t sn)
  * @defgroup StringClassification String Classification
  * @name isuRESERVED, isuQNAME (case-insensitive)
  *       isltruncstr, isneedlestr
+ *       isunlatin
  *       islnhexdigits, isunhexdigits
  * @brief Latin and Unicode string classification.
  * @param s Source string.
@@ -1116,25 +1131,31 @@ extern size_t ucsnlen(const uchar_t *s, size_t sn)
  * @return 1 Condition satisfied.
  *         0 Condition unsatisfied and no error.
  *        <0 Error.
+ *
  * @note Errors:
  *       - (int)LUB_BAD_PTR if s is an invalid pointer.
  *       - (int)LUB_UNTERMINATED if s is not null-terminated.
  *       - (int)LUB_INVALID_NAME if s is not a valid name for isuQNAME.
+ *
  * @note RESERVED: Classify whether s is a Teradata reserved word.
+ (
  * @note QNAME: Classify whether s must be a quoted name.
  *              s must be quoted if the first character is not
  *              a first-name character (see iuname1c), or any subsequent character
  *              is not a name character (see iunamec).
+ *
  * @note isltruncstr: Classify whether s is a valid truncated string for use as value
  *                    for as an trunc parameter. A valid string is NULL,
  *                    null-terminated by the bound LUB_MAX_LOPTLEN,
  *                    an empty string, and the first character is 
  *                    not a reserved alphabetic character (see trunc parameter for details).
+ *
 * @note islneedlestr: Classify whether s is a valid needle string for use as value
  *                    for as an search parameter. A valid string is NULL,
  *                    null-terminated by the bound LUB_MAX_LOPTLEN,
  *                    an empty string, and the first character is 
  *                    not a reserved alphabetic character (see trunc parameter for details).
+ *
  * @note The two hexdigits functions classify whether s consists only of hex digit characters
  *       '0' to '9', 'A' to 'F', or 'a' to 'f', s is NULL, or s is empty.
  * @{
@@ -1296,6 +1317,20 @@ extern int isltruncstr(const lchar_t *s)
     ;
 #endif // __LUB_DEFINITIONS__
 
+// Unicode string with only Latin characters,
+extern int isunlatin(const uchar_t *s, size_t sn)
+#if defined(__LUB_DEFINITIONS__)
+{   if (!s) return (int)1;
+    if (LUB_PTR_ERR(s, 0)) return LUB_INT_ERR(LUB_PTR_INVALID, 0);
+    if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
+    for (; sn && *s; --sn, ++s) if (*s > MAX_LCHAR) return (int)0;
+    if (*s) return LUB_INT_ERR(LUB_UNTERMINATED, 0);
+    return (int)1;
+}
+#else
+    ;
+#endif // __LUB_DEFINITIONS__
+
 // Hex digit string classification.
 extern int islnhexdigits(const lchar_t *s, size_t sn)
 #if defined(__LUB_DEFINITIONS__)
@@ -1364,6 +1399,7 @@ extern int isunhexdigits(const uchar_t *s, size_t sn)
  * 
  *         If t is not null and t is not null-terminated, the target buffer
  *         is set to an empty string (that is, *t = '\0').
+ *
  * @note Errors
  *       - LUB_BAD_PTR if t or s is an invalid pointer.
  *       - LUB_UNTERMINATED if t or s is not null-terminated.
@@ -1373,6 +1409,7 @@ extern int isunhexdigits(const uchar_t *s, size_t sn)
  *         alphabetic character.
  *       - LUB_OVERLAP if source and target overlap when not allowed.
  *       - LUB_TRUNCATED if truncation occurs.
+ *
  * @note For lls and uus, concatenate is overlap-safe (target result is correct
  *       but source may be overridden if there is overlap).
  *       For a concatenate with target and source of different types or quoted,
@@ -2071,16 +2108,19 @@ extern uchar_t *ubsnnCATC(uchar_t *t, size_t tn,
  *         is set to an empty string for a character target or filled
  *         with sn x'00' bytes for a byte target (truncated if sn > tn
  *         or padded with x'00' bytes to a length of tn).
+ *
  * @note Errors:
  *       - t is NULL.
  *       - Unterminated character source at or before s[sn].
  *       - For a byte target, tn exceeds LUB_MAX_BSTRLEN.
  *       - Unexpected overlap when source and target have different types, or when quoted.
  *       - Length of trunc string exceeds 31 or tn if trunc is not NULL.
+ *
  * @note Copy is overlap-safe if target and source have the same type and not quoted
  *       (target result is correct but source may be overridden if there is overlap).
  *
  *       For copy with target and source of different types or quoted, overlap is not allowed.
+ *
  * @note For concatenate with a byte target and a character source:
  *       - If the source string contains an odd number of hex digits, the last
  *         hex digit is treated as the high nibble of a byte, with an implicit
@@ -2559,12 +2599,14 @@ extern byte_t *bbsnncpy(byte_t *t, size_t tn, const byte_t *s, size_t sn)
  *              in the source string are not collapsed and trim mode must 
  *              be 'B', 'b', or default to 'B'.
  * @param err_c Replacement for out-of-range Unicode characters (lus functions only).
- * @return Pointer to t, or NULL if an error occurs
+ * @return Pointer to t, or NULL if an error occurs,
+ *
  * @note Errors:
  *       - LUB_BAD_PTR if t, s, st, or trim is not a valid pointer (value
  *         is reserved as an error value).
  *       - LUB_UNTERNMAINTED if s, trunc, or trim is not null terminated.
  *       - LUB_OPT_INVALID if invalid trunc or trim value.
+ *
  * @note The target buffer must be large enough for the result
  *       characters plus a null-terminator.
  * @{
@@ -2695,13 +2737,16 @@ extern uchar_t *uusnntrim
  *         null-termintor for s and sets *trimlen to 0.
  * 
  *         If an error occurs, returns NULL with *trimlen set to 0 if trimlen
- *         is non-NULL. 
+ *         is non-NULL.
+ *
  * @note Errors:
  *       - trimlen NULL.
  *       - s is NULL.
  *       - s unterminated within the default bound (MAX_LSTRLEN or LUB_MAX_USTRLEN).
+ *
  * @note The returned pointer and length can be used to access the trimmed
  *       substring of the string (the subsstring might not be null-terminated).
+ *
  * @note lus and uls variants are not supported.
  * @{
  */
@@ -2803,12 +2848,15 @@ extern const uchar_t *uunptrim(const uchar_t *s,  size_t sn,
  *           LUB_MAX_USTRLEN) for bounded functions. For default-bounded
  *           functions, sn defaults to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN.
  * @return t, or NULL if an error occurs.
+ *
  * @note Errors: 
  *       - t is NULL
  *       - Unterminated source string.
  *       - t and s are overlapping.
+ *
  * @note The target buffer must be large enough for the result 
  *       characters plus a null-terminator.
+ *
  * @note lusrev and ulsrev functions are not provided.
  *       Instead, use lusncpy/luscpy followed by uusnrev/uusrev.
  * @{
@@ -2900,6 +2948,7 @@ extern uchar_t *uusnnreverse(uchar_t *t, const uchar_t *s, size_t sn)
  *              (i.e., Unicode character > LUB_MAX_LCHAR).
  * @return t, NULL (if t is NULL), error. For an error,
  *         *t is set to a null-terminator.
+ *
  * @note Errors:
  *       - Invalid arguments
  *       - Unterminated source.
@@ -3034,6 +3083,7 @@ extern uchar_t *uusnnpad(uchar_t *t, size_t tn, const uchar_t *s, size_t sn,
  * @param times Number of times to repeat source. 0 yields empty string.
  * @return t, null (if t is NULL), or error. For an error,
  *         *t is set to a null-terminator.
+ *
  * @note Errors:
  *       - LUB_BAD_PTR if s is an invalid pointer.
  *       - LUB_UNTERMINATED if s is not null-terminated.
@@ -3311,6 +3361,7 @@ extern uchar_t *uusnnrepeat(
  *           <0 replaces the mth match from end (-1 is last).
  * @return t, NULL (if t is NULL), or error. For an error,
  *         *t is set to a null-terminator.
+ *
  * @note Errors: 
  *       - LUB_BAD_PTR if s or map is an invalid pointer.
  *       - LUB_UNTERMINATED if s or map is not null-terminated within their bounds.
@@ -3318,16 +3369,21 @@ extern uchar_t *uusnnrepeat(
  *       - LUB_OVERLAP if target and source buffers overlap in a way
  *         that would cause incorrect results in the target buffer.
  *       - LUB_TRUNCATED if the result cannot fit in the target buffer.
+ *
  * @note The first matching needle string/character in map wins.
  *       For a string map, list a longer needle before before any of its
  *       prefixes to match to the longer needle (otherwise, the shorter
  *       prefix would match first and the longer needle is ignored).
+ *
  * @note Needle matching is case-sensitive (replace) or case-insensitive (REPLACE);
  *       delimiter matching is case-sensitive;
  *       replacement text is written as-is.
+ (
  * @note If result would exceed tn characters, returns NULL and writes
  *       terminator at t[tn].
+ *
  * @note If map has more than one pair, m must be 0.
+ *
  * @note For multi-pair maps, the first matching needle in map order wins.
  *       List longer needles before shorter ones if overlap matters.
  * @{
@@ -4214,6 +4270,7 @@ extern uchar_t *uusnnREPLACE(
  * @param fmt Format string.
  * @param ap Variable argument list for llsnvprintf/llsnvprintf.
  * @return Number of chars written (excluding terminator), or -1 on error/truncate.
+ *
  * @note This family uses C vsnprintf semantics and treats lchar_t storage as bytes.
  * @{
  */
@@ -4264,7 +4321,8 @@ extern int llsnprintf(lchar_t *t, size_t tn, const lchar_t *fmt, ...)
  * @param sn Bound on both strings (clamped to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN) for
  *           bounded functions only, Default-bounded functions use LUB_MAX_LSTRLEN
  *           or LUB_MAX_USTRLEN.
- * @return -1 (s1 < s2), 0 (equal), 1 (s1 > s2), or error
+ * @return -1 (s1 < s2), 0 (equal), 1 (s1 > s2), or error,
+ *
  * @note Errors:
  *       - LUB_BAD_PTR if s1 or s2 is an invalid pointer.
  *       - LUB_UNTERMINATED if s1 or s2 is not null-terminated.
@@ -4413,14 +4471,19 @@ extern int uusnCMP(const uchar_t *s1, const uchar_t *s2, size_t n)
  * @return 0 if all sn characters are equal and both substrings are at least sn long,
  *        -1 if leading substring of s1 < leading substring of s2,
  *         1 if leading substring of s1 > leading substring of s2.
+ *
  * @note Errors:
  *       - LUB_BAD_PTR if s1 or s2 is an invalid pointer.
+ *
  * @note The leading substring may be shorter than sn if a null
  *       terminator is encountered.
+ *
  * @note s1 and s2 are not checked for null-termination beyond sn.
+ *
  * @note Stops comparing at null terminator in either string;
  *       if either string is shorter than sn,
  *       returns 1 or -1 (short string is less if all compared chars match).
+ *
  * @note Returns 0 if sn == 0. If s1 or s2 is NULL, it is treated as a 
  *       zero-length string.
  * @{
@@ -4562,6 +4625,7 @@ extern int uusnFXDCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
  *         LUB_CMP_LESS_THAN (-1) if s1 is less than s2.
  *         LUB_CMP_GREATER_THAN (1) if s1 is greater than s2.
  *         Or error.
+ *
  * @note Errors:
  *      - LUB_BAD_PTR if s1 or s2 is an invalid pointer.
  *      - LUB_UNTERMINATED if s1 or s2 is not null-terminated.
@@ -4862,6 +4926,7 @@ extern int uusnSFXCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
  *          m == 0 returns NULL. m < 0 counts from the end of the string
  *          (-1 means last occurrence) when the operation supports reverse selection.
  * @return Pointer to mth match in s1, NULL if not found, or error.
+ *
  * @note Errors:
  *       - LUB_BAD_PTR if s1 or s2 is an invalid pointer.
  *       - LUB_UNTERMINATED if s1 or s2 is not null-terminated.
@@ -5115,9 +5180,11 @@ extern uchar_t *uusnSTRM(
  * @param delim Delimiter character for needle substrings. If null, indicates
  *              s2 is a string of needle characters.
  * @return Count of matches, or error.
+ *
  * @note Errors;
  *       - LUB_BAD_PTR if s1 or s2 is an invalid pointer.
  *       - LUB_UNTERMINATED if s1 or s2 is not null-terminated.
+ *
  * @note If s2 is empty, returns 0.
  * @{
  */
