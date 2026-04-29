@@ -1001,6 +1001,7 @@ static inline int isuhexdigit(const uchar_t c)
  * @param err_c For lutocase/lutoupper/lutolower only.
  * @return Preserve/upper/lower case version of c if one defined,
  *         otherwise c.
+ *
  * @note For lutocase/lutoupper/lutolower, if converted c is not a valid
  *       Latin chararacter and c is a valid Latin characer,
  *       return c, otherwise return err_c.
@@ -1083,6 +1084,7 @@ static inline int ilhexdigit(const lchar_t c)
  * @param s Pointer to the source string.
  * @param sn The maximum length of the string (clamped to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN).
  * @return String length, 0 if s is NULL, or error value.
+ *
  * @note Errors:
  *       - (size_t)LUB_UNTERMINATED if s is not null-terminated.
  *       - (size_t)LUB_BAD_PTR if s is an invalid pointer.
@@ -1138,7 +1140,7 @@ extern size_t ucsnlen(const uchar_t *s, size_t sn)
  *       - (int)LUB_INVALID_NAME if s is not a valid name for isuQNAME.
  *
  * @note RESERVED: Classify whether s is a Teradata reserved word.
- (
+ *
  * @note QNAME: Classify whether s must be a quoted name.
  *              s must be quoted if the first character is not
  *              a first-name character (see iuname1c), or any subsequent character
@@ -1375,8 +1377,11 @@ extern int isunhexdigits(const uchar_t *s, size_t sn)
  * @brief Concatenate to target character buffer with options for
  *        case-mapping (preserving, lower, or upper), quoting, and
  *        truncation handling.
- * @note For qname, concatenate source if it is a valid unquoted name (see isuQNAME);
- *       otherwise, if it is valid name, concatenate quoted source. Error if not a valid name.
+ *
+ *        For qname, concatenate source if it
+ *        is a valid unquoted name (see isuQNAME);
+ *        otherwise, if it is valid name, concatenate quoted source.
+ *        Error if not a valid name.
  * @param t Pointer to the target buffer.
  * @param tn tn is the maximum number of characters for buffer t,
  *           excluding the null terminator; tn is clamped to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN.
@@ -2441,10 +2446,6 @@ extern uchar_t *uusnCPYNAMEC(uchar_t *t, size_t tn,
     ;
 #endif // __LUB_DEFINITIONS__
 
-#if defined(__LUB_DEFINITIONS__)
-#undef __LUB_OP_HELPER__  // For concatenate/copy functions.
-#endif // __LUB_DEFINITIONS__
-
 // Copy hex digit characters lowercase <- bytes.
 
 static inline lchar_t *lbsnncpyc(lchar_t *t, size_t tn,
@@ -3352,7 +3353,6 @@ extern uchar_t *uusnnrepeat(
  *         needle1rep1needle2rep2...<null-terminator>
  * 
  *      where needles and replacments are single nonnull characters.
- * 
  * @param delim Mapping delimiter. Null character indicates character mapping
  *              otherwise, delimited string mapping.
  * @param m Replacement selector:
@@ -4627,7 +4627,7 @@ extern int uusnFXDCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
  *         Or error.
  *
  * @note Errors:
- *      - LUB_BAD_PTR if s1 or s2 is an invalid pointer.
+ *      - LUB_PTR_INVALID if s1 or s2 is an invalid pointer.
  *      - LUB_UNTERMINATED if s1 or s2 is not null-terminated.
  * @{
  */
@@ -4907,8 +4907,8 @@ extern int uusnSFXCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
  * @name llsnstrm, uusnstrm (case-sensitive)
  *       llsnSTRM, uusnSTRM (case-insensitive)
  * @brief Search for the mth occurrence of string s2 in string s1.
- * @param s1 Haystack string.
- * @param s2 Strings of needle substrings separated by delim or 
+ * @param s1 Pointer to Haystack string.
+ * @param s2 Pointer to string of needle substrings separated by delim or 
  *           string of needle characters.
  * 
  *           A zero-length needle substring is treated as a match
@@ -4928,7 +4928,7 @@ extern int uusnSFXCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
  * @return Pointer to mth match in s1, NULL if not found, or error.
  *
  * @note Errors:
- *       - LUB_BAD_PTR if s1 or s2 is an invalid pointer.
+ *       - LUB_PTR_INVALID if s1 or s2 is an invalid pointer.
  *       - LUB_UNTERMINATED if s1 or s2 is not null-terminated.
  * * @{
  */
