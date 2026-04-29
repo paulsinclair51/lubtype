@@ -1,6 +1,7 @@
 /**
  * @file test_advanced_ops.c
- * @brief Tests for advanced string operations in lubtype.h (trim/rev/pad/replace).
+ * @brief Tests for advanced string operations in lubtype.h
+ *        (trim/rev/pad/replace).
  * @copyright Copyright (c) 2026 paulsinclair51
  * SPDX-License-Identifier: MIT
  * For license details, see the LICENSE file in the project root.
@@ -12,7 +13,9 @@
 #include <string.h>
 
 /**
- * @brief Run tests for advanced string operations (trim, reverse, pad, replace, split).
+ * @brief Run tests for advanced string operations
+ *        (trim, reverse, pad, replace,
+ *        split).
  */
 void run_advanced_ops_tests(void) {
     lchar_t lsrc[32] = {' ','a','b','c',' ','\0'};

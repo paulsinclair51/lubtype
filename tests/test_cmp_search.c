@@ -13,8 +13,10 @@
 /**
  * @brief Run tests for compare and search functions.
  *
- * Tests llsncmp, llspfx, llssfx, llsch, llsrchr, llsstr, llspbrk, llsspn, llscspn, llssubcnt.
- * Each block checks a specific function or family for correct behavior and edge cases.
+ * Tests llsncmp, llspfx, llssfx, llsch, llsrchr, llsstr,
+ * llspbrk, llsspn, llscspn, llssubcnt.
+ * Each block checks a specific function or family for
+ * correct behavior and edge cases.
  */
 void run_cmp_search_tests(void) {
     lchar_t l1[16] = {'a','b','c','\0'};

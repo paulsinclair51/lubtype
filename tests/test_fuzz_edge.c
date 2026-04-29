@@ -34,7 +34,8 @@ static void fill_random_uchar(uchar_t *buf, size_t len) {
 /**
  * @brief Fuzz test: random copy/append/cat with bounds.
  *
- * Fills buffers with random data and tests copy/append/cat functions for null-termination and correctness.
+ * Fills buffers with random data and tests copy/append/cat
+ * functions for null-termination and correctness.
  */
 static void fuzz_copy_append_cat(void) {
     lchar_t src[128], dst[128];

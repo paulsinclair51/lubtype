@@ -6,10 +6,9 @@
 /**
  * @section Overview Overview
  *
- * This C/C++ API header provides Latin-8,
- * Unicode-16, and byte types, plus associated macros, extern function
- * declarations (prototypes), and static inline function
- * definitions.
+ * This C/C++ API header provides Latin-8, Unicode-16, and byte types, plus
+ * associated macros, extern function declarations (prototypes), and static
+ * inline function definitions.
  * 
  * To include definitions of extern functions,
  * 
@@ -23,11 +22,15 @@
  * replace, and format.
  * 
  *   - Variants for Latin/Unicode/Byte <- Latin/Unicode/Byte.
+ * 
  *   - Variants for explicit/default bounds on source length.
+ * 
  *   - Explicit bound on target buffer size.
+ * 
  *   - Explicit or default bound on source length.
- *   - Variants for character case-preserving
- *     uppercase, lowercase mapping.
+ * 
+ *   - Variants for character case-preserving, uppercase, lowercase mapping.
+ * 
  *   - Case-sensitive/insensitive character matching.
  *
  * @note Not all variants are provided for all functions due a
@@ -38,7 +41,7 @@
  * @warning Due to the naming conventions used in this API for types, macros,
  *          and functions, it is not expected name conflicts will arise.
  *          If a conflict does arise, it must be resolved by updating
- *          the caller code or the API.
+ *          the code that includes this header or this header itself.
  */
 
 /**
@@ -56,17 +59,21 @@
  *                   for comparison search functions since a Unicode character
  *                   outside the range of Latin would not match.
  *
- * - Clarity:        Function names encode direction/type, bound, operation,
- *                   and case (sensitive/insensitive, preserving/lowercase/uppercase).
+ * - Clarity:        Function names encode direction/type, bound,
+ *                   operation, and case (sensitive/insensitive,
+ *                   preserving/lowercase/uppercase).
  *
  * - Safety:         Explicit/default bounds, terminator validation,
  *                   representability checks, error checking.
  *
- *                   Casts to lchar_t and uchar_t include explicit bounds checks.
+ *                   Casts to lchar_t and uchar_t include
+ *                   explicit bounds checks.
  *
- *                   The API is thread-safe provided threads do not share target buffers without
- *                   external synchronization. Character classification relies on <ctype.h> and
- *                   <wctype.h>, which are thread-safe when the locale is not modified.
+ *                   The API is thread-safe provided threads do not share
+ *                   target buffers without external synchronization.
+ *                   Character classification relies on <ctype.h> and
+ *                   <wctype.h>, which are thread-safe when the locale is not
+ *                   modified.
  *
  * - Predictability: Behavior mirrors familiar C string patterns while
  *                   making bounds, defined (instead of undefined or
@@ -74,10 +81,12 @@
  *                   values.
  *
  *                   Comparison functions operate strictly on raw code units.
- *                   They do not apply character substitution, normalization, or any mapping beyond
- *                   the specified case (sensitive or insensitive) rules. This ensures predictable, strcmp‑like
- *                   ordering and keeps comparison return values (-1, 0, +1) distinct from the
- *                   reserved error range (-99 to -2).
+ *                   They do not apply character substitution,
+ *                   normalization, or any mapping beyond the specified case
+ *                   (sensitive or insensitive) rules. This ensures
+ *                   predictable, strcmp‑like ordering and keeps comparison
+ *                   return values (-1, 0, +1) distinct from the reserved
+ *                   error range (-99 to -2).
  *
  * - Portability:    Only platforms that have include files <stddef.h>,
  *                   <stdint.h>, <ctype.h>, <string.h>, <stdarg.h>, <stdio.h>,
@@ -93,8 +102,9 @@
  *
  *                   This API relies on two’s‑complement integer
  *                   representation and on pointer–integer round‑tripping for
- *                   error‑value encoding. Platforms must support casting between
- *                   int, size_t, intptr_t, and void * without loss of bit
+ *                   error‑value encoding. Platforms must support casting
+ *                   between int, size_t, intptr_t, and void * without loss of
+ *                   bit
  *                   patterns for values in the range -99 to -2. These
  *                   requirements are validated at compile time via static
  *                   assertions; platforms that do not satisfy them are not
@@ -105,31 +115,32 @@
  *                   are required.
  * 
  * @warning This API does not perform Unicode normalization or surrogate pair
- * handling; all operations are on individual code units.
+ *          handling; all operations are on individual code units.
  */
 
 /**
  * @section APINotes API Notes
  *
- * @note For functions with a target buffer t parameter
- * and t is not NULL, the target buffer is always
- * null-terminated on error. This avoids subsequent buffer overreads.
+ * @note For functions with a target buffer t parameter and t is not NULL,
+ *       the target buffer is always null-terminated on error. This avoids
+ *       subsequent buffer overreads.
  *
- * @note Some search and replace functions (e.g., search,
- * replace) may have worst-case O(n*m) complexity, where n is the length of the
- * input and m is the pattern or map size. Most other operations are O(n).
+ * @note Some search and replace functions (e.g., search, replace) may have
+ *       worst-case O(n*m) complexity, where n is the length of the input and
+ *       m is the pattern or map size. Most other operations are O(n).
  *
  * @note When appropriate, functions are `static inline`.
  *
  * @note Overlapping source and target buffers result in
- * implementation‑defined behavior; functions may return an error or
- * produce a correct result depending on the operstion.
+ *       implementation‑defined behavior; functions may return an error or
+ *       produce a correct result depending on the operation.
  *
  * @note No dynamic memory is allocated or freed.
  *
  * @note No recursion or dynamic allocation occurs.
  *
- * @note This header was reviewed and refined with assistance from Microsoft Copilot.
+ * @note This header was reviewed and refined with assistance
+ *       from Microsoft Copilot.
  */
 
 /**
@@ -180,10 +191,14 @@ extern "C" {
        "by this include. After including, define again as needed."
 #endif // defined macros
 
-#define __LUB_PASTE__(a, b) a##b // Paste before expanding tokens.
-#define __LUB_XPASTE__(a, b) __LUB_PASTE__(a, b) // Expand tokens before pasting.
-#define __LUB_STRINGIFY__(x) #x // Stringify before expanding tokens.
-#define __LUB_XSTRINGIFY__(x) __LUB_STRINGIFY__(x) // Expand tokens before stringify.
+// Paste before expanding tokens.
+#define __LUB_PASTE__(a, b) a##b
+// Expand tokens before pasting.
+#define __LUB_XPASTE__(a, b) __LUB_PASTE__(a, b)
+// Stringify before expanding tokens.
+#define __LUB_STRINGIFY__(x) #x
+// Expand tokens before stringify.
+#define __LUB_XSTRINGIFY__(x) __LUB_STRINGIFY__(x)
 
 // STATIC_ASSERT
 //
@@ -589,9 +604,12 @@ typedef uint8_t byte_t;
  *     * if (LUB_INT_ERR(result, 0)) { error handling }
  *       else { handle non-error result }
  * 
- *   * Use the LUB_*_ERR macros to check if a returned value is a specific error:
+ *   * Use the LUB_*_ERR macros to check whether a returned value
+ *     is a specific error:
  * 
- *     * if (LUB_SIZE_ERR(result, LUB_UNTERMINATED)) { handle unterminated error }
+ *     * if (LUB_SIZE_ERR(result, LUB_UNTERMINATED)) {
+ *           handle unterminated error
+ *       }
  * 
  *     * if (LUB_PTR_ERR(result, LUB_PTR_INVALID)) { handle bad pointer error }
  * 
@@ -835,7 +853,8 @@ typedef uint8_t byte_t;
  *              - If trunc is NULL, truncate mode defaults to "B" and truncated
  *                replacement string defaults to a 0-length string.
  *              - If the first character is alphabetic, it specifies
- *                the truncate mode and is followed by the truncated replacement string.
+ *                the truncate mode and is followed by the
+ *                truncated replacement string.
  *              - If the first character is not alphbetic, truncate
  *                mode defaults to 'B' and trunc is the truncated replacement
  *                string.
@@ -843,11 +862,13 @@ typedef uint8_t byte_t;
  *             Truncate Mode (explicit or by default):
  * 
  *             - If 'L' or 'l', truncate on
- *               the left with the truncated replacement string added on the left.
+ *               the left with the truncated replacement string
+ *               added on the left.
  *             - If 'R' or 'r', truncate on the right with the truncated
  *               replacement string added on the right.
  *             - If 'C' or 'c', truncate in
- *               the center with the truncated replacement string added in the center.
+ *               the center with the truncated replacement string
+ *               added in the center.
  *             - If 'B' or 'b', the result is the truncated replacement string.
  * 
  *             Truncated replacement string:
@@ -879,13 +900,15 @@ typedef uint8_t byte_t;
  *              characters are not replaced with a delimiter.
  * 
  * @param m mth occurrence for matching in replacement and search functions.
- *          m > 0 counts from the beginning of the string (1 means first occurrence).
+ *          m > 0 counts from the beginning of the string
+ *          (1 means first occurrence).
  *          m == 0 returns NULL for search functions.
  *          m == 0 means replace all occurrences for replace functions.
  *          m < 0 counts from the end of the string (-1 means last
  *                occurrence) when the operation supports reverse search.
  * 
- * @param err_c For Unicode target with Latin source functions only, replacement
+ * @param err_c For Unicode target with Latin source functions only,
+ *              replacement
  *              character to use when neither the Unicode source 
  *              character nor its uppercased or lowercased value
  *              is a valid Latin character.
@@ -996,7 +1019,8 @@ static inline int isuhexdigit(const uchar_t c)
  /** @} */
 
  /**
- * @defgroup PreserveUpperLowerCaseConversion Preserve/Upper/Lower Case Conversion
+ * @defgroup PreserveUpperLowerCaseConversion
+ * Preserve/Upper/Lower Case Conversion
  * @name lltocase, lutocase, ultocase, uutocase
  *       lltoupper, lutoupper, ultoupper, uutoupper
  *       lltolower, lutolower, ultolower, uutolower
@@ -1086,7 +1110,8 @@ static inline int ilhexdigit(const lchar_t c)
  * @name lcsnlen, ucsnlen
  * @brief Return the length of a source string (Latin or Unicode).
  * @param s Pointer to the source string.
- * @param sn The maximum length of the string (clamped to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN).
+ * @param sn The maximum length of the string (clamped to
+ *           LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN).
  * @return String length, 0 if s is NULL, or error value.
  *
  * @note Errors:
@@ -1131,8 +1156,10 @@ extern size_t ucsnlen(const uchar_t *s, size_t sn)
  *       islnhexdigits, isunhexdigits
  * @brief Latin and Unicode string classification.
  * @param s Source string.
- * @param sn Maximum source string length (clamped to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN).
- *           For isuRESERVED and isuQNAME, sn is omitted and sn defaults to LUB_MAX_UNAMELEN.
+ * @param sn Maximum source string length (clamped to
+ *           LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN).
+ *           For isuRESERVED and isuQNAME, sn is omitted and
+ *           sn defaults to LUB_MAX_UNAMELEN.
  *           For isltruncstr, sn is omitted and sn defaults to LUB_MAX_LOPTLEN.
  * @return 1 Condition satisfied.
  *         0 Condition unsatisfied and no error.
@@ -1147,22 +1174,28 @@ extern size_t ucsnlen(const uchar_t *s, size_t sn)
  *
  * @note QNAME: Classify whether s must be a quoted name.
  *              s must be quoted if the first character is not
- *              a first-name character (see iuname1c), or any subsequent character
+ *              a first-name character (see iuname1c), or any
+ *              subsequent character
  *              is not a name character (see iunamec).
  *
- * @note isltruncstr: Classify whether s is a valid truncated string for use as value
+ * @note isltruncstr: Classify whether s is a valid truncated
+ *                    string for use as value
  *                    for as an trunc parameter. A valid string is NULL,
  *                    null-terminated by the bound LUB_MAX_LOPTLEN,
  *                    an empty string, and the first character is 
- *                    not a reserved alphabetic character (see trunc parameter for details).
+ *                    not a reserved alphabetic character
+ *                    (see trunc parameter for details).
  *
-* @note islneedlestr: Classify whether s is a valid needle string for use as value
+* @note islneedlestr: Classify whether s is a valid needle
+ *                    string for use as value
  *                    for as an search parameter. A valid string is NULL,
  *                    null-terminated by the bound LUB_MAX_LOPTLEN,
  *                    an empty string, and the first character is 
- *                    not a reserved alphabetic character (see trunc parameter for details).
+ *                    not a reserved alphabetic character
+ *                    (see trunc parameter for details).
  *
- * @note The two hexdigits functions classify whether s consists only of hex digit characters
+ * @note The two hexdigits functions classify whether s consists
+ *       only of hex digit characters
  *       '0' to '9', 'A' to 'F', or 'a' to 'f', s is NULL, or s is empty.
  * @{
  */
@@ -1373,8 +1406,9 @@ extern int isunhexdigits(const uchar_t *s, size_t sn)
  * @brief Comparison of two strings.
  * @param s1 First source string.
  * @param s2 Second source string.
- * @param sn Bound on both strings (clamped to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN) for
- *           bounded functions only, Default-bounded functions use LUB_MAX_LSTRLEN
+ * @param sn Bound on both strings (clamped to LUB_MAX_LSTRLEN
+ *           or LUB_MAX_USTRLEN) for bounded functions only.
+ *           Default-bounded functions use LUB_MAX_LSTRLEN
  *           or LUB_MAX_USTRLEN.
  * @return -1 (s1 < s2), 0 (equal), 1 (s1 > s2), or error,
  *
@@ -1515,7 +1549,8 @@ extern int uusnCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
 /** @} */
 
 /**
- * @defgroup FixedLengthLeadingSubstringCompare Fixed-Length Leading Substring Compare
+ * @defgroup FixedLengthLeadingSubstringCompare
+ * Fixed-Length Leading Substring Compare
  * @name llsnfxdcmp, lusnfxdcmp, ulsnfxdcmp, uusnfxdcmp (case-sensitive)
  *       llsnFXDCMP, lusnFXDCMP, ulsnFXDCMP, uusnFXDCMP (case-insensitive)
  * @brief Compare of sn-length leading substrings of two source strings.
@@ -1523,7 +1558,8 @@ extern int uusnCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
  * @param s2 Second source string.
  * @param sn Maximum number of characters in the leading substrings to compare.
  *           Clamped to LUB_MAX_LSTRLEN if ll, otherwise LUB_MAX_USTRLEN.
- * @return 0 if all sn characters are equal and both substrings are at least sn long,
+ * @return 0 if all sn characters are equal and both substrings
+ *         are at least sn long,
  *        -1 if leading substring of s1 < leading substring of s2,
  *         1 if leading substring of s1 > leading substring of s2.
  *
@@ -1974,14 +2010,17 @@ extern int uusnSFXCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
  * 
  *           If delim is a null character and s2 is zero-length,
  *           there is no match to s1.
- * @param sn Bound on s1 and s2 (clamped to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN).
- * @param delim Delimiter character for needle substrings. If null character, indicates
+ * @param sn Bound on s1 and s2 (clamped to LUB_MAX_LSTRLEN or
+ *           LUB_MAX_USTRLEN).
+ * @param delim Delimiter character for needle substrings.
+ *              If null character, indicates
  *              s2 is a string of needle characters.
  * @param m Occurrence index (1 = first, 2 = second, ...). 0 returns NULL.
  *          mth occurrence for matching. m > 0 counts from the
  *          beginning of the string (1 means first occurrence).
  *          m == 0 returns NULL. m < 0 counts from the end of the string
- *          (-1 means last occurrence) when the operation supports reverse selection.
+ *          (-1 means last occurrence) when the operation
+ *          supports reverse selection.
  * @return Pointer to mth match in s1, NULL if not found, or error.
  *
  * @note Errors:
@@ -2009,7 +2048,8 @@ extern lchar_t *llsnstrm(
     if (s2_len > s1_len) return (lchar_t *)NULL;
 
 
-    // If delim is null character, treat s2 as a set of needle characters (like strpbrk)
+    // If delim is null character, treat s2 as a set of
+    // needle characters (like strpbrk).
     if (delim == 0) {
         if (m > 0) {
             size_t count = 0;
@@ -2233,7 +2273,8 @@ extern uchar_t *uusnSTRM(
  * @param s1 Haystack string.
  * @param s2 Strings of needle substrings separated by delim or 
  *           string of needle characters.
- * @param sn Bound on s1 and s2 (clamped to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN).
+ * @param sn Bound on s1 and s2 (clamped to LUB_MAX_LSTRLEN
+ *           or LUB_MAX_USTRLEN).
  * @param delim Delimiter character for needle substrings. If null, indicates
  *              s2 is a string of needle characters.
  * @return Count of matches, or error.
@@ -2386,9 +2427,12 @@ extern size_t uusnCNT(const uchar_t *s1, const uchar_t *const s2, size_t sn,
  * @name llsnncat, lusnncat, ulsnncat, uusnncat (case-preserving)
  *       llsnncatc, lusnncatc, ulsnncatc, uusnncatc (lowercase)
  *       llsnnCATC, lusnnCATC, ulsnnCATC, uusnnCATC (uppercase)
- *       llsnncatq, lusnncatq, ulsnncatq, uusnncatq (quoted string, case-preserving)
- *       llsnncatqc, lusnncatqc, ulsnncatqc, uusnncatqc (quoted string, lowercase)
- *       llsnnCATQC, lusnnCATQC, ulsnnCATQC, uusnnCATQC (quoted string, uppercase)
+ *       llsnncatq, lusnncatq, ulsnncatq, uusnncatq
+ *       (quoted string, case-preserving)
+ *       llsnncatqc, lusnncatqc, ulsnncatqc, uusnncatqc
+ *       (quoted string, lowercase)
+ *       llsnnCATQC, lusnnCATQC, ulsnnCATQC, uusnnCATQC
+ *       (quoted string, uppercase)
  *       uusncatname (unquoted/quoted name, case-preserving)
  *       uusncatnamec (unquoted/quoted name, lowercase)
  *       uusnCATNAMEC (unquoted/quoted name, uppercase)
@@ -2404,7 +2448,8 @@ extern size_t uusnCNT(const uchar_t *s1, const uchar_t *const s2, size_t sn,
  *        Error if not a valid name.
  * @param t Pointer to the target buffer.
  * @param tn tn is the maximum number of characters for buffer t,
- *           excluding the null terminator; tn is clamped to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN.
+ *           excluding the null terminator; tn is clamped to
+ *           LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN.
  * @param s Pointer to source string.
  * @param sn For a character source string, sn is the maximum length of the
  *           string. sn is clamped to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN.
@@ -2430,7 +2475,8 @@ extern size_t uusnCNT(const uchar_t *s1, const uchar_t *const s2, size_t sn,
  *       - LUB_UNTERMINATED if t or s is not null-terminated.
  *       - LUB_OPT_TOO_LONG if trunc is too long.
  *       - LUB_OPT_INVALID if trunc is invalid.
- *       - LUB_OPT_RESERVED if trunc is valid except that the first character is a reserved
+ *       - LUB_OPT_RESERVED if trunc is valid except that the
+ *         first character is a reserved
  *         alphabetic character.
  *       - LUB_OVERLAP if source and target overlap when not allowed.
  *       - LUB_TRUNCATED if truncation occurs.
@@ -3051,8 +3097,10 @@ extern uchar_t *ubsnnCATC(uchar_t *t, size_t tn,
  *        case-mapping (preserving, lower, or upper), quoting, and
  *        truncation handling.
  * @param t Pointer to target buffer.
- * @param tn For a character target, tn is the maximum number of characters to copy to buffer t,
- *           excluding the null terminator; tn is clamped to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN.
+ * @param tn For a character target, tn is the maximum number
+ *           of characters to copy to buffer t, excluding the
+ *           null terminator; tn is clamped to LUB_MAX_LSTRLEN
+ *           or LUB_MAX_USTRLEN.
  * 
  *           For bbsnncpy, tn is the number of bytes to copy the target
  *           buffer. The target buffer must be at least tn bytes long.
@@ -3081,19 +3129,23 @@ extern uchar_t *ubsnnCATC(uchar_t *t, size_t tn,
  *       - t is NULL.
  *       - Unterminated character source at or before s[sn].
  *       - For a byte target, tn exceeds LUB_MAX_BSTRLEN.
- *       - Unexpected overlap when source and target have different types, or when quoted.
+ *       - Unexpected overlap when source and target have
+ *         different types, or when quoted.
  *       - Length of trunc string exceeds 31 or tn if trunc is not NULL.
  *
- * @note Copy is overlap-safe if target and source have the same type and not quoted
- *       (target result is correct but source may be overridden if there is overlap).
+ * @note Copy is overlap-safe if target and source have the
+ *       same type and not quoted (target result is correct
+ *       but source may be overridden if there is overlap).
  *
- *       For copy with target and source of different types or quoted, overlap is not allowed.
+ *       For copy with target and source of different types
+ *       or quoted, overlap is not allowed.
  *
  * @note For concatenate with a byte target and a character source:
  *       - If the source string contains an odd number of hex digits, the last
  *         hex digit is treated as the high nibble of a byte, with an implicit
  *         low nibble of zero.
- *       - If the number of bytes copied into the target buffer is less than tn,
+ *       - If the number of bytes copied into the target
+ *         buffer is less than tn,
  *         the target buffer is padded with x'00' bytes to a length of tn.
  * @{
  */
@@ -3521,7 +3573,8 @@ extern byte_t *bbsnncpy(byte_t *t, size_t tn, const byte_t *s, size_t sn)
  * @name llsnntrim, ulsnntrim, uusnntrim (case-preserving)
  *       llsnntrimc, ulsnntrimc, uusnntrimc (lowercase)
  *       llsnntrimC, ulsnntrimC, uusnntrimC (uppercase)
- * @brief Trim leading and/or trailing characters that match one of the specified characters
+ * @brief Trim leading and/or trailing characters that match
+ *        one of the specified characters
  *        and optionally collapse embedded specified characters.
  * @param t Target buffer for the trimmed string.
  * @param tn Bound for the target buffer (clamped to LUB_MAX_LSTRLEN or
@@ -3534,7 +3587,8 @@ extern byte_t *bbsnncpy(byte_t *t, size_t tn, const byte_t *s, size_t sn)
  * 
  *             - If NULL, trim defaults to "B".
  *             - If the first character is alphabetic, it specifies
- *               the trim mode and the rest of the characters are the trim characters.
+ *               the trim mode and the rest of the
+ *               characters are the trim characters.
  *             - If the first character is not alphabetic, trim mode defaults
  *               to 'B' and the characters in trim are the trim characters.
  * 
@@ -3562,7 +3616,8 @@ extern byte_t *bbsnncpy(byte_t *t, size_t tn, const byte_t *s, size_t sn)
  *              A null character indicates embedded trim characters
  *              in the source string are not collapsed and trim mode must 
  *              be 'B', 'b', or default to 'B'.
- * @param err_c Replacement for out-of-range Unicode characters (lus functions only).
+ * @param err_c Replacement for out-of-range Unicode
+ *              characters (lus functions only).
  * @return Pointer to t, or NULL if an error occurs,
  *
  * @note Errors:
@@ -3608,7 +3663,8 @@ extern byte_t *bbsnncpy(byte_t *t, size_t tn, const byte_t *s, size_t sn)
             while (start < end && space_func(s[start])) start++; \
         if (__LUB_TRIM_RIGHT_MODE__(trim)) \
             while (end > start && space_func(s[end - 1])) end--; \
-        /* TBD: If trimset is neither NULL nor empty, use it instead of whitespace characters. */ \
+        /* TBD: If trimset is neither NULL nor empty, use it */ \
+        /* instead of whitespace characters. */ \
         if (delim) { \
             size_t ti = 0; \
             int pending_space = 0; \
@@ -3689,15 +3745,18 @@ extern uchar_t *uusnntrim
  *        trim parameters.
  * @param s       Source string.
  * @param sn      Bound for the source string (clamped to LUB_MAX_LSTRLEN or
- * @param trimlen  Pointer to size_t to receive the length of the trimmed portion.
+ * @param trimlen  Pointer to size_t to receive the length
+ *                 of the trimmed portion.
  * @param trim    Trim selector: 'L', 'R', or 'B' (lowercase also accepted).
  *                'L' trims left, 'R' trims right, 'B' trims both.
  * @param trimset If non-NULL, points to a null-terminated string of characters
  *                to trim; if NULL, whitespace is trimmed.
- * @return For left or both trim, pointer into s at the first non-trim character, if any;
+ * @return For left or both trim, pointer into s at the
+ *         first non-trim character, if any;
  *         otherwise, returns s. For right trim, returns s.
  * 
- *         If the trimmed result is empty (all trim chars), returns pointer to the
+ *         If the trimmed result is empty (all trim chars),
+ *         returns pointer to the
  *         null-termintor for s and sets *trimlen to 0.
  * 
  *         If an error occurs, returns NULL with *trimlen set to 0 if trimlen
@@ -3706,7 +3765,8 @@ extern uchar_t *uusnntrim
  * @note Errors:
  *       - trimlen NULL.
  *       - s is NULL.
- *       - s unterminated within the default bound (LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN).
+ *       - s unterminated within the default bound
+ *         (LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN).
  *
  * @note The returned pointer and length can be used to access the trimmed
  *       substring of the string (the subsstring might not be null-terminated).
@@ -3899,7 +3959,8 @@ extern uchar_t *uusnnreverse(uchar_t *t, const uchar_t *s, size_t sn)
  * @param t Target buffer.
  * @param tn Number of result characters written to t (excluding terminator).
  * @param s Source string.
- * @param n Bound on source string (clamped to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN)
+ * @param n Bound on source string (clamped to
+ *          LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN)
  *          for bounded functions. For default-bounded functions,
  *          n defaults to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN.
  * @param pad 'L' or 'l' pad on left (for right-aligned text).
@@ -4043,7 +4104,8 @@ extern uchar_t *uusnnpad(uchar_t *t, size_t tn, const uchar_t *s, size_t sn,
  *           (excluding null-terminator).
  *           Clamped to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN.
  * @param s Source string.
- * @param sn Bound on source string. Clamped to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN.
+ * @param sn Bound on source string. Clamped to
+ *           LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN.
  * @param times Number of times to repeat source. 0 yields empty string.
  * @return t, null (if t is NULL), or error. For an error,
  *         *t is set to a null-terminator.
@@ -4196,7 +4258,8 @@ extern uchar_t *uusnnrepeat(
  *      but are separated by the delim character.
  * 
  *      A zero-length needle substring does not match any substring
- *      and is effectively ignored along with its corresponding replace substring.
+ *      and is effectively ignored along with its
+ *      corresponding replace substring.
  * 
  *      A zero-length replace substring is allowed (followed by the delimiter
  *      or the map string's null-terminator) and replaces a substring
@@ -4219,8 +4282,10 @@ extern uchar_t *uusnnrepeat(
  *
  * @note Errors: 
  *       - LUB_PTR_INVALID if s or map is an invalid pointer.
- *       - LUB_UNTERMINATED if s or map is not null-terminated within their bounds.
- *       - LUB_OPT_INVALID if malformed map syntax (missing delimiter or empty needle)
+ *       - LUB_UNTERMINATED if s or map is not null-terminated
+ *         within their bounds.
+ *       - LUB_OPT_INVALID if malformed map syntax
+ *         (missing delimiter or empty needle)
  *       - LUB_OVERLAP if target and source buffers overlap in a way
  *         that would cause incorrect results in the target buffer.
  *       - LUB_TRUNCATED if the result cannot fit in the target buffer.
@@ -4230,7 +4295,8 @@ extern uchar_t *uusnnrepeat(
  *       prefixes to match to the longer needle (otherwise, the shorter
  *       prefix would match first and the longer needle is ignored).
  *
- * @note Needle matching is case-sensitive (replace) or case-insensitive (REPLACE);
+ * @note Needle matching is case-sensitive (replace) or
+ *       case-insensitive (REPLACE);
  *       delimiter matching is case-sensitive;
  *       replacement text is written as-is.
  (
@@ -5121,12 +5187,15 @@ extern uchar_t *uusnnREPLACE(
  * @name llsnvprintf, llsnprintf
  * @brief Format Latin text into target buffer.
  * @param t Target buffer.
- * @param tn Maximum number of characters for target buffer (excluding terminator).
+ * @param tn Maximum number of characters for target buffer
+ *           (excluding terminator).
  * @param fmt Format string.
  * @param ap Variable argument list for llsnvprintf/llsnvprintf.
- * @return Number of chars written (excluding terminator), or -1 on error/truncate.
+ * @return Number of chars written (excluding terminator),
+ *         or -1 on error/truncate.
  *
- * @note This family uses C vsnprintf semantics and treats lchar_t storage as bytes.
+ * @note This family uses C vsnprintf semantics and treats
+ *       lchar_t storage as bytes.
  * @{
  */
 
@@ -5235,10 +5304,12 @@ extern int llsnprintf(lchar_t *t, size_t tn, const lchar_t *fmt, ...)
  *     Raw byte (uint8_t). Values x'00'-x'FF'. No null terminator semantics.
  * 
  * lchar_t *
- *     Pointer to a null-terminated string (lchar_t *) of Latin characters (lchar_t).
+ *     Pointer to a null-terminated string (lchar_t *)
+ *     of Latin characters (lchar_t).
  * 
  * uchar_t *
- *     Pointer to a null-terminated string (uchar_t *) of Unicode characters (uchar_t).
+ *     Pointer to a null-terminated string (uchar_t *)
+ *     of Unicode characters (uchar_t).
  * 
  * byte_t *
  *     Pointer to a string (*byte_t) of bytes (byte_t). A specific

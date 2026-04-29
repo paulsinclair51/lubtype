@@ -14,7 +14,8 @@
  * @brief Run tests for character classification and conversion functions.
  *
  * Tests isualpha, islalpha, isuupper, islupper, isulower, isllower,
- * isudigit, isldigit, isualnum, islalnum, touupper, tolupper, toulower, tollower.
+ * isudigit, isldigit, isualnum, islalnum, touupper, tolupper,
+ * toulower, tollower.
  * Also checks edge cases for null and non-alphabetic input.
  */
 void run_charclass_tests(void) {
