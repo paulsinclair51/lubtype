@@ -17,42 +17,32 @@
  * lcslen and lcsnlen. Prints a message on success.
  */
 void run_error_edge_tests(void) {
-    lchar_t lstr[8] = {'a','b','c','\0'};
-    uchar_t ustr[8] = {L'a',L'b',L'c',0};
-    // Test: Null pointer
-    assert(lcslen(NULL) == 0);
-    assert(ucslen(NULL) == 0);
-    // Test: Over max length
-    assert(lcsnlen(lstr, 100) == 3);
-    assert(ucsnlen(ustr, 100) == 3);
-    // Test: Empty string
-    lchar_t empty[1] = {'\0'};
-    uchar_t uempty[1] = {0};
-    assert(lcslen(empty) == 0);
-    assert(ucslen(uempty) == 0);
-    // Null-termination on error for app/cpy/cat
-    lstr[0] = 'X'; lstr[1] = 0;
-    assert(llsnapp(NULL, NULL, 0) == NULL);
-    assert(lstr[0] == 'X');
-    assert(llsnapp(lstr, NULL, 0) == lstr);
-    assert(lstr[0] == 0);
-    lstr[0] = 'X'; lstr[1] = 0;
-    assert(llsncpy(NULL, NULL, 0) == NULL);
-    assert(lstr[0] == 'X');
-    assert(llsncpy(lstr, NULL, 0) == lstr);
-    assert(lstr[0] == 0);
-    lstr[0] = 'X'; lstr[1] = 0;
-    assert(llsncat(NULL, NULL, 0) == NULL);
-    assert(lstr[0] == 'X');
-    assert(llsncat(lstr, NULL, 0) == lstr);
-    assert(lstr[0] == 0);
-    // Cross-type overlap error
-    strcpy((char*)lstr, "abcdef");
-    assert(lusnapp(lstr, (ucstr_t)lstr, 6, '?') == NULL);
-    assert(lstr[0] == 0);
-    for (int i = 0; i < 6; ++i) ustr[i] = (uchar_t)('a'+i); ustr[6]=0;
-    assert(ulsnapp(ustr, (lcstr_t)ustr, 6) == NULL);
-    assert(ustr[0] == 0);
+    lchar_t lsrc[8] = {'a','b','c','\0'};
+    uchar_t usrc[8] = {'a','b','c',0};
+    lchar_t ldst[16] = {0};
+    uchar_t udst[16] = {0};
+
+    // Length behavior for NULL and bounded scans.
+    assert(lcsnlen(NULL, 10) == 0);
+    assert(ucsnlen(NULL, 10) == 0);
+    assert(lcsnlen(lsrc, 100) == 3);
+    assert(ucsnlen(usrc, 100) == 3);
+
+    // Copy behavior using current bounded APIs.
+    assert(llsnncpy(ldst, 16, lsrc, 8, NULL) == ldst);
+    assert(ldst[0] == 'a' && ldst[1] == 'b' && ldst[2] == 'c' && ldst[3] == 0);
+    assert(ulsnncpy(udst, 16, lsrc, 8, NULL) == udst);
+    assert(udst[0] == 'a' && udst[1] == 'b' && udst[2] == 'c' && udst[3] == 0);
+
+    // Pointer-error encoding is returned for invalid pointers.
+    assert(LUB_PTR_ERR(llsnncpy(NULL, 16, lsrc, 8, NULL), 0));
+    assert(LUB_PTR_ERR(llsnncat(NULL, 16, lsrc, 8, NULL), 0));
+
+    // Concatenate behavior using current bounded API.
+    ldst[0] = 'x'; ldst[1] = 0;
+    assert(llsnncat(ldst, 16, lsrc, 8, NULL) == &ldst[4]);
+    assert(ldst[0] == 'x' && ldst[1] == 'a' && ldst[2] == 'b' && ldst[3] == 'c' && ldst[4] == 0);
+
     printf("Error/edge case tests passed.\n");
 
 }

@@ -23,6 +23,7 @@ void run_fuzz_edge_tests(void);
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #include "../lubtype.h"
 

@@ -20,43 +20,27 @@ void run_cmp_search_tests(void) {
     lchar_t l1[16] = {'a','b','c','\0'};
     lchar_t l2[16] = {'a','b','c','\0'};
     lchar_t l3[16] = {'a','b','d','\0'};
-    // Test: llsncmp (compare)
+
+    // Compare.
     assert(llsncmp(l1, l2, 3) == 0);
     assert(llsncmp(l1, l3, 3) < 0);
-    // Test: llspfx, llssfx (prefix/suffix)
-    assert(llspfx(l1, l2) == 0);
-    assert(llssfx(l1, l2) == 0);
-    // Test: llsch, llsrchr, llsstr (search)
-    assert(llschr(l1, 'b') == &l1[1]);
-    assert(llsrchr(l1, 'b') == &l1[1]);
-    assert(llsstr(l1, l2) == l1);
-    // Test: llspbrk, llsspn, llscspn (set search/span)
-    lchar_t set[4] = {'b','c','\0'};
-    assert(llspbrk(l1, set) == &l1[1]);
-    assert(llsspn(l1, set) == 0);
-    assert(llscspn(l1, set) == 1);
-    // Test: llssubcnt (substring count)
-    assert(llssubcnt(l1, set) == 1);
-    // Null/empty/error edge cases
-    assert(llsncmp(NULL, l2, 3) == 0);
-    assert(llsncmp(l1, NULL, 3) == 0);
-    assert(llspfx(NULL, l2) == 0);
-    assert(llssfx(l1, NULL) == 0);
-    assert(llschr(NULL, 'a') == NULL);
-    assert(llsrchr(NULL, 'a') == NULL);
-    assert(llsstr(NULL, l2) == NULL);
-    assert(llspbrk(NULL, set) == NULL);
-    assert(llsspn(NULL, set) == 0);
-    assert(llscspn(NULL, set) == 0);
-    assert(llssubcnt(NULL, set) == 0);
-    l1[0] = 0; set[0] = 0;
-    assert(llschr(l1, 'a') == NULL);
-    assert(llsrchr(l1, 'a') == NULL);
-    assert(llsstr(l1, l2) == NULL);
-    assert(llspbrk(l1, set) == NULL);
-    assert(llsspn(l1, set) == 0);
-    assert(llscspn(l1, set) == 0);
-    assert(llssubcnt(l1, set) == 0);
+
+    // Prefix/suffix compare.
+    assert(llsnpfxcmp(l1, (const lchar_t *)"ab", 3) == 0);
+    assert(llsnsfxcmp(l1, (const lchar_t *)"bc", 3) == 0);
+    assert(llsnpfxcmp(l1, (const lchar_t *)"ac", 3) != 0);
+
+    // Substring search/count.
+    assert(llsnstrm(l1, (const lchar_t *)"bc", 3, 0, 1) == &l1[1]);
+    assert(llsncnt((const lchar_t *)"abcabc", (const lchar_t *)"ab", 6, 0) == 2);
+
+    // Null/empty/error edges on current APIs.
+    assert(LUB_INT_ERR(llsncmp(NULL, l2, 3), 0));
+    assert(LUB_INT_ERR(llsnpfxcmp(NULL, l2, 3), 0));
+    assert(LUB_INT_ERR(llsnsfxcmp(NULL, l2, 3), 0));
+    assert(llsnstrm(NULL, l2, 3, 0, 1) == NULL);
+    assert(llsncnt(NULL, l2, 3, 0) == (size_t)LUB_PTR_INVALID);
+
     printf("Comparison/search tests passed.\n");
 
 }
