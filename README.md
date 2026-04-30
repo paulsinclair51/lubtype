@@ -10,194 +10,285 @@ For license details, see the LICENSE file in the project root.
 
 The API is provided as three header files:
 
-  - lubtype.h — Core API for Latin and Unicode character/string operations.
-  - xlatin.h — Polymorphic macro mapping (x -> l) header.
-  - xunicode.h — Polymorphic macro mapping (x -> u) header.
+  - lubtype.h — Core API for Latin-8, Unicode-16, and byte character/string operations.
+  - xlatin.h — Polymorphic macro mapping (x → l) header.
+  - xunicode.h — Polymorphic macro mapping (x → u) header.
 
-For all use cases, include "lubtype.h" and, optionally, include
-"xlatin.h" or "include "xunicode.h" for generic code that uses
-the polymorphic x macros.
+For all use cases, include `lubtype.h` and, optionally, include
+`xlatin.h` or `xunicode.h` for generic code that uses the polymorphic
+x macros.
 
-See these *.h files for details beyond the overview provided below.
+### Providing Function Definitions
+
+By default, `lubtype.h` declares `extern` functions but does not define them.
+To include the function definitions in a translation unit, define
+`__LUB_DEFINITIONS__` before including the header:
+
+```c
+#define __LUB_DEFINITIONS__
+#include "lubtype.h"
+```
+
+Do this in exactly one translation unit per linked binary. All other
+translation units should include `lubtype.h` without the define.
 
 ## Polymorphic Macro Mapping Headers
 
-For *.c files that provide generic character and string logic for
-both Latin and Unicode, two macro mapping headers are provided:
+For source files that implement generic character and string logic
+for both Latin and Unicode, two macro mapping headers are provided:
 
   - xlatin.h — Maps x to l in polymorphic macro names.
   - xunicode.h — Maps x to u in polymorphic macro names.
 
-For example:
+Mappings applied by xlatin.h:
 
-  - isxalpha -> islalpha (xlatin.h) or isualpha (xunicode.h)
-  - xlsncpy -> llsncpy (xlatin.h) or ulsncpy (xunicode.h)
-  - uxscpy -> ulscpy (xlatin.h) or uuscpy (xunicode.h)
-  - xstr_t -> lstr_t (xlatin.h) or ustr_t (xunicode.h)
+  - `lx → ll`, `xl → ll`, `xu → lu`, `ux → ul`, `xx → ll`, `x → l`
 
-This allows you to write code using the x macros and the lubtype.h API
-and compile it twice (once with xlatin.h and once with xunicode.h)
-to generate both a Latin and an Unicode *.obj file from a single generic
-source.
+Mappings applied by xunicode.h:
+
+  - `lx → lu`, `xl → ul`, `xu → uu`, `ux → uu`, `xx → uu`, `x → u`
+
+For example (`xlatin.h` / `xunicode.h`):
+
+  - `isxalpha`  → `islalpha`  / `isualpha`
+  - `xlsncpy`   → `llsncpy`   / `ulsncpy`
+  - `xchar_t`   → `lchar_t`   / `uchar_t`
+  - `xcstr_t`   → `lcstr_t`   / `ucstr_t`
+
+This allows you to write a single generic source file and compile it
+twice — once with `xlatin.h` and once with `xunicode.h` — to produce
+both Latin and Unicode object files.
 
 Example:
 
+```c
+#define __LUB_DEFINITIONS__
 #include "lubtype.h"
 #include "xlatin.h"   // or "xunicode.h"
 
-// xstr_t defined to lstr_t (xlatin.h) or ustr_t (xunicode.h)
-xstr_t buf[64+1];
+// xchar_t is lchar_t (xlatin.h) or uchar_t (xunicode.h).
+xchar_t buf[64+1];
 
-// xlsncpy defined to llsncpy (xlatin.h) or ulsncpy (xunicode.h).
-xlsncpy(buf, (lcstr_t)"hello", 5);
-   
+// xlsncpy is llsncpy (xlatin.h) or ulsncpy (xunicode.h).
+xlsncpy(buf, 64, (const lchar_t *)"hello", 5, NULL);
+```
+
 ## Quick Start
 
+```c
+#define __LUB_DEFINITIONS__
 #include "lubtype.h"
 
-uchar_t buf[64+1]; // Buffer for up to 64 characters plus a null terminator.
-ulscpy(buf, (lcstr_t)"hello world");
-// buf = "hello world"
+uchar_t buf[64+1]; // Buffer for up to 64 Unicode characters plus null terminator.
+ulsnncpy(buf, 64, (const lchar_t *)"hello world", 11, NULL);
+// buf = u"hello world"
+```
 
-## Limitations & Notes
+## Notes
 
 - Unicode classification and case conversion use the C runtime's
-  wide-character routines (isw*, tow*), which are locale- and
+  wide-character routines (`isw*`, `tow*`), which are locale- and
   CRT-dependent. Results may differ across platforms or locale settings.
 
 - This API does not perform Unicode normalization or surrogate pair
   handling; all operations are on individual code units.
-- For functions that return NULL on error, the output buffer is
-  always null-terminated on error if possible, to help prevent
-  buffer overreads.
 
-- Some search and replace functions (e.g., substring search, multi-pair
-  replace) may have worst-case O(n*m) complexity, where n is the length
-  of the input and m is the pattern or map size. Most other operations
-  are O(n).
+- When a function writes to a caller-supplied target buffer `t`, the
+  buffer is always null-terminated on error (at `t[tn]` for bounded
+  variants or `t[0]` for unbounded copy variants), preventing buffer
+  overreads.
+
+- Overlapping source and target buffers result in
+  implementation-defined behavior; a function may return an error or
+  produce a correct result depending on the operation.
+
+- Some search and replace functions may have worst-case O(n×m)
+  complexity, where n is the length of the input and m is the pattern
+  or map size. Most other operations are O(n).
+
+- No dynamic memory is allocated or freed; no recursion occurs.
+
+- The API is thread-safe provided threads do not share target buffers
+  without external synchronization.
 
 ## Version Macros
 
-LUB_VERSION                    // E.g., "1.0.0"
-LUB_VERSION_NUM                // E.g., 10000
-LUB_VERSION_AT_LEAST(1, 0, 0)  // E.g., true
+```c
+LUB_VERSION                     // "1.0.0"
+LUB_VERSION_NUM                 // 10000  (uint32_t MMmmpp)
+LUB_VERSION_HEX                 // 0x010000
+LUB_VERSION_EQ(1, 0, 0)         // true if exactly 1.0.0
+LUB_VERSION_AT_LEAST(1, 0, 0)   // true if >= 1.0.0
+```
 
 ## API Types
 
-| Type     | Alias for       | Description              |
-|----------|-----------------|--------------------------|
-| lchar_t  | uint8_t         | Latin character          |
-| uchar_t  | uint16_t        | Unicode character        |
-| lstr_t   | lchar_t *       | Mutable Latin string     |
-| ustr_t   | uchar_t *       | Mutable Unicode string   |
-| lcstr_t  | const lchar_t * | Read-only Latin string   |
-| ucstr_t  | const uchar_t * | Read-only Unicode string |
+| Type    | Base type  | Description                               |
+|---------|------------|-------------------------------------------|
+| lchar_t | uint8_t    | Latin-8 character (values 0–255)          |
+| uchar_t | uint16_t   | Unicode BMP character (values 0–65535)    |
+| byte_t  | uint8_t    | Raw byte (values 0x00–0xFF, no null semantics) |
 
-## Polymorphic Type Mapping
+String and const-string pointer types (`lchar_t *`, `const lchar_t *`,
+`uchar_t *`, `const uchar_t *`, `byte_t *`, `const byte_t *`) are used
+directly in function signatures; no separate `lstr_t` / `ustr_t`
+typedefs are defined in `lubtype.h`.
 
-| Type     | xlatin.h  | xunicode.h |
+## Polymorphic Type Mapping (xlatin.h / xunicode.h)
+
+| Macro    | xlatin.h  | xunicode.h |
 |----------|-----------|------------|
-| xchar_t  | lchar_t   | uchar_t	|
+| xchar_t  | lchar_t   | uchar_t    |
+| xcstr_t  | lcstr_t   | ucstr_t    |
 | xstr_t   | lstr_t    | ustr_t     |
-| xcstr_t  | lcstr_t   | uccstr_t   |
+
+## Character and String Limits
+
+| Constant           | Value   | Description                          |
+|--------------------|---------|--------------------------------------|
+| LUB_MAX_LCHAR      | 255     | Maximum Latin character value        |
+| LUB_MAX_UCHAR      | 65535   | Maximum Unicode character value      |
+| LUB_MAX_BYTE       | 255     | Maximum byte value                   |
+| LUB_MAX_LSTRLEN    | 1000000 | Maximum Latin string length          |
+| LUB_MAX_USTRLEN    | 500000  | Maximum Unicode string length        |
+| LUB_MAX_UNAMELEN   | 128     | Maximum unquoted name length         |
+| LUB_MAX_UQNAMELEN  | 258     | Maximum quoted name length (2×128+2) |
+| LUB_MAX_LOPTLEN    | 64000   | Maximum Latin option string length   |
+| LUB_MAX_UOPTLEN    | 32000   | Maximum Unicode option string length |
+| LUB_MAX_BSTRLEN    | 1000000 | Maximum byte string length           |
+| LUB_MAX_BOPTLEN    | 64000   | Maximum byte option string length    |
+
+## Special Return Values
+
+| Constant              | Value | Description                     |
+|-----------------------|-------|---------------------------------|
+| LUB_CMP_GREATER_THAN  | 1     | Comparison: s1 > s2             |
+| LUB_CMP_EQUAL         | 0     | Comparison: s1 == s2            |
+| LUB_CMP_LESS_THAN     | -1    | Comparison: s1 < s2             |
+| LUB_QUOTEDNAME        | 1     | Name requires quoting           |
+| LUB_UNQUOTEDNAME      | 0     | Name does not require quoting   |
+
+Comparison functions return exactly -1, 0, or 1 (not an arbitrary
+negative/positive value as with `strcmp`), making these distinct from
+the error range -99 to -2.
+
+## Error Values
+
+Functions that write to a caller-supplied buffer return `NULL` on error.
+Size-returning functions return `(size_t)error_value`. Int-returning
+functions return the error value directly. All error values fall in the
+reserved range -99 to -2.
+
+| Constant          | Value | Description                          |
+|-------------------|-------|--------------------------------------|
+| LUB_PTR_INVALID   | -2    | Pointer argument is an error value   |
+| LUB_UNTERMINATED  | -3    | Source string not null-terminated    |
+| LUB_NAME_INVALID  | -4    | String is not a valid name           |
+| LUB_OPT_TOO_LONG  | -5    | Option string exceeds maximum length |
+| LUB_OPT_INVALID   | -6    | Option string is invalid             |
+| LUB_OPT_RESERVED  | -7    | Option string uses a reserved value  |
+| LUB_OVERLAP       | -8    | Source and target buffers overlap    |
+| LUB_TRUNCATED     | -9    | Result was truncated                 |
+
+## Error Classification Macros
+
+Use the `LUB_*_ERR` macros to test or cast error values without
+comparing raw integers:
+
+```c
+// Check whether any error occurred:
+if (LUB_SIZE_ERR(result, 0))  { /* error */ }
+if (LUB_PTR_ERR(result, 0))   { /* error */ }
+if (LUB_INT_ERR(result, 0))   { /* error */ }
+
+// Check for a specific error:
+if (LUB_SIZE_ERR(result, LUB_UNTERMINATED)) { /* unterminated */ }
+
+// Propagate an error from a called function:
+if (LUB_SIZE_ERR(result, 0))
+    return (uchar_t *)LUB_PTR_ERR(result, 0);
+```
 
 ## Function Naming Conventions
 
-{} required. [] optional. <> token. | alternatives.
+`{}` required · `[]` optional · `<>` token · `|` alternatives
 
-1. Single-source predicates and character transforms follow this pattern:
+### Character and String Type Codes
 
-  {is|to}{l|u}<kind>
+| Code | Meaning                        |
+|------|--------------------------------|
+| l    | Latin (`lchar_t`)              |
+| u    | Unicode (`uchar_t`)            |
+| b    | Byte (`byte_t`)                |
 
-Note: islname1c, islnamec, islreserved, and islqname are not
-supported since names are always Unicode.
+### Parm Types (target ← source)
 
-Examples: isualpha, islhexdigits, isureserved, tolupper
+| Code | Target  | Source    |
+|------|---------|-----------|
+| ll   | Latin   | Latin     |
+| lu   | Latin   | Unicode   |
+| ul   | Unicode | Latin     |
+| uu   | Unicode | Unicode   |
+| lb   | Latin   | Byte      |
+| ub   | Unicode | Byte      |
+| bl   | Byte    | Latin     |
+| bu   | Byte    | Unicode   |
 
-2. int <- character transforms follow this patten:
+Polymorphic parm types (`x`, `xl`, `xu`, `ux`, `xx`, `xb`, `bx`) map
+x to l (xlatin.h) or u (xunicode.h).
 
-  i{l|u}hexdigit
+### Bound Suffixes
 
-Example: iuhexdigit
+- `n` — bounded source: explicit `sn` parameter.
+- `nn` — bounded target **and** bounded source: explicit `tn` and `sn` parameters.
+- No suffix — source is scanned to the null terminator (clamped to the
+  type maximum); no explicit `sn` or `tn` parameter.
 
-3. String length follow this pattern:
+### Verb Flavors
 
-  {l|u}cs[n]len
+| Verb suffix  | Meaning                              |
+|--------------|--------------------------------------|
+| *(none)*     | Case-sensitive / case-preserving     |
+| `c` (lower)  | Lowercase-transform (e.g., `cpyc`)   |
+| `C` (upper)  | Uppercase-transform (e.g., `CPYC`)   |
+| Uppercase op | Case-insensitive (e.g., `CMP`)       |
 
-4. Transform/compare/search follow this pattern:
+Not all verb flavors are defined for every function. When a flavor is
+absent, apply a separate case transform using `cpyc` / `CPYC` after the
+operation:
 
-  <parmtype>s[n]<verbs>[qname]
+```c
+llstrim(t, s, 'B', ':');  // trim into t
+llsCPYC(t, t);            // uppercase t in-place
+```
 
-Examples: lusncpy, ulsapp, uusCMP
+### Function Groups and Example Names
 
-Notes: cs and s indicate string operation.
-       For n, see Source and Target Bounds below.
+| Group                    | Example names                                       |
+|--------------------------|-----------------------------------------------------|
+| Character classification | `isualpha`, `islhexdigit`, `isuname1c`              |
+| Character case transform | `ultoupper`, `lutolower`, `lutocase`                |
+| Hex digit → int          | `iuhexdigit`, `ilhexdigit`                          |
+| String length            | `lcsnlen`, `ucsnlen`                                |
+| String classification    | `isunlatinstr`, `isuRESERVED`, `isuQNAME`           |
+| Compare                  | `llsncmp`, `uusnCMP`                                |
+| Fixed-length compare     | `llsnfxdcmp`, `uusnFXDCMP`                          |
+| Prefix compare           | `llsnpfxcmp`, `uusnPFXCMP`                          |
+| Suffix compare           | `llsnsfxcmp`, `uusnSFXCMP`                          |
+| Search                   | `llsnstrm`, `uusnSTRM`                              |
+| Count                    | `llsncnt`, `uusnCNT`                                |
+| Concatenate              | `llsnncat`, `ulsnncatc`, `ulsnnCATC`                |
+| Copy                     | `llsnncpy`, `ulsnncpy`, `ulsnncpyc`                 |
+| Trim                     | `llsntrim`, `uusntrim`                              |
+| Pointer trim             | `llsnptrim`, `uusnptrim`                            |
+| Skip                     | `llsnskip`, `uusnskip`                              |
+| Reverse                  | `llsnreverse`, `uusnreverse`                        |
+| Pad                      | `llsnnpad`, `uusnnpad`                              |
+| Repeat                   | `llsnnrepeat`, `uusnnrepeat`                        |
+| Replace                  | `llsnnreplace`, `uusnREPLACE`                       |
+| Printf-style formatting  | `llsnnprintf`, `uusnnprintf`                        |
 
-### Parm Types
-
-- ll - Latin target <- Latin source or Latin source 1 and 2
-- lu - Latin target <- Unicode source or Latin source 1 and Unicode source 2
-- ul - Unicode target <- Latin source or Unicode source 1 and Latin source 2
-- uu - Unicode target <- Unicode source or Unicode source 1 and 2
-- lb - Latin target <- Byte source
-- ub - Unicode target <- Byte source
-- bl - Byte target <- Latin source
-- bu - Byte target <- Unicode source
-
-### Polymorphic Mapping to Parm Types
-
-Polymorphic parm types:
-
-- x, xl, xu, ux, xx, xb, bx
-
-x is mapped to l if xlatin.h is included and to u if xunicode.h is included.
-
-### Source and Target Bounds
-
-- n in the name means explicit bounded source length is provided and function
-  includes a parameter n.
-- Some APIs also take a parameter tn for bounded target capacity.
-- If n is omitted, source is scanned to null terminator (with internal max clamp)
-  and n parameter is also omitted.
-
-### Verbs
-
-- Case-sensitive match/compare   - lowercase verbs (e.g., cmp)
-- Case-insensitive match/compare - uppercase verbs (e.g., CMP)
-- Case-preserving transform      - lowercase verbs (e.g., app, cpy, cat)
-- Lowercase-transform            - lowercase verb with c suffix (e.g., appc, cpyc, catc)
-- Uppercase-transform            - uppercase verb with C suffix (e.g., APPC, CPYC, CATC)
-
-Note: Not all lowercase-transform and uppercase-transform verbs are supported. For
-example, trim (case-preserving) is supported but trimc and TRIMC are not supported. For these cases,
-the case can be transformed in the target using cpyc or CPYC function after the
-transform. For example,
-
-llstrim(t, s, 'B', ':');  // trim s into target.
-llsCPYC(t, t); // Uppercase target.
-
-Examples:
-
-- llsncpy  - Latin <- Latin bounded case-preserving string copy
-- lusncatc - Latin <- Unicode bounded string concatenation with lowercase mapping
-- uusnCMP  - Unicode to Unicode case-insensitive bounded string comparison
-
-## Errors
-
-Functions that write to a caller-supplied buffer return NULL on error.
-
-lcslen/ucslen return MISSING_STR_TERMINATOR ((size_t)-1) when no null terminator
-is found at or before s[n] (i.e., within the first n+1 characters, from s[0] to s[n]). 
-
-On error, the output buffer is always null-terminated by at least t[tn] (bounded variants)
-or t[0] (unbounded copy variants).
-
-## Limits
-
-| Constant     | Value   |
-|--------------|---------|
-| MAX_LSTRLEN  | 1000000 |
-| MAX_USTRLEN  |  500000 |
+See `lubtype.h` for the complete function reference and parameter details.
 
 MAX_XSTRLEN maps to MAX_LSTRLEN (with xlatin.h) or MAX_USTRLEN (with xunicode.h)
 
