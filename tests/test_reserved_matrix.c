@@ -14,23 +14,23 @@
 /**
  * @brief Create a local ucstr_t from ASCII string.
  */
-static ucstr_t make_ustr_local(const char *src, ustr_t dst, size_t cap) {
+static uchar_t *make_ustr_local(const char *src, uchar_t *dst, size_t cap) {
     size_t i = 0;
-    if (!dst || !cap) return (ucstr_t)NULL;
+    if (!dst || !cap) return (uchar_t *)NULL;
     for (; src && src[i] && i + 1 < cap; ++i) dst[i] = (uchar_t)(unsigned char)src[i];
     dst[i] = (uchar_t)0;
-    return (ucstr_t)dst;
+    return dst;
 }
 
 /**
  * @brief Create a local lstr_t from ASCII string.
  */
-static lcstr_t make_lstr_local(const char *src, lstr_t dst, size_t cap) {
+static lchar_t *make_lstr_local(const char *src, lchar_t *dst, size_t cap) {
     size_t i = 0;
-    if (!dst || !cap) return (lcstr_t)NULL;
+    if (!dst || !cap) return (lchar_t *)NULL;
     for (; src && src[i] && i + 1 < cap; ++i) dst[i] = (lchar_t)(unsigned char)src[i];
     dst[i] = (lchar_t)0;
-    return (lcstr_t)dst;
+    return dst;
 }
 
 /**
@@ -56,7 +56,7 @@ static int eq_ascii_ci_local(const char *a, const char *b) {
 /**
  * @brief Simulate Oracle reserved word check for ASCII strings.
  */
-static int oracle_isureserved_ascii_local(const char *s) {
+static int oracle_isuRESERVED_ascii_local(const char *s) {
     static const char *reserved[] = {
         "SELECT", "INSERT", "UPDATE", "DELETE", "CREATE", "DROP",
         "INTEGER", "VARCHAR", "TIMESTAMP", "COUNT", "SUM", "AVG",
@@ -77,7 +77,7 @@ static int oracle_isureserved_ascii_local(const char *s) {
     return 0;
 }
 
-static void test_isureserved_oracle_crosscheck(void) {
+static void test_isuRESERVED_oracle_crosscheck(void) {
     static const char *positives[] = {
         "SELECT", "insert", "UpDaTe", "CHAR_LENGTH", "character_length",
         "CASE_N", "casespecific", "NO_INLINE", "none", "Nowait",
@@ -88,26 +88,34 @@ static void test_isureserved_oracle_crosscheck(void) {
         "SELECTX", "_SELECT", "CASE__N", "NO-UNDO", "PERCENTRANK",
         "ROW__NUMBER", "VARPOP", "VAR__SAMP", "USERTABLE", "my_table"
     };
+    lchar_t lbuf[64];
     uchar_t buf[64];
     size_t i;
 
     for (i = 0; i < sizeof(positives) / sizeof(positives[0]); ++i) {
-        int expected = oracle_isureserved_ascii_local(positives[i]);
-        int actual = isureserved(make_ustr_local(positives[i], buf, 64));
+        int expected = oracle_isuRESERVED_ascii_local(positives[i]);
+        int actual = isuRESERVED(make_ustr_local(positives[i], buf, 64));
+        int lactual = islRESERVED(make_lstr_local(positives[i], lbuf, 64));
         assert(expected == 1);
         assert(actual == expected);
+        assert(lactual == expected);
     }
 
     for (i = 0; i < sizeof(negatives) / sizeof(negatives[0]); ++i) {
-        int expected = oracle_isureserved_ascii_local(negatives[i]);
-        int actual = isureserved(make_ustr_local(negatives[i], buf, 64));
+        int expected = oracle_isuRESERVED_ascii_local(negatives[i]);
+        int actual = isuRESERVED(make_ustr_local(negatives[i], buf, 64));
+        int lactual = islRESERVED(make_lstr_local(negatives[i], lbuf, 64));
         assert(expected == 0);
         assert(actual == expected);
+        assert(lactual == expected);
     }
         // Null/empty/error edge cases
-        assert(!isureserved(NULL));
+        assert(!isuRESERVED(NULL));
+        assert(!islRESERVED(NULL));
         buf[0] = 0;
-        assert(!isureserved(buf));
+        lbuf[0] = 0;
+        assert(!isuRESERVED(buf));
+        assert(!islRESERVED(lbuf));
 }
 
 static void test_matrix_consistency_cmp_pfx_sfx(void) {
@@ -129,69 +137,49 @@ static void test_matrix_consistency_cmp_pfx_sfx(void) {
     assert(ulsnCMP(u1, l2, 63) == 0);
     assert(uusnCMP(u1, u2, 63) == 0);
 
-    assert(llscmp(l1, l2) == llsncmp(l1, l2, MAX_LSTRLEN));
-    assert(luscmp(l1, u2) == lusncmp(l1, u2, MAX_USTRLEN));
-    assert(ulscmp(u1, l2) == ulsncmp(u1, l2, MAX_USTRLEN));
-    assert(uuscmp(u1, u2) == uusncmp(u1, u2, MAX_USTRLEN));
+    assert(llsncmp(l1, l2, LUB_MAX_LSTRLEN) == llsncmp(l1, l2, LUB_MAX_LSTRLEN));
+    assert(lusncmp(l1, u2, LUB_MAX_USTRLEN) == lusncmp(l1, u2, LUB_MAX_USTRLEN));
+    assert(ulsncmp(u1, l2, LUB_MAX_USTRLEN) == ulsncmp(u1, l2, LUB_MAX_USTRLEN));
+    assert(uusncmp(u1, u2, LUB_MAX_USTRLEN) == uusncmp(u1, u2, LUB_MAX_USTRLEN));
 
-    assert(llsCMP(l1, l2) == llsnCMP(l1, l2, MAX_LSTRLEN));
-    assert(lusCMP(l1, u2) == lusnCMP(l1, u2, MAX_USTRLEN));
-    assert(ulsCMP(u1, l2) == ulsnCMP(u1, l2, MAX_USTRLEN));
-    assert(uusCMP(u1, u2) == uusnCMP(u1, u2, MAX_USTRLEN));
+    assert(llsnCMP(l1, l2, LUB_MAX_LSTRLEN) == llsnCMP(l1, l2, LUB_MAX_LSTRLEN));
+    assert(lusnCMP(l1, u2, LUB_MAX_USTRLEN) == lusnCMP(l1, u2, LUB_MAX_USTRLEN));
+    assert(ulsnCMP(u1, l2, LUB_MAX_USTRLEN) == ulsnCMP(u1, l2, LUB_MAX_USTRLEN));
+    assert(uusnCMP(u1, u2, LUB_MAX_USTRLEN) == uusnCMP(u1, u2, LUB_MAX_USTRLEN));
 
     make_lstr_local("PrefixBodySuffix", llhs, 64);
     make_lstr_local("prefix", lrhs, 64);
     make_ustr_local("PrefixBodySuffix", ulhs, 64);
     make_ustr_local("prefix", urhs, 64);
 
-    assert(llsnpfx(llhs, lrhs, 63) != 0);
-    assert(lusnpfx(llhs, urhs, 63) != 0);
-    assert(ulsnpfx(ulhs, lrhs, 63) != 0);
-    assert(uusnpfx(ulhs, urhs, 63) != 0);
+    assert(llsnpfxcmp(llhs, lrhs, 63) != 0);
+    assert(lusnpfxcmp(llhs, urhs, 63) != 0);
+    assert(ulsnpfxcmp(ulhs, lrhs, 63) != 0);
+    assert(uusnpfxcmp(ulhs, urhs, 63) != 0);
 
-    assert(llsnPFX(llhs, lrhs, 63) == 0);
-    assert(lusnPFX(llhs, urhs, 63) == 0);
-    assert(ulsnPFX(ulhs, lrhs, 63) == 0);
-    assert(uusnPFX(ulhs, urhs, 63) == 0);
-
-    assert(llspfx(llhs, lrhs) == llsnpfx(llhs, lrhs, MAX_LSTRLEN));
-    assert(luspfx(llhs, urhs) == lusnpfx(llhs, urhs, MAX_USTRLEN));
-    assert(ulspfx(ulhs, lrhs) == ulsnpfx(ulhs, lrhs, MAX_USTRLEN));
-    assert(uuspfx(ulhs, urhs) == uusnpfx(ulhs, urhs, MAX_USTRLEN));
-
-    assert(llsPFX(llhs, lrhs) == llsnPFX(llhs, lrhs, MAX_LSTRLEN));
-    assert(lusPFX(llhs, urhs) == lusnPFX(llhs, urhs, MAX_USTRLEN));
-    assert(ulsPFX(ulhs, lrhs) == ulsnPFX(ulhs, lrhs, MAX_USTRLEN));
-    assert(uusPFX(ulhs, urhs) == uusnPFX(ulhs, urhs, MAX_USTRLEN));
+    assert(llsnPFXCMP(llhs, lrhs, 63) == 0);
+    assert(lusnPFXCMP(llhs, urhs, 63) == 0);
+    assert(ulsnPFXCMP(ulhs, lrhs, 63) == 0);
+    assert(uusnPFXCMP(ulhs, urhs, 63) == 0);
 
     make_lstr_local("PrefixBodySuffix", llhs, 64);
     make_lstr_local("suffix", lrhs, 64);
     make_ustr_local("PrefixBodySuffix", ulhs, 64);
     make_ustr_local("suffix", urhs, 64);
 
-    assert(llsnsfx(llhs, lrhs, 63) != 0);
-    assert(lusnsfx(llhs, urhs, 63) != 0);
-    assert(ulsnsfx(ulhs, lrhs, 63) != 0);
-    assert(uusnsfx(ulhs, urhs, 63) != 0);
+    assert(llsnsfxcmp(llhs, lrhs, 63) != 0);
+    assert(lusnsfxcmp(llhs, urhs, 63) != 0);
+    assert(ulsnsfxcmp(ulhs, lrhs, 63) != 0);
+    assert(uusnsfxcmp(ulhs, urhs, 63) != 0);
 
-    assert(llsnSFX(llhs, lrhs, 63) == 0);
-    assert(lusnSFX(llhs, urhs, 63) == 0);
-    assert(ulsnSFX(ulhs, lrhs, 63) == 0);
-    assert(uusnSFX(ulhs, urhs, 63) == 0);
-
-    assert(llssfx(llhs, lrhs) == llsnsfx(llhs, lrhs, MAX_LSTRLEN));
-    assert(lussfx(llhs, urhs) == lusnsfx(llhs, urhs, MAX_USTRLEN));
-    assert(ulssfx(ulhs, lrhs) == ulsnsfx(ulhs, lrhs, MAX_USTRLEN));
-    assert(uussfx(ulhs, urhs) == uusnsfx(ulhs, urhs, MAX_USTRLEN));
-
-    assert(llsSFX(llhs, lrhs) == llsnSFX(llhs, lrhs, MAX_LSTRLEN));
-    assert(lusSFX(llhs, urhs) == lusnSFX(llhs, urhs, MAX_USTRLEN));
-    assert(ulsSFX(ulhs, lrhs) == ulsnSFX(ulhs, lrhs, MAX_USTRLEN));
-    assert(uusSFX(ulhs, urhs) == uusnSFX(ulhs, urhs, MAX_USTRLEN));
+    assert(llsnSFXCMP(llhs, lrhs, 63) == 0);
+    assert(lusnSFXCMP(llhs, urhs, 63) == 0);
+    assert(ulsnSFXCMP(ulhs, lrhs, 63) == 0);
+    assert(uusnSFXCMP(ulhs, urhs, 63) == 0);
 }
 
 void run_reserved_matrix_tests(void) {
-    test_isureserved_oracle_crosscheck();
+    test_isuRESERVED_oracle_crosscheck();
     test_matrix_consistency_cmp_pfx_sfx();
 
 }

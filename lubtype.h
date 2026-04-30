@@ -553,7 +553,7 @@ typedef uint8_t byte_t;
     defined(LUB_OPT_RESERVED) || \
     defined(LUB_OVERLAP) || \
     defined(LUB_TRUNCATED) || \
-    defined(LUB_OPERATION_INVALID)
+    defined(LUB_OP_INVALID)
 #error "lubtype.h: An error value LUB_* macro is unexpectedly " \
        "already defined. #undef before including lubtype.h. " \
        "After including, undef and define again as needed if " \
@@ -569,7 +569,7 @@ typedef uint8_t byte_t;
 #define LUB_OPT_RESERVED           (-7)
 #define LUB_OVERLAP                (-8)
 #define LUB_TRUNCATED              (-9)
-#define LUB_OPERATION_INVALID      (-99) // Internal error.
+#define LUB_OP_INVALID             (-99) // Internal error.
 // -11 to -98 reserved for future error values.
 /** @} */
 
@@ -593,36 +593,35 @@ typedef uint8_t byte_t;
  * 
  * @example Examples of using error values and macros
  * 
- *   * Use a  LUB_*_ERR macro to check if a returned value is an error:
+ *   1. Use a  LUB_*_ERR macro to check if a returned value is an error:
  * 
- *     * if (LUB_SIZE_ERR(result, 0)) { error handling }
- *       else { handle non-error result }
+ *      if (LUB_SIZE_ERR(result, 0)) { error handling }
+ *      else { handle non-error result }
  * 
- *     * if (LUB_PTR_ERR(result, 0)) { error handling }
- *       else { handle non-error result }
+ *      if (LUB_PTR_ERR(result, 0)) { error handling }
+ *      else { handle non-error result }
  * 
- *     * if (LUB_INT_ERR(result, 0)) { error handling }
- *       else { handle non-error result }
+ *      if (LUB_INT_ERR(result, 0)) { error handling }
+ *      else { handle non-error result }
  * 
- *   * Use the LUB_*_ERR macros to check whether a returned value
- *     is a specific error:
+ *   2. Use the LUB_*_ERR macros to check whether a returned value
+ *      is a specific error:
  * 
- *     * if (LUB_SIZE_ERR(result, LUB_UNTERMINATED)) {
- *           handle unterminated error
- *       }
+ *      if (LUB_SIZE_ERR(result, LUB_UNTERMINATED))
+ *        { handle unterminated error }
  * 
- *     * if (LUB_PTR_ERR(result, LUB_PTR_INVALID)) { handle bad pointer error }
+ *      if (LUB_PTR_ERR(result, LUB_PTR_INVALID)) { handle bad pointer error }
  * 
- *   * Use the LUB_*_ERR macros to cast an error value
- *     from a called function to thr return type
- *.    of the calling function:
+ *   3. Use the LUB_*_ERR macros to cast an error value from a called
+ *      function to the return type of the calling function:
  * 
- *     * if (LUB_SIZE_ERR(result, 0)) return (uchar_t *)LUB_PTR_ERR(result, 0);
+ *      if (LUB_SIZE_ERR(result, 0))
+ *        return (uchar_t *)LUB_PTR_ERR(result, 0);
  *
- *   * For input pointer arguments (e.g., s), encountering an error value
- *     indicates an invalid pointer. In this case, returns LUB_PTR_INVALID:
+ *   4. For input pointer arguments (e.g., s), encountering an error value
+ *      for the pointer indicates an invalid pointer:
  *
- *     * if (LUB_PTR_ERR(s, 0)) return LUB_SIZE_ERR(LUB_PTR_INVALID, 0);
+ *      if (LUB_PTR_ERR(s, 0)) return LUB_SIZE_ERR(LUB_PTR_INVALID, 0);
  * @{
  */
 
@@ -694,12 +693,7 @@ typedef uint8_t byte_t;
  *
  *    Note: RESERVED and QNAME are case-insensitive.
  * 
- *    Note: islRESERVED and islQNAME are not provided
- *          since names are Unicode.
- * 
- *    Note: isutruncstr is not provided string is always Latin.
- *
- *    Examples: isualpha, islhexdigits, isureserved, tolupper
+ *    Examples: isualpha, islhexdigits, islRESERVED, tolupper
  *
  * 3. Character <- character case transforms:
  *
@@ -913,6 +907,15 @@ typedef uint8_t byte_t;
  *              character nor its uppercased or lowercased value
  *              is a valid Latin character.
  */
+
+#if defined(__LUB_DEFINITIONS__)
+#if defined(__LUB_OP_HELPER__)
+#error "lubtype.h: __LUB_OP_HELPER__ macro is unexpectedly " \
+       "already defined. #undef before including lubtype.h. " \
+       "This macro is undefined after its last use " \
+       "by the include. After including, define again as needed."
+#endif // __LUB_OP_HELPER__
+#endif // __LUB_DEFINITIONS__
 
 /**
  * @defgroup CharacterClassification Character Classification
@@ -1150,64 +1153,75 @@ extern size_t ucsnlen(const uchar_t *s, size_t sn)
 
 /**
  * @defgroup StringClassification String Classification
- * @name isuRESERVED, isuQNAME (case-insensitive)
- *       isltruncstr, isneedlestr
+ * @name islRESERVED, isuRESERVED, islQNAME, isuQNAME (case-insensitive)
+ *       isltruncstr, isutruncstr
+ *       islneedlestr, isuneedlestr
  *       isunlstr
  *       islnhexdigits, isunhexdigits
  * @brief Latin and Unicode string classification.
  * @param s Source string.
  * @param sn Maximum source string length (clamped to
  *           LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN).
- *           For isuRESERVED and isuQNAME, sn is omitted and
- *           sn defaults to LUB_MAX_UNAMELEN.
- *           For isltruncstr, sn is omitted and sn defaults to LUB_MAX_LOPTLEN.
+ * 
+ *           For islRESERVED, isuRESERVED, islQNAME and
+ *           isuQNAME, sn is omitted and sn defaults
+ *           to LUB_MAX_UNAMELEN.
+ * 
+ *           For isltruncstr, sn is omitted and sn defaults
+ *           to LUB_MAX_LOPTLEN.
  * @return 1 Condition satisfied.
  *         0 Condition unsatisfied and no error.
- *        <0 Error.
+ *       <-1 Error.
  *
  * @note Errors:
  *       - (int)LUB_PTR_INVALID if s is an invalid pointer.
  *       - (int)LUB_UNTERMINATED if s is not null-terminated.
  *       - (int)LUB_NAME_INVALID if s is not a valid name for isuQNAME.
  *
- * @note RESERVED: Classify whether s is a Teradata reserved word.
+ * @note islRESERVED, isuRESERVED:
+ * 
+ *       Classify whether s is a Teradata reserved word (case-insensitive).
  *
- * @note QNAME: Classify whether s must be a quoted name.
- *              s must be quoted if the first character is not
- *              a first-name character (see iuname1c), or any
- *              subsequent character
- *              is not a name character (see iunamec).
+ * @note islQNAME, isuQNAME:
+ * 
+ *       Classify whether s must be a quoted name (case-insensitive).
+ *       s must be quoted if the first character is not a first-name
+ *       character (see iuname1c), or any subsequent character is not
+ *       a name character (see iunamec).
  *
- * @note isltruncstr: Classify whether s is a valid truncated
- *                    string for use as value
- *                    for as an trunc parameter. A valid string is NULL,
- *                    null-terminated by the bound LUB_MAX_LOPTLEN,
- *                    an empty string, and the first character is 
- *                    not a reserved alphabetic character
- *                    (see trunc parameter for details).
+ * @note isltruncstr/isutruncstr:
+ * 
+ *       Classify whether s is a valid truncated string
+ *       for use as a value for a trunc parameter.
+ *       A valid string is NULL, null-terminated by the
+ *       bound LUB_MAX_LOPTLEN, an empty string, and the
+ *       first character is not a reserved alphabetic
+ *       character (see trunc parameter for details).
  *
-* @note islneedlestr: Classify whether s is a valid needle
- *                    string for use as value
- *                    for as an search parameter. A valid string is NULL,
- *                    null-terminated by the bound LUB_MAX_LOPTLEN,
- *                    an empty string, and the first character is 
- *                    not a reserved alphabetic character
- *                    (see trunc parameter for details).
+ * @note islneedlestr/isuneedlestr:
+ * 
+ *       Classify whether s is a valid needle string for use
+ *       as a value for an search parameter. A valid
+ *       string is NULL, null-terminated by the bound
+ *       LUB_MAX_LOPTLEN, an empty string, and the first
+ *       character is not a reserved alphabetic character
+ *       (see needle parameter for details).
+ * 
+ * @note isunlstr:
+ * 
+ *       Classify whether s contains only Latin characters.
  *
- * @note The two hexdigits functions classify whether s consists
- *       only of hex digit characters
- *       '0' to '9', 'A' to 'F', or 'a' to 'f', s is NULL, or s is empty.
+ * @note islnhexdigits, isunhexdigits:
+ * 
+ *       Classify whether s consists only of hex digit characters
+ *       ('0' to '9', 'A' to 'F', or 'a' to 'f'), s is NULL,
+ *       or s is empty.
  * @{
  */
 
-extern int isuRESERVED(const uchar_t *s)
 #if defined(__LUB_DEFINITIONS__)
-{   if (!s || !*s) return (int)0;
-    if (LUB_PTR_ERR(s, 0)) return (int)0;
-
-    // Alphabetically ordered list of uppercased Teradata 
-    // reserved words as of Teradata V16.20.
-    static const char *td_reserved_words[] = {
+// Shared Teradata reserved words list for string classification.
+static const char *const __LUB_TD_RESERVED_WORDS__[] = {
         "ABORT", "ABORTSESSION", "ABS", "ACCESS_LOCK", "ACCOUNT", "ACOS",
         "ACOSH", "ADD", "ADD_MONTHS", "ADMIN", "AFTER", "AGGREGATE", "ALIAS",
         "ALL", "ALTER", "AMP", "AND", "ANSIDATE", "ANY", "ARGLPAREN", "AS",
@@ -1282,37 +1296,50 @@ extern int isuRESERVED(const uchar_t *s)
         "WORK", "XMLPLAN", "YEAR", "ZEROIFNULL", "ZONE"
     };
 
-    const size_t td_reserved_words_count =
-        sizeof(td_reserved_words) / sizeof(td_reserved_words[0]);
-    const size_t td_reserved_word_min_len = (size_t)2;
-    const size_t td_reserved_word_max_len = (size_t)20;
-
-    size_t len = ucsnlen(s, td_reserved_word_max_len);
-    if (LUB_SIZE_ERR(len, 0) || len < td_reserved_word_min_len)
-      return (int)0;
-
-    size_t lo = 0;
-    size_t hi = td_reserved_words_count;
-    while (lo < hi) {
-      const size_t mid = lo + ((hi - lo) / 2);
-      const char *kw = td_reserved_words[mid];
-      const uchar_t *ss = s;
-      int cmp;
-
-      for (; ; kw++, ss++) {
-        if (!*kw && !*ss) return (int)1;
-        if (*ss > LUB_MAX_LCHAR) return (int)0;
-        char c = toupper((unsigned char)*ss);
-        if (c < *kw) {cmp = -1; break;}
-        if (c > *kw) {cmp = 1; break;}
-      }
-
-      if (cmp < 0) hi = mid;
-      else lo = mid + 1;
-    }
-
-    return (int)0;
+#undef __LUB_OP_HELPER__
+#define __LUB_OP_HELPER__(xcslen, xchar_t) \
+{   const size_t TD_RESERVED_WORDS_COUNT = \
+        (sizeof(__LUB_TD_RESERVED_WORDS__) \
+        / sizeof(__LUB_TD_RESERVED_WORDS__[0])); \
+    const size_t TD_RESERVED_WORD_MIN_LEN = ((size_t)2); \
+    const size_t TD_RESERVED_WORD_MAX_LEN = ((size_t)20); \
+    if (!s || !*s) return (int)0; \
+      if (LUB_PTR_ERR(s, 0)) return (int)0; \
+      size_t len = xcslen(s, TD_RESERVED_WORD_MAX_LEN); \
+      if (LUB_SIZE_ERR(len, 0) || len < TD_RESERVED_WORD_MIN_LEN) \
+        return (int)0; \
+      size_t lo = 0; \
+      size_t hi = TD_RESERVED_WORDS_COUNT; \
+      while (lo < hi) { \
+        const size_t mid = lo + ((hi - lo) / 2); \
+        const char *kw = __LUB_TD_RESERVED_WORDS__[mid]; \
+        const xchar_t *ss = s; \
+        int cmp; \
+        for (; ; kw++, ss++) \
+        { if (!*kw && !*ss) return (int)1; \
+          if (*ss > LUB_MAX_LCHAR) return (int)0; \
+          char c = (char)toupper((unsigned char)*ss); \
+          if (c < *kw) {cmp = -1; break;} \
+          if (c > *kw) {cmp = 1; break;} \
+        } \
+        if (cmp < 0) hi = mid; \
+        else lo = mid + 1; \
+        } \
+        return (int)0; \
 }
+
+#endif // __LUB_DEFINITIONS__
+
+extern int islRESERVED(const lchar_t *s)
+#if defined(__LUB_DEFINITIONS__)
+   __LUB_OP_HELPER__(lcsnlen, lchar_t)
+#else
+        ;
+#endif // __LUB_DEFINITIONS__
+
+extern int isuRESERVED(const uchar_t *s)
+#if defined(__LUB_DEFINITIONS__)
+   __LUB_OP_HELPER__(ucsnlen, uchar_t)
 #else
     ;
 #endif // __LUB_DEFINITIONS__
@@ -2583,7 +2610,7 @@ static void *__target_source_helper__
 
     if (Name == 'N')
     {   if (xt != 'u' || xs != 'u')
-            return LUB_PTR_ERR(LUB_OPERATION_INVALID, 0);
+            return LUB_PTR_ERR(LUB_OP_INVALID, 0);
         const int quoted = isuQNAME((const uchar_t *)s);
         if (LUB_INT_ERR(quoted, 0)) return LUB_PTR_ERR(LUB_NAME_INVALID, 0);
         if (!quoted) q = '\0';
@@ -2632,13 +2659,7 @@ static void *__target_source_helper__
                        : (void *)((uchar_t *)t + out_len);
 }
 
-#if defined(__LUB_OP_HELPER__)
-#error "lubtype.h: __LUB_OP_HELPER__ macro is unexpectedly " \
-       "already defined. #undef before including lubtype.h. " \
-       "This macro is undefined after its last use " \
-       "by the include. After including, define again as needed."
-#endif // __LUB_OP_HELPER__
-
+#undef __LUB_OP_HELPER__
 #define __LUB_OP_HELPER__(cat, xt, xs, Quote, Name, Case, \
                           t_xchar_t, t_max_xstrlen, t_xscnlen, \
                           s_max_xstrlen, s_xscnlen, Err_c) \
@@ -3648,6 +3669,7 @@ extern byte_t *bbsnncpy(byte_t *t, size_t tn, const byte_t *s, size_t sn)
 
 // Trim helper macro.
 
+#undef __LUB_OP_HELPER__
 #define __LUB_OP_HELPER__(ttype, stype, \
                           max_strlen, snlen_func, \
                           space_func, cast) \
