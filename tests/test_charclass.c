@@ -14,8 +14,8 @@
  * @brief Run tests for character classification and conversion functions.
  *
  * Tests isualpha, islalpha, isuupper, islupper, isulower, isllower,
- * isudigit, isldigit, isualnum, islalnum, touupper, tolupper,
- * toulower, tollower.
+ * isudigit, isldigit, isualnum, islalnum, uutoupper, lltoupper,
+ * uutolower, lltolower.
  * Also checks edge cases for null and non-alphabetic input.
  */
 void run_charclass_tests(void) {
@@ -62,12 +62,12 @@ void run_charclass_tests(void) {
     assert(!isldigit(0));
     assert(!isualnum(0));
     assert(!islalnum(0));
-    assert(touupper(0) == 0);
+    assert(uutoupper(0) == 0);
     assert(lltoupper(0) == 0);
     assert(uutolower(0) == 0);
     assert(lltolower(0) == 0);
-    assert(touupper(L'!') == L'!');
-    assert(tolower('!') == '!');
+    assert(uutoupper(L'!') == L'!');
+    assert(lltolower('!') == '!');
     printf("Character classification/conversion tests passed.\n");
 
 }

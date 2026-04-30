@@ -13,8 +13,8 @@
 /**
  * @brief Run tests for string length and validation functions.
  *
- * Tests lcslen, ucslen, lcsnlen, ucsnlen, isureserved, isuqname,
- * islhexdigits, and isuhexdigits for correct behavior and edge cases.
+ * Tests lcsnlen, ucsnlen, and string classification helpers for
+ * correct behavior and edge cases.
  */
 void run_strlen_validation_tests(void) {
     lchar_t lstr[16] = {'a','b','c','\0'};
@@ -34,17 +34,28 @@ void run_strlen_validation_tests(void) {
     // Reserved/qname current symbol names.
     uchar_t not_reserved[8] = {L'A',0};
     assert(!isuRESERVED(not_reserved));
+
+    // New string-classification helpers.
+    lchar_t alpha_l[8] = {'A','b','C','\0'};
+    uchar_t alpha_u[8] = {L'A',L'b',L'C',0};
+    uchar_t latin_u[8] = {L'A',L'B',L'Z',0};
+    uchar_t non_latin_u[8] = {0x0100,0};
+    assert(islnalphastr(alpha_l, 3));
+    assert(isunalphastr(alpha_u, 3));
+    assert(isunlatinstr(latin_u, 3));
+    assert(!isunlatinstr(non_latin_u, 1));
+
     // Hex-digit string checks (bounded versions).
     lchar_t hexl[8] = {'A','B','C','1','2','3','\0'};
     uchar_t hexu[8] = {L'A',L'B',L'C',L'1',L'2',L'3',0};
-    assert(islnhexdigits(hexl, 6));
-    assert(isunhexdigits(hexu, 6));
+    assert(islnhexstr(hexl, 6));
+    assert(isunhexstr(hexu, 6));
     // Null/empty edges for hex classifiers.
-    assert(islnhexdigits(NULL, 3));
-    assert(isunhexdigits(NULL, 3));
+    assert(islnhexstr(NULL, 3));
+    assert(isunhexstr(NULL, 3));
     hexl[0] = 0; hexu[0] = 0;
-    assert(islnhexdigits(hexl, 0));
-    assert(isunhexdigits(hexu, 0));
+    assert(islnhexstr(hexl, 0));
+    assert(isunhexstr(hexu, 0));
     printf("String length/validation tests passed.\n");
 
 }

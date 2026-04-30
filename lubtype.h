@@ -637,11 +637,11 @@ typedef uint8_t byte_t;
 
 #define LUB_PTR_ERR(value, error) \
     ((!(error) && \
-      (void *)(intptr_t)(value) >= (void *)(intptr_t)-99 && \
-      (void *)(intptr_t)(value) <= (void *)(intptr_t)-2) || \
-     ((void *)(intptr_t)(error) >= (void *)(intptr_t)-99 && \
-      (void *)(intptr_t)(error) <= (void *)(intptr_t)-2  && \
-      (void *)(intptr_t)(value) == (void *)(intptr_t)(error) \
+    (intptr_t)(value) >= (intptr_t)-99 && \
+    (intptr_t)(value) <= (intptr_t)-2) || \
+     ((intptr_t)(error) >= (intptr_t)-99 && \
+    (intptr_t)(error) <= (intptr_t)-2  && \
+    (intptr_t)(value) == (intptr_t)(error) \
      ) ? (void *)(intptr_t)(value) : (void *)(intptr_t)0)
 
 #define LUB_SIZE_ERR(value, error) \
@@ -693,7 +693,7 @@ typedef uint8_t byte_t;
  *
  *    Note: RESERVED and QNAME are case-insensitive.
  * 
- *    Examples: isualpha, islhexdigits, islRESERVED, tolupper
+ *    Examples: isualpha, islhexdigits, islRESERVED, lltoupper
  *
  * 3. Character <- character case transforms:
  *
@@ -1013,9 +1013,9 @@ static inline int isuspace(const uchar_t c)
 static inline int islspace(const lchar_t c)
     {return isspace((unsigned char)c);}
 static inline int islhexdigit(const lchar_t c)
-    {return c >= '0' && c <= '9' ||
-            c >= 'a' && c <= 'f' ||
-            c >= 'A' && c <= 'F' ? 1 : 0;
+    {return ((c >= '0' && c <= '9') ||
+             (c >= 'a' && c <= 'f') ||
+             (c >= 'A' && c <= 'F')) ? 1 : 0;
     }
 static inline int isuhexdigit(const uchar_t c)
     {return c > LUB_MAX_LCHAR ? 0 : islhexdigit((uchar_t)c);}
@@ -1050,40 +1050,37 @@ static inline uchar_t ultocase(const lchar_t c)
 static inline uchar_t uutocase(const uchar_t c)
     {return c;}
 
-// To upper case conversion.
+// To uppercase conversion.
 
 static inline lchar_t lltoupper(const lchar_t c)
     {return (lchar_t)toupper((int)c);}
 static inline lchar_t lutoupper(const uchar_t c, lchar_t err_c)
     {wint_t wc = towupper((wint_t)c);
-     return (wc < 0 || (size_t)wc > LUB_MAX_LCHAR) ?
-            (c > LUB_MAX_LCHAR ? (lchar_t)c : err_c) : (lchar_t)wc;
+     return ((unsigned)wc > LUB_MAX_LCHAR) ?
+            (c > LUB_MAX_LCHAR ? err_c : (lchar_t)c) : (lchar_t)wc;
     }
 static inline uchar_t ultoupper(const lchar_t c)
-    {wint_t wc = towupper((wint_t)c);
-     return (wc < 0 || (size_t)wc > LUB_MAX_UCHAR) ?
-            (uchar_t)c : (uchar_t)wc;
-    }
+    {return (uchar_t)toupper((int)c);}
 static inline uchar_t uutoupper(const uchar_t c)
     {wint_t wc = towupper((wint_t)c);
-     return (wc < 0 || (size_t)wc > LUB_MAX_UCHAR) ?
+     return ((unsigned)wc > LUB_MAX_UCHAR) ?
             (uchar_t)c : (uchar_t)wc;
     }
 
-// To lower case conversion.
+// To lowercase conversion.
 
 static inline lchar_t lltolower(const lchar_t c)
     {return (lchar_t)tolower((int)c);}
 static inline lchar_t lutolower(const uchar_t c, lchar_t err_c)
     {wint_t wc = towlower((wint_t)c);
-     return (wc < 0 || (size_t)wc > LUB_MAX_LCHAR) ?
-            (c > LUB_MAX_LCHAR ? (lchar_t)c : err_c) : (lchar_t)wc;
+     return ((unsigned)wc > LUB_MAX_LCHAR) ?
+            (c > LUB_MAX_LCHAR ? err_c : (lchar_t)c) : (lchar_t)wc;
     }
 static inline uchar_t ultolower(const lchar_t c)
     {return (uchar_t)tolower((int)c);}
 static inline uchar_t uutolower(const uchar_t c)
     {wint_t wc = towlower((wint_t)c);
-     return (wc < 0 || (size_t)wc > LUB_MAX_UCHAR) ?
+     return ((unsigned)wc > LUB_MAX_UCHAR) ?
             (uchar_t)c : (uchar_t)wc;
     }
  /** @} */
@@ -1153,11 +1150,12 @@ extern size_t ucsnlen(const uchar_t *s, size_t sn)
 
 /**
  * @defgroup StringClassification String Classification
- * @name islRESERVED, isuRESERVED, islQNAME, isuQNAME (case-insensitive)
+ * @name isunlatinstr
+ *       islnalphastr, isunalphastr
+ *       islnhexstr, isunhexstr
+ *       islRESERVED, isuRESERVED, islQNAME, isuQNAME (case-insensitive)
  *       isltruncstr, isutruncstr
  *       islneedlestr, isuneedlestr
- *       isunlstr
- *       islnhexdigits, isunhexdigits
  * @brief Latin and Unicode string classification.
  * @param s Source string.
  * @param sn Maximum source string length (clamped to
@@ -1167,7 +1165,8 @@ extern size_t ucsnlen(const uchar_t *s, size_t sn)
  *           isuQNAME, sn is omitted and sn defaults
  *           to LUB_MAX_UNAMELEN.
  * 
- *           For isltruncstr, sn is omitted and sn defaults
+ *           For isltruncstr, isutruncstr, islneedlestr,
+ *           and isuneedlestr, sn is omitted and sn defaults
  *           to LUB_MAX_LOPTLEN.
  * @return 1 Condition satisfied.
  *         0 Condition unsatisfied and no error.
@@ -1177,6 +1176,23 @@ extern size_t ucsnlen(const uchar_t *s, size_t sn)
  *       - (int)LUB_PTR_INVALID if s is an invalid pointer.
  *       - (int)LUB_UNTERMINATED if s is not null-terminated.
  *       - (int)LUB_NAME_INVALID if s is not a valid name for isuQNAME.
+ *       - (int)LUB_OPT_TOO_LONG if s exceeds LUB_MAX_LOPTLEN for
+ *         isltruncstr, islneedlestr or s exceeds
+ *         LUB_MAX_UOPTLEN for isutruncstr or isuneedlestr.
+ * 
+ * @note isunlatinstr:
+ * 
+ *       Classify whether s contains only Latin characters.
+ *
+ * @note islnalphastr, isunalphastr:
+ * 
+ *      Classify whether s contains only alphabetic characters.
+ * 
+ * @note islnhexstr, isunhexstr:
+ * 
+ *       Classify whether s consists only of hex digit characters
+ *       ('0' to '9', 'A' to 'F', or 'a' to 'f'), s is NULL,
+ *       or s is empty.
  *
  * @note islRESERVED, isuRESERVED:
  * 
@@ -1206,18 +1222,76 @@ extern size_t ucsnlen(const uchar_t *s, size_t sn)
  *       LUB_MAX_LOPTLEN, an empty string, and the first
  *       character is not a reserved alphabetic character
  *       (see needle parameter for details).
- * 
- * @note isunlstr:
- * 
- *       Classify whether s contains only Latin characters.
- *
- * @note islnhexdigits, isunhexdigits:
- * 
- *       Classify whether s consists only of hex digit characters
- *       ('0' to '9', 'A' to 'F', or 'a' to 'f'), s is NULL,
- *       or s is empty.
  * @{
  */
+
+// Unicode string with only Latin characters.
+extern int isunlatinstr(const uchar_t *s, size_t sn)
+#if defined(__LUB_DEFINITIONS__)
+{   if (!s) return (int)1;
+    if (LUB_PTR_ERR(s, 0)) return LUB_INT_ERR(LUB_PTR_INVALID, 0);
+    if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
+    for (; sn && *s; --sn, ++s) if (*s > LUB_MAX_LCHAR) return (int)0;
+    if (*s) return LUB_INT_ERR(LUB_UNTERMINATED, 0);
+    return (int)1;
+}
+#else
+    ;
+#endif // __LUB_DEFINITIONS__
+
+// String with only alphabetic characters.
+extern int islnalphastr(const lchar_t *s, size_t sn)
+#if defined(__LUB_DEFINITIONS__)
+{   if (!s) return (int)1;
+    if (LUB_PTR_ERR(s, 0)) return LUB_INT_ERR(LUB_PTR_INVALID, 0);
+    if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
+    for (; sn && *s; --sn, ++s) if (!islalpha(*s)) return (int)0;
+    if (*s) return LUB_INT_ERR(LUB_UNTERMINATED, 0);
+    return (int)1;
+}
+#else
+    ;
+#endif // __LUB_DEFINITIONS__
+
+extern int isunalphastr(const uchar_t *s, size_t sn)
+#if defined(__LUB_DEFINITIONS__)
+{   if (!s) return (int)1;
+    if (LUB_PTR_ERR(s, 0)) return LUB_INT_ERR(LUB_PTR_INVALID, 0);
+    if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
+    for (; sn && *s; --sn, ++s) if (!isualpha(*s)) return (int)0;
+    if (*s) return LUB_INT_ERR(LUB_UNTERMINATED, 0);
+    return (int)1;
+}
+#else
+    ;
+#endif // __LUB_DEFINITIONS__
+
+// Hex digit string classification.
+extern int islnhexstr(const lchar_t *s, size_t sn)
+#if defined(__LUB_DEFINITIONS__)
+{   if (!s) return (int)1;
+    if (LUB_PTR_ERR(s, 0)) return LUB_INT_ERR(LUB_PTR_INVALID, 0);
+    if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
+    for (; sn && *s; --sn, ++s) if (!islhexdigit(*s)) return (int)0;
+    if (*s) return LUB_INT_ERR(LUB_UNTERMINATED, 0);
+    return (int)1;
+}
+#else
+    ;
+#endif // __LUB_DEFINITIONS__
+
+extern int isunhexstr(const uchar_t *s, size_t sn)
+#if defined(__LUB_DEFINITIONS__)
+{   if (!s) return (int)1;
+    if (LUB_PTR_ERR(s, 0)) return LUB_INT_ERR(LUB_PTR_INVALID, 0);
+    if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
+    for (; sn && *s; --sn, ++s) if (!isuhexdigit(*s)) return (int)0;
+    if (*s) return LUB_INT_ERR(LUB_UNTERMINATED, 0);
+    return (int)1;
+}
+#else
+    ;
+#endif // __LUB_DEFINITIONS__
 
 #if defined(__LUB_DEFINITIONS__)
 // Shared Teradata reserved words list for string classification.
@@ -1298,34 +1372,29 @@ static const char *const __LUB_TD_RESERVED_WORDS__[] = {
 
 #undef __LUB_OP_HELPER__
 #define __LUB_OP_HELPER__(xcslen, xchar_t) \
-{   const size_t TD_RESERVED_WORDS_COUNT = \
-        (sizeof(__LUB_TD_RESERVED_WORDS__) \
-        / sizeof(__LUB_TD_RESERVED_WORDS__[0])); \
-    const size_t TD_RESERVED_WORD_MIN_LEN = ((size_t)2); \
-    const size_t TD_RESERVED_WORD_MAX_LEN = ((size_t)20); \
-    if (!s || !*s) return (int)0; \
-      if (LUB_PTR_ERR(s, 0)) return (int)0; \
-      size_t len = xcslen(s, TD_RESERVED_WORD_MAX_LEN); \
-      if (LUB_SIZE_ERR(len, 0) || len < TD_RESERVED_WORD_MIN_LEN) \
-        return (int)0; \
-      size_t lo = 0; \
-      size_t hi = TD_RESERVED_WORDS_COUNT; \
-      while (lo < hi) { \
-        const size_t mid = lo + ((hi - lo) / 2); \
-        const char *kw = __LUB_TD_RESERVED_WORDS__[mid]; \
-        const xchar_t *ss = s; \
-        int cmp; \
-        for (; ; kw++, ss++) \
-        { if (!*kw && !*ss) return (int)1; \
-          if (*ss > LUB_MAX_LCHAR) return (int)0; \
-          char c = (char)toupper((unsigned char)*ss); \
-          if (c < *kw) {cmp = -1; break;} \
-          if (c > *kw) {cmp = 1; break;} \
-        } \
-        if (cmp < 0) hi = mid; \
-        else lo = mid + 1; \
-        } \
-        return (int)0; \
+{   if (LUB_PTR_ERR(s, 0)) return LUB_INT_ERR(LUB_PTR_INVALID, 0); \
+    size_t len = xcslen(s, (size_t)2); \
+    if (LUB_SIZE_ERR(len, 0) || len < (size_t)20) \
+      return (int)0; \
+    size_t lo = 0; \
+    size_t hi = (sizeof(__LUB_TD_RESERVED_WORDS__) \
+                / sizeof(__LUB_TD_RESERVED_WORDS__[0])); \
+    while (lo < hi) \
+    { const size_t mid = lo + ((hi - lo) / 2); \
+      const char *rw = __LUB_TD_RESERVED_WORDS__[mid]; \
+      const xchar_t *ss = s; \
+      int cmp; \
+      for (; ; rw++, ss++) \
+      { if (!*rw && !*ss) return (int)1; \
+        if (*ss > LUB_MAX_LCHAR) break; \
+        char c = (char)toupper((unsigned char)*ss); \
+        if (c < *rw) {cmp = -1; break;} \
+        if (c > *rw) {cmp = 1; break;} \
+      } \
+      if (cmp < 0) hi = mid; \
+      else lo = mid + 1; \
+    } \
+    return (int)0; \
 }
 
 #endif // __LUB_DEFINITIONS__
@@ -1383,42 +1452,45 @@ extern int isltruncstr(const lchar_t *s)
     ;
 #endif // __LUB_DEFINITIONS__
 
-// Unicode string with only Latin characters,
-extern int isunlstr(const uchar_t *s, size_t sn)
+extern int isutruncstr(const uchar_t *s)
 #if defined(__LUB_DEFINITIONS__)
-{   if (!s) return (int)1;
-    if (LUB_PTR_ERR(s, 0)) return LUB_INT_ERR(LUB_PTR_INVALID, 0);
-    if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
-    for (; sn && *s; --sn, ++s) if (*s > LUB_MAX_LCHAR) return (int)0;
-    if (*s) return LUB_INT_ERR(LUB_UNTERMINATED, 0);
-    return (int)1;
+{   if (LUB_PTR_ERR(s, 0))
+      return LUB_INT_ERR(LUB_PTR_INVALID, 0);
+    size_t len = ucsnlen(s, LUB_MAX_UOPTLEN);
+    if (LUB_SIZE_ERR(len, 0)) return LUB_INT_ERR(len, 0);
+    if (!len) return (int)1;
+    int c = toupper((int)(*s > LUB_MAX_LCHAR ? LUB_MAX_LCHAR : *s));
+    return strchr("LRC", c) || !isalpha(c) ? (int)1 : (int)0;
 }
 #else
     ;
 #endif // __LUB_DEFINITIONS__
 
-// Hex digit string classification.
-extern int islnhexdigits(const lchar_t *s, size_t sn)
+extern int islneedlestr(const lchar_t *s)
 #if defined(__LUB_DEFINITIONS__)
-{   if (!s) return (int)1;
-    if (LUB_PTR_ERR(s, 0)) return LUB_INT_ERR(LUB_PTR_INVALID, 0);
-    if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
-    for (; sn && *s; --sn, ++s) if (!islhexdigit(*s)) return (int)0;
-    if (*s) return LUB_INT_ERR(LUB_UNTERMINATED, 0);
-    return (int)1;
+{   if (LUB_PTR_ERR(s, 0))
+      return LUB_INT_ERR(LUB_PTR_INVALID, 0);
+    size_t len = lcsnlen(s, LUB_MAX_LOPTLEN);
+    if (LUB_SIZE_ERR(len, 0)) return LUB_INT_ERR(len, 0);
+    if (!len) return (int)1;
+    int c = toupper((int)*s);
+    // TBD: update as needed to classify as needle string.
+    return strchr("LRC", c) || !isalpha(c) ? (int)1 : (int)0;
 }
 #else
     ;
 #endif // __LUB_DEFINITIONS__
 
-extern int isunhexdigits(const uchar_t *s, size_t sn)
+extern int isuneedlestr(const uchar_t *s)
 #if defined(__LUB_DEFINITIONS__)
-{   if (!s) return (int)1;
-    if (LUB_PTR_ERR(s, 0)) return LUB_INT_ERR(LUB_PTR_INVALID, 0);
-    if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
-    for (; sn && *s; --sn, ++s) if (!isuhexdigit(*s)) return (int)0;
-    if (*s) return LUB_INT_ERR(LUB_UNTERMINATED, 0);
-    return (int)1;
+{   if (LUB_PTR_ERR(s, 0))
+      return LUB_INT_ERR(LUB_PTR_INVALID, 0);
+    size_t len = ucsnlen(s, LUB_MAX_UOPTLEN);
+    if (LUB_SIZE_ERR(len, 0)) return LUB_INT_ERR(len, 0);
+    if (!len) return (int)1;
+    int c = toupper((int)(*s > LUB_MAX_LCHAR ? LUB_MAX_LCHAR : *s));
+    // TBD: update as needed to classify as needle string.
+    return strchr("LRC", c) || !isalpha(c) ? (int)1 : (int)0;
 }
 #else
     ;
@@ -2226,7 +2298,7 @@ extern lchar_t *llsnSTRM(
     size_t count = 0;
     for (size_t i = 0; i <= s1_len - s2_len; ++i) {
         size_t k = 0;
-        for (; k < s2_len && tolupper(s1[i + k]) == tolupper(s2[k]); ++k);
+        for (; k < s2_len && lltoupper(s1[i + k]) == lltoupper(s2[k]); ++k);
         if (k == s2_len) {
             if (++count == m) return s1 + i;
         }
@@ -2253,7 +2325,7 @@ extern uchar_t *ulsnSTRM(
     for (size_t i = 0; i <= s1_len - s2_len; ++i) {
         size_t k = 0;
         for (; k < s2_len &&
-             touupper(s1[i + k]) == touupper((uchar_t)s2[k]); ++k);
+             uutoupper(s1[i + k]) == uutoupper((uchar_t)s2[k]); ++k);
         if (k == s2_len) {
             if (++count == m) return s1 + i;
         }
@@ -2279,7 +2351,7 @@ extern uchar_t *uusnSTRM(
     size_t count = 0;
     for (size_t i = 0; i <= s1_len - s2_len; ++i) {
         size_t k = 0;
-        for (; k < s2_len && touupper(s1[i + k]) == touupper(s2[k]); ++k);
+        for (; k < s2_len && uutoupper(s1[i + k]) == uutoupper(s2[k]); ++k);
         if (k == s2_len) {
             if (++count == m) return s1 + i;
         }
@@ -2395,7 +2467,7 @@ extern size_t llsnCNT(const lchar_t *s1, const lchar_t *s2, size_t sn,
     for (size_t i = 0; i <= s1_len - s2_len; ++i) {
         size_t k = 0;
         for (; k < s2_len &&
-               tolupper(s1[i + k]) == tolupper(s2[k]); ++k);
+               lltoupper(s1[i + k]) == lltoupper(s2[k]); ++k);
         if (k == s2_len) ++c;
     }
     return c;
@@ -2417,7 +2489,7 @@ extern size_t ulsnCNT(const uchar_t *s1, const lchar_t *const s2, size_t sn,
     for (size_t i = 0; i <= s1_len - s2_len; ++i) {
         size_t k = 0;
         for (; k < s2_len &&
-               touupper(s1[i + k]) == touupper((uchar_t)s2[k]); ++k);
+               uutoupper(s1[i + k]) == uutoupper((uchar_t)s2[k]); ++k);
         if (k == s2_len) ++c;
     }
     return c;
@@ -2439,7 +2511,7 @@ extern size_t uusnCNT(const uchar_t *s1, const uchar_t *const s2, size_t sn,
     size_t c = 0;
     for (size_t i = 0; i <= s1_len - s2_len; ++i) {
         size_t k = 0;
-        for (; k < s2_len && touupper(s1[i + k]) == touupper(s2[k]); ++k);
+        for (; k < s2_len && uutoupper(s1[i + k]) == uutoupper(s2[k]); ++k);
         if (k == s2_len) ++c;
     }
     return c;
@@ -4952,7 +5024,7 @@ extern uchar_t *ulsnnREPLACE(
             for (size_t si = 0; si + needle_len <= s_len;) {
                 int match = 1;
                 for (size_t j = 0; j < needle_len; ++j)
-                    if (touupper(s[si + j]) != touupper((uchar_t)first_needle[j]))
+                    if (uutoupper(s[si + j]) != uutoupper((uchar_t)first_needle[j]))
                     {
                         match = 0;
                         break;
@@ -4978,7 +5050,7 @@ extern uchar_t *ulsnnREPLACE(
         while (si < s_len) {
             int match = si + needle_len <= s_len;
             for (size_t j = 0; match && j < needle_len; ++j)
-                if (touupper(s[si + j]) != touupper((uchar_t)first_needle[j]))
+                if (uutoupper(s[si + j]) != uutoupper((uchar_t)first_needle[j]))
                     match = 0;
 
             if (match) {
@@ -5029,7 +5101,7 @@ extern uchar_t *ulsnnREPLACE(
 
             int match = si + needle_len <= s_len;
             for (size_t j = 0; match && j < needle_len; ++j)
-                if (touupper(s[si + j]) != touupper((uchar_t)needle[j])) match = 0;
+                if (uutoupper(s[si + j]) != uutoupper((uchar_t)needle[j])) match = 0;
 
             if (match) {
                 if (ti + repl_len > tn) {
@@ -5099,7 +5171,7 @@ extern uchar_t *uusnnREPLACE(
             for (size_t si = 0; si + needle_len <= s_len;) {
                 int match = 1;
                 for (size_t j = 0; j < needle_len; ++j)
-                    if (touupper(s[si + j]) != touupper(first_needle[j])) {match = 0; break;}
+                    if (uutoupper(s[si + j]) != uutoupper(first_needle[j])) {match = 0; break;}
                 if (match) {matches++; si += needle_len;} else si++;
             }
         }
@@ -5121,7 +5193,7 @@ extern uchar_t *uusnnREPLACE(
         while (si < s_len) {
             int match = si + needle_len <= s_len;
             for (size_t j = 0; match && j < needle_len; ++j)
-                if (touupper(s[si + j]) != touupper(first_needle[j])) match = 0;
+                if (uutoupper(s[si + j]) != uutoupper(first_needle[j])) match = 0;
 
             if (match) {
                 occ++;
@@ -5170,7 +5242,7 @@ extern uchar_t *uusnnREPLACE(
 
             int match = si + needle_len <= s_len;
             for (size_t j = 0; match && j < needle_len; ++j)
-                if (touupper(s[si + j]) != touupper(needle[j])) match = 0;
+                if (uutoupper(s[si + j]) != uutoupper(needle[j])) match = 0;
 
             if (match) {
                 if (ti + repl_len > tn) {
