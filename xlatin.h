@@ -1,6 +1,6 @@
 /**
  * @file xlatin.h
- * @brief Auto-generated macro remapping: x macros -> Latin (l) equivalents
+ * @brief Polymorphic macro remapping: x macros -> Latin (l) equivalents
  *   for lubtype.h API.
  *
  * This file remaps x macros (polymorphic macros with x in their name)
@@ -8,21 +8,22 @@
  * A .c file can reference the x macros for polymorphic code that
  * works for both Latin and Unicode by compiling once with xlatin.h
  * and once with xunicode.h.
-*
-* Mapping:
-*   lx -> ll, xl -> ll, xu -> lu, ux -> ul, xx -> ll, x -> l
+ *
+ * Mapping (x resolved to l):
+ *
+ *   xl -> ll  (x-target <- l-source becomes l-target <- l-source)
+ *   xx -> ll  (x-target <- x-source becomes l-target <- l-source)
+ *    x -> l   (x-type becomes l-type)
  *
  * To map x macros to Unicode (u) equivalents, include @ref xunicode.h
  * instead.
  *
- * @warning Do not edit manually. Regenerate with the code generator if
- * lubtype.h changes.
- * @note To regenerate: see scripts/gen_xlatin.py (or the appropriate
- * generator script).
+ * @note Only macros with corresponding functions defined in lubtype.h
+ *       are provided. Not all encoding directions are available for
+ *       every operation; see lubtype.h for details.
  *
  * @see xunicode.h
  * @see lubtype.h
- * @see scripts/gen_xlatin.py
  *
  * @copyright Copyright (c) 2026 paulsinclair51
  * SPDX-License-Identifier: MIT
@@ -32,32 +33,33 @@
 #undef LUB_XTYPE
 #define LUB_XTYPE l
 
-#undef MAX_XCHAR
-#define MAX_XCHAR MAX_LCHAR
-#undef MAX_XSTRLEN
-#define MAX_XSTRLEN MAX_LSTRLEN
+// ---------------------------------------------------------------------------
+// Limits
+// ---------------------------------------------------------------------------
 
-#undef xstr_t
-#define xstr_t lstr_t
-#undef xcstr_t
-#define xcstr_t lcstr_t
-#undef xchar_t
-#define xchar_t lchar_t
+#undef LUB_MAX_XCHAR
+#define LUB_MAX_XCHAR LUB_MAX_LCHAR
+#undef LUB_MAX_XSTRLEN
+#define LUB_MAX_XSTRLEN LUB_MAX_LSTRLEN
+
+// ---------------------------------------------------------------------------
+// Character classification  (x -> l)
+// ---------------------------------------------------------------------------
 
 #undef isxalpha
-#define isxalpha isalpha
+#define isxalpha islalpha
 #undef isxdigit
-#define isxdigit isdigit
+#define isxdigit isldigit
 #undef isxalnum
-#define isxalnum isalnum
+#define isxalnum islalnum
 #undef isxupper
-#define isxupper isupper
+#define isxupper islupper
 #undef isxlower
-#define isxlower islower
+#define isxlower isllower
 #undef isxcntrl
-#define isxcntrl iscntrl
+#define isxcntrl islcntrl
 #undef isxprint
-#define isxprint isprint
+#define isxprint islprint
 #undef isxgraph
 #define isxgraph islgraph
 #undef isxpunct
@@ -66,250 +68,206 @@
 #define isxblank islblank
 #undef isxspace
 #define isxspace islspace
+#undef isxhexdigit
+#define isxhexdigit islhexdigit
+
+// ---------------------------------------------------------------------------
+// Hex digit -> int  (x -> l)
+// ---------------------------------------------------------------------------
+
+#undef ixhexdigit
+#define ixhexdigit ilhexdigit
+
+// ---------------------------------------------------------------------------
+// String length  (x -> l)
+// ---------------------------------------------------------------------------
 
 #undef xcsnlen
 #define xcsnlen lcsnlen
-#undef xcslen
-#define xcslen lcslen
 
-#undef xlsnapp
-#define xlsnapp llsnapp
-#undef xlsapp
-#define xlsapp llsapp
-#undef xlsnappc
-#define xlsnappc llsnappc
-#undef xlsappc
-#define xlsappc llsappc
-#undef xlsnAPPC
-#define xlsnAPPC llsnAPPC
-#undef xlsAPPC
-#define xlsAPPC llsAPPC
-#undef xlsncpy
-#define xlsncpy llsncpy
-#undef xlscpy
-#define xlscpy llscpy
-#undef xlsncpyc
-#define xlsncpyc llsncpyc
-#undef xlscpyc
-#define xlscpyc llscpyc
-#undef xlsnCPYC
-#define xlsnCPYC llsnCPYC
-#undef xlsCPYC
-#define xlsCPYC llsCPYC
-#undef xlsncat
-#define xlsncat llsncat
-#undef xlscat
-#define xlscat llscat
-#undef xlsncatc
-#define xlsncatc llsncatc
-#undef xlscatc
-#define xlscatc llscatc
-#undef xlsnCATC
-#define xlsnCATC llsnCATC
-#undef xlsCATC
-#define xlsCATC llsCATC
+// ---------------------------------------------------------------------------
+// Character case transforms
+//   xl -> ll  (x-target <- l-source)
+//   xx -> ll  (x-target <- x-source; same as xl when x=l)
+// ---------------------------------------------------------------------------
 
-#undef xlsntrim
-#define xlsntrim llsntrim
-#undef xlstrim
-#define xlstrim llstrim
-#undef xlsnrev
-#define xlsnrev llsnrev
-#undef xlsrev
-#define xlsrev llsrev
-#undef xlsnpad
-#define xlsnpad llsnpad
-#undef xlspad
-#define xlspad llspad
-#undef xlsnreplace
-#define xlsnreplace llsnreplace
-#undef xlsreplace
-#define xlsreplace llsreplace
-#undef xlsnREPLACE
-#define xlsnREPLACE llsnREPLACE
-#undef xlsREPLACE
-#define xlsREPLACE llsREPLACE
-#undef xlsnrepeat
-#define xlsnrepeat llsnrepeat
-#undef xlsrepeat
-#define xlsrepeat llsrepeat
-#undef xlsnsub
-#define xlsnsub llsnsub
-#undef xlssub
-#define xlssub llssub
-#undef xlsnsplit
-#define xlsnsplit llsnsplit
-#undef xlsplit
-#define xlsplit llsplit
-#undef xlsnvprintf
-#define xlsnvprintf llsnvprintf
-#undef xlsnprintf
-#define xlsnprintf llsnprintf
-#undef xlsvprintf
-#define xlsvprintf llsvprintf
-#undef xlsprintf
-#define xlsprintf llsprintf
+#undef xltocase
+#define xltocase lltocase
+#undef xltolower
+#define xltolower lltolower
+#undef xltoupper
+#define xltoupper lltoupper
+
+#undef xxtocase
+#define xxtocase lltocase
+#undef xxtolower
+#define xxtolower lltolower
+#undef xxtoupper
+#define xxtoupper lltoupper
+
+// ---------------------------------------------------------------------------
+// Compare
+//   xl -> ll  (x-target/s1 <- l-source/s2)
+//   xx -> ll  (x s1/s2; same as xl when x=l)
+// ---------------------------------------------------------------------------
 
 #undef xlsncmp
 #define xlsncmp llsncmp
-#undef xlscmp
-#define xlscmp llscmp
 #undef xlsnCMP
 #define xlsnCMP llsnCMP
-#undef xlsCMP
-#define xlsCMP llsCMP
-#undef xlsnpfx
-#define xlsnpfx llsnpfx
-#undef xlspfx
-#define xlspfx llspfx
-#undef xlsnPFX
-#define xlsnPFX llsnPFX
-#undef xlsPFX
-#define xlsPFX llsPFX
-#undef xlsnsfx
-#define xlsnsfx llsnsfx
-#undef xlssfx
-#define xlssfx llssfx
-#undef xlsnSFX
-#define xlsnSFX llsnSFX
-#undef xlsSFX
-#define xlsSFX llsSFX
+#undef xlsnfxdcmp
+#define xlsnfxdcmp llsnfxdcmp
+#undef xlsnFXDCMP
+#define xlsnFXDCMP llsnFXDCMP
+#undef xlsnpfxcmp
+#define xlsnpfxcmp llsnpfxcmp
+#undef xlsnPFXCMP
+#define xlsnPFXCMP llsnPFXCMP
+#undef xlsnsfxcmp
+#define xlsnsfxcmp llsnsfxcmp
+#undef xlsnSFXCMP
+#define xlsnSFXCMP llsnSFXCMP
 
-#undef xlsnchrm
-#define xlsnchrm llsnchrm
-#undef xlsnchr
-#define xlsnchr llsnchr
-#undef xlschr
-#define xlschr llschr
-#undef xlsnCHRM
-#define xlsnCHRM llsnCHRM
-#undef xlsnCHR
-#define xlsnCHR llsnCHR
-#undef xlsCHR
-#define xlsCHR llsCHR
-#undef xlschrm
-#define xlschrm llschrm
-#undef xlsCHRM
-#define xlsCHRM llsCHRM
+#undef xxsncmp
+#define xxsncmp llsncmp
+#undef xxsnCMP
+#define xxsnCMP llsnCMP
+#undef xxsnfxdcmp
+#define xxsnfxdcmp llsnfxdcmp
+#undef xxsnFXDCMP
+#define xxsnFXDCMP llsnFXDCMP
+#undef xxsnpfxcmp
+#define xxsnpfxcmp llsnpfxcmp
+#undef xxsnPFXCMP
+#define xxsnPFXCMP llsnPFXCMP
+#undef xxsnsfxcmp
+#define xxsnsfxcmp llsnsfxcmp
+#undef xxsnSFXCMP
+#define xxsnSFXCMP llsnSFXCMP
 
-#undef xlsnrchrm
-#define xlsnrchrm llsnrchrm
-#undef xlsnrchr
-#define xlsnrchr llsnrchr
-#undef xlsrchr
-#define xlsrchr llsrchr
-#undef xlsrchrm
-#define xlsrchrm llsrchrm
-#undef xlsnRCHRM
-#define xlsnRCHRM llsnRCHRM
-#undef xlsnRCHR
-#define xlsnRCHR llsnRCHR
-#undef xlsRCHR
-#define xlsRCHR llsRCHR
-#undef xlsRCHRM
-#define xlsRCHRM llsRCHRM
-
-#undef xlsnpbrkm
-#define xlsnpbrkm llsnpbrkm
-#undef xlsnpbrkm
-#define xlsnpbrkm llsnpbrkm
-#undef xlsnpbrk
-#define xlsnpbrk llsnpbrk
-
-#undef xlspbrk
-#define xlspbrk llspbrk
-#undef xlsnPBRKM
-#define xlsnPBRKM llsnPBRKM
-#undef xlsPBRKM
-#define xlsPBRKM llsPBRKM
-#undef xlsnPBRK
-#define xlsnPBRK llsnPBRK
-#undef xlsPBRK
-#define xlsPBRK llsPBRK
-
-#undef xlsnrpbrkm
-#define xlsnrpbrkm llsnrpbrkm
-#undef xlsrpbrkm
-#define xlsrpbrkm llsrpbrkm
-#undef xlsnrpbrk
-#define xlsnrpbrk llsnrpbrk
-#undef xlsrpbrk
-#define xlsrpbrk llsrpbrk
-#undef xlsnRPBRKM
-#define xlsnRPBRKM llsnRPBRKM
-#undef xlsRPBRKM
-#define xlsRPBRKM llsRPBRKM
-#undef xlsnRPBRK
-#define xlsnRPBRK llsnRPBRK
-#undef xlsRPBRK
-#define xlsRPBRK llsRPBRK
-
-#undef xlsnspn
-#define xlsnspn llsnspn
-#undef xlsspn
-#define xlsspn llsspn
-#undef xlsnSPN
-#define xlsnSPN llsnSPN
-#undef xlsSPN
-#define xlsSPN llsSPN
-#undef xlsncspn
-#define xlsncspn llsncspn
-#undef xlscspn
-#define xlscspn llscspn
-#undef xlsnCSPN
-#define xlsnCSPN llsnCSPN
-#undef xlsCSPN
-#define xlsCSPN llsCSPN
-#undef xlsncnt
-#define xlsncnt llsncnt
-#undef xlscnt
-#define xlscnt llscnt
-#undef xlsnCNT
-#define xlsnCNT llsnCNT
-#undef xlsCNT
-#define xlsCNT llsCNT
+// ---------------------------------------------------------------------------
+// Search
+// ---------------------------------------------------------------------------
 
 #undef xlsnstrm
 #define xlsnstrm llsnstrm
-#undef xlsstrm
-#define xlsstrm llsstrm
-#undef xlsnstr
-#define xlsnstr llsnstr
-#undef xlsstr
-#define xlsstr llsstr
 #undef xlsnSTRM
 #define xlsnSTRM llsnSTRM
-#undef xlsSTRM
-#define xlsSTRM llsSTRM
-#undef xlsnSTR
-#define xlsnSTR llsnSTR
-#undef xlsSTR
-#define xlsSTR llsSTR
 
-#undef xlsnrstrm
-#define xlsnrstrm llsnrstrm
-#undef xlsrstrm
-#define xlsrstrm llsrstrm
-#undef xlsnrstr
-#define xlsnrstr llsnrstr
-#undef xlsrstr
-#define xlsrstr llsrstr
-#undef xlsnRSTRM
-#define xlsnRSTRM llsnRSTRM
-#undef xlsRSTRM
-#define xlsRSTRM llsRSTRM
-#undef xlsnRSTR
-#define xlsnRSTR llsnRSTR
-#undef xlsRSTR
-#define xlsRSTR llsRSTR
+#undef xxsnstrm
+#define xxsnstrm llsnstrm
+#undef xxsnSTRM
+#define xxsnSTRM llsnSTRM
 
-#undef xlsnsubcnt
-#define xlsnsubcnt llsnsubcnt
-#undef xlssubcnt
-#define xlssubcnt llssubcnt
-#undef xlsnSUBCNT
-#define xlsnSUBCNT llsnSUBCNT
-#undef xlsSUBCNT
-#define xlsSUBCNT llsSUBCNT
+// ---------------------------------------------------------------------------
+// Count
+// ---------------------------------------------------------------------------
+
+#undef xlsncnt
+#define xlsncnt llsncnt
+#undef xlsnCNT
+#define xlsnCNT llsnCNT
+
+#undef xxsncnt
+#define xxsncnt llsncnt
+#undef xxsnCNT
+#define xxsnCNT llsnCNT
+
+// ---------------------------------------------------------------------------
+// Concatenate
+// ---------------------------------------------------------------------------
+
+#undef xlsnncat
+#define xlsnncat llsnncat
+#undef xlsnncatc
+#define xlsnncatc llsnncatc
+#undef xlsnnCATC
+#define xlsnnCATC llsnnCATC
+#undef xlsnncatq
+#define xlsnncatq llsnncatq
+#undef xlsnncatqc
+#define xlsnncatqc llsnncatqc
+#undef xlsnnCATQC
+#define xlsnnCATQC llsnnCATQC
+
+#undef xxsnncat
+#define xxsnncat llsnncat
+#undef xxsnncatc
+#define xxsnncatc llsnncatc
+#undef xxsnnCATC
+#define xxsnnCATC llsnnCATC
+#undef xxsnncatq
+#define xxsnncatq llsnncatq
+#undef xxsnncatqc
+#define xxsnncatqc llsnncatqc
+#undef xxsnnCATQC
+#define xxsnnCATQC llsnnCATQC
+
+// ---------------------------------------------------------------------------
+// Copy
+// ---------------------------------------------------------------------------
+
+#undef xlsnncpy
+#define xlsnncpy llsnncpy
+#undef xlsnncpyc
+#define xlsnncpyc llsnncpyc
+#undef xlsnnCPYC
+#define xlsnnCPYC llsnnCPYC
+#undef xlsnncpyq
+#define xlsnncpyq llsnncpyq
+#undef xlsnncpyqc
+#define xlsnncpyqc llsnncpyqc
+#undef xlsnnCPYQC
+#define xlsnnCPYQC llsnnCPYQC
+
+#undef xxsnncpy
+#define xxsnncpy llsnncpy
+#undef xxsnncpyc
+#define xxsnncpyc llsnncpyc
+#undef xxsnnCPYC
+#define xxsnnCPYC llsnnCPYC
+#undef xxsnncpyq
+#define xxsnncpyq llsnncpyq
+#undef xxsnncpyqc
+#define xxsnncpyqc llsnncpyqc
+#undef xxsnnCPYQC
+#define xxsnnCPYQC llsnnCPYQC
+
+// ---------------------------------------------------------------------------
+// Replace  (case-sensitive replace not available for xl/xx -> ll)
+// ---------------------------------------------------------------------------
+
+#undef xlsnnREPLACE
+#define xlsnnREPLACE llsnnREPLACE
+
+#undef xxsnnREPLACE
+#define xxsnnREPLACE llsnnREPLACE
+
+// ---------------------------------------------------------------------------
+// Pad / Repeat / Reverse
+// ---------------------------------------------------------------------------
+
+#undef xlsnnpad
+#define xlsnnpad llsnnpad
+#undef xlsnnrepeat
+#define xlsnnrepeat llsnnrepeat
+#undef xlsnnreverse
+#define xlsnnreverse llsnnreverse
+
+#undef xxsnnpad
+#define xxsnnpad llsnnpad
+#undef xxsnnrepeat
+#define xxsnnrepeat llsnnrepeat
+#undef xxsnnreverse
+#define xxsnnreverse llsnnreverse
+
+// ---------------------------------------------------------------------------
+// Printf-style formatting  (Latin-only; no Unicode equivalent)
+// ---------------------------------------------------------------------------
+
+#undef xlsnprintf
+#define xlsnprintf llsnprintf
+#undef xlsnvprintf
+#define xlsnvprintf llsnvprintf
 
 // End of xlatin.h
