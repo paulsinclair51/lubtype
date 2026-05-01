@@ -6,6 +6,9 @@
  * For license details, see the LICENSE file in the project root.
  */
 
+#define __LUB_DEFINITIONS__
+#include "../lubtype.h"
+
 #include "test_error_edge.c"
 void run_error_edge_tests(void);
 #include "test_advanced_ops.c"
@@ -24,8 +27,6 @@ void run_fuzz_edge_tests(void);
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-
-#include "../lubtype.h"
 
 void run_reserved_matrix_tests(void);
 void run_search_family_tests(void);

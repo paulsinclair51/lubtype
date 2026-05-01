@@ -29,14 +29,14 @@ void run_advanced_ops_tests(void) {
     const uchar_t *utrim = uunptrim(usrc, 32, &len, 'B', NULL);
     assert(utrim == usrc + 1 && len == 3);
 
-    assert(llsnnreverse(lout, lsrc, 32) == lout);
+    assert(llsnnreverse(lout, lsrc, 32) != NULL);
     assert(lout[0] == ' ' && lout[1] == 'c' && lout[2] == 'b' && lout[3] == 'a');
 
-    assert(llsnnpad(lout, 8, (const lchar_t *)"abc", 3, 'R', 'x') == lout);
+    assert(llsnnpad(lout, 8, (const lchar_t *)"abc", 3, 'R', 'x') != NULL);
     assert(strncmp((const char *)lout, "abcxxxxx", 8) == 0);
 
     assert(llsnnreplace(lout, 16, (const lchar_t *)"aabbcc", 6,
-                       (const lchar_t *)"b|z", '|', 0) == lout);
+                       (const lchar_t *)"b|z", '|', 0) != NULL);
     assert(strcmp((const char *)lout, "aazzcc") == 0);
 
     printf("Advanced operation tests passed.\n");

@@ -1,6 +1,6 @@
 # build_lubtype_tests.ps1
 # PowerShell build script for lubtype_tests.exe
-# Usage: Run from the Ext/tests directory or with full path
+# Usage: Run from the tests directory or invoke with a full path
 # Copyright (c) 2026 paulsinclair51  
 # SPDX-License-Identifier: MIT  
 # For license details, see the LICENSE file in the project root.
@@ -22,6 +22,10 @@ function Find-VcVars64 {
     return $null
 }
 
+Push-Location $PSScriptRoot
+
+try {
+
 # Check if cl.exe is available
 $cl = Get-Command cl.exe -ErrorAction SilentlyContinue
 if (-not $cl) {
@@ -40,9 +44,13 @@ if (-not $cl) {
 }
 
 # Build command
-$cmd = 'cl /nologo /W4 /EHsc /Fe:lubtype_tests.exe lubtype_tests.c test_*.c /I.. /D_CRT_SECURE_NO_WARNINGS'
+$cmd = 'cl /nologo /W4 /EHsc /Fe:lubtype_tests.exe lubtype_tests.c test_reserved_matrix.c test_search_families.c test_span_count.c test_core_families.c test_type_matrix.c test_utilities.c /I.. /D_CRT_SECURE_NO_WARNINGS'
 Write-Host "> $cmd"
 Invoke-Expression $cmd
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Host 'Build complete: lubtype_tests.exe'
+}
+finally {
+    Pop-Location
+}

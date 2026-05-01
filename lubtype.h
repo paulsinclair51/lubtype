@@ -3885,8 +3885,19 @@ extern const lchar_t *llsnptrim(const lchar_t *s, size_t sn,
         const lchar_t *right = s + len;
         if (__LUB_TRIM_LEFT_MODE__(trim)) {
             if (trimset) {
-                while (left < right && llsnpbrk(left, trimset, 1) == left)
+                while (left < right) {
+                    const char *scan = trimset;
+                    int matched = 0;
+                    while (*scan) {
+                        if (*left == (lchar_t)(unsigned char)*scan) {
+                            matched = 1;
+                            break;
+                        }
+                        ++scan;
+                    }
+                    if (!matched) break;
                     ++left;
+                }
             } else {
                 while (left < right && islspace(*left))
                     ++left;
@@ -3894,9 +3905,19 @@ extern const lchar_t *llsnptrim(const lchar_t *s, size_t sn,
         }
         if (__LUB_TRIM_RIGHT_MODE__(trim)) {
             if (trimset) {
-                while (right > left &&
-                    llsnpbrk(right - 1, trimset, 1) == right - 1)
+                while (right > left) {
+                    const char *scan = trimset;
+                    int matched = 0;
+                    while (*scan) {
+                        if (*(right - 1) == (lchar_t)(unsigned char)*scan) {
+                            matched = 1;
+                            break;
+                        }
+                        ++scan;
+                    }
+                    if (!matched) break;
                     --right;
+                }
             } else {
                 while (right > left && islspace(*(right - 1)))
                     --right;
@@ -3924,8 +3945,19 @@ extern const uchar_t *uunptrim(const uchar_t *s,  size_t sn,
         const uchar_t *right = s + len;
         if (__LUB_TRIM_LEFT_MODE__(trim)) {
             if (trimset) {
-                while (left < right && uusnpbrk(left, trimset, 1) == left)
+                while (left < right) {
+                    const uchar_t *scan = trimset;
+                    int matched = 0;
+                    while (*scan) {
+                        if (*left == *scan) {
+                            matched = 1;
+                            break;
+                        }
+                        ++scan;
+                    }
+                    if (!matched) break;
                     ++left;
+                }
             } else {
                 while (left < right && isuspace(*left))
                     ++left;
@@ -3933,9 +3965,19 @@ extern const uchar_t *uunptrim(const uchar_t *s,  size_t sn,
         }
         if (__LUB_TRIM_RIGHT_MODE__(trim)) {
             if (trimset) {
-                while (right > left &&
-                    uusnpbrk(right - 1, trimset, 1) == right - 1)
+                while (right > left) {
+                    const uchar_t *scan = trimset;
+                    int matched = 0;
+                    while (*scan) {
+                        if (*(right - 1) == *scan) {
+                            matched = 1;
+                            break;
+                        }
+                        ++scan;
+                    }
+                    if (!matched) break;
                     --right;
+                }
             } else {
                 while (right > left && isuspace(*(right - 1)))
                     --right;
@@ -3956,7 +3998,7 @@ extern const uchar_t *uunptrim(const uchar_t *s,  size_t sn,
 
 /**
  * @defgroup Reverse Reverse
- * @name llsnnreverse, ulsnnreverse, uusnnreverse
+ * @name llsnnreverse, lusnnreverse, ulsnnreverse, uusnnreverse
  * @brief Reverse of the source string.
  * @param t Target buffer.
  * @param tn Maximum number of characters to write to the target buffer
@@ -3965,83 +4007,140 @@ extern const uchar_t *uunptrim(const uchar_t *s,  size_t sn,
  * @param sn Bound for the source string (clamped to LUB_MAX_LSTRLEN or
  *           LUB_MAX_USTRLEN) for bounded functions. For default-bounded
  *           functions, sn defaults to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN.
- * @return t, or NULL if an error occurs.
+ * @return t, NULL if t is NULL, or an error.
  *
  * @note Errors: 
- *       - t is NULL
- *       - Unterminated source string.
- *       - t and s are overlapping.
- *
- * @note The target buffer must be large enough for the result 
- *       characters plus a null-terminator.
- *
- * @note lusrev and ulsrev functions are not provided.
- *       Instead, use lusncpy/luscpy followed by uusnrev/uusrev.
+ *       - LUB_PTR_INVALID if t or s is not a valid pointer.
+ *       - LUB_UNTERMINATED if source string is not NULL terminated.
+ *       - LUB_TRUNCATED if the target buffer is too small.
  * @{
  */
-
+ 
 #if defined(__LUB_DEFINITIONS__)
 #undef __LUB_OP_HELPER__
-#define __LUB_OP_HELPER__(t_t, s_t, xxslen, LUB_MAX_xstrlen) \
-{   if (!t) return (t_t)NULL; \
-    if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0)) \
-      return LUB_PTR_ERR(LUB_PTR_INVALID, 0); \
-    if (sn > LUB_MAX_xstrlen) sn = LUB_MAX_xstrlen; \
-    size_t len = xxslen(s, sn); \
-    if (len >= LUB_SIZE_ERRORS) return (t_t)len; \
-    if (len == 0) { *t = (t_t)0; return t; } \
-    if (t == s) { \
-        /* In-place reversal */ \
-        size_t i = 0, j = len - 1; \
-        while (i < j) { \
-            t_t tmp = t[i]; \
-            t[i] = t[j]; \
-            t[j] = tmp; \
-            ++i; --j; \
-        } \
-        t[len] = (t_t)0; \
-        return t; \
+#define __LUB_OP_HELPER__(t_xt, t_max, s_xt, xcsnlen, s_max, ERR_C) \
+{   if (LUB_PTR_ERR(t, 0)) \
+      return (t_xt *)LUB_PTR_ERR(LUB_PTR_INVALID, 0); \
+    if (tn > t_max) tn = t_max; \
+    if (sn > s_max) sn = s_max; \
+    sn = xcsnlen(s, sn); \
+    if (LUB_SIZE_ERR(sn, 0)) \
+    { if (t) *t = (t_xt)0; \
+      return (t_xt *)LUB_PTR_ERR(sn, 0); \
     } \
-    /* Out-of-place reversal with overlap-safe logic */ \
-    t_t *tdst = t; \
-    const s_t *ssrc = s; \
-    if ((tdst > (t_t*)ssrc) && (tdst < (t_t*)ssrc + len)) { \
-        /* Overlap: copy from end to avoid overwrite */ \
-        size_t i; \
-        for (i = 0; i < len; ++i) \
-            tdst[len - 1 - i] = ssrc[i]; \
-        tdst[len] = (t_t)0; \
-        return t; \
+    if (sn > tn) \
+    { if (t) *t = (t_xt)0; \
+      return (t_xt *)LUB_PTR_ERR(LUB_TRUNCATED, 0); \
     } \
-    /* No overlap or safe direction: normal reverse copy */ \
-    t = t + len; \
-    *t = (t_t)0; \
-    for (; len; len--)  *--t = *s++; \
+    if (!t) return (t_xt *)NULL; \
+    if (t + sn <= (t_xt *)s || t >= (t_xt *)(s + sn)) \
+    t_xt *tt = t; \
+    size_t i = sn; \
+    { /* No overlap: simple reverse copy. */ \
+      s += (sn - 1); \
+      if (sizeof(t_xt) < sizeof(s_xt)) \
+        for (; i; i--, tt++, s--) \
+          if (*s > LUB_MAX_LCHAR) \
+            if (ERR_C) *tt = ERR_C; \
+            else return (t_xt *)LUB_PTR_ERR(LUB_NON_LATIN_CHAR, 0); \
+          else *tt = (t_xt)*s; \
+      else \
+        for (; i; i--, tt++, s--) *tt = (t_xt)*s; \
+      *tt = (t_xt)0; \
+      return t; \
+    } \
+    /* Handle overlap. */ \
+    /* Copy source to target with overlap-safe logic. */ \
+    if (t <= (t_xt *)s) \
+    { /* Safe to copy left to right. */ \
+      if (t < (t_xt *)s && sizeof(t_xt) == sizeof(s_xt)) \
+      { for (; i; i--, tt++, s++) *tt = *s; \
+      } else if (sizeof(t_xt) < sizeof(s_xt)) \
+      { /* Copy Unicode cast as Latin to target buffer left to right. */ \
+        for (; i; i--, tt++, s++) \
+          if (*s > LUB_MAX_LCHAR) \
+            if (ERR_C) *tt = (t_xt)ERR_C; \
+            else return (t_xt *)LUB_PTR_ERR(LUB_NON_LATIN_CHAR, 0); \
+          else *tt = (t_xt)*s; \
+      } else \
+      { /* Copy Latin characters to target buffer left to right. */ \
+        s_xt *ss = (s_xt *)t; \
+        for (; i; i--, ss++, s++) *ss = *s; \
+      } \
+    } else \
+    { /* Safe to copy right to left. */ \
+      tt += sn - 1; \
+      s += sn - 1; \
+      if (sizeof(t_xt) == sizeof(s_xt)) \
+        for (; i;  i--, tt--, s--) *tt = *s; \
+      else if (sizeof(t_xt) < sizeof(s_xt)) \
+      { /* Copy Unicode cast as Latin to target buffer right to left. */ \
+        for (; i; i--, tt--, s--) \
+          if (*s > LUB_MAX_LCHAR) \
+            if (ERR_C) *tt = (t_xt)ERR_C; \
+            else return (t_xt *)LUB_PTR_ERR(LUB_NON_LATIN_CHAR, 0); \
+          else *tt = (t_xt)*s; \
+      } else \
+      { /* Copy Latin characters to target buffer right to left. */ \
+        s_xt *ss = ((s_xt *)t) + sn - 1; \
+        for (; i; i--, ss--, s--) *ss = *s; \
+    } \
+    if (sizeof(t_xt) > sizeof(s_xt)) \
+    { /* Expand Latin characters to Unicode right to left. */ \
+      tt = t + sn - 1; \
+      s = (s_xt *)t + sn - 1; \
+      i = sn; \
+     /* Expand Latin characters to Unicode right to left. */ \
+        for (; i; i--, tt--, s--) *tt = (t_xt)*s; \
+    } \
+    /* In-place reversal */ \
+    tt = t + sn - 1; \
+    t_xt *tr = t; \
+    for (; tt > tr; i--, tt--, tr++) *tr = *tt; \
+    t[sn] = (t_xt)0; \
     return t; \
 }
 #endif // __LUB_DEFINITIONS__ for reverse macro helper.
 
 // Reverse.
-extern lchar_t *llsnnreverse(lchar_t *t, const lchar_t *s, size_t sn)
+
+extern lchar_t *llsnnreverse(lchar_t *t, size_t tn,
+                             lchar_t *s, size_t sn)
 #if defined(__LUB_DEFINITIONS__)
-    {__LUB_OP_HELPER__(lchar_t *, const lchar_t *, lcsnlen, LUB_MAX_LSTRLEN)}
+    __LUB_OP_HELPER__(
+        lchar_t, LUB_MAX_LSTRLEN,
+        lchar_t, lcsnlen, LUB_MAX_LSTRLEN, ((lchar_t)'\0'))
 #else
     ;
 #endif // __LUB_DEFINITIONS__ for llsnnreverse.
 
-extern uchar_t *ulsnnreverse(uchar_t *t, const lchar_t *s, size_t sn)
+extern lchar_t *lusnnreverse(lchar_t *t, size_t tn,
+                             uchar_t *s, size_t sn, const lchar_t err_c)
 #if defined(__LUB_DEFINITIONS__)
-    {__LUB_OP_HELPER__(uchar_t *, const lchar_t *, lcsnlen, LUB_MAX_LSTRLEN)}
+    __LUB_OP_HELPER__(
+        lchar_t, LUB_MAX_LSTRLEN,
+        uchar_t, ucsnlen, LUB_MAX_USTRLEN, err_c)
+#else
+    ;
+#endif // __LUB_DEFINITIONS__ for lusnnreverse.
+
+
+extern uchar_t *ulsnnreverse(uchar_t *t, size_t tn, const lchar_t *s, size_t sn)
+#if defined(__LUB_DEFINITIONS__)
+    __LUB_OP_HELPER__(
+        uchar_t, LUB_MAX_USTRLEN,
+        lchar_t, csnlen, LUB_MAX_LSTRLEN, ((lchar_t)'\0'))
 #else
     ;
 #endif // __LUB_DEFINITIONS__ for ulsnnreverse.
 
-extern uchar_t *uusnnreverse(uchar_t *t, const uchar_t *s, size_t sn)
+extern uchar_t *uusnnreverse(uchar_t *t, size_t tn, const uchar_t *s, size_t sn)
 #if defined(__LUB_DEFINITIONS__)
-    {__LUB_OP_HELPER__(uchar_t *, const uchar_t *, ucsnlen, LUB_MAX_USTRLEN)}
+    __LUB_OP_HELPER__(
+        uchar_t, LUB_MAX_USTRLEN,
+        uchar_t, ucsnlen, LUB_MAX_USTRLEN, ((lchar_t)'\0'))
 #else
     ;
-#undef __LUB_OP_HELPER__
 #endif // __LUB_DEFINITIONS__ for uusnnreverse.
 /** @} */
 
@@ -5331,44 +5430,44 @@ extern int llsnprintf(lchar_t *t, size_t tn, const lchar_t *fmt, ...)
 /**
  * @section Examples Examples
  *
- * - Copy (bounded source):
- *   llsncpy(dst_l, src_l, 32);
+ * - Copy, case-preserving:
+ *   llsnncpy(dst_l, 200, src_l, 32);
  *
- * - Search (mth occurrence):
+ * - Search mth occurrence, case-sensitive:
  *   const lchar_t *p = llsnstrm("one two two", "two", 32, 2);
  *   // p points at the second "two"
  *
- * - Trim:
- *   llsntrim(dst_l, "  abc  ", 16, 'B', ' ');
- *   // -> "abc"
+ * - Trim whitespace left and right (B) with no collapse of interior whitespace:
+ *   llsnntrim(dst_l, 200, "  abc   de  ", 12, 'B', '\0');
+ *   // -> "abc   de"
  *
- * - Replace (bounded source):
- *   llsnreplace(t, 64, "cat and cat", "cat|dog", '|', 64, 2);
+ * - Replace, case-sensitive, multi-pair map, 2nd occurrence:
+ *   llsnnreplace(t, 64, "cat and cat", "cat|dog", '|', 64, 2);
  *   // -> "cat and dog"
  *
- *   llsnreplace(t, 64, "x_x_x", "x|y", '|', 64, -1);
+ *   llsnnreplace(t, 64, "x_x_x", "x|y", '|', 64, -1);
  *   // -> "x_x_y"
  *
- *   llsnreplace(t, 64, "ab ba", "a|b|b|a", '|', 64, 0);
+ *   llsnnreplace(t, 64, "ab ba", "a|b|b|a", '|', 64, 0);
  *   // -> "ba ab" (first matching pair wins)
  *
- *   llsnreplace(t, 64, "ab", "a|b|b|a", '|', 64, 1);
+ *   llsnnreplace(t, 64, "ab", "a|b|b|a", '|', 64, 1);
  *   // -> NULL (multi-pair map requires m == 0)
  *
- * - Replace (unbounded source):
- *   llsreplace(t, 64, "cat and cat", "cat|dog", '|', 2);
+ * - Replace, case-sensitive:
+ *   llsnnreplace(t, 64, "cat and cat", "cat|dog", '|', 64, 2);
  *   // -> "cat and dog"
  *
- * - Replace, case-insensitive (bounded):
- *   llsnREPLACE(t, 64, "Hello World", "hello|hi", '|', 64, 0);
+ * - Replace, case-insensitive:
+ *   llsnnREPLACE(t, 64, "Hello World", "hello|hi", '|', 64, 0);
  *   // -> "hi World"
  *
- * - Replace, case-insensitive (unbounded):
- *   llsREPLACE(t, 64, "Cat and CAT", "cat|dog", '|', 0);
+ * - Replace, case-insensitive:
+ *   llsnnREPLACE(t, 64, "Cat and CAT", "cat|dog", '|', 64, 0);
  *   // -> "dog and dog"
  *
  * - Reverse:
- *   llsrev(t, "stressed");
+ *   llsnnreverse(t, 64, "stressed", 8);
  *   // -> "desserts"
  *
  * - Pad (left, right, center):

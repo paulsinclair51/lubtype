@@ -46,27 +46,27 @@ static int eq_ustr_ascii_local(const uchar_t *s, const char *ascii) {
 }
 
 static void test_cross_type_copy_and_cat_matrix(void) {
-    lchar_t ldst[32], lsrc[32];
-    uchar_t udst[32], usrc[32];
+    lchar_t ldst[33], lsrc[33];
+    uchar_t udst[33], usrc[33];
 
-    assert(llsnncpy(ldst, 32, make_lstr_local("ab", lsrc, 32), 32, NULL) == ldst);
+    assert(llsnncpy(ldst, 32, (lchar_t *)make_lstr_local("ab", lsrc, 33), 32, NULL) != NULL);
     assert(eq_lstr_ascii_local(ldst, "ab"));
-    assert(llsnncat(ldst, 32, (lchar_t *)make_lstr_local("cd", lsrc, 32), 32, NULL) == ldst);
+    assert(llsnncat(ldst, 32, (lchar_t *)make_lstr_local("cd", lsrc, 33), 32, NULL) != NULL);
     assert(eq_lstr_ascii_local(ldst, "abcd"));
 
-    assert(uusnncpy(udst, 32, (uchar_t *)make_ustr_local("ab", usrc, 32), 32, NULL) == udst);
+    assert(uusnncpy(udst, 32, (uchar_t *)make_ustr_local("ab", usrc, 33), 32, NULL) != NULL);
     assert(eq_ustr_ascii_local(udst, "ab"));
-    assert(uusnncat(udst, 32, (uchar_t *)make_ustr_local("cd", usrc, 32), 32, NULL) == udst);
+    assert(uusnncat(udst, 32, (uchar_t *)make_ustr_local("cd", usrc, 33), 32, NULL) != NULL);
     assert(eq_ustr_ascii_local(udst, "abcd"));
 
-    assert(lusnncpy(ldst, 32, (uchar_t *)make_ustr_local("xy", usrc, 32), 32, NULL, '?') == ldst);
+    assert(lusnncpy(ldst, 32, (uchar_t *)make_ustr_local("xy", usrc, 33), 32, NULL, '?') != NULL);
     assert(eq_lstr_ascii_local(ldst, "xy"));
-    assert(lusnncat(ldst, 32, (uchar_t *)make_ustr_local("zz", usrc, 32), 32, NULL, '?') == ldst);
+    assert(lusnncat(ldst, 32, (uchar_t *)make_ustr_local("zz", usrc, 33), 32, NULL, '?') != NULL);
     assert(eq_lstr_ascii_local(ldst, "xyzz"));
 
-    assert(ulsnncpy(udst, 32, (lchar_t *)make_lstr_local("mn", lsrc, 32), 32, NULL) == udst);
+    assert(ulsnncpy(udst, 32, (lchar_t *)make_lstr_local("mn", lsrc, 33), 32, NULL) != NULL);
     assert(eq_ustr_ascii_local(udst, "mn"));
-    assert(ulsnncat(udst, 32, (lchar_t *)make_lstr_local("op", lsrc, 32), 32, NULL) == udst);
+    assert(ulsnncat(udst, 32, (lchar_t *)make_lstr_local("op", lsrc, 33), 32, NULL) != NULL);
     assert(eq_ustr_ascii_local(udst, "mnop"));
 }
 

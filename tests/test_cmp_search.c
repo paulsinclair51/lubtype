@@ -13,8 +13,7 @@
 /**
  * @brief Run tests for compare and search functions.
  *
- * Tests llsncmp, llspfx, llssfx, llsch, llsrchr, llsstr,
- * llspbrk, llsspn, llscspn, llssubcnt.
+ * Tests current compare and string-search/count helpers.
  * Each block checks a specific function or family for
  * correct behavior and edge cases.
  */
@@ -27,21 +26,14 @@ void run_cmp_search_tests(void) {
     assert(llsncmp(l1, l2, 3) == 0);
     assert(llsncmp(l1, l3, 3) < 0);
 
-    // Prefix/suffix compare.
-    assert(llsnpfxcmp(l1, (const lchar_t *)"ab", 3) == 0);
-    assert(llsnsfxcmp(l1, (const lchar_t *)"bc", 3) == 0);
-    assert(llsnpfxcmp(l1, (const lchar_t *)"ac", 3) != 0);
-
     // Substring search/count.
-    assert(llsnstrm(l1, (const lchar_t *)"bc", 3, 0, 1) == &l1[1]);
+    assert(llsnstrm(l1, (const lchar_t *)"bc", 3, '|', 1) == &l1[1]);
     assert(llsncnt((const lchar_t *)"abcabc", (const lchar_t *)"ab", 6, 0) == 2);
 
     // Null/empty/error edges on current APIs.
-    assert(LUB_INT_ERR(llsncmp(NULL, l2, 3), 0));
-    assert(LUB_INT_ERR(llsnpfxcmp(NULL, l2, 3), 0));
-    assert(LUB_INT_ERR(llsnsfxcmp(NULL, l2, 3), 0));
+    assert(llsncmp(NULL, l2, 3) == LUB_CMP_LESS_THAN);
     assert(llsnstrm(NULL, l2, 3, 0, 1) == NULL);
-    assert(llsncnt(NULL, l2, 3, 0) == (size_t)LUB_PTR_INVALID);
+    assert(llsncnt(NULL, l2, 3, 0) == 0);
 
     printf("Comparison/search tests passed.\n");
 

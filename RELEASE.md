@@ -8,6 +8,8 @@ For license details, see the LICENSE file in the project root.
 - [ ] All public APIs are documented with usage, parameters, return values, and error conditions.
 - [ ] All function families and variants are implemented and reviewed.
 - [ ] Top-level documentation (README, header docblocks) is up to date and clear.
+- [ ] README examples use current function names/signatures and compile as written.
+- [ ] README documents __LUB_DEFINITIONS__ usage (defined in exactly one translation unit).
 - [ ] Version number and changelog are updated.
 
 ## Testing
@@ -18,6 +20,8 @@ For license details, see the LICENSE file in the project root.
 
 ## Packaging
 - [ ] Header files (lubtype.h, xlatin.h, xunicode.h) are self-contained and ready for drop-in use.
+- [ ] xlatin.h/xunicode.h contain only mappings for symbols present in lubtype.h.
+- [ ] Removed/deprecated aliases are not present in xlatin.h/xunicode.h.
 - [ ] All test files are in a dedicated tests/ directory.
 - [ ] README.md includes usage, API overview, and examples.
 - [ ] License file is present and correct.

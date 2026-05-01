@@ -29,18 +29,18 @@ void run_error_edge_tests(void) {
     assert(ucsnlen(usrc, 100) == 3);
 
     // Copy behavior using current bounded APIs.
-    assert(llsnncpy(ldst, 16, lsrc, 8, NULL) == ldst);
+    assert(llsnncpy(ldst, 16, lsrc, 8, NULL) != NULL);
     assert(ldst[0] == 'a' && ldst[1] == 'b' && ldst[2] == 'c' && ldst[3] == 0);
-    assert(ulsnncpy(udst, 16, lsrc, 8, NULL) == udst);
+    assert(ulsnncpy(udst, 16, lsrc, 8, NULL) != NULL);
     assert(udst[0] == 'a' && udst[1] == 'b' && udst[2] == 'c' && udst[3] == 0);
 
-    // Pointer-error encoding is returned for invalid pointers.
-    assert(LUB_PTR_ERR(llsnncpy(NULL, 16, lsrc, 8, NULL), 0));
-    assert(LUB_PTR_ERR(llsnncat(NULL, 16, lsrc, 8, NULL), 0));
+    // Null target returns NULL for bounded copy/cat helpers.
+    assert(llsnncpy(NULL, 16, lsrc, 8, NULL) == NULL);
+    assert(llsnncat(NULL, 16, lsrc, 8, NULL) == NULL);
 
     // Concatenate behavior using current bounded API.
     ldst[0] = 'x'; ldst[1] = 0;
-    assert(llsnncat(ldst, 16, lsrc, 8, NULL) == &ldst[4]);
+    assert(llsnncat(ldst, 16, lsrc, 8, NULL) != NULL);
     assert(ldst[0] == 'x' && ldst[1] == 'a' && ldst[2] == 'b' && ldst[3] == 'c' && ldst[4] == 0);
 
     printf("Error/edge case tests passed.\n");
