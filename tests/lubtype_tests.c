@@ -21,6 +21,8 @@ void run_strlen_validation_tests(void);
 void run_charclass_tests(void);
 #include "test_fuzz_edge.c"
 void run_fuzz_edge_tests(void);
+#include "test_skip.c"
+void run_skip_tests(void);
 #include <assert.h>
 #include <stdarg.h>
 #include <stddef.h>
@@ -67,6 +69,7 @@ int main(void) {
 	fprintf(report, " 10. Type matrix\n");
 	fprintf(report, " 11. Utilities\n");
 	fprintf(report, " 12. Fuzz/edge cases\n");
+	fprintf(report, " 13. Skip functions\n");
 	fprintf(report, "----------------------------------------\n");
 
 	// Run all test modules
@@ -82,6 +85,7 @@ int main(void) {
 	run_type_matrix_tests();
 	run_utilities_tests();
 	run_fuzz_edge_tests();
+	run_skip_tests();
 
 	// Write completion message
 	fprintf(report, "\nAll tests completed successfully.\n");
