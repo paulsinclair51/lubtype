@@ -56,7 +56,7 @@ static int eq_ascii_ci_local(const char *a, const char *b) {
 /**
  * @brief Simulate Oracle reserved word check for ASCII strings.
  */
-static int oracle_isuRESERVED_ascii_local(const char *s) {
+static int oracle_isureserved_ascii_local(const char *s) {
     static const char *reserved[] = {
         "SELECT", "INSERT", "UPDATE", "DELETE", "CREATE", "DROP",
         "INTEGER", "VARCHAR", "TIMESTAMP", "COUNT", "SUM", "AVG",
@@ -77,7 +77,7 @@ static int oracle_isuRESERVED_ascii_local(const char *s) {
     return 0;
 }
 
-static void test_isuRESERVED_oracle_crosscheck(void) {
+static void test_isureserved_oracle_crosscheck(void) {
     static const char *positives[] = {
         "SELECT", "insert", "UpDaTe", "CHAR_LENGTH", "character_length",
         "CASE_N", "casespecific", "NO_INLINE", "none", "Nowait",
@@ -93,29 +93,29 @@ static void test_isuRESERVED_oracle_crosscheck(void) {
     size_t i;
 
     for (i = 0; i < sizeof(positives) / sizeof(positives[0]); ++i) {
-        int expected = oracle_isuRESERVED_ascii_local(positives[i]);
-        int actual = isuRESERVED(make_ustr_local(positives[i], buf, 64));
-        int lactual = islRESERVED(make_lstr_local(positives[i], lbuf, 64));
+        int expected = oracle_isureserved_ascii_local(positives[i]);
+        int actual = isureserved(make_ustr_local(positives[i], buf, 64));
+        int lactual = islreserved(make_lstr_local(positives[i], lbuf, 64));
         assert(expected == 1);
         assert(actual == expected);
         assert(lactual == expected);
     }
 
     for (i = 0; i < sizeof(negatives) / sizeof(negatives[0]); ++i) {
-        int expected = oracle_isuRESERVED_ascii_local(negatives[i]);
-        int actual = isuRESERVED(make_ustr_local(negatives[i], buf, 64));
-        int lactual = islRESERVED(make_lstr_local(negatives[i], lbuf, 64));
+        int expected = oracle_isureserved_ascii_local(negatives[i]);
+        int actual = isureserved(make_ustr_local(negatives[i], buf, 64));
+        int lactual = islreserved(make_lstr_local(negatives[i], lbuf, 64));
         assert(expected == 0);
         assert(actual == expected);
         assert(lactual == expected);
     }
         // Null/empty are invalid-name errors in current API.
-        assert(isuRESERVED(NULL) == (int)LUB_NAME_INVALID);
-        assert(islRESERVED(NULL) == (int)LUB_NAME_INVALID);
+        assert(isureserved(NULL) == (int)LUB_NAME_INVALID);
+        assert(islreserved(NULL) == (int)LUB_NAME_INVALID);
         buf[0] = 0;
         lbuf[0] = 0;
-        assert(isuRESERVED(buf) == (int)LUB_NAME_INVALID);
-        assert(islRESERVED(lbuf) == (int)LUB_NAME_INVALID);
+        assert(isureserved(buf) == (int)LUB_NAME_INVALID);
+        assert(islreserved(lbuf) == (int)LUB_NAME_INVALID);
 }
 
 static void test_matrix_consistency_cmp_pfx_sfx(void) {
@@ -179,7 +179,7 @@ static void test_matrix_consistency_cmp_pfx_sfx(void) {
 }
 
 void run_reserved_matrix_tests(void) {
-    test_isuRESERVED_oracle_crosscheck();
+    test_isureserved_oracle_crosscheck();
     test_matrix_consistency_cmp_pfx_sfx();
 
 }

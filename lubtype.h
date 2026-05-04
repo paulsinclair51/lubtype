@@ -722,14 +722,12 @@ typedef uint8_t byte_t;
  * 
  *    n = bounded source with an sn parameter for the bound.
  *        Required for kind latinstr, alphastr, and hexstr.
- *        Omitted for kind RESERVED and QNAME (bound defaults
+ *        Omitted for kind reserved and qname (bound defaults
  *        to LUB_MAX_QNAMELEN).
  * 
- *    <kind> = latinstr, alphastr, hexstr, RESERVED, QNAME 
+ *    <kind> = latinstr, alphastr, hexstr, reserved, qname 
  *
- *    Note: RESERVED and QNAME are case-insensitive.
- * 
- *    Examples: isualpha, islhexstr, islRESERVED
+ *    Examples: isualpha, islhexstr, islreserved, isuqname
  *
  * 6. Option Validation
  *
@@ -1231,14 +1229,14 @@ extern size_t ucsnlen(const uchar_t *s, size_t sn)
  * @name isunlatinstr
  *       islnalphastr, isunalphastr
  *       islnhexstr, isunhexstr
- *       islRESERVED, isuRESERVED, islQNAME, isuQNAME (case-insensitive)
+ *       islreserved, isureserved, islqname, isuqname
  * @brief Latin and Unicode string classification.
  * @param s Pointer to source string.
  * @param sn Maximum source string length. Clamped to
  *           LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN.
  * 
- *           For islRESERVED, isuRESERVED, islQNAME and
- *           isuQNAME, sn is omitted and sn defaults
+ *           For islreserved, isureserved, islqname and
+ *           isuqname, sn is omitted and sn defaults
  *           to LUB_MAX_NAMELEN.
  * @return 1 Condition satisfied.
  *         0 Condition unsatisfied and no error.
@@ -1264,13 +1262,13 @@ extern size_t ucsnlen(const uchar_t *s, size_t sn)
  *       ('0' to '9', 'A' to 'F', or 'a' to 'f'), s is NULL,
  *       or s is empty.
  *
- * @note islRESERVED, isuRESERVED:
+ * @note islreserved, isureserved:
  * 
  *       Classify whether s is a Teradata reserved word (case-insensitive).
  *
- * @note islQNAME, isuQNAME:
+ * @note islqname, isuqname:
  * 
- *       Classify whether s must be a quoted name (case-insensitive).
+ *       Classify whether s must be a quoted name.
  *       s must be quoted if the first character is not a first-name
  *       character (see islname1c and isuname1c), or any subsequent character is not
  *       a name character (see islnamec and isunamec).
@@ -1458,14 +1456,14 @@ static const char *const __LUB_TD_RESERVED_WORDS__[] =
 
 #endif // __LUB_DEFINITIONS__
 
-extern int islRESERVED(const lchar_t *s)
+extern int islreserved(const lchar_t *s)
 #if defined(__LUB_DEFINITIONS__)
    __LUB_OP_HELPER__(lcsnlen, lchar_t)
 #else
         ;
 #endif // __LUB_DEFINITIONS__
 
-extern int isuRESERVED(const uchar_t *s)
+extern int isureserved(const uchar_t *s)
 #if defined(__LUB_DEFINITIONS__)
    __LUB_OP_HELPER__(ucsnlen, uchar_t)
 #else
@@ -1473,9 +1471,9 @@ extern int isuRESERVED(const uchar_t *s)
 #endif // __LUB_DEFINITIONS__
 
 
-extern int islQNAME(const lchar_t *s)
+extern int islqname(const lchar_t *s)
 #if defined(__LUB_DEFINITIONS__)
-{   int reserved = islRESERVED(s);
+{   int reserved = islreserved(s);
     if (LUB_INT_ERR(reserved, 0)) return reserved;
     if (reserved) return (int)1;
     if (!islname1c(*s)) return (int)1;
@@ -1486,9 +1484,9 @@ extern int islQNAME(const lchar_t *s)
     ;
 #endif // __LUB_DEFINITIONS__
 
-extern int isuQNAME(const uchar_t *s)
+extern int isuqname(const uchar_t *s)
 #if defined(__LUB_DEFINITIONS__)
-{   int reserved = isuRESERVED(s);
+{   int reserved = isureserved(s);
     if (LUB_INT_ERR(reserved, 0)) return reserved;
     if (reserved) return (int)1;
     if (!isuname1c(*s)) return (int)1;
@@ -2826,7 +2824,7 @@ extern size_t uusnCNT(const uchar_t *s1, const uchar_t *const s2, size_t sn,
  *        truncation handling.
  *
  *        For qname, concatenate source if it
- *        is a valid unquoted name (see isuQNAME);
+ *        is a valid unquoted name (see isuqname);
  *        otherwise, if it is valid name, concatenate quoted source.
  *        Error if not a valid name.
  * @param t Pointer to the target buffer.
@@ -2972,7 +2970,7 @@ static void *__target_source_helper__
     if (Name == 'N')
     {   if (xt != 'u' || xs != 'u')
             return LUB_PTR_ERR(LUB_OP_INVALID, 0);
-        const int quoted = isuQNAME((const uchar_t *)s);
+        const int quoted = isuqname((const uchar_t *)s);
         if (LUB_INT_ERR(quoted, 0)) return LUB_PTR_ERR(LUB_NAME_INVALID, 0);
         if (!quoted) q = '\0';
     }

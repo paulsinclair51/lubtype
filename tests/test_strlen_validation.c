@@ -33,7 +33,7 @@ void run_strlen_validation_tests(void) {
     assert(ucsnlen(ustr, LUB_MAX_USTRLEN) == 0);
     // Reserved/qname current symbol names.
     uchar_t not_reserved[8] = {L'A',0};
-    assert(!isuRESERVED(not_reserved));
+    assert(!isureserved(not_reserved));
 
     // New string-classification helpers.
     lchar_t alpha_l[8] = {'A','b','C','\0'};
