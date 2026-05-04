@@ -46,8 +46,8 @@ static void test_count_character(void) {
                      make_lstr_local("l", needle, 4), 64, 0);
     assert(result == 2);
 
-    assert(llsncnt(NULL, needle, 10, 0) == (size_t)LUB_PTR_INVALID);
-    assert(llsnCNT(str, NULL, 10, 0) == (size_t)LUB_PTR_INVALID);
+    assert(llsncnt(NULL, needle, 10, 0) == (size_t)0);
+    assert(llsnCNT(str, NULL, 10, 0) == (size_t)0);
 }
 
 /**

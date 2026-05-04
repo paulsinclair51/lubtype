@@ -109,13 +109,13 @@ static void test_isuRESERVED_oracle_crosscheck(void) {
         assert(actual == expected);
         assert(lactual == expected);
     }
-        // Null/empty/error edge cases
-        assert(!isuRESERVED(NULL));
-        assert(!islRESERVED(NULL));
+        // Null/empty are invalid-name errors in current API.
+        assert(isuRESERVED(NULL) == (int)LUB_NAME_INVALID);
+        assert(islRESERVED(NULL) == (int)LUB_NAME_INVALID);
         buf[0] = 0;
         lbuf[0] = 0;
-        assert(!isuRESERVED(buf));
-        assert(!islRESERVED(lbuf));
+        assert(isuRESERVED(buf) == (int)LUB_NAME_INVALID);
+        assert(islRESERVED(lbuf) == (int)LUB_NAME_INVALID);
 }
 
 static void test_matrix_consistency_cmp_pfx_sfx(void) {

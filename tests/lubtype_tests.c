@@ -9,19 +9,18 @@
 #define __LUB_DEFINITIONS__
 #include "../lubtype.h"
 
-#include "test_error_edge.c"
 void run_error_edge_tests(void);
-#include "test_advanced_ops.c"
 void run_advanced_ops_tests(void);
-#include "test_cmp_search.c"
 void run_cmp_search_tests(void);
-#include "test_strlen_validation.c"
 void run_strlen_validation_tests(void);
-#include "test_charclass.c"
 void run_charclass_tests(void);
-#include "test_fuzz_edge.c"
+void run_reserved_matrix_tests(void);
+void run_search_family_tests(void);
+void run_span_count_tests(void);
+void run_core_family_tests(void);
+void run_type_matrix_tests(void);
+void run_utilities_tests(void);
 void run_fuzz_edge_tests(void);
-#include "test_skip.c"
 void run_skip_tests(void);
 #include <assert.h>
 #include <stdarg.h>
@@ -29,13 +28,6 @@ void run_skip_tests(void);
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-
-void run_reserved_matrix_tests(void);
-void run_search_family_tests(void);
-void run_span_count_tests(void);
-void run_core_family_tests(void);
-void run_type_matrix_tests(void);
-void run_utilities_tests(void);
 
 /**
  * @brief Main entry point for all lubtype.h tests.

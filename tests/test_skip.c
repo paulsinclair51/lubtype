@@ -54,7 +54,7 @@ static void test_llsnskip_explicit_skipset(void) {
 
     /* Skip leading 'a' and 'b' characters; stop at 'c'. */
     assert(lptr_eq(llsnskip(make_ls("aaabbc_rest", s, 32),
-                             32, make_ls("ab", sk, 8)), "_rest"));
+                             32, make_ls("ab", sk, 8)), "c_rest"));
 
     /* First char not in skip-set; pointer unchanged. */
     assert(lptr_eq(llsnskip(make_ls("xyz", s, 32),
