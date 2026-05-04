@@ -2471,23 +2471,23 @@ extern uchar_t *uusnskip(
 #define __LUB_OP_HELPER__(s1_xt, xcsnlen, sn_max, \
                           s2_xt, isxneedlestr, \
                           cmp_sub_expr, cmp_char_expr) \
-{   if (LUB_PTR_ERR(s1, 0)) return (r_xt *)LUB_PTR_INVALID; \
+{   if (LUB_PTR_ERR(s1, 0)) return (s1_xt *)LUB_PTR_INVALID; \
     sn = xcsnlen(s1, sn > sn_max ? sn_max : sn); \
-    if (LUB_SIZE_ERR(sn, 0)) return (r_xt *)LUB_PTR_ERR(sn, 0); \
+    if (LUB_SIZE_ERR(sn, 0)) return (s1_xt *)LUB_PTR_ERR(sn, 0); \
     int isneedlestr = isxneedlestr(s2); \
-    if (LUB_INT_ERR(isneedlestr, 0))
-      return (r_xt *)LUB_PTR_ERR(isneedlestr, 0); \
-    if (!m) return (r_xt *)NULL; \
-    size_t s2_n = 0; \
-    s2_xt * ss2 = s2; \
-    for (; *ss2; ss2++, s2_n++); \
+    if (LUB_INT_ERR(isneedlestr, 0)) \
+      return (s1_xt *)LUB_PTR_ERR(isneedlestr, 0); \
+    if (!m) return (s1_xt *)NULL; \
+    const s2_xt *ss2 = s2; \
+    for (; *ss2; ss2++); \
+    size_t s2_n = ss2 - s2; \
     if (!delim && !s2_n) return (s1_xt *)NULL; \
     size_t target = (size_t)(m < 0 ? -(long long)m : (long long)m); \
     int pass = m < 0 ? 0 : 1; \
     for (; pass < 2; pass++) \
     { size_t count = 0; \
       if (!delim) \
-      { size_t i = 0;
+      { size_t i = 0; \
         for (; i < sn; ++i) \
         { size_t k = 0; \
           for (; k < s2_n; ++k) \
@@ -2500,20 +2500,20 @@ extern uchar_t *uusnskip(
         } \
       } \
       else \
-      { size_t seg = 0;
+      { size_t seg = 0; \
         for (; seg <= s2_n; ) \
         { size_t end = seg; \
-          while (end < s2_n && s2[end] != (n_xt)delim) ++end; \
+          while (end < s2_n && s2[end] != (s2_xt)delim) ++end; \
           size_t tok_n = end - seg; \
-          const n_xt *n = s2 + seg; \
+          const s2_xt *n = s2 + seg; \
           if (!tok_n) \
           { if (!sn && (m == 1 || m == -1)) \
             { if (!pass) ++count; \
-              else if (++count == target) return (r_xt *)s1; \
+              else if (++count == target) return (s1_xt *)s1; \
             } \
           } \
           else if (tok_n <= sn) \
-          { size_t i = 0;
+          { size_t i = 0; \
             for (; i <= sn - tok_n; ++i) \
             { size_t k = 0; \
               for (; k < tok_n && (cmp_sub_expr); ++k); \
@@ -2527,7 +2527,7 @@ extern uchar_t *uusnskip(
         } \
       } \
       if (!pass) \
-      { if (count < target) return (r_xt *)NULL; \
+      { if (count < target) return (s1_xt *)NULL; \
         target = count - target + 1; \
       } \
     } \
@@ -2539,7 +2539,7 @@ extern uchar_t *uusnskip(
 
 extern lchar_t *llsnstrm(
     const lchar_t *s1, const lchar_t *const s2, size_t sn,
-    const lchar_t delim, int m)
+    const lchar_t delim, const int m)
 #if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(lchar_t, lcsnlen, LUB_MAX_LSTRLEN,
                       lchar_t, islneedlestr,
@@ -2549,9 +2549,21 @@ extern lchar_t *llsnstrm(
     ;
 #endif // __LUB_DEFINITIONS__
 
+extern lchar_t *lusnstrm(
+    const lchar_t *s1, const uchar_t *const s2, size_t sn,
+    const uchar_t delim, const int m)
+#if defined(__LUB_DEFINITIONS__)
+    __LUB_OP_HELPER__(lchar_t, lcsnlen, LUB_MAX_LSTRLEN,
+                      uchar_t, isuneedlestr,
+                      s1[i + k] == (lchar_t)n[k],
+                      s1[i] == (lchar_t)s2[k])
+#else
+    ;
+#endif // __LUB_DEFINITIONS__
+
 extern uchar_t *ulsnstrm(
     const uchar_t *s1, const lchar_t *const s2, size_t sn,
-    const uchar_t delim, const int m)
+    const lchar_t delim, const int m)
 #if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(uchar_t, ucsnlen, LUB_MAX_USTRLEN,
                       lchar_t, islneedlestr,
@@ -2577,7 +2589,7 @@ extern uchar_t *uusnstrm(
 
 extern lchar_t *llsnSTRM(
     const lchar_t *s1, const lchar_t *const s2, size_t sn,
-    const uchar_t delim, const int m)
+    const lchar_t delim, const int m)
 #if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(lchar_t, lcsnlen, LUB_MAX_LSTRLEN,
                       lchar_t, islneedlestr,
@@ -2587,9 +2599,21 @@ extern lchar_t *llsnSTRM(
     ;
 #endif // __LUB_DEFINITIONS__
 
+extern lchar_t *lusnSTRM(
+    const lchar_t *s1, const uchar_t *const s2, size_t sn,
+    const uchar_t delim, const int m)
+#if defined(__LUB_DEFINITIONS__)
+    __LUB_OP_HELPER__(lchar_t, lcsnlen, LUB_MAX_LSTRLEN,
+                      uchar_t, isuneedlestr,
+                      lltoupper(s1[i + k]) == lltoupper((lchar_t)n[k]),
+                      lltoupper(s1[i]) == lltoupper((lchar_t)s2[k]))
+#else
+    ;
+#endif // __LUB_DEFINITIONS__
+
 extern uchar_t *ulsnSTRM(
     const uchar_t *s1, const lchar_t *const s2, size_t sn,
-    const uchar_t delim, const int m)
+    const lchar_t delim, const int m)
 #if defined(__LUB_DEFINITIONS__)
     __LUB_OP_HELPER__(uchar_t, ucsnlen, LUB_MAX_USTRLEN,
                       lchar_t, islneedlestr,
@@ -2607,30 +2631,6 @@ extern uchar_t *uusnSTRM(
                       uchar_t, isuneedlestr,
                       uutoupper(s1[i + k]) == uutoupper(n[k]),
                       uutoupper(s1[i]) == uutoupper(s2[k]))
-#else
-    ;
-#endif // __LUB_DEFINITIONS__
-
-extern lchar_t *lusnstrm(
-    const lchar_t *s1, const uchar_t *const s2, size_t sn,
-    const lchar_t delim, const int m)
-#if defined(__LUB_DEFINITIONS__)
-    __LUB_OP_HELPER__(lchar_t, uchar_t, lcsnlen, LUB_MAX_LSTRLEN,
-                      uchar_t, isuneedlestr,
-                      s1[i + k] == (lchar_t)n[k],
-                      s1[i] == (lchar_t)s2[k])
-#else
-    ;
-#endif // __LUB_DEFINITIONS__
-
-extern lchar_t *lusnSTRM(
-    const lchar_t *s1, const uchar_t *const s2, size_t sn,
-    const lchar_t delim, const int m)
-#if defined(__LUB_DEFINITIONS__)
-    __LUB_OP_HELPER__(lchar_t, uchar_t, lcsnlen, LUB_MAX_LSTRLEN,
-                      uchar_t, isuneedlestr,
-                      lltoupper(s1[i + k]) == lltoupper((lchar_t)n[k]),
-                      lltoupper(s1[i]) == lltoupper((lchar_t)s2[k]))
 #else
     ;
 #endif // __LUB_DEFINITIONS__
