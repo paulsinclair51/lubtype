@@ -671,10 +671,7 @@ typedef uint8_t byte_t;
  * 
  *    <kind> = alpha, digit, alnum, name1c, namec,
  *             upper, lower, cntrl, print, graph, punct,
- *             blank, space, hexdigit
- *
- *    Note: islname1c and islnamec are not
- *    provided since names are Unicode.
+ *             blank, space, hex
  *
  *    Examples: isualpha, islhex, isunamec
  *
@@ -697,12 +694,12 @@ typedef uint8_t byte_t;
  *
  * 3. int <- Character Transform
  *
- *    i<s>hexdigit
+ *    i<s>hex
  *
  *    <s> = l for Latin source character.
  *          u for Unicode source character.
  *
- *    Example: iuhexdigit
+ *    Example: iuhex
  *
  * 4. String Length
  * 
@@ -966,9 +963,10 @@ typedef uint8_t byte_t;
 /**
  * @defgroup CharacterClassification Character Classification
  * @name isualpha, islalpha
- *       isudigit, isldigit, isualnum, islalnum
+ *       isudigit, isldigit
+ *       isualnum, islalnum
  *       isulatin
- *       islname1c, isuname1c, islnamec, isunamec,
+ *       islname1c, isuname1c, islnamec, isunamec
  *       isuupper, islupper, isulower, isllower
  *       isucntrl, islcntrl, isuprint, islprint
  *       isugraph, islgraph, isupunct, islpunct
@@ -1001,8 +999,8 @@ typedef uint8_t byte_t;
  *       whitespace characters (e.g., U+00A0 NO-BREAK SPACE,
  *       U+2003 EM SPACE, etc.).
  *
- * @note isulatin classifies whether c is in the Latin character set,
- *       i.e., c in range [0, 255].
+ * @note isllatin/isulatin classifies whether c is in the
+ *       Latin character set, i.e., c in range [0, 255].
  *
  * @note isuhex/islhex classifies whether c is a
  *       hexadecimal digit character, i.e., ('0' to '9',
@@ -1011,20 +1009,25 @@ typedef uint8_t byte_t;
  */
 
 static inline int isualpha(const unsigned int c)
-    {return iswalpha((wchar_t)c) ? (int)1 : (int)0;}
+    {return c <= LUB_MAX_UCHAR &&
+            iswalpha((wchar_t)c) ? (int)1 : (int)0;}
 static inline int islalpha(const unsigned int c)
     {return c <= LUB_MAX_LCHAR && isalpha((int)c) ?
             (int)1 : (int)0;}
 static inline int isudigit(const unsigned int c)
-    {return iswdigit((wchar_t)c) ? (int)1 : (int)0;}
+    {return c <= LUB_MAX_UCHAR &&
+            iswdigit((wchar_t)c) ? (int)1 : (int)0;}
 static inline int isldigit(const unsigned int c)
     {return c <= LUB_MAX_LCHAR && isdigit((int)c) ?
             (int)1 : (int)0;}
 static inline int isualnum(const unsigned int c)
-    {return iswalnum((wchar_t)c) ? (int)1 : (int)0;}
+    {return c <= LUB_MAX_UCHAR &&
+            iswalnum((wchar_t)c) ? (int)1 : (int)0;}
 static inline int islalnum(const unsigned int c)
     {return c <= LUB_MAX_LCHAR && isalnum((int)c) ?
             (int)1 : (int)0;}
+static inline int isllatin(const unsigned int c)
+    {return c <= LUB_MAX_LCHAR ? (int)1 : (int)0;}
 static inline int isulatin(const unsigned int c)
     {return c <= LUB_MAX_LCHAR ? (int)1 : (int)0;}
 static inline int islname1c(const unsigned int c)
@@ -1040,42 +1043,50 @@ static inline int islnamec(const unsigned int c)
 static inline int isunamec(const unsigned int c)
     {return islnamec(c);}
 static inline int isuupper(const unsigned int c)
-    {return iswupper((wchar_t)c) ? (int)1 : (int)0;}
+    {return c <= LUB_MAX_UCHAR &&
+            iswupper((wchar_t)c) ? (int)1 : (int)0;}
 static inline int islupper(const unsigned int c)
     {return c <= LUB_MAX_LCHAR && isupper((int)c) ?
             (int)1 : (int)0;}
 static inline int isulower(const unsigned int c)
-    {return iswlower((wchar_t)c) ? (int)1 : (int)0;}
+    {return c <= LUB_MAX_UCHAR &&
+            iswlower((wchar_t)c) ? (int)1 : (int)0;}
 static inline int isllower(const unsigned int c)
     {return c <= LUB_MAX_LCHAR && islower((int)c) ?
             (int)1 : (int)0;}
 static inline int isucntrl(const unsigned int c)
-    {return iswcntrl((wchar_t)c) ? (int)1 : (int)0;}
+    {return c <= LUB_MAX_UCHAR &&
+            iswcntrl((wchar_t)c) ? (int)1 : (int)0;}
 static inline int islcntrl(const unsigned int c)
     {return c <= LUB_MAX_LCHAR && iscntrl((int)c) ?
             (int)1 : (int)0;}
 static inline int isuprint(const unsigned int c)
-    {return iswprint((wchar_t)c) ? (int)1 : (int)0;}
+    {return c <= LUB_MAX_UCHAR &&
+            iswprint((wchar_t)c) ? (int)1 : (int)0;}
 static inline int islprint(const unsigned int c)
     {return c <= LUB_MAX_LCHAR && isprint((int)c) ?
             (int)1 : (int)0;}
 static inline int isugraph(const unsigned int c)
-    {return iswgraph((wchar_t)c) ? (int)1 : (int)0;}
+    {return c <= LUB_MAX_UCHAR &&
+            iswgraph((wchar_t)c) ? (int)1 : (int)0;}
 static inline int islgraph(const unsigned int c)
     {return c <= LUB_MAX_LCHAR && isgraph((int)c) ?
             (int)1 : (int)0;}
 static inline int isupunct(const unsigned int c)
-    {return iswpunct((wchar_t)c) ? (int)1 : (int)0;}
+    {return c <= LUB_MAX_UCHAR &&
+            iswpunct((wchar_t)c) ? (int)1 : (int)0;}
 static inline int islpunct(const unsigned int c)
     {return c <= LUB_MAX_LCHAR && ispunct((int)c) ?
             (int)1 : (int)0;}
 static inline int isublank(const unsigned int c)
-    {return iswblank((wchar_t)c) ? (int)1 : (int)0;}
+    {return c <= LUB_MAX_UCHAR &&
+            iswblank((wchar_t)c) ? (int)1 : (int)0;}
 static inline int islblank(const unsigned int c)
     {return c <= LUB_MAX_LCHAR && isblank((int)c) ?
             (int)1 : (int)0;}
 static inline int isuspace(const unsigned int c)
-    {return iswspace((wchar_t)c) ? (int)1 : (int)0;}
+    {return c <= LUB_MAX_UCHAR &&
+            iswspace((wchar_t)c) ? (int)1 : (int)0;}
 static inline int islspace(const unsigned int c)
     {return c <= LUB_MAX_LCHAR && isspace((int)c) ?
             (int)1 : (int)0;}
@@ -1085,7 +1096,7 @@ static inline int islhex(const unsigned int c)
              (c >= 'A' && c <= 'F')) ? (int)1 : (int)0;
     }
 static inline int isuhex(const unsigned int c)
-    {return c > LUB_MAX_LCHAR ? (int)0 : islhex((uchar_t)c);}
+    {return c <= LUB_MAX_LCHAR ? islhex((uchar_t)c) : (int)0;}
  /** @} */
 
  /**
@@ -1153,7 +1164,7 @@ static inline uchar_t uutolower(const uchar_t c)
 
 /**
  * @defgroup HexDigitToIntConversion Hex Digit to Int Conversion
- * @name ilhexdigit and iuhexdigit
+ * @name ilhex and iuhex
  * @brief Hex digit character to integer conversion.
  * @param  c Character to convert.
  * @return Value (0-15) of the hex digit if c is a valid hex
@@ -3098,7 +3109,7 @@ extern lchar_t *lusnncatc(lchar_t *t, size_t tn,
                           const lchar_t *st,
                           const lchar_t err_c)
 #if defined(__LUB_DEFINITIONS__)
-    __LUB_OP_HELPER__(1, 'u', 'l', (lchar_t)'\0', '\0', 'c',
+    __LUB_OP_HELPER__(1, 'l', 'u', (lchar_t)'\0', '\0', 'c',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, err_c)
 #else
@@ -3881,8 +3892,8 @@ extern byte_t *blsnncpy(byte_t *t, size_t tn, const lchar_t *s, size_t sn)
     if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
     int hi, lo;
     for (; sn && *s; sn--, s++) {
-      hi = ilhexdigit(*s);
-      if (sn && s[1]) {lo = ilhexdigit(*++s); sn--;} else lo = 0;
+      hi = ilhex(*s);
+      if (sn && s[1]) {lo = ilhex(*++s); sn--;} else lo = 0;
     if (hi < 0 || lo < 0) return (byte_t *)NULL; // Invalid hex digit.
       *t++ = (unsigned char)((hi << 4) | lo);
     }
@@ -3901,9 +3912,9 @@ extern byte_t *busnncpy(byte_t *t, size_t tn, const uchar_t *s, size_t sn)
     if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
     int hi, lo;
     for (; sn && *s; sn--, s++)
-    { hi = iuhexdigit(*s);
+    { hi = iuhex(*s);
        lo = 0;
-       if (sn && s[1]) {lo = iuhexdigit(*++s); sn--;} else lo = 0;
+       if (sn && s[1]) {lo = iuhex(*++s); sn--;} else lo = 0;
     if (hi < 0 || lo < 0) return (byte_t *)NULL; // Invalid hex digit.
        *t++ = (unsigned char)((hi << 4) | lo);
     }
