@@ -49,16 +49,16 @@ static void test_reverse(void) {
     uchar_t udst[33];
     uchar_t usrc[32];
 
-    assert(llsnnreverse(dst, make_lstr_local("hello", src, 32), 32) != NULL);
+    assert(llsnnreverse(dst, 32, make_lstr_local("hello", src, 32), 32) != NULL);
     assert(eq_lstr_ascii_local(dst, "olleh"));
 
-    assert(llsnnreverse(dst, make_lstr_local("a", src, 32), 32) != NULL);
+    assert(llsnnreverse(dst, 32, make_lstr_local("a", src, 32), 32) != NULL);
     assert(eq_lstr_ascii_local(dst, "a"));
 
-    assert(llsnnreverse(dst, make_lstr_local("", src, 32), 32) != NULL);
+    assert(llsnnreverse(dst, 32, make_lstr_local("", src, 32), 32) != NULL);
     assert(eq_lstr_ascii_local(dst, ""));
 
-    assert(uusnnreverse(udst, make_ustr_local("abc", usrc, 32), 32) != NULL);
+    assert(uusnnreverse(udst, 32, make_ustr_local("abc", usrc, 32), 32) != NULL);
     assert(eq_ustr_ascii_local(udst, "cba"));
 }
 
@@ -78,15 +78,41 @@ static void test_trim(void) {
 static void test_pad_and_repeat(void) {
     lchar_t out[17];
     lchar_t src[32];
+    uchar_t uout[17];
+    uchar_t usrc[32];
+    uchar_t usrc_nonlatin[4] = { 'h', 0x0100, 'i', 0 };
+    static const lchar_t left_pad[] = {'L', ' ', 0};
+    static const lchar_t right_pad[] = {'R', ' ', 0};
+    static const lchar_t both_pad[] = {'B', '-', 0};
+    static const lchar_t lright_pad_x[] = {'R', 'x', 0};
+    static const uchar_t uright_pad[] = {'R', 'x', 0};
+    static const uchar_t uboth_pad[] = {'B', '-', 0};
 
-    assert(llsnnpad(out, 8, make_lstr_local("hi", src, 32), 32, 'L', ' ') != NULL);
+    assert(llsnnpad(out, 8, make_lstr_local("hi", src, 32), 32, left_pad) != NULL);
     assert(eq_lstr_ascii_local(out, "      hi"));
 
-    assert(llsnnpad(out, 8, make_lstr_local("hi", src, 32), 32, 'R', ' ') != NULL);
+    assert(llsnnpad(out, 8, make_lstr_local("hi", src, 32), 32, right_pad) != NULL);
     assert(eq_lstr_ascii_local(out, "hi      "));
 
-    assert(llsnnpad(out, 8, make_lstr_local("hi", src, 32), 32, 'B', '-') != NULL);
+    assert(llsnnpad(out, 8, make_lstr_local("hi", src, 32), 32, both_pad) != NULL);
     assert(eq_lstr_ascii_local(out, "---hi---"));
+
+    assert(lusnnpad(out, 8, make_ustr_local("hi", usrc, 32), 32,
+                    lright_pad_x, 0) != NULL);
+    assert(eq_lstr_ascii_local(out, "hixxxxxx"));
+
+    assert(lusnnpad(out, 8, usrc_nonlatin, 4, lright_pad_x, '?') != NULL);
+    assert(eq_lstr_ascii_local(out, "h?ixxxxx"));
+
+        assert(lusnnpad(out, 8, usrc_nonlatin, 4, lright_pad_x, 0) ==
+            (lchar_t *)LUB_NON_LATIN_CHAR);
+        assert(out[0] == (lchar_t)0);
+
+    assert(ulsnnpad(uout, 8, make_lstr_local("hi", src, 32), 32, uright_pad) != NULL);
+    assert(eq_ustr_ascii_local(uout, "hixxxxxx"));
+
+    assert(uusnnpad(uout, 8, make_ustr_local("hi", usrc, 32), 32, uboth_pad) != NULL);
+    assert(eq_ustr_ascii_local(uout, "---hi---"));
 
     assert(llsnnrepeat(out, 16, make_lstr_local("ab", src, 32), 32, 4) != NULL);
     assert(eq_lstr_ascii_local(out, "abababab"));

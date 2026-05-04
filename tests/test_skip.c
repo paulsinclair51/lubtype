@@ -218,6 +218,15 @@ static void test_uusnskip_error_paths(void) {
     assert(uusnskip(NULL, 32, NULL) == NULL);
 }
 
+static void test_null_skip_defaults_whitespace_all_variants(void) {
+    lchar_t ls[16];
+    uchar_t us[16];
+
+    assert(lptr_eq(llsnskip(make_ls("   a", ls, 16), 16, NULL), "a"));
+    assert(uptr_eq(ulsnskip(make_us("\t\tb", us, 16), 16, NULL), "b"));
+    assert(uptr_eq(uusnskip(make_us("  c", us, 16), 16, NULL), "c"));
+}
+
 /* ---- skip-set loop correctness ------------------------------------------ */
 
 static void test_skipset_first_char_is_stop(void) {
@@ -271,6 +280,7 @@ void run_skip_tests(void) {
     test_uusnskip_default_whitespace();
     test_uusnskip_error_paths();
 
+    test_null_skip_defaults_whitespace_all_variants();
     test_skipset_first_char_is_stop();
     test_skipset_consecutive_skip_chars();
     test_sn_bound_zero();
