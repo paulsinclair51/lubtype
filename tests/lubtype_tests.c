@@ -6,7 +6,7 @@
  * For license details, see the LICENSE file in the project root.
  */
 
-#define __LUB_DEFINITIONS__
+#define LUB__DEFINITIONS__
 #include "../lubtype.h"
 
 void run_error_edge_tests(void);

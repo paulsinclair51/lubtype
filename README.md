@@ -24,10 +24,10 @@ Include `lubtype.h` everywhere you use the API.
 #include "lubtype.h"
 ```
 
-`lubtype.h` is header-only, but externally visible function bodies are emitted only when `__LUB_DEFINITIONS__` is defined before the include. Define it in exactly one translation unit per final binary:
+`lubtype.h` is header-only, but externally visible function bodies are emitted only when `LUB__DEFINITIONS__` is defined before the include. Define it in exactly one translation unit per final binary:
 
 ```c
-#define __LUB_DEFINITIONS__
+#define LUB__DEFINITIONS__
 #include "lubtype.h"
 ```
 
@@ -72,7 +72,7 @@ These mapping headers do not define stale `xchar_t`, `xstr_t`, or `xcstr_t` alia
 ## Quick Start
 
 ```c
-#define __LUB_DEFINITIONS__
+#define LUB__DEFINITIONS__
 #include "lubtype.h"
 
 int main(void) {

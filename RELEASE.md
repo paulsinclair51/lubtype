@@ -9,7 +9,7 @@ For license details, see the LICENSE file in the project root.
 - [ ] All function families and variants are implemented and reviewed.
 - [ ] Top-level documentation (README, header docblocks) is up to date and clear.
 - [ ] README examples use current function names/signatures and compile as written.
-- [ ] README documents __LUB_DEFINITIONS__ usage (defined in exactly one translation unit).
+- [ ] README documents LUB__DEFINITIONS__ usage (defined in exactly one translation unit).
 - [ ] Version number and changelog are updated.
 
 ## Testing
