@@ -371,6 +371,7 @@ LUB__STATIC_ASSERT__(LUB_VERSION_MAJOR <= 99, major_fits_in_field);
 LUB__STATIC_ASSERT__(LUB_VERSION_MINOR <= 99, minor_fits_in_field);
 LUB__STATIC_ASSERT__(LUB_VERSION_PATCH <= 99, patch_fits_in_field);
 #endif // LUB_DEFINITIONS
+
 /** @} */ // End of Versioning.
 
 #if defined(LUB_DEFINITIONS)
@@ -408,6 +409,7 @@ LUB__STATIC_ASSERT__((int)-2 == (int)(size_t)-2 &&
  */
 
 typedef uint8_t lchar_t;
+
 /** @} */
 
 /**
@@ -430,6 +432,7 @@ typedef uint16_t uchar_t;
  */
 
 typedef uint8_t byte_t;
+
 /** @} */
 
 /**
@@ -450,6 +453,7 @@ typedef uint8_t byte_t;
 #define LUB_MAX_LCHAR ((size_t)255)
 #define LUB_MAX_UCHAR ((size_t)65535)
 #define LUB_MAX_BYTE ((size_t)255)
+
 /** @} */
 
 /**
@@ -487,6 +491,7 @@ typedef uint8_t byte_t;
 #define LUB_MAX_UOPTLEN    ((size_t)32000)
 #define LUB_MAX_BSTRLEN    ((size_t)1000000)
 #define LUB_MAX_BOPTLEN    ((size_t)64000)
+
 /** @} */
 
 /**
@@ -548,6 +553,8 @@ typedef uint8_t byte_t;
 #define LUB_QUOTEDNAME         ((int)1)
 #define LUB_UNQUOTEDNAME       ((int)0)
 
+/** @} */
+
 /**
  * @defgroup ErrorValues Error Values
  * @name LUB_PTR_INVALID
@@ -607,6 +614,7 @@ typedef uint8_t byte_t;
 #define LUB_TRUNCATED              (-13)
 #define LUB_INTERNAL_ERROR         (-99)
 // -13 to -98 reserved for future error values.
+
 /** @} */
 
 /**
@@ -687,6 +695,7 @@ typedef uint8_t byte_t;
 
 #define LUB_INT_ERR(value, error) \
     ((int)(intptr_t)LUB_PTR_ERR(value, error))
+
 /** @} */
 
 /**
@@ -794,12 +803,14 @@ typedef uint8_t byte_t;
  *         bu - Byte, Unicode
  * 
  *    n = bounded target with tn parameter for the bound (implicit
- *        bound on source) or bounded source (s) with an sn
+ *        bound on source) or bounded source with an sn
  *        parameter for the bound depending on the operation.
  * 
  *    nn = bounded target buffer and bounded source(s) with
  *         tn and sn parameters for the target bound
- *         and source bound(s), respectively.
+ *         and source bound(s), respectively, or bounded source
+ *         s1 and source s2 with s1n and s2n parameters for the bounds on
+ *         s1 and s2, respectively.
  * 
  *    <op> = operation:
  * 
@@ -1259,9 +1270,10 @@ int isuhex
 { return c <= LUB_MAX_LCHAR ?
          islhex((uchar_t)c) : (int)0;
 }
- /** @} */
 
- /**
+/** @} */
+
+/**
  * @defgroup CaseConversion Case Conversion
  * @name lltocase, lutocase, ultocase, uutocase
  *       lltoupper, lutoupper, ultoupper, uutoupper
@@ -1348,7 +1360,8 @@ static inline uchar_t uutolower
   return ((unsigned)wc > LUB_MAX_UCHAR) ?
             (uchar_t)c : (uchar_t)wc;
 }
- /** @} */
+
+/** @} */
 
 /**
  * @defgroup HexDigitToIntConversion Hex Digit to Int Conversion
@@ -1394,8 +1407,9 @@ int ilhex
 extern
 size_t LUB__len_helper
 ( const char xs,
-  const lchar_t *s, size_t sn,
-  size_t maxlen
+  const lchar_t *s,
+  size_t sn,
+  const size_t maxlen
 )
 #if defined(LUB_DEFINITIONS)
 { if (!s) return (size_t)0;
@@ -1403,14 +1417,16 @@ size_t LUB__len_helper
   if (sn > maxlen) sn = maxlen;
   size_t k = 0;
   if (xs == 'u')
-  { for (; k < sn && *(uchar_t *)s; k++, s += sizeof(uchar_t));
-    if (*(uchar_t *)s) k = LUB_SIZE_ERR(LUB_UNTERMINATED, 0);
+  { const uchar_t *ss = (uchar_t *)s;
+    for (; k < sn && *ss; ++k, ++ss);
+    if (*ss) k = LUB_SIZE_ERR(LUB_UNTERMINATED, 0);
   }
   else
-  { for (; k < sn && *s; k++, s++);
+  { for (; k < sn && *s; ++k, ++s);
     if (*s) k = LUB_SIZE_ERR(LUB_UNTERMINATED, 0);
   }
   return k;
+}
 #else
 ;
 #endif // LUB_DEFINITIONS.
@@ -1514,8 +1530,9 @@ size_t ucsnlen
 extern
 int LUB__string_latin_helper
 ( const char xs,
-  const lchar_t *s, size_t sn,
-  size_t maxlen
+  const lchar_t *s,
+  size_t sn,
+  const size_t maxlen
 )
 #if defined(LUB_DEFINITIONS)
 LUB__OP_HELPER(1, (*us <= (uchar_t)LUB_MAX_LCHAR))
@@ -1543,7 +1560,7 @@ extern
 int LUB__string_alpha_helper
 ( const char xs,
   const lchar_t *s, size_t sn,
-  size_t maxlen
+  const size_t maxlen
 )
 #if defined(LUB_DEFINITIONS)
 LUB__OP_HELPER((islalpha(*s)), (isualpha(*us)))
@@ -1570,10 +1587,10 @@ int isunalphastr
 extern
 int LUB__string_hex_helper
 ( const char xs,
-  const lchar_t *s, size_t sn,
-  size_t maxlen
+  const lchar_t *s,
+  size_t sn,
+  const size_t maxlen
 )
-( const lchar_t *s, size_t sn )
 #if defined(LUB_DEFINITIONS)
 LUB__OP_HELPER((islhex(*s)), (isuhex(*us)))
 #else
@@ -1594,138 +1611,152 @@ int isunhexstr
                                 sn, LUB_MAX_USTRLEN);
 }
 
-#if defined(LUB_DEFINITIONS)
+extern
+int LUB__is_reserved_helper
+ ( const char xs, const lchar_t *s )
+{ // Teradata reserved words list.
+  static const char *const reserved[] =
+  { "ABORT", "ABORTSESSION", "ABS", "ACCESS_LOCK", "ACCOUNT", "ACOS",
+    "ACOSH", "ADD", "ADD_MONTHS", "ADMIN", "AFTER", "AGGREGATE", "ALIAS",
+    "ALL", "ALTER", "AMP", "AND", "ANSIDATE", "ANY", "ARGLPAREN", "AS",
+    "ASC", "ASIN", "ASINH", "AT", "ATAN", "ATAN2", "ATANH", "ATOMIC",
+    "AUTHORIZATION", "AVE", "AVERAGE", "AVG", "BEFORE", "BEGIN", "BETWEEN",
+    "BIGINT", "BINARY", "BLOB", "BOTH", "BT", "BUT", "BY", "BYTE",
+    "BYTEINT", "BYTES", "CALL", "CASE", "CASESPECIFIC", "CASE_N", "CAST",
+    "CD", "CHAR", "CHAR2HEXINT", "CHARACTER", "CHARACTERS",
+    "CHARACTER_LENGTH", "CHARS", "CHAR_LENGTH", "CHECK", "CHECKPOINT",
+    "CLASS", "CLOB", "CLOSE", "CLUSTER", "CM", "COALESCE", "COLLATE",
+    "COLLECT", "COLUMN", "COMMENT", "COMMIT", "COMPRESS", "CONDITION",
+    "CONNECT", "CONSTRAINT", "CONSTRAINTS", "CONSTRUCTOR", "CONTAINS",
+    "CONTINUE", "CONVERT_TABLE_HEADER", "CORR", "COS", "COSH", "COUNT",
+    "COVAR_POP", "COVAR_SAMP", "CREATE", "CROSS", "CS", "CSUM", "CT",
+    "CURRENT", "CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP",
+    "CURRENT_USER", "CURSOR", "CV", "CYCLE", "DATA", "DATE", "DAY", "DAYS",
+    "DEC", "DECIMAL", "DECLARE", "DEFAULT", "DELETE", "DENSE_RANK", "DEREF",
+    "DESCRIBE", "DESCRIPTOR", "DETERMINISTIC", "DIAGNOSTIC", "DISABLED",
+    "DISTINCT", "DO", "DOUBLE", "DROP", "DYNAMIC", "EACH", "ELEMENT",
+    "ELSE", "ELSEIF", "EQUALS", "ERROR", "ESCAPE", "EVERY", "EXCEPT",
+    "EXEC", "EXECUTE", "EXISTS", "EXIT", "EXP", "EXPLAIN", "EXTERNAL",
+    "EXTRACT", "FALLBACK", "FALSE", "FASTEXPORT", "FETCH", "FILTER",
+    "FIRST", "FIRST_VALUE", "FLOAT", "FLOOR", "FOR", "FOREIGN", "FORMAT",
+    "FROM", "FULL", "FUNCTION", "FUSION", "GE", "GET", "GIVE", "GLOBAL",
+    "GO", "GOTO", "GRANT", "GRAPHIC", "GROUP", "GROUPING", "GT", "HANDLER",
+    "HASH", "HAVING", "HELP", "HOUR", "HOURS", "IDENTITY", "IF", "IN",
+    "INDEX", "INDICATOR", "INDICATOR_TYPE", "INNER", "INOUT", "INPUT",
+    "INS", "INSENSITIVE", "INSERT", "INT", "INTEGER", "INTEGERDATE",
+    "INTERSECT", "INTERVAL", "INTO", "IS", "ITERATE", "JOIN", "JSON",
+    "JSON_", "JSON_TABLE", "KURTOSIS", "LANGUAGE", "LARGE", "LATERAL", "LE",
+    "LEAD", "LEADING", "LEAVE", "LEFT", "LIKE", "LIKE_ANY", "LIKE_REGEX",
+    "LIMIT", "LN", "LOCAL", "LOCALTIME", "LOCALTIMESTAMP", "LOG", "LOG10",
+    "LOGGING", "LOGON", "LOWER", "LT", "MACRO", "MAP", "MATCH",
+    "MATCH_RECOGNIZE", "MAX", "MEMBER", "MERGE", "METHOD", "MIN", "MINDEX",
+    "MINUS", "MINUTE", "MINUTES", "MLINREG", "MLOAD", "MOD", "MODIFIES",
+    "MONITOR", "MONTH", "MONTHS", "MSUBSTR", "MULTISET", "NAMED", "NATURAL",
+    "NCHAR", "NEW", "NEW_TABLE", "NEXT", "NO", "NONE", "NORMALIZE",
+    "NOT", "NOWAIT", "NO_BEFORE_JOURNAL", "NO_INLINE", "NO_PRIMARY_INDEX",
+    "NO_SCROLL", "NO_UNDO", "NTH_VALUE", "NTILE", "NULL", "NULLIF",
+    "NULLIFZERO", "NUMERIC", "OBJECT", "OCTET_LENGTH", "OF", "OFF",
+    "OLD_TABLE", "ON", "ONE", "ONLY", "OPEN", "OR", "ORDER", "ORDINALITY",
+    "OUT", "OUTER", "OVER", "OVERLAPS", "OVERLAY", "OVERRIDE", "PARAMETER",
+    "PARTITION", "PARTITION#L1", "PARTITION#L2", "PARTITION#L3",
+    "PARTITION#L4", "PASSWORD", "PERCENT", "PERCENTILE_CONT",
+    "PERCENTILE_DISC", "PERCENT_RANK", "PERIOD", "PERM", "PLACING",
+    "PORTION", "POSITION", "POSITION_REGEX", "POWER", "PRECISION",
+    "PREPARE", "PRIMARY", "PRIVATE", "PROCEDURE", "PROFILE", "PROTECTED",
+    "QUALIFIED", "QUALIFY", "QUANTILE", "RANGE", "RANK", "READS", "REAL",
+    "RECURSIVE", "REF", "REFERENCES", "REFERENCING", "REGR_AVGX",
+    "REGR_AVGY", "REGR_COUNT", "REGR_INTERCEPT", "REGR_R2", "REGR_SLOPE",
+    "REGR_SXX", "REGR_SXY", "REGR_SYY", "RELEASE", "RENAME", "REPEAT",
+    "REPLACE", "REPLICATION", "REQUEST", "RESIGNAL", "RESTART", "RESTORE",
+    "RESULT", "RETURN", "RETURNS", "REVOKE", "RIGHT", "RIGHTS", "ROLE",
+    "ROLLBACK", "ROLLFORWARD", "ROLLUP", "ROW", "ROWS", "ROW_NUMBER",
+    "SAMPLE", "SAMPLEID", "SCROLL", "SEARCH", "SECOND", "SECONDS", "SEL",
+    "SELECT", "SENSITIVE", "SET", "SETS", "SHOW", "SIGNAL", "SIMILAR",
+    "SIN", "SINH", "SKEW", "SMALLINT", "SOME", "SPECIFIC", "SPECIFICTYPE",
+    "SQL", "SQLEXCEPTION", "SQLSTATE", "SQLTEXT", "SQLWARNING", "SQRT",
+    "SS", "START", "STATS", "STDDEV_POP", "STDDEV_SAMP", "STEPINFO",
+    "STORED", "SUBMULTISET", "SUBSCRIBER", "SUBSET", "SUBSTRING",
+    "SUBSTRING_REGEX", "SUCCEEDS", "SUM", "SUMMARY", "SUSPEND", "SYSTEM",
+    "SYSTEM_TIME", "SYSTEM_USER", "TABLE", "TABLESAMPLE", "THEN", "TIME",
+    "TIMESTAMP", "TIMEZONE_HOUR", "TIMEZONE_MINUTE", "TO", "TRAILING",
+    "TRANSLATE", "TRANSLATE_CHK", "TRANSLATE_REGEX", "TRANSLATION", "TREAT",
+    "TRIGGER", "TRIM", "TRIM_ARRAY", "TRUE", "UESCAPE", "UNBOUNDED",
+    "UNICODE", "UNION", "UNIQUE", "UNKNOWN", "UNNEST", "UNTIL_CHANGED",
+    "UNTIL_CLOSED", "UPD", "UPDATE", "UPPER", "UPPERCASE", "USER", "USING",
+    "VALIDTIME", "VALUE", "VALUES", "VARBYTE",
+    "VARCHAR", "VARGRAPHIC", "VARIANT_TYPE", "VARYING", "VAR_POP",
+    "VAR_SAMP", "VIEW", "VOLATILE",
+    "WAIT", "WHEN", "WHERE", "WHILE", "WIDTH_BUCKET", "WITH", "WITHOUT",
+    "WORK", "XMLPLAN", "YEAR", "ZEROIFNULL", "ZONE"
+  };
 
-// Teradata reserved words list for string classification.
-
-static const char *const LUB__TD_RESERVED_WORDS__[] =
-    {   "ABORT", "ABORTSESSION", "ABS", "ACCESS_LOCK", "ACCOUNT", "ACOS",
-        "ACOSH", "ADD", "ADD_MONTHS", "ADMIN", "AFTER", "AGGREGATE", "ALIAS",
-        "ALL", "ALTER", "AMP", "AND", "ANSIDATE", "ANY", "ARGLPAREN", "AS",
-        "ASC", "ASIN", "ASINH", "AT", "ATAN", "ATAN2", "ATANH", "ATOMIC",
-        "AUTHORIZATION", "AVE", "AVERAGE", "AVG", "BEFORE", "BEGIN", "BETWEEN",
-        "BIGINT", "BINARY", "BLOB", "BOTH", "BT", "BUT", "BY", "BYTE",
-        "BYTEINT", "BYTES", "CALL", "CASE", "CASESPECIFIC", "CASE_N", "CAST",
-        "CD", "CHAR", "CHAR2HEXINT", "CHARACTER", "CHARACTERS",
-        "CHARACTER_LENGTH", "CHARS", "CHAR_LENGTH", "CHECK", "CHECKPOINT",
-        "CLASS", "CLOB", "CLOSE", "CLUSTER", "CM", "COALESCE", "COLLATE",
-        "COLLECT", "COLUMN", "COMMENT", "COMMIT", "COMPRESS", "CONDITION",
-        "CONNECT", "CONSTRAINT", "CONSTRAINTS", "CONSTRUCTOR", "CONTAINS",
-        "CONTINUE", "CONVERT_TABLE_HEADER", "CORR", "COS", "COSH", "COUNT",
-        "COVAR_POP", "COVAR_SAMP", "CREATE", "CROSS", "CS", "CSUM", "CT",
-        "CURRENT", "CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP",
-        "CURRENT_USER", "CURSOR", "CV", "CYCLE", "DATA", "DATE", "DAY", "DAYS",
-        "DEC", "DECIMAL", "DECLARE", "DEFAULT", "DELETE", "DENSE_RANK", "DEREF",
-        "DESCRIBE", "DESCRIPTOR", "DETERMINISTIC", "DIAGNOSTIC", "DISABLED",
-        "DISTINCT", "DO", "DOUBLE", "DROP", "DYNAMIC", "EACH", "ELEMENT",
-        "ELSE", "ELSEIF", "EQUALS", "ERROR", "ESCAPE", "EVERY", "EXCEPT",
-        "EXEC", "EXECUTE", "EXISTS", "EXIT", "EXP", "EXPLAIN", "EXTERNAL",
-        "EXTRACT", "FALLBACK", "FALSE", "FASTEXPORT", "FETCH", "FILTER",
-        "FIRST", "FIRST_VALUE", "FLOAT", "FLOOR", "FOR", "FOREIGN", "FORMAT",
-        "FROM", "FULL", "FUNCTION", "FUSION", "GE", "GET", "GIVE", "GLOBAL",
-        "GO", "GOTO", "GRANT", "GRAPHIC", "GROUP", "GROUPING", "GT", "HANDLER",
-        "HASH", "HAVING", "HELP", "HOUR", "HOURS", "IDENTITY", "IF", "IN",
-        "INDEX", "INDICATOR", "INDICATOR_TYPE", "INNER", "INOUT", "INPUT",
-        "INS", "INSENSITIVE", "INSERT", "INT", "INTEGER", "INTEGERDATE",
-        "INTERSECT", "INTERVAL", "INTO", "IS", "ITERATE", "JOIN", "JSON",
-        "JSON_", "JSON_TABLE", "KURTOSIS", "LANGUAGE", "LARGE", "LATERAL", "LE",
-        "LEAD", "LEADING", "LEAVE", "LEFT", "LIKE", "LIKE_ANY", "LIKE_REGEX",
-        "LIMIT", "LN", "LOCAL", "LOCALTIME", "LOCALTIMESTAMP", "LOG", "LOG10",
-        "LOGGING", "LOGON", "LOWER", "LT", "MACRO", "MAP", "MATCH",
-        "MATCH_RECOGNIZE", "MAX", "MEMBER", "MERGE", "METHOD", "MIN", "MINDEX",
-        "MINUS", "MINUTE", "MINUTES", "MLINREG", "MLOAD", "MOD", "MODIFIES",
-        "MONITOR", "MONTH", "MONTHS", "MSUBSTR", "MULTISET", "NAMED", "NATURAL",
-        "NCHAR", "NEW", "NEW_TABLE", "NEXT", "NO", "NONE", "NORMALIZE",
-        "NOT", "NOWAIT", "NO_BEFORE_JOURNAL", "NO_INLINE", "NO_PRIMARY_INDEX",
-        "NO_SCROLL", "NO_UNDO", "NTH_VALUE", "NTILE", "NULL", "NULLIF",
-        "NULLIFZERO", "NUMERIC", "OBJECT", "OCTET_LENGTH", "OF", "OFF",
-        "OLD_TABLE", "ON", "ONE", "ONLY", "OPEN", "OR", "ORDER", "ORDINALITY",
-        "OUT", "OUTER", "OVER", "OVERLAPS", "OVERLAY", "OVERRIDE", "PARAMETER",
-        "PARTITION", "PARTITION#L1", "PARTITION#L2", "PARTITION#L3",
-        "PARTITION#L4", "PASSWORD", "PERCENT", "PERCENTILE_CONT",
-        "PERCENTILE_DISC", "PERCENT_RANK", "PERIOD", "PERM", "PLACING",
-        "PORTION", "POSITION", "POSITION_REGEX", "POWER", "PRECISION",
-        "PREPARE", "PRIMARY", "PRIVATE", "PROCEDURE", "PROFILE", "PROTECTED",
-        "QUALIFIED", "QUALIFY", "QUANTILE", "RANGE", "RANK", "READS", "REAL",
-        "RECURSIVE", "REF", "REFERENCES", "REFERENCING", "REGR_AVGX",
-        "REGR_AVGY", "REGR_COUNT", "REGR_INTERCEPT", "REGR_R2", "REGR_SLOPE",
-        "REGR_SXX", "REGR_SXY", "REGR_SYY", "RELEASE", "RENAME", "REPEAT",
-        "REPLACE", "REPLICATION", "REQUEST", "RESIGNAL", "RESTART", "RESTORE",
-        "RESULT", "RETURN", "RETURNS", "REVOKE", "RIGHT", "RIGHTS", "ROLE",
-        "ROLLBACK", "ROLLFORWARD", "ROLLUP", "ROW", "ROWS", "ROW_NUMBER",
-        "SAMPLE", "SAMPLEID", "SCROLL", "SEARCH", "SECOND", "SECONDS", "SEL",
-        "SELECT", "SENSITIVE", "SET", "SETS", "SHOW", "SIGNAL", "SIMILAR",
-        "SIN", "SINH", "SKEW", "SMALLINT", "SOME", "SPECIFIC", "SPECIFICTYPE",
-        "SQL", "SQLEXCEPTION", "SQLSTATE", "SQLTEXT", "SQLWARNING", "SQRT",
-        "SS", "START", "STATS", "STDDEV_POP", "STDDEV_SAMP", "STEPINFO",
-        "STORED", "SUBMULTISET", "SUBSCRIBER", "SUBSET", "SUBSTRING",
-        "SUBSTRING_REGEX", "SUCCEEDS", "SUM", "SUMMARY", "SUSPEND", "SYSTEM",
-        "SYSTEM_TIME", "SYSTEM_USER", "TABLE", "TABLESAMPLE", "THEN", "TIME",
-        "TIMESTAMP", "TIMEZONE_HOUR", "TIMEZONE_MINUTE", "TO", "TRAILING",
-        "TRANSLATE", "TRANSLATE_CHK", "TRANSLATE_REGEX", "TRANSLATION", "TREAT",
-        "TRIGGER", "TRIM", "TRIM_ARRAY", "TRUE", "UESCAPE", "UNBOUNDED",
-        "UNICODE", "UNION", "UNIQUE", "UNKNOWN", "UNNEST", "UNTIL_CHANGED",
-        "UNTIL_CLOSED", "UPD", "UPDATE", "UPPER", "UPPERCASE", "USER", "USING",
-        "VALIDTIME", "VALUE", "VALUES", "VARBYTE",
-        "VARCHAR", "VARGRAPHIC", "VARIANT_TYPE", "VARYING", "VAR_POP",
-        "VAR_SAMP", "VIEW", "VOLATILE",
-        "WAIT", "WHEN", "WHERE", "WHILE", "WIDTH_BUCKET", "WITH", "WITHOUT",
-        "WORK", "XMLPLAN", "YEAR", "ZEROIFNULL", "ZONE"
-    };
-
-#undef LUB__OP_HELPER__
-#define LUB__OP_HELPER__(xcslen, xchar_t) \
-{   const size_t MIN_RESERVEDLEN = 2;  /* Update if min changes. */ \
-    const size_t MAX_RESERVEDLEN = 20; /* Update if max changes. */ \
-    size_t sn = xcslen(s, LUB_MAX_NAMELEN); \
-    if (LUB_SIZE_ERR(sn, LUB_UNTERMINATED)) return LUB_INT_ERR(LUB_NAME_TOO_LONG, 0); \
-    if (LUB_SIZE_ERR(sn, 0)) return LUB_INT_ERR(sn, 0); \
-    if (!sn) return LUB_INT_ERR(LUB_NAME_INVALID, 0); \
-    /* Check if s is all spaces. */ \
-    const xchar_t *ss = s; \
-    for (; *ss; ss++) if (*ss != ' ') break; \
-    if (!*ss) return LUB_INT_ERR(LUB_NAME_INVALID, 0); \
-    /* Check if name is reserved */ \
-    if (sn < MIN_RESERVEDLEN || sn > MAX_RESERVEDLEN) return (int)0; \
+  { const size_t MIN_RESERVEDLEN = 2;  /* Update if min changes. */
+    const size_t MAX_RESERVEDLEN = 20; /* Update if max changes. */
+    size_t sn = xs == 'u' ?
+                ucsnlen(s, LUB_MAX_NAMELEN) :
+                lcsnlen(s, LUB_MAX_NAMELEN);
+    if (LUB_SIZE_ERR(sn, LUB_UNTERMINATED))
+      return LUB_INT_ERR(LUB_NAME_TOO_LONG, 0);
+    if (LUB_SIZE_ERR(sn, 0))
+      return LUB_INT_ERR(sn, 0);
+    if (!sn) // Null or empty string is not a valid name.
+      return LUB_INT_ERR(LUB_NAME_INVALID, 0);
+    // All spaces is not a a valid name.
+    if (xs == 'u')
+    { const uchar_t *us = (const uchar_t *)s;   
+      for (; *us; ++us) if (*us != (uchar_t)' ') break;
+      if (!*us) return LUB_INT_ERR(LUB_NAME_INVALID, 0);
+    }
+    else
+    { const lchar_t *ls = s;
+      for (; *ls; ++ls) if (*ls != (lchar_t)' ') break;
+      if (!*ls) return LUB_INT_ERR(LUB_NAME_INVALID, 0);
+    }
+    // Check if name is reserved.
+    if (sn < MIN_RESERVEDLEN || sn > MAX_RESERVEDLEN) return (int)0;
     size_t lo = 0; \
-    size_t hi = (sizeof(LUB__TD_RESERVED_WORDS__) \
-                / sizeof(LUB__TD_RESERVED_WORDS__[0])); \
-    while (lo < hi) \
-    { const size_t mid = lo + ((hi - lo) / 2); \
-      const char *rw = LUB__TD_RESERVED_WORDS__[mid]; \
-      int cmp; \
-      for (ss = s; ; rw++, ss++) \
-      { if (!*rw && !*ss) return (int)1; \
-        if (*ss > LUB_MAX_LCHAR) return (int)0; \
-        char c = (char)toupper((unsigned char)*ss); \
-        if (c < *rw) {cmp = -1; break;} \
-        if (c > *rw) {cmp = 1; break;} \
-      } \
-      if (cmp < 0) hi = mid; \
-      else lo = mid + 1; \
-    } \
-    return (int)0; \
+    size_t hi = sizeof(reserved) / sizeof(reserved[0]);
+    while (lo < hi)
+    { const size_t mid = lo + ((hi - lo) / 2);
+      // Compare s to reserved word r. Comparison is case-insensitive.                       
+      const char *r = reserved[mid];
+      int cmp;
+      if (xs == 'u')
+      { const uchar_t *us = (const uchar_t *)s;
+        for (; ; ++r, ++us)
+        { if (!*r && !*us) {cmp = 0; break;}
+          if (*us > LUB_MAX_LCHAR) {cmp = 0; break;}
+          const uchar_t c = uutoupper(*us);
+          if (c < (uchar_t)*r) {cmp = -1; break;}
+          if (c > (uchar_t)*r) {cmp = 1; break;}
+        }
+      }
+      else
+      { const lchar_t *ls = s;
+        for (; ; ++r, ++ls)
+        { if (!*r && !*ls) {cmp = 0; break;}
+          if (*ls > LUB_MAX_LCHAR) {cmp = 0; break;}
+          const lchar_t c = lltoupper(*ls);
+          if (c < *r) {cmp = -1; break;}
+          if (c > *r) {cmp = 1; break;}
+        }
+      }
+      if (cmp == 0) return (int)1;
+      if (cmp < 0) hi = mid;
+      else lo = mid + 1;
+    }
+    return (int)0;
 }
 
-#endif // LUB_DEFINITIONS
-
-extern
+static inline
 int islreserved
 ( const lchar_t *s )
-#if defined(LUB_DEFINITIONS)
-LUB__OP_HELPER__(lcsnlen, lchar_t)
-#else
-;
-#endif // LUB_DEFINITIONS
+{ return LUB__is_reserved_helper('l', s);}
 
-extern
+static inline
 int isureserved
 ( const uchar_t *s )
-#if defined(LUB_DEFINITIONS)
-LUB__OP_HELPER__(ucsnlen, uchar_t)
-#else
-;
-#endif // LUB_DEFINITIONS
+{ return LUB__is_reserved_helper('u', s);}
 
 extern
 int islqname
@@ -1756,6 +1787,8 @@ int isuqname
 #else
 ;
 #endif // LUB_DEFINITIONS
+
+/** @} */
 
 /**
  * @defgroup OptionValidation Option Validation
@@ -1816,230 +1849,234 @@ int isuqname
  * @{
  */
 
-#if defined(LUB_DEFINITIONS)
-// Trunc, Trim, Pad, and Needle Option Validation macro helper.
-#undef LUB__OP_HELPER__
-#define LUB__OP_HELPER__(opt, xcsnlen, s_max, mode) \
-{   if (LUB_PTR_ERR(s, 0)) return LUB_INT_ERR(LUB_PTR_INVALID, 0); \
-    size_t sn = xcsnlen(s, s_max); \
-    if (LUB_SIZE_ERR(sn, 0)) return LUB_INT_ERR(sn, 0); \
-    if (!sn || opt == 4 /*needlestr*/) return (int)1; \
-    int c = *s; \
-    if (islalpha(c)) \
-        { if (!strchr(mode, toupper(c))) return LUB_INT_ERR(LUB_OPT_RESERVED, 0); \
-      s++; \
-    } \
-    return opt != 3 /*padstr*/  || !*s? (int)1 : \
-                     *(s+1) ? LUB_INT_ERR(LUB_OPT_TOO_LONG, 0) : (int)1; \
+// Trunc, Trim, Pad, and Needle Option Validation helper function.
+
+extern
+int LUB__is_option_helper
+( const char opt, const char xs, const lchar_t *s, const char *mode )
+// opt: 1=trunc, 2=trim, 3=pad, 4=needle; xs: 'l' or 'u'.
+{ if (LUB_PTR_ERR(s, 0)) return LUB_INT_ERR(LUB_PTR_INVALID, 0);
+  const uchar_t *us = (const uchar_t *)s;
+  const size_t sn = xs == 'u' ?
+                    ucsnlen(us, LUB_MAX_UOPTLEN) :
+                    lcsnlen(s, LUB_MAX_LOPTLEN);
+  if (LUB_SIZE_ERR(sn, 0)) return LUB_INT_ERR(sn, 0);
+  if (!sn || opt == 4 /*needlestr*/) return (int)1;
+  int c = xs == 'u' ? (int)(*us) : (int)*s;
+  if (islalpha(c))
+  { if (!strchr(mode, toupper(c)))
+      return LUB_INT_ERR(LUB_OPT_RESERVED, 0);
+    if (xs == 'u') ++us; else ++s;
+  }
+  if (opt < 3 /*not pad*/) return (int)1;
+  /* pad: at most one character after optional mode letter. */ 
+  if (xs == 'u')
+  { if (!*us) return (int)1;
+    if (!*(us+1)) return (int)1;
+  }
+  else
+  { if (!*s) return (int)1;
+    if (!*(s+1)) return (int)1;
+  }
+  return LUB_INT_ERR(LUB_OPT_TOO_LONG, 0);
 }
-#endif // LUB_DEFINITIONS
 
-extern int isltruncstr(const lchar_t *s)
-#if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, lcsnlen, LUB_MAX_LOPTLEN, "LRCB")
-#else
-    ;
-#endif // LUB_DEFINITIONS
+static inline
+int isltruncstr
+( const lchar_t *s )
+{ return LUB__is_option_helper(1, 'l', s, "LRCB"); }
 
-extern int isutruncstr(const uchar_t *s)
-#if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, ucsnlen, LUB_MAX_UOPTLEN, "LRCB")
-#else
-    ;
-#endif // LUB_DEFINITIONS
+static inline
+int isutruncstr
+( const uchar_t *s )
+{ return LUB__is_option_helper(1, 'u', (lchar_t *)s, "LRCB"); }
 
-extern int isltrimstr(const lchar_t *s)
-#if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(2,lcsnlen, LUB_MAX_LOPTLEN, "LRB")
-#else
-    ;
-#endif // LUB_DEFINITIONS
+static inline
+int isltrimstr
+( const lchar_t *s )
+{ return LUB__is_option_helper(2, 'l', s, "LRB"); }
 
-extern int isutrimstr(const uchar_t *s)
-#if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(2, ucsnlen, LUB_MAX_UOPTLEN, "LRB")
-#else
-    ;
-#endif // LUB_DEFINITIONS
+static inline 
+int isutrimstr
+( const uchar_t *s )
+{ return LUB__is_option_helper(2, 'u', (lchar_t *)s, "LRB"); }
 
-extern int islpadstr(const lchar_t *s)
-#if defined(LUB_DEFINITIONS)
-{    LUB__OP_HELPER__(3, lcsnlen, LUB_MAX_LOPTLEN, "LRB")
-    
-}
-#else
-    ;
-#endif // LUB_DEFINITIONS
+static inline
+int islpadstr
+( const lchar_t *s)
+{ return LUB__is_option_helper(3, 'l', s, "LRB"); }
 
-extern int isupadstr(const uchar_t *s)
-#if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(3, ucsnlen, LUB_MAX_UOPTLEN, "LRB")
-#else
-    ;
-#endif // LUB_DEFINITIONS
+static inline
+int isupadstr
+( const uchar_t *s  )
+{ return LUB__is_option_helper(3, 'u', (lchar_t *)s, "LRB"); }
 
-extern int islneedlestr(const lchar_t *s)
-#if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(4, lcsnlen, LUB_MAX_LOPTLEN, "")
-#else
-    ;
-#endif // LUB_DEFINITIONS
+static inline
+int islneedlestr
+( const lchar_t *s )
+{ return LUB__is_option_helper(4, 'l', s, ""); }
 
-extern int isuneedlestr(const uchar_t *s)
-#if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(4, ucsnlen, LUB_MAX_UOPTLEN, "")
-#else
-    ;
-#endif // LUB_DEFINITIONS
+static inline
+int isuneedlestr
+( const uchar_t *s )
+{ return LUB__is_option_helper(4, 'u', (lchar_t *)s, ""); }
+
 /** @} */
 
 /**
  * @defgroup Compare Compare
- * @name llsncmp, lusncmp, ulsncmp, uusncmp (case-sensitive)
- *       llsnCMP, lusnCMP, ulsnCMP, uusnCMP (case-insensitive)
- *       bbsncmp
+ * @name llsnncmp, lusnncmp, ulsnncmp, uusnncmp (case-sensitive)
+ *       llsnnCMP, lusnnCMP, ulsnnCMP, uusnnCMP (case-insensitive)
+ *       bbsnncmp
  * @brief Comparison of two strings.
  * @param s1 First source string.
  * @param s2 Second source string.
- * @param sn Bound on both strings (clamped to LUB_MAX_LSTRLEN
- *           or LUB_MAX_USTRLEN) for bounded functions only.
- *           Default-bounded functions use LUB_MAX_LSTRLEN
- *           or LUB_MAX_USTRLEN.
+ * @param s1n Bound on string s1. Clamped to LUB_MAX_LSTRLEN
+ *            or LUB_MAX_USTRLEN).
+ * @param s2n Bound on string s1. Clamped to LUB_MAX_LSTRLEN
+ *            or LUB_MAX_USTRLEN).
  * @return -1 (s1 < s2), 0 (equal), 1 (s1 > s2), or error,
  *
  * @note Errors:
- *       - (int)LUB_PTR_INVALID if s1 or s2 is an invalid pointer.
- *       - (int)LUB_UNTERMINATED if s1 or s2 is not null-terminated.
+ * - (int)LUB_PTR_INVALID if s1 or s2 is an invalid pointer.
+ * - (int)LUB_UNTERMINATED if s1 or s2 is not null-terminated.
  * @{
  */
 
-#if defined(LUB_DEFINITIONS)
-// Compare macro helper.
-#undef LUB__OP_HELPER__
-#define LUB__OP_HELPER__(s1_max_xstrlen, s2_max_xstrlen, \
-                          s1_c, s2_c, s1_C, s2_C) \
-{   if (LUB_PTR_ERR(s1, 0) || LUB_PTR_ERR(s2, 0)) \
-      return LUB_INT_ERR(LUB_PTR_INVALID, 0); \
-    if (!s1 && !s2) return LUB_CMP_EQUAL; \
-    if (!s1) \
-      return (!s2 || !*s2) ? LUB_CMP_EQUAL : LUB_CMP_LESS_THAN; \
-    if (!s2) \
-      return (!*s1) ? LUB_CMP_EQUAL : LUB_CMP_GREATER_THAN; \
-    size_t s1_sn = sn > s1_max_xstrlen ? s1_max_xstrlen : sn; \
-    size_t s2_sn = sn > s2_max_xstrlen ? s2_max_xstrlen : sn; \
-    int c1 = 0, c2 = 0; \
-    for (; s1_sn && *s1 && s2_sn && *s2; \
-         s1_sn--, s2_sn--, s1++, s2++) { \
-      c1 = (s1_C) >= 0 && (size_t)(s1_C) <= LUB_MAX_UCHAR ? \
-           (int)(s1_C) : (int)(s1_c); \
-      c2 = (s2_C) >= 0 && (size_t)(s2_C) <= LUB_MAX_UCHAR ? \
-           (int)(s2_C) : (int)(s2_c); \
-      if (c1 != c2) break; \
-    } \
-    if ((!s1_sn && *s1) || (!s2_sn && *s2)) \
-      return LUB_INT_ERR(LUB_UNTERMINATED, 0); \
-    if (!*s1 && !*s2) return LUB_CMP_EQUAL; \
-    return c1 < c2 ? \
-           LUB_CMP_LESS_THAN : LUB_CMP_GREATER_THAN; \
+extern
+int LUB__cmp_helper
+( const char xs1, lchar_t *s1, size_t s1n,
+  const char xs2, lchar_t *s2, size_t s2n,
+  const char Case
+)
+{ const uchar_t *us1 = (const uchar_t *)s1;
+  const uchar_t *us2 = (const uchar_t *)s2;
+    
+  s1n = xs1 == 'u' ?
+        ucsnlen(us1, s1n > LUB_MAX_USTRLEN ? LUB_MAX_USTRLEN : s1n) :
+        lcsnlen(s1, s1n > LUB_MAX_LSTRLEN ? LUB_MAX_LSTRLEN : s1n);
+  if (LUB_SIZE_ERR(s1n, 0)) return LUB_INT_ERR(s1n, 0);
+
+  s2n = xs2 == 'u' ?
+        ucsnlen(us2, s2n > LUB_MAX_USTRLEN ? LUB_MAX_USTRLEN : s2n) :
+        lcsnlen(s2, s2n > LUB_MAX_LSTRLEN ? LUB_MAX_LSTRLEN : s2n);
+  if (LUB_SIZE_ERR(s2n, 0)) return LUB_INT_ERR(s2n, 0);
+
+  if (!s1n && !s2n) return LUB_CMP_EQUAL;
+  if (!s1n)
+    return !s2n ?
+           LUB_CMP_EQUAL : LUB_CMP_LESS_THAN;
+  if (!s2n)
+    return !s1n ?
+           LUB_CMP_EQUAL : LUB_CMP_GREATER_THAN;
+          
+  int c1 = 0; int c2 = 0;
+
+  if (xs1 == 'l' && xs2 == 'l' && Case == 's')
+    for (; s1n && s2n; --s1n, --s2n, ++s1, ++s2)
+    { c1 = (int)*s1; c2 = (int)*s2;
+      if (c1 != c2) break;
+    }
+  else if (xs1 == 'l' && xs2 == 'l' && Case == 'i')
+    for (; s1n && s2n; --s1n, --s2n, ++s1, ++s2)
+    { c1 = toupper((int)*s1); c2 = toupper((int)*s2);
+      if (c1 != c2) break;
+    }
+  else if (xs1 == 'l' && xs2 == 'u' && Case == 's')
+   for (; s1n && s2n; --s1n, --s2n, ++s1, ++us2)
+    { c1 = (int)*s1; c2 = (int)*us2;
+      if (c1 != c2) break;
+    } 
+  else if (xs1 == 'l' && xs2 == 'u' && Case == 'i')
+    for (; s1n && s2n;
+         --s1n, --s2n, ++s1, ++us2)
+    { c1 = toupper((int)*s1); c2 = uutoupper((int)*us2);
+      if (c1 != c2) break;
+    }
+  else if (xs1 == 'u' && xs2 == 'l' && Case == 's')
+    for (; s1n && s2n; --s1n, --s2n, ++us1, ++s2)
+    { c1 = (int)*us1; c2 = (int)*s2;
+      if (c1 != c2) break;
+    }
+  else if (xs1 == 'u' && xs2 == 'l' && Case == 'i')
+    for (; s1n && s2n;  --s1n, --s2n, ++us1, ++s2)
+    { c1 = uutoupper((int)*us1); c2 = toupper((int)*s2);
+      if (c1 != c2) break;
+    }
+  else if (xs1 == 'u' && xs2 == 'u' && Case == 's')
+    for (; s1n && s2n; --s1n, --s2n, ++us1, ++us2)
+    { c1 = (int)*us1; c2 = (int)*us2;
+      if (c1 != c2) break;
+    }
+  else // if (xs1 == 'u' && xs2 == 'u' && Case == 'i')
+    for (; s1n && s2n; --s1n, --s2n, ++us1, ++us2)
+    { c1 = uutoupper((int)*us1); c2 = uutoupper((int)*us2);
+      if (c1 != c2) break;
+    }
+  if (!s1n && !s2n) return LUB_CMP_EQUAL;
+  return c1 < c2 ?
+         LUB_CMP_LESS_THAN : LUB_CMP_GREATER_THAN;
 }
-#else
-    ;
-#endif // LUB_DEFINITIONS
 
-// compare case-sensitive.
-extern int llsncmp(const lchar_t *s1, const lchar_t *s2, size_t sn)
+// Compare case-sensitive.
+
+static inline
+int llsnncmp
+( const lchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
+{ return LUB__cmp_helper('l', s1, s1n, 'l', s2, s2n, 's'); }
+
+static inline
+int lusnncmp
+( const lchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
+{ return LUB__cmp_helper('l', s1, s1n, 'u', (lchar_t*)s2, s2n, 's'); }
+
+static inline
+int ulsnncmp
+( const uchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
+{ return LUB__cmp_helper('u', (lchar_t*)s1, s1n, 'l', s2, s2n, 's'); }
+
+static inline
+int uusnncmp
+( const uchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
+{ return LUB__cmp_helper('u', (lchar_t*)s1, s1n, 'u', (lchar_t*)s2, s2n, 's'); }
+
+// Compare case-insensitive.
+
+static inline
+int llsnnCMP
+( const lchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
+{ return LUB__cmp_helper('l', s1, s1n, 'l', s2, s2n, 'i'); }
+
+static inline
+int lusnnCMP
+( const lchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
+{ return LUB__cmp_helper('l', s1, s1n, 'u', (lchar_t*)s2, s2n, 'i'); }
+
+static inline
+int ulsnnCMP
+( const uchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
+{ return LUB__cmp_helper('u', (lchar_t*)s1, s1n, 'l', s2, s2n, 'i'); }
+
+static inline
+int uusnnCMP
+( const uchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
+{ return LUB__cmp_helper('u', (lchar_t*)s1, s1n, 'u', (lchar_t*)s2, s2n, 'i'); }
+
+/** @} */
+
+extern
+int bbsnncmp
+( const byte_t *s1, const byte_t *s2, size_t sn )
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(LUB_MAX_LSTRLEN, LUB_MAX_LSTRLEN,
-                      (wint_t)(unsigned char)(*s1),
-                      (wint_t)(unsigned char)(*s2),
-                      (wint_t)(unsigned char)(*s1),
-                      (wint_t)(unsigned char)(*s2))
-#else
-    ;
-#endif // LUB_DEFINITIONS
-
-extern int lusncmp(const lchar_t *s1, const uchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(LUB_MAX_LSTRLEN, LUB_MAX_USTRLEN,
-                      (wint_t)(unsigned char)(*s1),
-                      (wint_t)(unsigned short)(*s2),
-                      (wint_t)(unsigned char)(*s1),
-                      (wint_t)(unsigned short)(*s2))
-#else
-    ;
-#endif // LUB_DEFINITIONS
-
-extern int ulsncmp(const uchar_t *s1, const lchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(LUB_MAX_USTRLEN, LUB_MAX_LSTRLEN,
-                      (wint_t)(unsigned short)(*s1),
-                      (wint_t)(unsigned char)(*s2),
-                      (wint_t)(unsigned short)(*s1),
-                      (wint_t)(unsigned char)(*s2))
-#else
-    ;
-#endif // LUB_DEFINITIONS
-
-extern int uusncmp(const uchar_t *s1, const uchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(LUB_MAX_USTRLEN, LUB_MAX_USTRLEN,
-                      (wint_t)(unsigned short)(*s1),
-                      (wint_t)(unsigned short)(*s2),
-                      (wint_t)(unsigned short)(*s1),
-                      (wint_t)(unsigned short)(*s2))
-#else
-    ;
-#endif // LUB_DEFINITIONS
-
-// compare case-insensitive.
-extern int llsnCMP(const lchar_t *s1, const lchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(LUB_MAX_LSTRLEN, LUB_MAX_LSTRLEN,
-                      (wint_t)(unsigned char)(*s1),
-                      (wint_t)(unsigned short)(*s2),
-                      (wint_t)toupper((int)(unsigned char)(*s1)),
-                      (wint_t)towupper((wint_t)(unsigned short)(*s2)))
-#else
-    ;
-#endif // LUB_DEFINITIONS
-
-extern int lusnCMP(const lchar_t *s1, const uchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(LUB_MAX_LSTRLEN, LUB_MAX_USTRLEN,
-                      (wint_t)(unsigned char)(*s1),
-                      (wint_t)(unsigned short)(*s2),
-                      (wint_t)toupper((int)(unsigned char)(*s1)),
-                      (wint_t)towupper((wint_t)(unsigned short)(*s2)))
-#else
-    ;
-#endif // LUB_DEFINITIONS
-
-extern int ulsnCMP(const uchar_t *s1, const lchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(LUB_MAX_USTRLEN, LUB_MAX_LSTRLEN,
-                      (wint_t)(unsigned short)(*s1),
-                      (wint_t)(unsigned char)(*s2),
-                      (wint_t)towupper((wint_t)(unsigned short)(*s1)),
-                      (wint_t)toupper((int)(unsigned char)(*s2)))
-#else
-    ;
-#endif // LUB_DEFINITIONS
-
-extern int uusnCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
-#if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(LUB_MAX_USTRLEN, LUB_MAX_USTRLEN,
-                      (wint_t)(unsigned char)(*s1),
-                      (wint_t)(unsigned short)(*s2),
-                      (wint_t)towupper((wint_t)(unsigned short)(*s1)),
-                      (wint_t)towupper((wint_t)(unsigned short)(*s2)))
-#else
-    ;
-#endif // LUB_DEFINITIONS
-
-/**
- * @todo byte to byte compare
- * @{
- */
+{ if (LUB_PTR_ERR(s1, 0) || LUB_PTR_ERR(s2, 0))
+    return LUB_INT_ERR(LUB_PTR_INVALID, 0);
+  for (; sn; --sn, ++s1, ++s2)
+  { if (*s1 != *s2)
+      return *s1 < *s2 ?
+             LUB_CMP_LESS_THAN : LUB_CMP_GREATER_THAN;
+  }
+  return LUB_CMP_EQUAL;
+}
 
 /** @} */
 
@@ -2499,7 +2536,9 @@ extern int ulsnSFXCMP(const uchar_t *s1, const lchar_t *s2, size_t sn)
     ;
 #endif // LUB_DEFINITIONS
 
-extern int uusnSFXCMP(const uchar_t *s1, const uchar_t *s2, size_t sn)
+extern
+int uusnSFXCMP
+( const uchar_t *s1, const uchar_t *s2, size_t sn )
 #if defined(LUB_DEFINITIONS)
    LUB__OP_HELPER__(ucsnlen, ucsnlen,
                      LUB_MAX_USTRLEN, LUB_MAX_USTRLEN,
@@ -2645,6 +2684,7 @@ const uchar_t *uusnptrim
 #else
     ;
 #endif // LUB_DEFINITIONS for uusnptrim.
+
 /** @} */
 
 /**
