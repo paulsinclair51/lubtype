@@ -2894,49 +2894,78 @@ lchar_t *LUB__strm_helper
 // String search (case-sensitive).
 
 static inline
-lchar_t *llsnstrm(
-    const lchar_t *s1, const lchar_t *const s2, size_t sn,
-    const lchar_t delim, const int m)
-{ return (lchar_t *)LUB__strm_helper('l', s1, sn, 'l', s2, (int)delim, m, 's'); }
+lchar_t *llsnstrm
+( const lchar_t *s1, const lchar_t *const s2, size_t sn,
+  const lchar_t delim, const int m
+)
+{ return (lchar_t *)LUB__strm_helper
+           ('l', s1, sn,
+            'l', s2, (int)delim, m, 's'); }
 
 static inline
-lchar_t *lusnstrm(
-    const lchar_t *s1, const uchar_t *const s2, size_t sn,
-    const uchar_t delim, const int m)
-{ return (lchar_t *)LUB__strm_helper('l', s1, sn, 'u', (const lchar_t *)s2, (int)delim, m, 's'); }
+lchar_t *lusnstrm
+( const lchar_t *s1, const uchar_t *const s2, size_t sn,
+  const uchar_t delim, const int m
+)
+{ return (lchar_t *)LUB__strm_helper
+           ('l', s1, sn,
+            'u', (const lchar_t *)s2, (int)delim, m, 's'); }
 
 static inline
-uchar_t *ulsnstrm(
-    const uchar_t *s1, const lchar_t *const s2, size_t sn,
-    const lchar_t delim, const int m)
-{ return (uchar_t *)LUB__strm_helper('u', (const lchar_t *)s1, sn, 'l', s2, (int)delim, m, 's'); }
+uchar_t *ulsnstrm
+( const uchar_t *s1, const lchar_t *const s2, size_t sn,
+  const lchar_t delim, const int m
+)
+{ return (uchar_t *)LUB__strm_helper
+           ('u', (const lchar_t *)s1, sn,
+            'l', s2, (int)delim, m, 's'); }
 
-static inline uchar_t *uusnstrm(
-    const uchar_t *const s1, const uchar_t *const s2, size_t sn,
-    const uchar_t delim, const int m)
-{ return (uchar_t *)LUB__strm_helper('u', (const lchar_t *)s1, sn, 'u', (const lchar_t *)s2, (int)delim, m, 's'); }
+static inline
+uchar_t *uusnstrm
+( const uchar_t *const s1, const uchar_t *const s2, size_t sn,
+  const uchar_t delim, const int m
+)
+{ return (uchar_t *)LUB__strm_helper
+           ('u', (const lchar_t *)s1, sn,
+            'u', (const lchar_t *)s2, (int)delim, m, 's'); }
 
 // String search (case-insensitive).
 
-static inline lchar_t *llsnSTRM(
-    const lchar_t *s1, const lchar_t *const s2, size_t sn,
-    const lchar_t delim, const int m)
-{ return (lchar_t *)LUB__strm_helper('l', s1, sn, 'l', s2, (int)delim, m, 'i'); }
+static inline
+lchar_t *llsnSTRM
+( const lchar_t *s1, const lchar_t *const s2, size_t sn,
+  const lchar_t delim, const int m
+)
+{ return (lchar_t *)LUB__strm_helper
+           ('l', s1, sn,
+            'l', s2, (int)delim, m, 'i'); }
 
-static inline lchar_t *lusnSTRM(
-    const lchar_t *s1, const uchar_t *const s2, size_t sn,
-    const uchar_t delim, const int m)
-{ return (lchar_t *)LUB__strm_helper('l', s1, sn, 'u', (const lchar_t *)s2, (int)delim, m, 'i'); }
+static inline
+lchar_t *lusnSTRM
+( const lchar_t *s1, const uchar_t *const s2, size_t sn,
+    const uchar_t delim, const int m
+)
+{ return (lchar_t *)LUB__strm_helper
+           ('l', s1, sn, 'u',
+            (const lchar_t *)s2, (int)delim, m, 'i'); }
 
-static inline uchar_t *ulsnSTRM(
-    const uchar_t *s1, const lchar_t *const s2, size_t sn,
-    const lchar_t delim, const int m)
-{ return (uchar_t *)LUB__strm_helper('u', (const lchar_t *)s1, sn, 'l', s2, (int)delim, m, 'i'); }
+static inline
+uchar_t *ulsnSTRM
+( const uchar_t *s1, const lchar_t *const s2, size_t sn,
+  const lchar_t delim, const int m
+)
+{ return (uchar_t *)LUB__strm_helper
+           ('u', (const lchar_t *)s1, sn,
+            'l', s2, (int)delim, m, 'i'); }
 
-static inline uchar_t *uusnSTRM(
-    const uchar_t *s1, const uchar_t *const s2, size_t sn,
-    const uchar_t delim, const int m)
-{ return (uchar_t *)LUB__strm_helper('u', (const lchar_t *)s1, sn, 'u', (const lchar_t *)s2, (int)delim, m, 'i'); }
+static inline
+uchar_t *uusnSTRM
+( const uchar_t *s1, const uchar_t *const s2, size_t sn,
+  const uchar_t delim, const int m
+)
+{ return (uchar_t *)LUB__strm_helper
+           ('u', (const lchar_t *)s1, sn,
+            'u', (const lchar_t *)s2, (int)delim, m, 'i'); }
 /** @} */
 
 /**
