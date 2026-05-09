@@ -2744,25 +2744,27 @@ LUB__OP_HELPER__(uchar_t, LUB_MAX_USTRLEN, ucsnlen,
  *       llsnSTRM, lusnSTRM, ulsnSTRM, uusnSTRM (case-insensitive)
  * @brief Search for the mth occurrence of a needle substring or a needle
  *        character in string s1.
- * @param s1 Pointer to Haystack string.
+ * @param s1 Pointer to string (haystack) to search.
+ *           If NULL, treated as 0-length string.
+ * @param s1n Bound on s1. Clamped to LUB_MAX_LSTRLEN or
+ *            LUB_MAX_USTRLEN.
  * @param s2 Pointer to string of needle substrings separated by delim or 
- *           string of needle characters.
+ *           string of needle characters if delim is the null character.
+ *           Implicitly, clamped to LUB_MAX_LOPTLEN or LUB_MAX_UOPTLEN.
  * 
  *           A zero-length needle substring is treated as a match
  *           for a zero-length string s1 if m is -1 or 1, otherwise,
  *           there is no match for this needle substring.
  * 
- *           If delim is a null character and s2 is zero-length,
+ *           If delim is the null character and s2 is zero-length,
  *           there is no match to s1.
- * @param sn Bound on s1 and s2 (clamped to LUB_MAX_LSTRLEN or
- *           LUB_MAX_USTRLEN).
  * @param delim Delimiter character (case-sensitive) for needle substrings.
- *              If null character, indicates
+ *              If delim is the null character, indicates
  *              s2 is a string of needle characters.
  * @param m Occurrence index (1 = first, 2 = second, ...). 0 returns NULL.
  *          mth occurrence of any needle substring or needle character.
  *          m > 0 counts from the
- *          beginning of the string (1 means first occurrence).
+ *          beginning of the haystack (1 means first occurrence).
  *          m == 0 returns NULL. m < 0 counts from the end of the string
  *          (-1 means last occurrence) when the operation
  *          supports reverse selection.
@@ -2781,6 +2783,7 @@ LUB__OP_HELPER__(uchar_t, LUB_MAX_USTRLEN, ucsnlen,
  */
 
 #if defined(LUB_DEFINITIONS)
+
 static inline int LUB__search_char_lcl
 ( const char xs, const lchar_t *s, const uchar_t *us,
   const size_t i, const char Case
@@ -2788,14 +2791,12 @@ static inline int LUB__search_char_lcl
 { int c = xs == 'u' ? (int)us[i] : (int)s[i];
   return Case == 'i' ? (xs == 'u' ? uutoupper(c) : lltoupper(c)) : c;
 }
-#endif // LUB_DEFINITIONS for LUB__search_char_lcl.
 
-extern
-lchar_t *LUB__strm_helper
-( const char xs1, const lchar_t *s1, size_t sn,
-  const char xs2, const lchar_t *s2,
-  const int delim, const int m,
-  const char Case
+static
+size_t LUB__match_count_lcl
+( const char xs1, const lchar_t *s1, size_t *s1n_ptr,
+  const char xs2, const lchar_t *s2, size_t *s2_n_ptr,
+  const int delim, const char Case
 )
 #if defined(LUB_DEFINITIONS)
 { const uchar_t *us1 = (const uchar_t *)s1;
@@ -2804,27 +2805,95 @@ lchar_t *LUB__strm_helper
   if (xs1 != 'l' && xs1 != 'u' ||
       xs2 != 'l' && xs2 != 'u' ||
       Case != 's' && Case != 'i')
-    return (lchar_t *)LUB_PTR_ERR(LUB_INTERNAL_ERROR, 0);
+    return LUB_SIZE_ERR(LUB_INTERNAL_ERROR, 0);
 
-  if (LUB_PTR_ERR(s1, 0)) return (lchar_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0);
-  sn = xs1 == 'u' ?
-       ucsnlen(us1, sn > LUB_MAX_USTRLEN ? LUB_MAX_USTRLEN : sn) :
-       lcsnlen(s1, sn > LUB_MAX_LSTRLEN ? LUB_MAX_LSTRLEN : sn);
-  if (LUB_SIZE_ERR(sn, 0)) return (lchar_t *)LUB_PTR_ERR(sn, 0);
+  if (LUB_PTR_ERR(s1, 0)) return LUB_SIZE_ERR(LUB_PTR_INVALID, 0);
+  *s1n_ptr = xs1 == 'u' ?
+       ucsnlen(us1, *s1n_ptr > LUB_MAX_USTRLEN ? LUB_MAX_USTRLEN : *s1n_ptr) :
+       lcsnlen(s1, *s1n_ptr > LUB_MAX_LSTRLEN ? LUB_MAX_LSTRLEN : *s1n_ptr);
+  if (LUB_SIZE_ERR(*s1n_ptr, 0)) return *s1n_ptr;
 
   int isneedlestr = xs2 == 'u' ?
                     isuneedlestr(us2) :
                     islneedlestr(s2);
   if (LUB_INT_ERR(isneedlestr, 0))
-    return (lchar_t *)LUB_PTR_ERR(isneedlestr, 0);
+    return LUB_SIZE_ERR(isneedlestr, 0);
+
+  *s2_n_ptr = 0;
+  if (xs2 == 'u')
+    for (; us2[*s2_n_ptr]; ++(*s2_n_ptr));
+  else
+    for (; s2[*s2_n_ptr]; ++(*s2_n_ptr));
+
+  if (!*s2_n_ptr) return (size_t)0;
+
+  size_t s1n = *s1n_ptr;
+  size_t s2_n = *s2_n_ptr;
+  size_t total_count = 0;
+
+  if (!delim)
+  { /* Character-set mode: count occurrences of each character in s2 within s1 */
+    for (size_t j = 0; j < s2_n; ++j)
+    { int needle_char = LUB__search_char_lcl(xs2, s2, us2, j, Case);
+      for (size_t i = 0; i < s1n; ++i)
+      { int s1_char = LUB__search_char_lcl(xs1, s1, us1, i, Case);
+        if (s1_char == needle_char)
+          ++total_count;
+      }
+    }
+  }
+  else
+  { /* Token mode: parse delim-separated tokens and count each */
+    size_t seg = 0;
+    for (; seg <= s2_n; )
+    { size_t end = seg;
+      while (end < s2_n)
+      { int cd = LUB__search_char_lcl(xs2, s2, us2, end, 's');
+        if (cd == delim) break;
+        ++end;
+      }
+      size_t tok_n = end - seg;
+      if (!tok_n)
+      { if (!s1n)
+          ++total_count;
+      }
+      else if (tok_n <= s1n)
+      { for (size_t i = 0; i <= s1n - tok_n; ++i)
+        { size_t k = 0;
+          for (; k < tok_n; ++k)
+          { int c1 = LUB__search_char_lcl(xs1, s1, us1, i + k, Case);
+            int c2 = LUB__search_char_lcl(xs2, s2, us2, seg + k, Case);
+            if (c1 != c2) break;
+          }
+          if (k == tok_n)
+            ++total_count;
+        }
+      }
+      seg = end + 1;
+    }
+  }
+
+  return total_count;
+}
+
+#endif // LUB_DEFINITIONS for strm/cnt lcl functions.
+
+extern
+lchar_t *LUB__strm_helper
+( const char xs1, const lchar_t *s1, size_t s1n,
+  const char xs2, const lchar_t *s2,
+  const int delim, const int m,
+  const char Case
+)
+#if defined(LUB_DEFINITIONS)
+{ const uchar_t *us1 = (const uchar_t *)s1;
+  const uchar_t *us2 = (const uchar_t *)s2;
 
   if (!m) return (lchar_t *)NULL;
 
-  size_t s2_n = 0;
-  if (xs2 == 'u')
-    for (; us2[s2_n]; ++s2_n);
-  else
-    for (; s2[s2_n]; ++s2_n);
+  size_t s2_n = s1n;
+  size_t total_count = LUB__match_count_lcl(xs1, s1, &s1n, xs2, s2, &s2_n, delim, Case);
+  if (LUB_SIZE_ERR(total_count, 0)) return (lchar_t *)LUB_PTR_ERR(total_count, 0);
 
   if (!delim && !s2_n) return (lchar_t *)NULL;
 
@@ -2833,7 +2902,7 @@ lchar_t *LUB__strm_helper
   for (; pass < 2; ++pass)
   { size_t count = 0;
     if (!delim)
-    { for (size_t i = 0; i < sn; ++i)
+    { for (size_t i = 0; i < s1n; ++i)
       { for (size_t k = 0; k < s2_n; ++k)
         { int c1 = LUB__search_char_lcl(xs1, s1, us1, i, Case);
           int c2 = LUB__search_char_lcl(xs2, s2, us2, k, Case);
@@ -2856,13 +2925,13 @@ lchar_t *LUB__strm_helper
         }
         size_t tok_n = end - seg;
         if (!tok_n)
-        { if (!sn && (m == 1 || m == -1))
+        { if (!s1n && (m == 1 || m == -1))
           { if (!pass) ++count;
             else if (++count == target) return (lchar_t *)s1;
           }
         }
-        else if (tok_n <= sn)
-        { for (size_t i = 0; i <= sn - tok_n; ++i)
+        else if (tok_n <= s1n)
+        { for (size_t i = 0; i <= s1n - tok_n; ++i)
           { size_t k = 0;
             for (; k < tok_n; ++k)
             { int c1 = LUB__search_char_lcl(xs1, s1, us1, i + k, Case);
@@ -2895,236 +2964,179 @@ lchar_t *LUB__strm_helper
 
 static inline
 lchar_t *llsnstrm
-( const lchar_t *s1, const lchar_t *const s2, size_t sn,
+( const lchar_t *s1, size_t s1n, const lchar_t *const s2,
   const lchar_t delim, const int m
 )
 { return (lchar_t *)LUB__strm_helper
-           ('l', s1, sn,
+           ('l', s1, s1n,
             'l', s2, (int)delim, m, 's'); }
 
 static inline
 lchar_t *lusnstrm
-( const lchar_t *s1, const uchar_t *const s2, size_t sn,
+( const lchar_t *s1, size_t s1n, const uchar_t *const s2,
   const uchar_t delim, const int m
 )
 { return (lchar_t *)LUB__strm_helper
-           ('l', s1, sn,
+           ('l', s1, s1n,
             'u', (const lchar_t *)s2, (int)delim, m, 's'); }
 
 static inline
 uchar_t *ulsnstrm
-( const uchar_t *s1, const lchar_t *const s2, size_t sn,
+( const uchar_t *s1, size_t s1n, const lchar_t *const s2,
   const lchar_t delim, const int m
 )
 { return (uchar_t *)LUB__strm_helper
-           ('u', (const lchar_t *)s1, sn,
+           ('u', (const lchar_t *)s1, s1n,
             'l', s2, (int)delim, m, 's'); }
 
 static inline
 uchar_t *uusnstrm
-( const uchar_t *const s1, const uchar_t *const s2, size_t sn,
+( const uchar_t *const s1, size_t s1n, const uchar_t *const s2,
   const uchar_t delim, const int m
 )
 { return (uchar_t *)LUB__strm_helper
-           ('u', (const lchar_t *)s1, sn,
+           ('u', (const lchar_t *)s1, s1n,
             'u', (const lchar_t *)s2, (int)delim, m, 's'); }
 
 // String search (case-insensitive).
 
 static inline
 lchar_t *llsnSTRM
-( const lchar_t *s1, const lchar_t *const s2, size_t sn,
+( const lchar_t *s1, size_t s1n, const lchar_t *const s2,
   const lchar_t delim, const int m
 )
 { return (lchar_t *)LUB__strm_helper
-           ('l', s1, sn,
+           ('l', s1, s1n,
             'l', s2, (int)delim, m, 'i'); }
 
 static inline
 lchar_t *lusnSTRM
-( const lchar_t *s1, const uchar_t *const s2, size_t sn,
+( const lchar_t *s1, size_t s1n, const uchar_t *const s2,
     const uchar_t delim, const int m
 )
 { return (lchar_t *)LUB__strm_helper
-           ('l', s1, sn, 'u',
+           ('l', s1, s1n, 'u',
             (const lchar_t *)s2, (int)delim, m, 'i'); }
 
 static inline
 uchar_t *ulsnSTRM
-( const uchar_t *s1, const lchar_t *const s2, size_t sn,
+( const uchar_t *s1, size_t s1n, const lchar_t *const s2,
   const lchar_t delim, const int m
 )
 { return (uchar_t *)LUB__strm_helper
-           ('u', (const lchar_t *)s1, sn,
+           ('u', (const lchar_t *)s1, s1n,
             'l', s2, (int)delim, m, 'i'); }
 
 static inline
 uchar_t *uusnSTRM
-( const uchar_t *s1, const uchar_t *const s2, size_t sn,
+( const uchar_t *s1, size_t s1n, const uchar_t *const s2,
   const uchar_t delim, const int m
 )
 { return (uchar_t *)LUB__strm_helper
-           ('u', (const lchar_t *)s1, sn,
+           ('u', (const lchar_t *)s1, s1n,
             'u', (const lchar_t *)s2, (int)delim, m, 'i'); }
+
 /** @} */
 
 /**
  * @defgroup Count Count
  * @name llsncnt, ulsncnt, uusncnt (case-sensitive)
  *       llsnCNT, ulsnCNT, uusnCNT (case-insensitive)
- * @brief Count of matches of a needle substring or a needle
- *        character in string s1 (for substrings, overlapping
+ * @brief Count of matches of needle substrings or needle
+ *        characters in string s1 (for substrings, overlapping
  *        matches are counted).
- * @param s1 Haystack string.
- * @param s2 Strings of needle substrings separated by delim or 
- *           string of needle characters.
- * @param sn Bound on s1 and s2 (clamped to LUB_MAX_LSTRLEN
- *           or LUB_MAX_USTRLEN).
- * @param delim Delimiter character for needle substrings. If null, indicates
- *              s2 is a string of needle characters.
+ * @param s1 Pointer to string (haystack) to search.
+ *           If NULL, treated as 0-length string.
+ * @param s1n Bound on s1. Clamped to LUB_MAX_LSTRLEN or
+ *            LUB_MAX_USTRLEN.
+ * @param s2 Pointer to string of needle substrings separated by delim or 
+ *           string of needle characters if delim is the null character.
+ *           Implicitly, clamped to LUB_MAX_LOPTLEN or LUB_MAX_UOPTLEN.
+ * @param delim Delimiter character (case-sensitive) for needle substrings.
+ *              If delim is the null character, indicates s2 is a string
+ *              of needle characters.
  * @return Count of matches, or error.
  *
  * @note Errors:
- *       - (size_t)LUB_PTR_INVALID if s1 or s2 is an invalid pointer.
- *       - (size_t)LUB_UNTERMINATED if s1 or s2 is not null-terminated.
+ * - (size_t)LUB_PTR_INVALID if s1 or s2 is an invalid pointer.
+ * - (size_t)LUB_UNTERMINATED if s1 or s2 is not null-terminated.
  *
  * @note If s2 is empty, returns 0.
  * @{
  */
 
-// Count of matches of string s2 in string s1 (case-sensitive).
-
-extern size_t llsncnt(const lchar_t *s1, const lchar_t *const s2, size_t sn,
-                      const lchar_t delim)
 #if defined(LUB_DEFINITIONS)
-{   if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
-    size_t s1_len = lcsnlen(s1, sn);
-    if (s1_len >= LUB_SIZE_ERRORS) return s1_len;
-    size_t s2_len = lcsnlen(s2, sn);
-    if (s1_len >= LUB_SIZE_ERRORS) s2_len;
-    if (!s2_len || s2_len > s1_len) return (size_t)0;
-    size_t c = 0;
-    for (size_t i = 0; i <= s1_len - s2_len; ++i) {
-        size_t k = 0;
-        for (; k < s2_len && s1[i + k] == s2[k]; ++k);
-        if (k == s2_len) ++c;
-    }
-    return c;
+static inline int LUB__cnt_char_lcl
+( const char xs, const lchar_t *s, const uchar_t *us,
+  const size_t i, const char Case
+)
+{ int c = xs == 'u' ? (int)us[i] : (int)s[i];
+  return Case == 'i' ? (xs == 'u' ? uutoupper(c) : lltoupper(c)) : c;
+}
+#endif // LUB_DEFINITIONS for LUB__cnt_char_lcl.
+
+extern
+size_t LUB__cnt_helper
+( const char xs1, const lchar_t *s1, size_t s1n,
+  const char xs2, const lchar_t *s2,
+  const int delim, const char Case
+)
+#if defined(LUB_DEFINITIONS)
+{ size_t s2_n = s1n;
+  return LUB__match_count_lcl(xs1, s1, &s1n, xs2, s2, &s2_n, delim, Case);
 }
 #else
-    ;
-#endif // LUB_DEFINITIONS
+;
+#endif // LUB_DEFINITIONS for LUB__cnt_helper.
 
-extern size_t ulsncnt(const uchar_t *s1, const lchar_t *const s2, size_t sn,
+// Count of matches of s2 needles in haystack string s1 (case-sensitive).
+
+static inline
+size_t llsncnt
+( const lchar_t *s1, size_t s1n, const lchar_t *const s2,
+        const lchar_t delim
+)
+{ return LUB__cnt_helper
+           ('l', s1, s1n,
+            'l', s2, (int)delim, 's'); }
+
+static inline
+size_t ulsncnt(const uchar_t *s1, size_t s1n, const lchar_t *const s2,
                       const lchar_t delim)
-#if defined(LUB_DEFINITIONS)
-{   if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
-    size_t s1_len = ucsnlen(s1, sn);
-    if (s1_len >= LUB_SIZE_ERRORS) s1_len;
-    size_t s2_len = lcsnlen(s2, sn);
-    if (s2_len >= LUB_SIZE_ERRORS) s2_len;
-    if (!s2_len || s2_len > s1_len) return (size_t)0;
-    size_t c = 0;
-    for (size_t i = 0; i <= s1_len - s2_len; ++i) {
-        size_t k = 0;
-        for (; k < s2_len && s1[i + k] == (uchar_t)s2[k]; ++k);
-        if (k == s2_len) ++c;
-    }
-    return c;
-}
-#else
-    ;
-#endif // LUB_DEFINITIONS
+{ return LUB__cnt_helper
+           ('u', (const lchar_t *)s1, s1n,
+            'l', s2, (int)delim, 's'); }
 
-extern size_t uusncnt(const uchar_t *s1, const uchar_t *const s2, size_t sn,
+static inline
+size_t uusncnt(const uchar_t *s1, size_t s1n, const uchar_t *const s2,
                       const uchar_t delim)
-#if defined(LUB_DEFINITIONS)
-{   if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
-    size_t s1_len = ucsnlen(s1, sn);
-    if (s1_len >= LUB_SIZE_ERRORS) s1_len;
-    size_t s2_len = ucsnlen(s2, sn);
-    if (s2_len >= LUB_SIZE_ERRORS) s2_len;
-    if (!s2_len || s2_len > s1_len)
-        return (size_t)0;
-    size_t c = 0;
-    for (size_t i = 0; i <= s1_len - s2_len; ++i) {
-        size_t k = 0;
-        for (; k < s2_len && s1[i + k] == s2[k]; ++k);
-        if (k == s2_len) ++c;
-    }
-    return c;
-}
-#else
-    ;
-#endif // LUB_DEFINITIONS
+{ return LUB__cnt_helper
+           ('u', (const lchar_t *)s1, s1n,
+            'u', (const lchar_t *)s2, (int)delim, 's'); }
 
-//n Count of matches of string s2 in string s1 (case-insensitive).
+// Count of matches of s2 needles in string s1 (case-insensitive).
 
-extern size_t llsnCNT(const lchar_t *s1, const lchar_t *s2, size_t sn,
+static inline
+size_t llsnCNT(const lchar_t *s1, size_t s1n, const lchar_t *s2,
                       const lchar_t delim)
-#if defined(LUB_DEFINITIONS)
-{   if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
-    size_t s1_len = lcsnlen(s1, sn);
-    if (s1_len >= LUB_SIZE_ERRORS) return s1_len;
-    size_t s2_len = lcsnlen(s2, sn);
-    if (s2_len >= LUB_SIZE_ERRORS) return s2_len;
-    if (!s2_len || s2_len > s1_len) return (size_t)0;
-    size_t c = 0;
-    for (size_t i = 0; i <= s1_len - s2_len; ++i) {
-        size_t k = 0;
-        for (; k < s2_len &&
-               lltoupper(s1[i + k]) == lltoupper(s2[k]); ++k);
-        if (k == s2_len) ++c;
-    }
-    return c;
-}
-#else
-    ;
-#endif // LUB_DEFINITIONS
+{ return LUB__cnt_helper
+           ('l', s1, s1n,
+            'l', s2, (int)delim, 'i'); }
 
-extern size_t ulsnCNT(const uchar_t *s1, const lchar_t *const s2, size_t sn,
+static inline
+size_t ulsnCNT(const uchar_t *s1, size_t s1n, const lchar_t *const s2,
                       const lchar_t delim)
-#if defined(LUB_DEFINITIONS)
-{   if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
-    size_t s1_len = ucsnlen(s1, sn);
-    if (s1_len >= LUB_SIZE_ERRORS) return s1_len;
-    size_t s2_len = lcsnlen(s2, sn);
-    if (s2_len >= LUB_SIZE_ERRORS) return s2_len;
-    if (!s2_len || s2_len > s1_len) return (size_t)0;
-    size_t c = 0;
-    for (size_t i = 0; i <= s1_len - s2_len; ++i) {
-        size_t k = 0;
-        for (; k < s2_len &&
-               uutoupper(s1[i + k]) == uutoupper((uchar_t)s2[k]); ++k);
-        if (k == s2_len) ++c;
-    }
-    return c;
-}
-#else
-    ;
-#endif // LUB_DEFINITIONS
+{ return LUB__cnt_helper
+           ('u', (const lchar_t *)s1, s1n,
+            'l', s2, (int)delim, 'i'); }
 
-extern size_t uusnCNT(const uchar_t *s1, const uchar_t *const s2, size_t sn,
+static inline
+size_t uusnCNT(const uchar_t *s1, size_t s1n, const uchar_t *const s2,
                       const uchar_t delim)
-#if defined(LUB_DEFINITIONS)
-{   if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
-    size_t s1_len = ucsnlen(s1, sn);
-    if (s1_len >= LUB_SIZE_ERRORS) return s1_len;
-    size_t s2_len = ucsnlen(s2, sn);
-    if (s2_len >= LUB_SIZE_ERRORS) return s2_len;
-    if (!s2_len || s2_len > s1_len)
-        return (size_t)0;
-    size_t c = 0;
-    for (size_t i = 0; i <= s1_len - s2_len; ++i) {
-        size_t k = 0;
-        for (; k < s2_len && uutoupper(s1[i + k]) == uutoupper(s2[k]); ++k);
-        if (k == s2_len) ++c;
-    }
-    return c;
-}
-#else
-    ;
-#endif // LUB_DEFINITIONS
+{ return LUB__cnt_helper
+           ('u', (const lchar_t *)s1, s1n,
+            'u', (const lchar_t *)s2, (int)delim, 'i'); }
+
 /** @} */
 
 /**
