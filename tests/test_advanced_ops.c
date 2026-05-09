@@ -30,26 +30,26 @@ void run_advanced_ops_tests(void) {
     uchar_t utrim_custom_opt[3] = {'R','x',0};
     size_t len = 0;
 
-    const lchar_t *ltrim = llsnptrim(lsrc, 32, &len, (const lchar_t *)"B");
+    const lchar_t *ltrim = llsnptrim(lsrc, 32, (const lchar_t *)"B", &len);
     assert(ltrim == lsrc + 1 && len == 3);
 
-    ltrim = llsnptrim(ltrim_custom_src, 32, &len, ltrim_custom_opt);
+    ltrim = llsnptrim(ltrim_custom_src, 32, ltrim_custom_opt, &len);
     assert(ltrim == ltrim_custom_src + 2 && len == 4);
 
-    ltrim = llsnptrim(ltrim_custom_src, 32, &len, ltrim_invalid_opt);
+    ltrim = llsnptrim(ltrim_custom_src, 32, ltrim_invalid_opt, &len);
     assert(LUB_PTR_ERR(ltrim, LUB_OPT_RESERVED));
     assert(len == 0);
 
-    ltrim = lusnptrim(lsrc, 32, &len, lu_trim_nonlatin_opt);
+    ltrim = lusnptrim(lsrc, 32, lu_trim_nonlatin_opt, &len);
     assert(ltrim == lsrc && len == 5);
 
-    const uchar_t *ultrim = ulsnptrim(usrc, 32, &len, NULL);
+    const uchar_t *ultrim = ulsnptrim(usrc, 32, NULL, &len);
     assert(ultrim == usrc + 1 && len == 3);
 
-    const uchar_t *utrim = uusnptrim(usrc, 32, &len, utrim_opt);
+    const uchar_t *utrim = uusnptrim(usrc, 32, utrim_opt, &len);
     assert(utrim == usrc + 1 && len == 3);
 
-    utrim = uusnptrim(utrim_custom_src, 32, &len, utrim_custom_opt);
+    utrim = uusnptrim(utrim_custom_src, 32, utrim_custom_opt, &len);
     assert(utrim == utrim_custom_src && len == 4);
 
         assert(llsnnreverse(lout, 32, lsrc, 32) != NULL);
