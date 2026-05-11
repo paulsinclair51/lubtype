@@ -37,50 +37,6 @@
  *       variant not being meaningful/useful for a particular function
  *       or the variant being easily implemented by the caller
  *       using a combination of provided variants.
- *
- * @warning
- * API provided macros are prefixed with LUB_ and use all caps
- * (e.g., LUB_DEFINITIONS, LUB_VERSION, LUB_MAX_LCHAR).
- * 
- * Internal macros are prefixed with LUB__ and suffixed by __ and
- * use all caps (e.g., LUB__PASTE__, LUB__OP_HELPER__).
- * 
- * Extern functions that are intended primarily for internal use
- * are also prefixed with LUB__ but use lower case
- * after the LUB__ prefix with words separated by underscores
- * and with a _helper suffix (for example, LUB__cat_cpy_pad_helper).
- *
- * Static (non-inline) internal functions that are not visible in the public API
- * and are only visible when LUB_DEFINITIONS is defined follow the
- * same internal extern function pattern except with suffix _lcl instead
- * of _helper (for example, LUB_get_lcl and LUB_set_ith_lcl).
- * 
- * With these conventions, the likelihood of a conflict is low. However,
- *
- *   - For API and internal macros, if a conflict does arise with an identifier
- *     in code that includes this header, the conflict must be resolved by
- *     an #undef of the macro before including this header and, if necessary,
- *     defining the macro again after including this header. Note that,
- *     other than the LUB_DEFINITIONS macro, a macro is
- *     asserted that it is not defined prior to its #define in the
- *     header and, for an internal macro, an #undef of the macro
- *     occurs prior to the end of the header. 
- * 
- *   - For internal functions, if a conflict does arise with an identifier
- *     in code that includes this header, the conflict must be resolved by
- *     renaming the function in the code that includes this header. It is
- *     not recommended to resolve the conflict by renaming the function
- *     in this header and updating all references to it in this header
- *     since this change would need an increase in the major release
- *     version and potential incompatibilities for existing code.
- * 
- * If use of one of the internal extern functions is needed
- * (for instance, to provide a wrapper that implements defaults for
- * certain parameters), then provide a wrapper that references,
- * preferably, a public API function or, if necessary, the
- * internal extern function. For example, an llstrim wrapper that has default
- * values for tn and sn parameters and references the API llsnntrim function
- * passing the defaults.
  */
 
 /**
@@ -193,6 +149,75 @@
  *   terminator semantics).
  */
 
+ /**
+ * @section ReservedNames Reserved Names
+ * Besides the API provided type names and function names
+ * (see @ref FunctionNamingConventions)
+ * the API reserves names of the following forms:
+ * 
+ *   LUB_<W>[_<W>]... for macro names
+ *   lub_<w>[_<w>]... for functions names
+ * 
+ * where <W> is one or more uppercase letters and <w> is one or more
+ * lowercase letters for current and future use.
+ * 
+ * Macro names:
+ * 
+ *   1. If a macro name does not end with _DEF, it is for an API
+ *      visible and documented macro (e.g., LUB_DEFINITIONS, LUB_VERSION,
+ *      LUB_MAX_LCHAR, LUB_PASTE). These macros may be optionally #define'd
+ *      with a different name and #undef'ed after including this header to
+ *      avoid a name conflict as needed.
+ * 
+ *   2. Otherwise, the macro is only used when
+ *      LUB_DEFINITIONS is defined before including this header (e.g., LUB_OP_DEF).
+ *      If LUB_DEFINITIONS is defined, these macros must not be defined
+ *      before including this header. They are undefined at the end of this header.
+ * 
+ * Functions namees:
+ * 
+ *   1. If a function name ends with _ext, it is for an extern
+ *     `function that is visible to API users but is not documented as
+ *      part of the public API (e.g., lub_cat_cpy_pad_ext). Their
+ *      definition may change with only a minor version number increase.
+ *
+ *    2. If a function name ends with _def, it is for a static (non-inline)
+ *       function that is only visible when macro LUB_DEFINITIONS
+ *       functions are only visible when macro LUB_DEFINITIONS is defined
+ *       (e.g., lub_get_def and lub_set_ith_def). These  functions are
+ *       documented and their definitions may change with only
+ *       a patch version number increase.
+ * 
+ *    3. Otherwise, the second form is reserved for future use.
+ * 
+ * With these conventions, the likelihood of a name conflict is low. However, 
+ *
+ *   - For API and internal macros, if a conflict does arise with a name
+ *     when this header is included, the conflict must be resolved by
+ *     an #undef of the macro before including this header and, if necessary,
+ *     defining the macro again after including this header. Note that,
+ *     a macro, other than the LUB_DEFINITIONS macro, is
+ *     asserted that it is not defined prior to its #define in the
+ *     header and, for a macro with a name ending in _DEF, an #undef of the macro
+ *     occurs prior to the end of the header. 
+ * 
+ *   - For types and functions, if a conflict does arise with a name
+ *     when this header is included, the conflict must be resolved by
+ *     renaming the function in the code that includes this header. It is
+ *     not recommended to resolve the conflict by renaming the type or function
+ *     in this header and updating all references to it in this header
+ *     since this change may require a major version number increase
+ *     and potential incompatibilities for existing code.
+ * 
+ * If use of one of the internal extern functions is needed
+ * (for instance, to use in  a wrapper that implements defaults for
+ * certain parameters), then provide a wrapper that references,
+ * preferably, a public API function or, if necessary, the
+ * internal extern function. For example, an llstrim wrapper that has default
+ * values for tn and sn parameters and references the API llsnntrim function
+ * passing the defaults.
+ */
+
 #pragma once
 
 #include <stddef.h>
@@ -209,62 +234,119 @@
 extern "C" {
 #endif
 
-// Preprocessor token pasting and stringification helpers.
-//
-#if defined(LUB__PASTE__) || defined(LUB__XPASTE__)
-#error "lubtype.h: A LUB__PASTE__ or LUB__XPASTE__ " \
+#if defined(LUB_PASTE) || defined(LUB_TOKEN_PASTE)
+#error "lubtype.h: A LUB_PASTE or LUB_TOKEN_PASTE " \
        "macro is unexpectedly already defined. " \
-       "#undef before including lubtype.h. " \
-       "These internal macros are undefined after their last use " \
-       "by this include. After including, define again as needed."
+       "#undef before including lubtype.h."
 #endif // defined macros
 
-#if defined(LUB__STRINGIFY__) || defined(LUB__XSTRINGIFY__)
-#error "lubtype.h: A LUB__STRINGIFY__ or LUB__XSTRINGIFY__ " \
+#if defined(LUB_STRINGIFY) || defined(LUB_TOKEN_STRINGIFY)
+#error "lubtype.h: A LUB_STRINGIFY or LUB_TOKEN_STRINGIFY " \
        "macro is unexpectedly already defined. " \
-       "#undef before including lubtype.h. " \
-       "These internal macros are undefined after their last use " \
-       "by this include. After including, define again as needed."
+       "#undef before including lubtype.h."
 #endif // defined macros
 
-// Paste before expanding tokens.
-#define LUB__PASTE__(a, b) a##b
+/**
+ * @defgroup PasteMacro Paste
+ * @name LUB_PASTE
+ * @brief Macro for pasting two expanded tokens together.
+ * @param a First token,
+ * @param b Second token.
+ * @return The result of pasting the expanded values of the
+ *         two tokens together to form a single token.
+ * 
+ * @note Tokens a and b must each expand to a single token.
+ * 
+ * @note Macro LUB_TOKEN_PASTE is provided to
+ *       implement expanding the tokens for LUB_PASTE.
+ *       It is not intended for direct use.
+ * 
+ * @note A compile error is raised if either of these 
+ *       macros are already defined before including this
+ *       header.
+ * @{
+ */
+
+// Paste tokens without expanding.
+#define LUB_TOKEN_PASTE(a, b) a##b
 // Expand tokens before pasting.
-#define LUB__XPASTE__(a, b) LUB__PASTE__(a, b)
-// Stringify before expanding tokens.
-#define LUB__STRINGIFY__(x) #x
-// Expand tokens before stringify.
-#define LUB__XSTRINGIFY__(x) LUB__STRINGIFY__(x)
+#define LUB_PASTE(a, b) LUB_TOKEN_PASTE(a, b)
 
-// STATIC_ASSERT
-//
-// Usage:
-//   LUB__STATIC_ASSERT__(sizeof(int) == 4, int_must_be_4_bytes);
-//
-// Expands (C99) if true to:
-//   typedef char LUB__STATIC_ASSERT__int_must_be_4_bytes[1];
-//.  // Assertion satisfied; compiler error not raised.
-//
-//  Or if false to:
-//    typedef char LUB__STATIC_ASSERT__int_must_be_4_bytes[-1];
-//    // Assertion fails; compiler error raised.
-//
-#if defined(LUB__STATIC_ASSERT__)
-#error "lubtype.h: A LUB__STATIC_ASSERT__ " \
-       "macro is unexpectedly already defined. " \
-       "#undef before including lubtype.h. " \
-       "This internal macro is undefined after its last use " \
-       "by this include. After including, define again as needed."
+/** @) */
+
+/**
+ * @defgroup StringifyMacro Stringify
+ * @name LUB_STRINGIFY
+ * @brief Macro for stringifying tokens.
+ * @param s Token.
+ * @return The result of stringifying the expanded token
+ *         as a string literal.
+ * 
+ * @note Token s must expand to a single token.
+ * 
+ * @note Macro LUB_TOKEN_STRINGIFY is provided to
+ *       implement expanding the token for LUB_STRINGIFY.
+ *       It is not intended for direct use.
+ * 
+ * @note A compile error is raised if either of these macros
+ *       are already defined before including this header.
+ * @{
+ */
+
+// Stringify tokens without expanding.
+#define LUB_TOKEN_STRINGIFY(s) #s
+// Expand tokens before stringifying.
+#define LUB_STRINGIFY(s) LUB_TOKEN_STRINGIFY(s)
+
+/** @) */
+
+#if defined(LUB_DEFINITIONS)
+
+/**
+ * @defgroup StaticAssertMacro Static Assert
+ * @name LUB_STATIC_ASSERT
+ * @brief Compile-time assertion macro.
+ * @param cond Condition to be asserted.
+ * @param msg A single token (message) to be displayed if
+ *            the assertion fails.
+ * @return Compiler error if the assertion fails. Otherwise,
+ *         a type is defined which can be ignored and a compiler
+ *         error is not raised.
+ *
+ * @note A compile error is raised if this macro is already
+ *       defined before including this header.
+ * 
+ * @example
+ *   LUB_STATIC_ASSERT(sizeof(int) == 4, int_must_be_4_bytes);
+ * 
+ * Expands (C99) if true (and the type is not already defined) to:
+ *   typedef char LUB_STATIC_ASSERT_int_must_be_4_bytes[1];
+ *   // Assertion satisfied; compiler error not raised.
+ *   // The defined type can be ignored.
+ *
+ * Or if false to:
+ *   typedef char LUB_STATIC_ASSERT_int_must_be_4_bytes[-1];
+ *   // Assertion fails; compiler error raised due to
+ *   // invalid typedef statement.
+ * @{
+ */
+
+#if defined(LUB_STATIC_ASSERT)
+#error "lubtype.h: A LUB_STATIC_ASSERT macro is "\
+       "unexpectedly already defined. " \
+       "#undef before including lubtype.h."
 #endif // defined macro
 
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 // C11 and later: use the built‑in assertion macro.
-#define LUB__STATIC_ASSERT__(cond, msg) _Static_assert(cond, #msg)
+#define LUB_STATIC_ASSERT(cond, msg) _Static_assert(cond, #msg)
 #else
 // C99: typedef with invalid negative array size if assertion not satisfied.
-#define LUB__STATIC_ASSERT__(cond, msg) \
-    typedef char LUB__XPASTE__(LUB__STATIC_ASSERT__, msg)[(cond) ? 1 : -1]
+#define LUB_STATIC_ASSERT(cond, msg) \
+  typedef char LUB_PASTE(LUB_STATIC_ASSERT_, msg)[(cond) ? 1 : -1]
 #endif
+
+/** @} */
 
 /**
  * @section Versioning Versioning
@@ -314,7 +396,7 @@ extern "C" {
  *       are already defined before including lubtype.h.
  *
  * @note The naming conventions, error semantics, and safety guarantees
- *       are part of the stable API and will not change without a
+ *       are part of the documented and stable API and will not change without a
  *       major version increment.
  * @{
  */
@@ -325,9 +407,7 @@ extern "C" {
     defined(LUB_VERSION_NUM) || defined(LUB_VERSION_HEX) || \
     defined(LUB_VERSION_EQ) || defined(LUB_VERSION_AT_LEAST)
 #error "lubtype.h: A LUB_VERSION_* macro is unexpectedly " \
-       "already defined. #undef before including lubtype.h. " \
-       "After including, undef and define again as needed if " \
-       "a LUB_VERSION_* definition is not required."
+       "already defined. #undef before including lubtype.h."
 #endif // defined macros
 
 // LUB API version major, minor, patch.
@@ -337,9 +417,9 @@ extern "C" {
 
 // LUB API version string in "major.minor.patch" format.
 #define LUB_VERSION \
-    (LUB__XSTRINGIFY__(LUB_VERSION_MAJOR) "." \
-    LUB__XSTRINGIFY__(LUB_VERSION_MINOR) "." \
-    LUB__XSTRINGIFY__(LUB_VERSION_PATCH))
+    (LUB__XSTRINGIFY__EXT(LUB_VERSION_MAJOR) "." \
+     LUB__XSTRINGIFY__EXT(LUB_VERSION_MINOR) "." \
+     LUB__XSTRINGIFY__EXT(LUB_VERSION_PATCH))
 
 // LUB API version as an integer for comparisons.
 #define LUB_VERSION_NUM \
@@ -366,34 +446,38 @@ extern "C" {
                          (uint32_t)(pat))
 
 #if defined(LUB_DEFINITIONS)
+
 // Ensure version components fit in the encoding fields.
-LUB__STATIC_ASSERT__(LUB_VERSION_MAJOR <= 99, major_fits_in_field);
-LUB__STATIC_ASSERT__(LUB_VERSION_MINOR <= 99, minor_fits_in_field);
-LUB__STATIC_ASSERT__(LUB_VERSION_PATCH <= 99, patch_fits_in_field);
+LUB_STATIC_ASSERT(LUB_VERSION_MAJOR <= 99, major_fits_in_field);
+LUB_STATIC_ASSERT(LUB_VERSION_MINOR <= 99, minor_fits_in_field);
+LUB_STATIC_ASSERT(LUB_VERSION_PATCH <= 99, patch_fits_in_field);
+
 #endif // LUB_DEFINITIONS
 
 /** @} */ // End of Versioning.
 
 #if defined(LUB_DEFINITIONS)
+
 // Ensure wchar_t is 2 or 4 bytes.
-LUB__STATIC_ASSERT__(sizeof(wchar_t) == 2 || sizeof(wchar_t) == 4,
-                      wchar_t_must_be_2_or_4_bytes);
+LUB_STATIC_ASSERT(sizeof(wchar_t) == 2 || sizeof(wchar_t) == 4,
+                        wchar_t_must_be_2_or_4_bytes);
                      
 // Ensure int, size_t, void *, and intptr_t are compatible
 // for casting error values.
-LUB__STATIC_ASSERT__((int)-2 == (int)(size_t)-2 &&
-                      (int)-2 == (int)(intptr_t)-2 &&
-                      (size_t)-2 == (size_t)(int)-2 &&
-                      (size_t)-2 == (size_t)(intptr_t)-2 &&
-                      (intptr_t)-2 == (intptr_t)(int)-2 &&
-                      (intptr_t)-2 == (intptr_t)(size_t)-2 &&
-                      (int)-99 == (int)(size_t)-99 &&
-                      (int)-99 == (int)(intptr_t)-99 &&
-                      (size_t)-99 == (size_t)(int)-99 &&
-                      (size_t)-99 == (size_t)(intptr_t)-99 &&
-                      (intptr_t)-99 == (intptr_t)(int)-99 &&
-                      (intptr_t)-99 == (intptr_t)(size_t)-99,
-                      error_values_must_be_compatible_across_types);
+LUB_STATIC_ASSERT((int)-2 == (int)(size_t)-2 &&
+                             (int)-2 == (int)(intptr_t)-2 &&
+                             (size_t)-2 == (size_t)(int)-2 &&
+                             (size_t)-2 == (size_t)(intptr_t)-2 &&
+                             (intptr_t)-2 == (intptr_t)(int)-2 &&
+                             (intptr_t)-2 == (intptr_t)(size_t)-2 &&
+                             (int)-99 == (int)(size_t)-99 &&
+                             (int)-99 == (int)(intptr_t)-99 &&
+                             (size_t)-99 == (size_t)(int)-99 &&
+                             (size_t)-99 == (size_t)(intptr_t)-99 &&
+                             (intptr_t)-99 == (intptr_t)(int)-99 &&
+                             (intptr_t)-99 == (intptr_t)(size_t)-99,
+                             error_values_must_be_compatible_across_types);
+
 #endif // LUB_DEFINITIONS
 
 /**
@@ -408,6 +492,11 @@ LUB__STATIC_ASSERT__((int)-2 == (int)(size_t)-2 &&
  * @{
  */
 
+#if defined(lchar_t)
+#error "lubtype.h: A lchar_t macro is unexpectedly already defined. " \
+       "#undef before including lubtype.h."
+#endif // defined macro
+
 typedef uint8_t lchar_t;
 
 /** @} */
@@ -420,7 +509,13 @@ typedef uint8_t lchar_t;
  * @{
  */
 
-typedef uint16_t uchar_t;  
+#if defined(uchar_t)
+#error "lubtype.h: A uchar_t macro is unexpectedly already defined. " \
+       "#undef before including lubtype.h."
+#endif // defined macro
+
+typedef uint16_t uchar_t;
+
 /** @} */
 
 /**
@@ -430,6 +525,11 @@ typedef uint16_t uchar_t;
  *        Base type: uint8_t, Values: 0-255 (0x00-0xFF).
  * @{
  */
+
+#if defined(byte_t)
+#error "lubtype.h: A byte_t macro is unexpectedly already defined. " \
+       "#undef before including lubtype.h."
+#endif // defined macro
 
 typedef uint8_t byte_t;
 
@@ -445,9 +545,7 @@ typedef uint8_t byte_t;
 #if defined(LUB_MAX_LCHAR) || defined(LUB_MAX_UCHAR) || defined(LUB_MAX_BYTE)
 #error "lubtype.h: A character limit LUB_MAX_* "\
        "macro is unexpectedly already defined. " \
-       "#undef before including lubtype.h. " \
-       "After including, undef and define again as needed " \
-       "if the LUB_MAX_* definition is not required."
+       "#undef before including lubtype.h."
 #endif // defined macros
 
 #define LUB_MAX_LCHAR ((size_t)255)
@@ -465,10 +563,6 @@ typedef uint8_t byte_t;
  * @brief Maximum number of characters for an lchar_t string,
  * uchar_t string, name, quoted name, or option (not
  * including the null terminator).
- *
- * Maximum number of bytes for a byte_t string or byte option.
- * @note MAX_LNAMELEN and MAX_LQNAMELEN are not provided since
- * names are Unicode.
  * @{
  */
 
@@ -478,9 +572,7 @@ typedef uint8_t byte_t;
     defined(LUB_MAX_BSTRLEN) || defined(LUB_MAX_BOPTLEN)
 #error "lubtype.h: A string limit LUB_MAX_* macro " \
        "is unexpectedly already defined. " \
-       "#undef before including lubtype.h. " \
-       "After including, undef and define again as needed if " \
-       "a LUB_MAX_* definition is not required."
+       "#undef before including lubtype.h."
 #endif // defined macros
 
 #define LUB_MAX_LSTRLEN    ((size_t)1000000)
@@ -530,9 +622,7 @@ typedef uint8_t byte_t;
     defined(LUB_CMP_LESS_THAN)
 #error "lubtype.h: A special value LUB_CMP_* " \
        "macro is unexpectedly already defined. " \
-       "#undef before including lubtype.h. " \
-       "After including, undef and define again as needed if " \
-       "a LUB_CMP_* definition is not required."
+       "#undef before including lubtype,h,"
 #endif // defined macros
 
 #if defined(LUB_QUOTEDNAME) || \
@@ -594,9 +684,8 @@ typedef uint8_t byte_t;
     defined(LUB_TRUNCATED) || \
     defined(LUB_INTERNAL_ERROR)
 #error "lubtype.h: An error value LUB_* macro is unexpectedly " \
-       "already defined. #undef before including lubtype.h. " \
-       "After including, undef and define again as needed if " \
-       "a LUB_* definition is not required."
+       "already defined. "
+       "#undef before including lubtype.h."
 #endif // defined macros
 
 // Error values.
@@ -674,9 +763,7 @@ typedef uint8_t byte_t;
     defined(LUB_INT_ERR)
 #error "lubtype.h: A LUB_*_ERR macro " \
        "is unexpectedly already defined. " \
-       "#undef before including lubtype.h. " \
-       "After including, undef and define again as needed if " \
-       "a LUB_*_ERR definition is not required."
+       "#undef before including lubtype.h."
 #endif // defined macros
 
 #define LUB_PTR_ERR(value, error) \
@@ -999,12 +1086,12 @@ typedef uint8_t byte_t;
 
 #if defined(LUB_DEFINITIONS)
 
-#if defined(LUB__OP_HELPER__)
-#error "lubtype.h: LUB__OP_HELPER__ macro is unexpectedly " \
-       "already defined. #undef before including lubtype.h. " \
-       "This internal macro is undefined after its last use " \
-       "by the include. After including, define again as needed."
-#endif // LUB__OP_HELPER__
+#if defined(LUB_OP_HELPER__DEF)
+#error "lubtype.h: LUB_OP_HELPER__DEF macro is unexpectedly " \
+       "already defined. " \
+       "#undef before defining LUB_DEFINITIONS and " \
+       "then including lubtype.h."
+#endif // LUB_OP_HELPER__DEF
 
 #endif // LUB_DEFINITIONS
 
@@ -1403,14 +1490,13 @@ int ilhex
  * @return String length, 0 if s is NULL, or error value.
  *
  * @note Errors:
- * 
- *       - (size_t)LUB_PTR_INVALID if s is an invalid pointer.
- *       - (size_t)LUB_UNTERMINATED if s is not null-terminated.
+ * - (size_t)LUB_PTR_INVALID if s is an invalid pointer.
+ * - (size_t)LUB_UNTERMINATED if s is not null-terminated.
  * @{
  */
 
 extern
-size_t LUB__len_helper
+size_t LUB_len__ext
 ( const char xs, const lchar_t *s,  size_t sn )
 #if defined(LUB_DEFINITIONS)
 { if (!s) return (size_t)0;
@@ -1437,12 +1523,12 @@ size_t LUB__len_helper
 static inline
 size_t lcsnlen
 ( const lchar_t *s, size_t sn )
-{ return LUB__len_helper('l', s, sn); }
+{ return LUB_len__ext('l', s, sn); }
 
 static inline
 size_t ucsnlen
 ( const uchar_t *s, size_t sn )
-{ return LUB__len_helper('u', (const lchar_t *)s, sn); }
+{ return LUB_len__ext('u', (const lchar_t *)s, sn); }
 
 /**
  * @defgroup StringClassification String Classification
@@ -1503,8 +1589,8 @@ size_t ucsnlen
 
 // String classification helper macro.
 
-#undef LUB__OP_HELPER__
-#define LUB__OP_HELPER__(lkind, ukind) \
+#undef LUB__OP___DEF
+#define LUB__OP__DEF(lkind, ukind) \
 { if (!s) return (int)1; \
   if (LUB_PTR_ERR(s, 0)) return LUB_INT_ERR(LUB_PTR_INVALID, 0); \
   const size_t maxlen = (xs == 'u') ? LUB_MAX_USTRLEN : LUB_MAX_LSTRLEN; \
@@ -1534,53 +1620,53 @@ size_t ucsnlen
 #endif // LUB_DEFINITIONS for string classification helper macro.
 
 extern
-int LUB__string_latin_helper
+int LUB__string_latin__ext
 ( const char xs, const lchar_t *s, size_t sn )
 #if defined(LUB_DEFINITIONS)
-LUB__OP_HELPER__(1, (*us <= (uchar_t)LUB_MAX_LCHAR))
+LUB__OP__DEF(1, (*us <= (uchar_t)LUB_MAX_LCHAR))
 #else
 ;
-#endif // LUB_DEFINITIONS for LUB__string_latin_helper.
+#endif // LUB_DEFINITIONS for LUB__string_latin__ext.
 
 static inline
 int islnlatinstr
 ( const lchar_t *s, size_t sn )
-{ return LUB__string_latin_helper('l', s, sn); }
+{ return LUB__string_latin__ext('l', s, sn); }
 
 static inline
 int isunlatinstr
 ( const uchar_t *s, size_t sn )
-{ return LUB__string_latin_helper('u', (const lchar_t *)s, sn); }
+{ return LUB__string_latin__ext('u', (const lchar_t *)s, sn); }
 
 // String with only alphabetic characters.
 
 extern
-int LUB__string_alpha_helper
+int LUB__string_alpha__ext
 ( const char xs,  const lchar_t *s, size_t sn
 )
 #if defined(LUB_DEFINITIONS)
-LUB__OP_HELPER__((islalpha(*s)), (isualpha(*us)))
+LUB__OP__DEF((islalpha(*s)), (isualpha(*us)))
 #else
 ;
-#endif // LUB_DEFINITIONS for LUB__string_alpha_helper.
+#endif // LUB_DEFINITIONS for LUB__string_alpha__ext.
 
 static inline
  int islnalphastr
  ( const lchar_t *s, size_t sn )
-{ return LUB__string_alpha_helper('l', s, sn); }
+{ return LUB__string_alpha__ext('l', s, sn); }
 
 static inline
 int isunalphastr
 ( const uchar_t *s, size_t sn )
-{ return LUB__string_alpha_helper('u', (const lchar_t *)s, sn); }
+{ return LUB__string_alpha__ext('u', (const lchar_t *)s, sn); }
 
 // Hex digit string classification.
 
 extern
-int LUB__string_hex_helper
+int LUB__string_hex__ext
 ( const char xs, const lchar_t *s,  size_t sn )
 #if defined(LUB_DEFINITIONS)
-LUB__OP_HELPER__((islhex(*s)), (isuhex(*us)))
+LUB__OP__DEF((islhex(*s)), (isuhex(*us)))
 #else
 ;
 #endif // LUB_DEFINITIONS
@@ -1588,15 +1674,15 @@ LUB__OP_HELPER__((islhex(*s)), (isuhex(*us)))
 static inline
 int islnhexstr
 ( const lchar_t *s, size_t sn )
-{ return LUB__string_hex_helper('l', s, sn); }
+{ return LUB__string_hex__ext('l', s, sn); }
 
 static inline 
 int isunhexstr
 ( const uchar_t *s, size_t sn )
-{ return LUB__string_hex_helper('u', (const lchar_t *)s, sn); }
+{ return LUB__string_hex__ext('u', (const lchar_t *)s, sn); }
 
 extern
-int LUB__is_reserved_helper
+int LUB__is_reserved__ext
 ( const char xs, const lchar_t *s )
 #if defined(LUB_DEFINITIONS)
 { // Teradata reserved words list.
@@ -1738,12 +1824,12 @@ int LUB__is_reserved_helper
 static inline
 int islreserved
 ( const lchar_t *s )
-{ return LUB__is_reserved_helper('l', s);}
+{ return LUB__is_reserved__ext('l', s);}
 
 static inline
 int isureserved
 ( const uchar_t *s )
-{ return LUB__is_reserved_helper('u', (const lchar_t *)s);}
+{ return LUB__is_reserved__ext('u', (const lchar_t *)s);}
 
 extern
 int islqname
@@ -1839,7 +1925,7 @@ int isuqname
 // Trunc, Trim, Pad, and Needle Option Validation helper function.
 
 extern
-int LUB__is_option_helper
+int LUB__is_option__ext
 ( const char op, const char xs, const lchar_t *s, const char *mode )
 // op: 1=trunc, 2=trim, 3=pad, 4=needle; xs: 'l' or 'u'.
 #if defined(LUB_DEFINITIONS)
@@ -1875,42 +1961,42 @@ int LUB__is_option_helper
 static inline
 int isltruncstr
 ( const lchar_t *s )
-{ return LUB__is_option_helper(1, 'l', s, "LRCB"); }
+{ return LUB__is_option__ext(1, 'l', s, "LRCB"); }
 
 static inline
 int isutruncstr
 ( const uchar_t *s )
-{ return LUB__is_option_helper(1, 'u', (lchar_t *)s, "LRCB"); }
+{ return LUB__is_option__ext(1, 'u', (lchar_t *)s, "LRCB"); }
 
 static inline
 int isltrimstr
 ( const lchar_t *s )
-{ return LUB__is_option_helper(2, 'l', s, "LRB"); }
+{ return LUB__is_option__ext(2, 'l', s, "LRB"); }
 
 static inline 
 int isutrimstr
 ( const uchar_t *s )
-{ return LUB__is_option_helper(2, 'u', (lchar_t *)s, "LRB"); }
+{ return LUB__is_option__ext(2, 'u', (lchar_t *)s, "LRB"); }
 
 static inline
 int islpadstr
 ( const lchar_t *s)
-{ return LUB__is_option_helper(3, 'l', s, "LRB"); }
+{ return LUB__is_option__ext(3, 'l', s, "LRB"); }
 
 static inline
 int isupadstr
 ( const uchar_t *s  )
-{ return LUB__is_option_helper(3, 'u', (lchar_t *)s, "LRB"); }
+{ return LUB__is_option__ext(3, 'u', (lchar_t *)s, "LRB"); }
 
 static inline
 int islneedlestr
 ( const lchar_t *s )
-{ return LUB__is_option_helper(4, 'l', s, ""); }
+{ return LUB__is_option__ext(4, 'l', s, ""); }
 
 static inline
 int isuneedlestr
 ( const uchar_t *s )
-{ return LUB__is_option_helper(4, 'u', (lchar_t *)s, ""); }
+{ return LUB__is_option__ext(4, 'u', (lchar_t *)s, ""); }
 
 /** @} */
 
@@ -1918,7 +2004,7 @@ int isuneedlestr
 // prefix ('p'), and suffix ('s') comparisons.
 
 extern
-int LUB__cfps_cmp_helper
+int LUB__cfps_cmp__ext
 // op: 'c' (full compare), 'f' (fixed-length compare),
 //     'p' (prefix compare), or 's' (suffix compare).
 // xs1, xs2: 'l' (Latin) or 'u' (Unicode).
@@ -2079,7 +2165,7 @@ int LUB__cfps_cmp_helper
 }
 #else
 ;
-#endif // LUB_DEFINITIONS for LUB__cfps_cmp_helper.
+#endif // LUB_DEFINITIONS for LUB__cfps_cmp__ext.
 
 /**
  * @defgroup Compare Compare
@@ -2112,19 +2198,19 @@ int llsnncmp
 static inline
 int lusnncmp
 ( const lchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('c', 'l', s1, s1n, 'u', (const lchar_t*)s2, s2n, 's'); }
 
 static inline
 int ulsnncmp
 ( const uchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('c', 'u', (const lchar_t*)s1, s1n, 'l', s2, s2n, 's'); }
 
 static inline
 int uusnncmp
 ( const uchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('c', 'u', (const lchar_t*)s1, s1n, 'u', (const lchar_t*)s2, s2n, 's'); }
 
 // Compare case-insensitive.
@@ -2132,25 +2218,25 @@ int uusnncmp
 static inline
 int llsnnCMP
 ( const lchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('c', 'l', s1, s1n, 'l', s2, s2n, 'i'); }
 
 static inline
 int lusnnCMP
 ( const lchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('c', 'l', s1, s1n, 'u', (const lchar_t*)s2, s2n, 'i'); }
 
 static inline
 int ulsnnCMP
 ( const uchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('c', 'u', (const lchar_t*)s1, s1n, 'l', s2, s2n, 'i'); }
 
 static inline
 int uusnnCMP
 ( const uchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('c', 'u', (const lchar_t*)s1, s1n, 'u', (const lchar_t*)s2, s2n, 'i'); }
 
 extern
@@ -2215,19 +2301,19 @@ int llsnnfxdcmp
 static inline
 int lusnnfxdcmp
 ( const lchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('f', 'l', s1, s1n, 'u', (const lchar_t*)s2, s2n, 's'); }
 
 static inline
 int ulsnnfxdcmp
 ( const uchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('f', 'u', (const lchar_t*)s1, s1n, 'l', s2, s2n, 's'); }
 
 static inline
 int uusnnfxdcmp
 ( const uchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('f', 'u', (const lchar_t*)s1, s1n, 'u', (const lchar_t*)s2, s2n, 's'); }
 
 // Fixed-length leading substring compare case-insensitive.
@@ -2235,25 +2321,25 @@ int uusnnfxdcmp
 static inline
 int llsnnFXDCMP
 ( const lchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('f', 'l', s1, s1n, 'l', s2, s2n, 'i'); }
 
 static inline
 int lusnnFXDCMP
 ( const lchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('f', 'l', s1, s1n, 'u', (const lchar_t*)s2, s2n, 'i'); }
 
 static inline
 int ulsnnFXDCMP
 ( const uchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('f', 'u', (const lchar_t*)s1, s1n, 'l', s2, s2n, 'i'); }
 
 static inline
 int uusnnFXDCMP
 ( const uchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('f', 'u', (const lchar_t*)s1, s1n, 'u', (const lchar_t*)s2, s2n, 'i'); }
 
 /** @} */
@@ -2285,25 +2371,25 @@ int uusnnFXDCMP
 static inline
 int llsnnpfxcmp
 ( const lchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('p', 'l', s1, s1n, 'l', s2, s2n, 's'); }
 
 static inline
 int lusnnpfxcmp
 ( const lchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('p', 'l', s1, s1n, 'u', (const lchar_t*)s2, s2n, 's'); }
 
 static inline
 int ulsnnpfxcmp
 ( const uchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('p', 'u', (const lchar_t*)s1, s1n, 'l', s2, s2n, 's'); }
 
 static inline
 int uusnnpfxcmp
 ( const uchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('p', 'u', (const lchar_t*)s1, s1n, 'u', (const lchar_t*)s2, s2n, 's'); }
 
 // Fixed-length leading substring compare case-insensitive.
@@ -2311,27 +2397,26 @@ int uusnnpfxcmp
 static inline
 int llsnnPFXCMP
 ( const lchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('p', 'l', s1, s1n, 'l', s2, s2n, 'i'); }
 
 static inline
 int lusnnPFXCMP
 ( const lchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('p', 'l', s1, s1n, 'u', (const lchar_t*)s2, s2n, 'i'); }
 
 static inline
 int ulsnnPFXCMP
 ( const uchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('p', 'u', (const lchar_t*)s1, s1n, 'l', s2, s2n, 'i'); }
 
 static inline
 int uusnnPFXCMP
 ( const uchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('p', 'u', (const lchar_t*)s1, s1n, 'u', (const lchar_t*)s2, s2n, 'i'); }
-
 
 /** @} */
 
@@ -2369,19 +2454,19 @@ int llsnnsfxcmp
 static inline
 int lusnnsfxcmp
 ( const lchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('s', 'l', s1, s1n, 'u', (lchar_t*)s2, s2n, 's'); }
 
 static inline
 int ulsnnsfxcmp
 ( const uchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('s', 'u', (lchar_t*)s1, s1n, 'l', s2, s2n, 's'); }
 
 static inline
 int uusnnsfxcmp
 ( const uchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('s', 'u', (lchar_t*)s1, s1n, 'u', (lchar_t*)s2, s2n, 's'); }
 
 // Fixed-length leading substring compare case-insensitive.
@@ -2389,25 +2474,25 @@ int uusnnsfxcmp
 static inline
 int llsnnSFXCMP
 ( const lchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('s', 'l', s1, s1n, 'l', s2, s2n, 'i'); }
 
 static inline
 int lusnnSFXCMP
 ( const lchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('s', 'l', s1, s1n, 'u', (lchar_t*)s2, s2n, 'i'); }
 
 static inline
 int ulsnnSFXCMP
 ( const uchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('s', 'u', (lchar_t*)s1, s1n, 'l', s2, s2n, 'i'); }
 
 static inline
 int uusnnSFXCMP
 ( const uchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return LUB__cfps_cmp__ext
            ('s', 'u', (lchar_t*)s1, s1n, 'u', (lchar_t*)s2, s2n, 'i'); }
 
 /** @} */
@@ -2453,7 +2538,7 @@ int uusnnSFXCMP
 // Helper function for pointer trim operations (ll, lu, ul, uu).
 
 extern
-const lchar_t *LUB__pointer_trim_helper
+const lchar_t *LUB__pointer_trim__ext
 ( const char xs, const lchar_t *s, size_t sn,
   const char xt, const lchar_t *trim,
   size_t *trimlen
@@ -2612,7 +2697,7 @@ const lchar_t *LUB__pointer_trim_helper
 }
 #else
 ;
-#endif // LUB_DEFINITIONS for LUB__pointer_trim_helper.
+#endif // LUB_DEFINITIONS for LUB__pointer_trim__ext.
 
 static inline
 const lchar_t *llsnptrim
@@ -2620,7 +2705,7 @@ const lchar_t *llsnptrim
   const lchar_t * const trim,
   size_t *const trimlen
 )
-{ return LUB__pointer_trim_helper
+{ return LUB__pointer_trim__ext
            ('l', s, sn, 'l', trim, trimlen); }
 
 static inline
@@ -2629,7 +2714,7 @@ const lchar_t *lusnptrim
   const uchar_t * const trim,
   size_t *const trimlen
 )
-{ return LUB__pointer_trim_helper
+{ return LUB__pointer_trim__ext
            ('l', s, sn, 'u', (const lchar_t *)trim, trimlen); }
 
 static inline
@@ -2638,7 +2723,7 @@ const uchar_t *ulsnptrim
   const lchar_t * const trim,
   size_t *const trimlen
 )
-{ return (const uchar_t *)LUB__pointer_trim_helper
+{ return (const uchar_t *)LUB__pointer_trim__ext
            ('u', (const lchar_t *)s, sn, 'l', trim, trimlen); }
 
 static inline
@@ -2647,7 +2732,7 @@ const uchar_t *uusnptrim
   const uchar_t * const trim,
   size_t *const trimlen
 )
-{ return (const uchar_t *)LUB__pointer_trim_helper
+{ return (const uchar_t *)LUB__pointer_trim__ext
            ('u', (const lchar_t *)s, sn, 'u', (const lchar_t *)trim, trimlen); }
 
 /** @} */
@@ -2675,9 +2760,10 @@ const uchar_t *uusnptrim
  */
 
 #if defined(LUB_DEFINITIONS)
+
 // Skip function macro helper.
-#undef LUB__OP_HELPER__
-#define LUB__OP_HELPER__(s_xt, s_xmax, s_xcsnlen, \
+#undef LUB__OP__DEF
+#define LUB__OP__DEF(s_xt, s_xmax, s_xcsnlen, \
                          skip_xt, skip_max, skip_xcsnlen, \
                          skip_space_expr, skip_match_expr) \
 { /* Validate parameters. */ \
@@ -2699,16 +2785,17 @@ const uchar_t *uusnptrim
     while (*s && (skip_space_expr)) s++; \
   return (s_xt *)s; \
 }
+
 #endif // LUB_DEFINITIONS for skip macro helper.
 
 extern
 lchar_t *llsnskip
 ( const lchar_t *s, size_t sn, const lchar_t *skip )
 #if defined(LUB_DEFINITIONS)
-LUB__OP_HELPER__(lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
-                 lchar_t, LUB_MAX_LOPTLEN, lcsnlen,
-                 islspace((int)*s),
-                 (*s == *ss))
+LUB__OP__DEF(lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
+             lchar_t, LUB_MAX_LOPTLEN, lcsnlen,
+             islspace((int)*s),
+             (*s == *ss))
 #else
 ;
 #endif // LUB_DEFINITIONS for llsskip.
@@ -2717,10 +2804,10 @@ extern
 uchar_t *ulsnskip
 ( const uchar_t *s, size_t sn, const lchar_t *skip )
 #if defined(LUB_DEFINITIONS)
-LUB__OP_HELPER__(uchar_t, LUB_MAX_USTRLEN, ucsnlen,
-                 lchar_t, LUB_MAX_LOPTLEN, lcsnlen,
-                 (*s <= LUB_MAX_LCHAR && islspace((int)(lchar_t)*s)),
-                 (*s == (uchar_t)*ss))
+LUB__OP__DEF(uchar_t, LUB_MAX_USTRLEN, ucsnlen,
+             lchar_t, LUB_MAX_LOPTLEN, lcsnlen,
+             (*s <= LUB_MAX_LCHAR && islspace((int)(lchar_t)*s)),
+             (*s == (uchar_t)*ss))
 #else
 ;
 #endif // LUB_DEFINITIONS for ulsnskip.
@@ -2729,10 +2816,10 @@ extern
 uchar_t *uusnskip
 ( const uchar_t *s, size_t sn, const uchar_t *skip )
 #if defined(LUB_DEFINITIONS)
-LUB__OP_HELPER__(uchar_t, LUB_MAX_USTRLEN, ucsnlen,
-                 uchar_t, LUB_MAX_UOPTLEN, ucsnlen,
-                 isuspace((unsigned int)*s),
-                 (*s == *ss))
+LUB__OP__DEF(uchar_t, LUB_MAX_USTRLEN, ucsnlen,
+             uchar_t, LUB_MAX_UOPTLEN, ucsnlen,
+             isuspace((unsigned int)*s),
+             (*s == *ss))
 #else
 ;
 #endif // LUB_DEFINITIONS for uusnskip.
@@ -2793,7 +2880,7 @@ static inline int LUB__search_char_lcl
 }
 
 static
-size_t LUB__match_count_lcl
+size_t LUB_match_count__def
 ( const char xs1, const lchar_t *s1, size_t *s1n_ptr,
   const char xs2, const lchar_t *s2, size_t *s2_n_ptr,
   const int delim, const char Case
@@ -2876,10 +2963,10 @@ size_t LUB__match_count_lcl
   return total_count;
 }
 
-#endif // LUB_DEFINITIONS for strm/cnt lcl functions.
+#endif // LUB_DEFINITIONS for strm/cnt functions.
 
 extern
-lchar_t *LUB__strm_helper
+lchar_t *LUB__strm__ext
 ( const char xs1, const lchar_t *s1, size_t s1n,
   const char xs2, const lchar_t *s2,
   const int delim, const int m,
@@ -2967,7 +3054,7 @@ lchar_t *llsnstrm
 ( const lchar_t *s1, size_t s1n, const lchar_t *const s2,
   const lchar_t delim, const int m
 )
-{ return (lchar_t *)LUB__strm_helper
+{ return (lchar_t *)LUB_strm__ext
            ('l', s1, s1n,
             'l', s2, (int)delim, m, 's'); }
 
@@ -2976,7 +3063,7 @@ lchar_t *lusnstrm
 ( const lchar_t *s1, size_t s1n, const uchar_t *const s2,
   const uchar_t delim, const int m
 )
-{ return (lchar_t *)LUB__strm_helper
+{ return (lchar_t *)LUB_strm__ext
            ('l', s1, s1n,
             'u', (const lchar_t *)s2, (int)delim, m, 's'); }
 
@@ -2985,7 +3072,7 @@ uchar_t *ulsnstrm
 ( const uchar_t *s1, size_t s1n, const lchar_t *const s2,
   const lchar_t delim, const int m
 )
-{ return (uchar_t *)LUB__strm_helper
+{ return (uchar_t *)LUB__strm__ext
            ('u', (const lchar_t *)s1, s1n,
             'l', s2, (int)delim, m, 's'); }
 
@@ -2994,7 +3081,7 @@ uchar_t *uusnstrm
 ( const uchar_t *const s1, size_t s1n, const uchar_t *const s2,
   const uchar_t delim, const int m
 )
-{ return (uchar_t *)LUB__strm_helper
+{ return (uchar_t *)LUB__strm__ext
            ('u', (const lchar_t *)s1, s1n,
             'u', (const lchar_t *)s2, (int)delim, m, 's'); }
 
@@ -3005,7 +3092,7 @@ lchar_t *llsnSTRM
 ( const lchar_t *s1, size_t s1n, const lchar_t *const s2,
   const lchar_t delim, const int m
 )
-{ return (lchar_t *)LUB__strm_helper
+{ return (lchar_t *)LUB__strm__ext
            ('l', s1, s1n,
             'l', s2, (int)delim, m, 'i'); }
 
@@ -3014,7 +3101,7 @@ lchar_t *lusnSTRM
 ( const lchar_t *s1, size_t s1n, const uchar_t *const s2,
     const uchar_t delim, const int m
 )
-{ return (lchar_t *)LUB__strm_helper
+{ return (lchar_t *)LUB__strm__ext
            ('l', s1, s1n, 'u',
             (const lchar_t *)s2, (int)delim, m, 'i'); }
 
@@ -3023,7 +3110,7 @@ uchar_t *ulsnSTRM
 ( const uchar_t *s1, size_t s1n, const lchar_t *const s2,
   const lchar_t delim, const int m
 )
-{ return (uchar_t *)LUB__strm_helper
+{ return (uchar_t *)LUB__strm__ext
            ('u', (const lchar_t *)s1, s1n,
             'l', s2, (int)delim, m, 'i'); }
 
@@ -3032,7 +3119,7 @@ uchar_t *uusnSTRM
 ( const uchar_t *s1, size_t s1n, const uchar_t *const s2,
   const uchar_t delim, const int m
 )
-{ return (uchar_t *)LUB__strm_helper
+{ return (uchar_t *)LUB__strm__ext
            ('u', (const lchar_t *)s1, s1n,
             'u', (const lchar_t *)s2, (int)delim, m, 'i'); }
 
@@ -3066,28 +3153,30 @@ uchar_t *uusnSTRM
  */
 
 #if defined(LUB_DEFINITIONS)
-static inline int LUB__cnt_char_lcl
+
+static inline int LUB__cnt_char__def
 ( const char xs, const lchar_t *s, const uchar_t *us,
   const size_t i, const char Case
 )
 { int c = xs == 'u' ? (int)us[i] : (int)s[i];
   return Case == 'i' ? (xs == 'u' ? uutoupper(c) : lltoupper(c)) : c;
 }
-#endif // LUB_DEFINITIONS for LUB__cnt_char_lcl.
+
+#endif // LUB_DEFINITIONS for LUB__cnt_char__def
 
 extern
-size_t LUB__cnt_helper
+size_t LUB__cnt__ext
 ( const char xs1, const lchar_t *s1, size_t s1n,
   const char xs2, const lchar_t *s2,
   const int delim, const char Case
 )
 #if defined(LUB_DEFINITIONS)
 { size_t s2_n = s1n;
-  return LUB__match_count_lcl(xs1, s1, &s1n, xs2, s2, &s2_n, delim, Case);
+  return LUB_match_count__def(xs1, s1, &s1n, xs2, s2, &s2_n, delim, Case);
 }
 #else
 ;
-#endif // LUB_DEFINITIONS for LUB__cnt_helper.
+#endif // LUB_DEFINITIONS for LUB__cnt__ext.
 
 // Count of matches of s2 needles in haystack string s1 (case-sensitive).
 
@@ -3228,26 +3317,26 @@ size_t uusnCNT(const uchar_t *s1, size_t s1n, const uchar_t *const s2,
 // to an API user if LUB_DEFINITIONS is defined. Documentation
 // is not provided to API users.
 
-static inline uchar_t LUB__get_lcl
+static inline uchar_t lub_get_def
 ( const char xs, const lchar_t *s )
 { return (xs == 'u') ?
          *((const uchar_t *)s) :
          (lchar_t)*s;
 }
-static inline uchar_t LUB__get_ith_lcl
+static inline uchar_t lub_get_ith_def
 ( const char xs, const lchar_t *s, const size_t i )
 { return (xs == 'u') ?
          *((const uchar_t *)s + i) :
          (lchar_t)*(s + i);
 }
-static inline void LUB__set_lcl
+static inline void lub_set_def
 ( char xt, lchar_t *t, const uchar_t c, const lchar_t lrep)
 {   if (xt == 'u') *((uchar_t *)t) = c;
     else *t = (c > LUB_MAX_LCHAR) ?
               (!lrep ? (lchar_t)'?' : lrep) : (lchar_t)c;
     return;
 }
-static inline void LUB__set_ith_lcl
+static inline void lub_set_ith_def
 ( char xt, lchar_t *t, const size_t i, const uchar_t c, const lchar_t lrep )
 { if (xt == 'u') *((uchar_t *)t + i) = c;
   else *(t + i) = (c > LUB_MAX_LCHAR) ?
@@ -3256,14 +3345,14 @@ static inline void LUB__set_ith_lcl
 }
 
 static inline
-void LUB__terminate_lcl
+void lub_terminate_def
 ( char xt, lchar_t *t)
 { if (xt == 'u') *((uchar_t *)t) = (uchar_t)0;
   else *t = (lchar_t)0;
   return;
 }
 static inline
-void LUB__terminate_ith_lcl
+void lub_terminate_ith_def
 ( char xt, lchar_t *t, const size_t i )
 { if (xt == 'u') *((uchar_t *)t + i) = (uchar_t)0;
   else *(t + i) = (lchar_t)0;
@@ -3271,7 +3360,7 @@ void LUB__terminate_ith_lcl
 }
 
 static
-lchar_t *LUB__cat_quoted_lcl
+lchar_t *lub_cat_quoted_def
 ( const char xt, const char xs,
   const lchar_t q, const char Case,
   lchar_t *t, size_t tn, size_t tl, lchar_t *s, size_t sn,
@@ -3287,31 +3376,31 @@ lchar_t *LUB__cat_quoted_lcl
   const char *sb = (const char *)s;
   size_t tr = (tn > tl) ? (tn - tl) : 0;
   if (tr > 1)
-  { LUB__set_lcl(xt, (lchar_t *)tb, (uchar_t)q, lrep);
+  { lub_set_def(xt, (lchar_t *)tb, (uchar_t)q, lrep);
     tb += t_size;
     tr -= 2;
     while (tr && sn)
-    { uchar_t c = LUB__get_lcl(xs, (const lchar_t *)sb);
+    { uchar_t c = lub_get_def(xs, (const lchar_t *)sb);
       if (!c) break;
       sb += s_size;
       sn--;
       if (c == (uchar_t)q)
       { if (tr == 1) break;
-        LUB__set_lcl(xt, (lchar_t *)tb, (uchar_t)q, lrep);
+        lub_set_def(xt, (lchar_t *)tb, (uchar_t)q, lrep);
         tb += t_size;
         tr--;
       }
       c = (Case == 'C') ? uutoupper(c)
                         : (Case == 'c') ? uutolower(c)
                         : c;
-      LUB__set_lcl(xt, (lchar_t *)tb, c, lrep);
+      lub_set_def(xt, (lchar_t *)tb, c, lrep);
       tb += t_size;
       tr--;
     }    
-    LUB__set_lcl(xt, (lchar_t *)tb, (uchar_t)q, lrep);
+    lub_set_def(xt, (lchar_t *)tb, (uchar_t)q, lrep);
     tb += t_size;
   }
-  LUB__set_lcl(xt, (lchar_t *)tb, 0, lrep);
+  lub_set_def(xt, (lchar_t *)tb, 0, lrep);
   return sn ? (lchar_t *)LUB_PTR_ERR(LUB_TRUNCATED, 0) : (lchar_t *)tb;
 }
 
@@ -3322,7 +3411,7 @@ lchar_t *LUB__cat_quoted_lcl
 // Documentation is not provided to API users.
 
 extern
-lchar_t *LUB__cat_cpy_pad_helper
+lchar_t *lub_cat_cpy_pad_ext
 (   const char op,   // 0: cat, 1: cpy, 2: pad.
     const char xt,   // 'l' or 'u' for target type.
     const char xs,   // 'l' or 'u' for source type.
@@ -3365,7 +3454,7 @@ lchar_t *LUB__cat_cpy_pad_helper
       tl = (xt == 'u') ? ucsnlen((uchar_t *)t, tn) : lcsnlen(t, tn);
       if (LUB_SIZE_ERR(tl, 0))
       { if (LUB_INT_ERR(tl, LUB_UNTERMINATED) && t)
-          LUB__terminate_lcl(xt, t);
+          lub_terminate_def(xt, t);
         return (lchar_t *)LUB_PTR_ERR(tl, 0);
       }
     }
@@ -3377,7 +3466,7 @@ lchar_t *LUB__cat_cpy_pad_helper
             lcsnlen(s,
                     sn > LUB_MAX_LSTRLEN ? LUB_MAX_LSTRLEN : sn);
       if (LUB_SIZE_ERR(sn, 0))
-      { if (op && t) LUB__terminate_lcl(xt, t);
+        if (op && t) lub_terminate_def(xt, t);
         return (lchar_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0);
       }
       /* Validate q. */
@@ -3386,7 +3475,7 @@ lchar_t *LUB__cat_cpy_pad_helper
     }
                          : islqname(s);
       if (LUB_INT_ERR(quoted, 0))
-       { if (op && t) LUB__terminate_lcl(xt, t);
+       { if (op && t) lub_terminate_def(xt, t);
         return (lchar_t *)LUB_PTR_ERR(quoted, 0);
       }
     if (q != '\'' && q != '"')
@@ -3399,7 +3488,7 @@ lchar_t *LUB__cat_cpy_pad_helper
                            isutruncstr((const uchar_t *)trunc) :
                            isltruncstr(trunc);
     if (LUB_INT_ERR(istruncstr, 0))
-    { if (op && t) LUB__terminate_lcl(xt, t);
+    { if (op && t) lub_terminate_def(xt, t);
       return (lchar_t *)LUB_PTR_ERR(istruncstr, 0);
     }
 
@@ -3411,13 +3500,13 @@ lchar_t *LUB__cat_cpy_pad_helper
       trunc_n = xt == 'u' ?
                 ucsnlen((const uchar_t *)trunc, LUB_MAX_UOPTLEN) :
                 lcsnlen(trunc, LUB_MAX_LOPTLEN);
-      const int c = (int)LUB__get_lcl(xt, trunc);
+      const int c = (int)lub_get_def(xt, trunc);
       if (islalpha(c))
       { trunc_mode = (char)toupper(c);
         trunc += t_size; trunc_n--;
       }
       if (trunc_n > tn)
-      { if (op && t) LUB__terminate_lcl(xt, t);
+      { if (op && t) lub_terminate_def(xt, t);
         return (lchar_t *)LUB_PTR_ERR(LUB_OPT_TOO_LONG, 0);
       }
     }
@@ -3430,15 +3519,15 @@ lchar_t *LUB__cat_cpy_pad_helper
                            isupadstr((const uchar_t *)pad) :
                            islpadstr(pad);
       if (LUB_INT_ERR(ispadstr, 0))
-      { if (t) LUB__terminate_lcl(xt, t);
+      { if (t) lub_terminate_def(xt, t);
         return (lchar_t *)LUB_PTR_ERR(ispadstr, 0);
       }
       pad_mode = 'R';
-      pad_c = (uchar_t)LUB__get_lcl(xt, pad);
+      pad_c = (uchar_t)lub_get_def(xt, pad);
       if (islalpha((int)pad_c))
       { pad_mode = (char)toupper((int)pad_c);
         pad += t_size;
-        pad_c = (uchar_t)LUB__get_lcl(xt, pad);
+        pad_c = (uchar_t)lub_get_def(xt, pad);
       }
       if (!pad_c) pad_c = (uchar_t)' ';
     }
@@ -3447,7 +3536,7 @@ lchar_t *LUB__cat_cpy_pad_helper
     // when source is Unicode, target is Latin, and lrep is NULL.
     if (xt == 'l' && xs == 'u' && !lrep &&
         !isunlatinstr((const uchar_t *)s, sn))
-    { if (op && t) LUB__terminate_lcl(xt, t);
+    { if (op && t) lub_terminate_def(xt, t);
       return (lchar_t *)LUB_PTR_ERR(LUB_NONLATIN_SOURCE, 0);
     }
     if (!t) return (lchar_t *)NULL;
@@ -3465,7 +3554,7 @@ lchar_t *LUB__cat_cpy_pad_helper
 
     size_t copied = 0;
     for (; copied < sn && tl + copied < tn; ++copied)
-    { uchar_t c = LUB__get_lcl(xs, s, copied);
+    { uchar_t c = lub_get_ith_def(xs, s, copied);
       if (Case == 'C') c = uutoupper(c);
       else if (Case == 'c') c = uutolower(c);
       LUB__set_lcl(xt, t, tl + copied, c, lrep);
@@ -3479,14 +3568,14 @@ lchar_t *LUB__cat_cpy_pad_helper
         { size_t keep = tn - trunc_n;
           if (out_n > keep) out_n = keep;
           for (size_t i = 0; i < trunc_n && out_n < tn; ++i)
-            LUB__set_lcl(xt, t, out_n++, LUB__get_lcl(xt, trunc, i), lrep);
+            LUB__set_lcl(xt, t, out_n++, lub_get_ith_def(xt, trunc, i), lrep);
         }
       }
-      LUB__terminate_ith_lcl(xt, t, out_n);
+      lub_terminate_ith_def(xt, t, out_n);
       return (lchar_t *)LUB_PTR_ERR(LUB_TRUNCATED, 0);
     }
 
-    LUB__terminate_ith_lcl(xt, t, out_n);
+    lub_terminate_ith_def(xt, t, out_n);
     return (xt == 'u') ? (lchar_t *)((uchar_t *)t + out_n)
                        : t + out_n;
 }
@@ -3502,7 +3591,7 @@ lchar_t *llsnncat
     lchar_t *s, size_t sn,
     const lchar_t *trunc
 )
-{   return (lchar_t *)LUB__cat_cpy_pad_helper
+{   return (lchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'l', 'l', '\0', '\0', '\0',
                 t, tn, s, sn,
                 (lchar_t)'\0', trunc, (lchar_t *)NULL,
@@ -3516,7 +3605,7 @@ lchar_t *lusnncat
     uchar_t *s, size_t sn, const lchar_t *trunc,
     const lchar_t lrep
 )
-{   return (lchar_t *)LUB__cat_cpy_pad_helper
+{   return (lchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'l', 'u', '\0', '\0', '\0',
                 t, tn, (lchar_t *)s, sn,
                 (lchar_t)'\0', trunc, (lchar_t *)NULL,
@@ -3530,7 +3619,7 @@ uchar_t *ulsnncat
     lchar_t *s, size_t sn,
     const lchar_t *trunc
 )
-{   return (uchar_t *)LUB__cat_cpy_pad_helper
+{   return (uchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'u', 'l', '\0', '\0', '\0',
                 (lchar_t *)t, tn, s, sn,
                 (lchar_t)'\0', (lchar_t *)trunc, (lchar_t *)NULL,
@@ -3544,7 +3633,7 @@ uchar_t *uusnncat
     uchar_t *s, size_t sn,
     const lchar_t *trunc
 )
-{   return (uchar_t *)LUB__cat_cpy_pad_helper
+{   return (uchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'u', 'u', '\0', '\0', '\0',
                 (lchar_t *)t, tn, (lchar_t *)s, sn,
                 (lchar_t)'\0', (lchar_t *)trunc, (lchar_t *)NULL,
@@ -3560,7 +3649,7 @@ lchar_t *llsnncatc
     lchar_t *s, size_t sn,
     const lchar_t *trunc
 )
-{   return (lchar_t *)LUB__cat_cpy_pad_helper
+{   return (lchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'l', 'l', '\0', '\0', 'c',
                 t, tn, s, sn,
                 (lchar_t)'\0', trunc, (lchar_t *)NULL,
@@ -3575,7 +3664,7 @@ lchar_t *lusnncatc
     const lchar_t *trunc,
     const lchar_t lrep
 )
-{   return (lchar_t *)LUB__cat_cpy_pad_helper
+{   return (lchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'l', 'u', '\0', '\0', 'c',
                 t, tn, (lchar_t *)s, sn,
                 (lchar_t)'\0', trunc, (lchar_t *)NULL,
@@ -3589,7 +3678,7 @@ uchar_t *ulsnncatc
     lchar_t *s, size_t sn,
     const lchar_t *trunc
 )
-{   return (uchar_t *)LUB__cat_cpy_pad_helper
+{   return (uchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'u', 'l', '\0', '\0', 'c',
                 (lchar_t *)t, tn, s, sn,
                 (lchar_t)'\0', (lchar_t *)trunc, (lchar_t *)NULL,
@@ -3601,7 +3690,7 @@ static inline
 uchar_t *uusnncatc(uchar_t *t, size_t tn,
                    uchar_t *s, size_t sn,
                    const lchar_t *trunc)
-{   return (uchar_t *)LUB__cat_cpy_pad_helper
+{   return (uchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'u', 'u', '\0', '\0', 'c',
                 (lchar_t *)t, tn, (lchar_t *)s, sn,
                 (lchar_t)'\0', (lchar_t *)trunc, (lchar_t *)NULL,
@@ -3615,7 +3704,7 @@ static inline
 lchar_t *llsnnCATC(lchar_t *t, size_t tn,
                    lchar_t *s, size_t sn,
                    const lchar_t *trunc)
-{   return (lchar_t *)LUB__cat_cpy_pad_helper
+{   return (lchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'l', 'l', '\0', '\0', 'C',
                 t, tn, s, sn,
                 (lchar_t)'\0', trunc, (lchar_t *)NULL,
@@ -3630,7 +3719,7 @@ lchar_t *lusnnCATC
     const lchar_t *trunc,
     const lchar_t lrep
 )
-{   return (lchar_t *)LUB__cat_cpy_pad_helper
+{   return (lchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'l', 'u', '\0', '\0', 'C',
                 t, tn, (lchar_t *)s, sn,
                 (lchar_t)'\0', trunc, (lchar_t *)NULL,
@@ -3644,7 +3733,7 @@ uchar_t *ulsnnCATC
     lchar_t *s, size_t sn,
     const lchar_t *trunc
 )
-{   return (uchar_t *)LUB__cat_cpy_pad_helper
+{   return (uchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'u', 'l', '\0', '\0', 'C',
                 (lchar_t *)t, tn, s, sn,
                 (lchar_t)'\0', (lchar_t *)trunc, (lchar_t *)NULL,
@@ -3658,7 +3747,7 @@ uchar_t *uusnnCATC
     const uchar_t *s, size_t sn,
     const lchar_t *trunc
 )
-{   return (uchar_t *)LUB__cat_cpy_pad_helper
+{   return (uchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'u', 'u', '\0', '\0', 'C',
                 (lchar_t *)t, tn, (lchar_t *)s, sn,
                 (lchar_t)'\0', (lchar_t *)trunc, (lchar_t *)NULL,
@@ -3674,7 +3763,7 @@ lchar_t *llsnncatq
     const lchar_t *s, size_t sn,
     const lchar_t *trunc, lchar_t q
 )
-{   return (lchar_t *)LUB__cat_cpy_pad_helper
+{   return (lchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'l', 'l', 'q', '\0', '\0',
                 t, tn, s, sn,
                 q, trunc, (lchar_t)NULL,
@@ -3689,7 +3778,7 @@ lchar_t *lusnncatq
     const lchar_t *trunc, lchar_t q,
     const lchar_t lrep
 )
-{   return (lchar_t *)LUB__cat_cpy_pad_helper
+{   return (lchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'l', 'u', 'q', '\0', '\0',
                 t, tn, (lchar_t *)s, sn,
                 q, trunc, (lchar_t)NULL,
@@ -3703,7 +3792,7 @@ uchar_t *ulsnncatq
     const lchar_t *s, size_t sn,
     const lchar_t *trunc, lchar_t q
 )
-{   return (lchar_t *)LUB__cat_cpy_pad_helper
+{   return (lchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'u', 'l', 'q', '\0', '\0',
                 (lchar_t *)t, tn, s, sn,
                 q, (lchar_t *)trunc, (lchar_t)NULL,
@@ -3717,7 +3806,7 @@ uchar_t *uusnncatq
     const uchar_t *s, size_t sn,
     const lchar_t *trunc, lchar_t q
 )
-{   return (uchar_t *)LUB__cat_cpy_pad_helper
+{   return (uchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'u', 'u', 'q', '\0', '\0',
                 (lchar_t *)t, tn, (lchar_t *)s, sn,
                 q, (lchar_t *)trunc, (lchar_t)NULL,
@@ -3733,7 +3822,7 @@ lchar_t *llsnncatqc
     const lchar_t *s, size_t sn,
     const lchar_t *trunc, lchar_t q
 )
-{   return (lchar_t *)LUB__cat_cpy_pad_helper
+{   return (lchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'l', 'l', 'q', '\0', 'c',
                 t, tn, s, sn,
                 q, trunc, (lchar_t *)NULL,
@@ -3748,7 +3837,7 @@ lchar_t *lusnncatqc
     const lchar_t *trunc, lchar_t q,
     const lchar_t lrep
 )
-{   return (lchar_t *)LUB__cat_cpy_pad_helper
+{   return (lchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'l', 'u', 'q', '\0', 'c',
                 t, tn, (lchar_t *)s, sn,
                 q, trunc, (lchar_t *)NULL,
@@ -3762,7 +3851,7 @@ uchar_t *ulsnncatqc
     const lchar_t *s, size_t sn,
     const lchar_t *trunc, lchar_t q
 )
-{   return (uchar_t *)LUB__cat_cpy_pad_helper
+{   return (uchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'u', 'l', 'q', '\0', 'c',
                 (lchar_t *)t, tn, s, sn,
                 q, (lchar_t *)trunc, (lchar_t *)NULL,
@@ -3776,7 +3865,7 @@ uchar_t *uusnncatqc
     const uchar_t *s, size_t sn,
     const lchar_t *trunc, lchar_t q
 )
-{   return (uchar_t *)LUB__cat_cpy_pad_helper
+{   return (uchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'u', 'u', 'q', '\0', 'c',
                 (lchar_t *)t, tn, (lchar_t *)s, sn,
                 q, (lchar_t *)trunc, (lchar_t *)NULL,
@@ -3792,7 +3881,7 @@ lchar_t *llsnnCATQC
     const lchar_t *s, size_t sn,
     const lchar_t *trunc, lchar_t q
 )
-{   return (lchar_t *)LUB__cat_cpy_pad_helper
+{   return (lchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'l', 'l', 'Q', '\0', 'C',
                 t, tn, s, sn,
                 q, trunc, (lchar_t *)NULL,
@@ -3807,7 +3896,7 @@ lchar_t *lusnnCATQC
     const lchar_t *trunc, lchar_t q,
     const lchar_t lrep
 )
-{   return (lchar_t *)LUB__cat_cpy_pad_helper
+{   return (lchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'l', 'u', 'Q', '\0', 'C',
                 t, tn, (lchar_t *)s, sn,
                 q, trunc, (lchar_t *)NULL,
@@ -3821,7 +3910,7 @@ uchar_t *ulsnnCATQC
     const lchar_t *s, size_t sn,
     const lchar_t *trunc, lchar_t q
 )
-{   return (lchar_t *)LUB__cat_cpy_pad_helper
+{   return (lchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'l', 'l', 'Q', '\0', 'C',
                 (lchar_t *)t, tn, s, sn,
                 q, (lchar_t *)trunc, (lchar_t *)NULL,
@@ -3835,7 +3924,7 @@ uchar_t *uusnnCATQC
     const uchar_t *s, size_t sn,
     const lchar_t *trunc, lchar_t q
 )
-{   return (lchar_t *)LUB__cat_cpy_pad_helper
+{   return (lchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'u', 'u', 'Q', '\0', 'C',
                 (lchar_t *)t, tn, (lchar_t *)s, sn,
                 q, (lchar_t *)trunc, (lchar_t *)NULL,
@@ -3851,7 +3940,7 @@ uchar_t *uusncatname
     const uchar_t *s, size_t sn,
     lchar_t q, const lchar_t *trunc
 )
-{   return (uchar_t *)LUB__cat_cpy_pad_helper
+{   return (uchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'u', 'u', 'q', 'N', '\0',
                 (lchar_t *)t, tn, (lchar_t *)s, sn,
                 q, (lchar_t *)trunc, (lchar_t *)NULL,
@@ -3867,7 +3956,7 @@ uchar_t *llsncatnamec
     const lchar_t *s, size_t sn,
     lchar_t q, const lchar_t *trunc
 )
-{   return (lchar_t *)LUB__cat_cpy_pad_helper
+{   return (lchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'l', 'l', 'q', 'n', 'c',
                 t, tn, s, sn,
                 q, (lchar_t *)trunc, (lchar_t *)NULL,
@@ -3881,7 +3970,7 @@ uchar_t *lusncatnamec
     const uchar_t *s, size_t sn,
     lchar_t q, const lchar_t *trunc
 )
-{   return (lchar_t *)LUB__cat_cpy_pad_helper
+{   return (lchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'l', 'l', 'q', 'n', 'c',
                 t, tn, (lchar_t *)s, sn,
                 q, trunc, (lchar_t *)NULL,
@@ -3895,7 +3984,7 @@ uchar_t *ulsncatnamec
     const lchar_t *s, size_t sn,
     lchar_t q, const uchar_t *trunc
 )
-{   return (lchar_t *)LUB__cat_cpy_pad_helper
+{   return (lchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'l', 'l', 'q', 'n', 'c',
                 (lchar_t *)t, tn, s, sn,
                 q, (lchar_t *)trunc, (lchar_t *)NULL,
@@ -3909,7 +3998,7 @@ uchar_t *uusncatnamec
     const uchar_t *s, size_t sn,
     lchar_t q, const lchar_t *trunc
 )
-{   return (lchar_t *)LUB__cat_cpy_pad_helper
+{   return (lchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'l', 'l', 'q', 'n', 'c',
                 (lchar_t *)t, tn, (lchar_t *)s, sn,
                 q, (lchar_t *)trunc, (lchar_t *)NULL,
@@ -3925,7 +4014,7 @@ uchar_t *uusnCATNAMEC
     const uchar_t *s, size_t sn,
     lchar_t q, const lchar_t *trunc
 )
-{   return (lchar_t *)LUB__cat_cpy_pad_helper
+{   return (lchar_t *)lub_cat_cpy_pad_ext
               ( 0, 'u', 'u', 'Q', 'N', 'C',
                 (lchar_t *)t, tn, (lchar_t *)s, sn,
                 q, (lchar_t *)trunc, (lchar_t *)NULL,
@@ -3938,7 +4027,7 @@ uchar_t *uusnCATNAMEC
 #if defined(LUB_DEFINITIONS)
 
 static
-lchar_t LUB__to_hex_lcl
+lchar_t lub_to_hex_def
 (   const byte_t b, int shift, const uint8_t Case)
 {   if (shift) shift = 4;
     const byte_t nib = (byte_t)((b >> shift) & 0xF);
@@ -3949,13 +4038,14 @@ lchar_t LUB__to_hex_lcl
 
 #endif // LUB_DEFINITIONS.
 
-static inline
-lchar_t *LUB__lbs_cat_helper
+extern
+lchar_t *lub_lbs_cat_ext
 (   lchar_t *t, size_t tn, 
     const byte_t *s, size_t sn,
     const lchar_t *trunc,
     const uint8_t Case
 )
+#if defined(LUB_DEFINITIONS)
 {   if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0) || LUB_PTR_ERR(trunc, 0))
       return (lchar_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0);
     if (!t) return (lchar_t *)NULL;
@@ -3979,12 +4069,12 @@ lchar_t *LUB__lbs_cat_helper
     else if (tn) t[tn - 1] = (lchar_t)0;
     return truncated ? (lchar_t *)LUB_PTR_ERR(LUB_TRUNCATED, 0) : o;
 #else
-    ;
+;
 #endif // LUB_DEFINITIONS.
 }
 
 extern
-uchar_t *LUB__ubs_cat_helper
+uchar_t *LUB__ubs_cat_ext
 (   uchar_t *t, size_t tn,
     const byte_t *s, size_t sn,
     const lchar_t *trunc,
@@ -4015,7 +4105,7 @@ uchar_t *LUB__ubs_cat_helper
     return truncated ? (uchar_t *)LUB_PTR_ERR(LUB_TRUNCATED, 0) : o;
 }
 #else
-    ;
+;
 #endif // LUB_DEFINITIONS.
 
 // Concatenate hex digit characters (lowercase) <- bytes.
@@ -4026,7 +4116,7 @@ lchar_t *lbsnncatc
     const byte_t *s, size_t sn,
     const lchar_t *trunc
 )
-{   return LUB__lbs_cat_helper(t, tn, s, sn, trunc, -1);}
+{   return lub_lbs_cat_ext(t, tn, s, sn, trunc, -1);}
 
 static inline
 uchar_t *ubsnncatc
@@ -4034,7 +4124,7 @@ uchar_t *ubsnncatc
     const byte_t *s, size_t sn,
     const lchar_t *trunc
 )
-{   return LUB__ubs_cat_helper(t, tn, s, sn, trunc, -1);}
+{   return LUB__ubs_cat_ext(t, tn, s, sn, trunc, -1);}
 
 // Concatenate hex digit characters (uppercase) <- bytes.
 
@@ -4044,7 +4134,7 @@ lchar_t *lbsnnCATC
     const byte_t *s, size_t sn,
     const lchar_t *trunc
 )
-{   return LUB__lbs_cat_helper(t, tn, s, sn, trunc, 1);}
+{   return lub_lbs_cat_ext(t, tn, s, sn, trunc, 1);}
 
 static inline
 uchar_t *ubsnnCATC
@@ -4052,7 +4142,7 @@ uchar_t *ubsnnCATC
     const byte_t *s, size_t sn,
     const lchar_t *trunc
 )
-{   return LUB__ubs_cat_helper(t, tn, s, sn, trunc, 1);}
+{   return LUB__ubs_cat_ext(t, tn, s, sn, trunc, 1);}
 /** @} */
 
 /**
@@ -4107,14 +4197,13 @@ uchar_t *ubsnnCATC
  *         or padded with x'00' bytes to a length of tn).
  *
  * @note Errors:
- * 
- *       - (lchar_t/uchar_t *)LUB_UNTERMINATED if is not null terminated.
- *       - (lchar_t/uchar_t *)LUB_BSTR_TOO_LONG if, for a byte string,
- *         tn or sn exceeds LUB_MAX_BSTRLEN.
- *       - (lchar_t/uchar_t *)LUB_OVERLAP if source and target have
- *         different types, or when quoted.
- *       - (lchar_t/uchar_t *)LUB_TRUNCATED if length of trunc
- *         string exceeds 31 or tn if trunc is not NULL.
+ * - (lchar_t/uchar_t *)LUB_UNTERMINATED if is not null terminated.
+ * - (lchar_t/uchar_t *)LUB_BSTR_TOO_LONG if, for a byte string,
+ *   tn or sn exceeds LUB_MAX_BSTRLEN.
+ * - (lchar_t/uchar_t *)LUB_OVERLAP if source and target have
+ *   different types, or when quoted.
+ * - (lchar_t/uchar_t *)LUB_TRUNCATED if length of trunc
+ *   string exceeds 31 or tn if trunc is not NULL.
  *
  * @note Copy is overlap-safe if target and source have the
  *       same type and not quoted (target result is correct
@@ -4138,12 +4227,12 @@ uchar_t *ubsnnCATC
 extern lchar_t *llsnncpy(lchar_t *t, size_t tn, const lchar_t *s, size_t sn,
                                 const lchar_t *trunc)
 #if defined(LUB_DEFINITIONS)                              
-    LUB__OP_HELPER__(1, 'l', 'l', (lchar_t)'\0', '\0', '\0',
-                      lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
-                      LUB_MAX_LSTRLEN, lcsnlen, islqname,
-                      isltruncstr, LUB_MAX_LOPTLEN,
-                      (lchar_t *)NULL, islpadstr,
-                      (lchar_t)'\0')
+LUB_OP_DEF(1, 'l', 'l', (lchar_t)'\0', '\0', '\0',
+            lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
+            LUB_MAX_LSTRLEN, lcsnlen, islqname,
+            isltruncstr, LUB_MAX_LOPTLEN,
+            (lchar_t *)NULL, islpadstr,
+            (lchar_t)'\0')
 #else
     ;
 #endif // LUB_DEFINITIONS
@@ -4151,7 +4240,7 @@ extern lchar_t *llsnncpy(lchar_t *t, size_t tn, const lchar_t *s, size_t sn,
 extern lchar_t *lusnncpy(lchar_t *t, size_t tn,  uchar_t *s, size_t sn,
                                 const lchar_t *trunc, const lchar_t lrep)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'l', 'u', (lchar_t)'\0', '\0', '\0',
+    LUB_OP_DEF(1, 'l', 'u', (lchar_t)'\0', '\0', '\0',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, isuqname,
                       isltruncstr, LUB_MAX_LOPTLEN,
@@ -4164,7 +4253,7 @@ extern lchar_t *lusnncpy(lchar_t *t, size_t tn,  uchar_t *s, size_t sn,
 extern uchar_t *ulsnncpy(uchar_t *t, size_t tn, lchar_t *s, size_t sn,
                                  const lchar_t *trunc)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'u', 'l', (lchar_t)'\0', '\0', '\0',
+    LUB_OP_DEF(1, 'u', 'l', (lchar_t)'\0', '\0', '\0',
                       lchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, islqname,
                       isutruncstr, LUB_MAX_UOPTLEN,
@@ -4177,7 +4266,7 @@ extern uchar_t *ulsnncpy(uchar_t *t, size_t tn, lchar_t *s, size_t sn,
 extern uchar_t *uusnncpy(uchar_t *t, size_t tn,  uchar_t *s, size_t sn,
                                  const lchar_t *trunc)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'u', 'u', (lchar_t)'\0', '\0', '\0',
+    LUB_OP_DEF(1, 'u', 'u', (lchar_t)'\0', '\0', '\0',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, isuqname,
                       isutruncstr, LUB_MAX_UOPTLEN,
@@ -4193,7 +4282,7 @@ extern lchar_t *llsnncpyc(lchar_t *t, size_t tn,
                           const lchar_t *s, size_t sn,
                           const lchar_t *trunc)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'l', 'l', (lchar_t)'\0', '\0', 'c',
+    LUB_OP_DEF(1, 'l', 'l', (lchar_t)'\0', '\0', 'c',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, islqname,
                       isltruncstr, LUB_MAX_LOPTLEN,
@@ -4207,7 +4296,7 @@ extern lchar_t *lusnncpyc(lchar_t *t, size_t tn,
                           uchar_t *s, size_t sn,
                           const lchar_t *trunc, const lchar_t lrep)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'l', 'u', (lchar_t)'\0', '\0', 'c',
+    LUB_OP_DEF(1, 'l', 'u', (lchar_t)'\0', '\0', 'c',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, isuqname,
                       isltruncstr, LUB_MAX_LOPTLEN,
@@ -4221,7 +4310,7 @@ extern uchar_t *ulsnncpyc(uchar_t *t, size_t tn,
                           lchar_t *s, size_t sn,
                           const lchar_t *trunc)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'u', 'l', (lchar_t)'\0', '\0', 'c',
+    LUB_OP_DEF(1, 'u', 'l', (lchar_t)'\0', '\0', 'c',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, islqname,
                       isutruncstr, LUB_MAX_UOPTLEN,
@@ -4235,7 +4324,7 @@ extern uchar_t *uusnncpyc(uchar_t *t, size_t tn,
                           uchar_t *s, size_t sn,
                      const lchar_t *trunc)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'u', 'u', (lchar_t)'\0', '\0', 'c',
+    LUB_OP_DEF(1, 'u', 'u', (lchar_t)'\0', '\0', 'c',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, isuqname,
                       isutruncstr, LUB_MAX_UOPTLEN,
@@ -4251,7 +4340,7 @@ extern lchar_t *llsnnCPYC(lchar_t *t, size_t tn,
                                  const lchar_t *s, size_t sn,
                                  const lchar_t *trunc)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'l', 'l', (lchar_t)'\0', '\0', 'C',
+    LUB_OP_DEF(1, 'l', 'l', (lchar_t)'\0', '\0', 'C',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, islqname,
                       isltruncstr, LUB_MAX_LOPTLEN,
@@ -4264,7 +4353,7 @@ extern lchar_t *llsnnCPYC(lchar_t *t, size_t tn,
 extern lchar_t *lusnnCPYC(lchar_t *t, size_t tn, uchar_t *s, size_t sn,
                                  const lchar_t *trunc, const lchar_t lrep)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'l', 'u', (lchar_t)'\0', '\0', 'C',
+    LUB_OP_DEF(1, 'l', 'u', (lchar_t)'\0', '\0', 'C',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, isuqname,
                       isltruncstr, LUB_MAX_LOPTLEN,
@@ -4277,7 +4366,7 @@ extern lchar_t *lusnnCPYC(lchar_t *t, size_t tn, uchar_t *s, size_t sn,
 extern uchar_t *ulsnnCPYC(uchar_t *t, size_t tn, uchar_t *s, size_t sn,
                                  const lchar_t *trunc)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'u', 'l', (lchar_t)'\0', '\0', 'C',
+    LUB_OP_DEF(1, 'u', 'l', (lchar_t)'\0', '\0', 'C',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, islqname,
                       isutruncstr, LUB_MAX_UOPTLEN,
@@ -4290,7 +4379,7 @@ extern uchar_t *ulsnnCPYC(uchar_t *t, size_t tn, uchar_t *s, size_t sn,
 extern uchar_t *uusnnCPYC(uchar_t *t, size_t tn,  uchar_t *s, size_t sn,
                                   const lchar_t *trunc)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'u', 'u', (lchar_t)'\0', '\0', 'C',
+    LUB_OP_DEF(1, 'u', 'u', (lchar_t)'\0', '\0', 'C',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, isuqname,
                       isutruncstr, LUB_MAX_UOPTLEN,
@@ -4306,7 +4395,7 @@ extern lchar_t *llsnncpyq(lchar_t *t, size_t tn,
                           const lchar_t *s, size_t sn,
                           const lchar_t *trunc, const lchar_t q)
 #if defined(LUB_DEFINITIONS)                              
-    LUB__OP_HELPER__(1, 'l', 'l', q, '\0', '\0',
+    LUB_OP_DEF(1, 'l', 'l', q, '\0', '\0',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, islqname,
                       isltruncstr, LUB_MAX_LOPTLEN,
@@ -4321,7 +4410,7 @@ extern lchar_t *lusnncpyq(lchar_t *t, size_t tn,
                           const lchar_t *trunc, const lchar_t q,
                           const lchar_t lrep)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'l', 'u', q, '\0', '\0',
+    LUB_OP_DEF(1, 'l', 'u', q, '\0', '\0',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, isuqname,
                       isltruncstr, LUB_MAX_LOPTLEN,
@@ -4335,7 +4424,7 @@ extern uchar_t *ulsnncpyq(uchar_t *t, size_t tn,
                           const lchar_t *s, size_t sn,
                           const lchar_t *trunc, const lchar_t q)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'u', 'l', q, '\0', '\0',
+    LUB_OP_DEF(1, 'u', 'l', q, '\0', '\0',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, islqname,
                       isutruncstr, LUB_MAX_UOPTLEN,
@@ -4349,7 +4438,7 @@ extern uchar_t *uusnncpyq(uchar_t *t, size_t tn,
                           const uchar_t *s, size_t sn,
                           const lchar_t *trunc, const lchar_t q)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'u', 'u', q, '\0', '\0',
+    LUB_OP_DEF(1, 'u', 'u', q, '\0', '\0',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, isuqname,
                       isutruncstr, LUB_MAX_UOPTLEN,
@@ -4365,7 +4454,7 @@ extern lchar_t *llsnncpyqc(lchar_t *t, size_t tn,
                            const lchar_t *s, size_t sn,
                            const lchar_t *trunc, const lchar_t q)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'l', 'l', q, '\0', 'c',
+    LUB_OP_DEF(1, 'l', 'l', q, '\0', 'c',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, islqname,
                       isltruncstr, LUB_MAX_LOPTLEN,
@@ -4380,7 +4469,7 @@ extern lchar_t *lusnncpyqc(lchar_t *t, size_t tn,
                            const lchar_t *trunc, const lchar_t q,
                            const lchar_t lrep)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'l', 'u', q, '\0', 'c',
+    LUB_OP_DEF(1, 'l', 'u', q, '\0', 'c',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, isuqname,
                       isltruncstr, LUB_MAX_LOPTLEN,
@@ -4394,28 +4483,28 @@ extern uchar_t *ulsnncpyqc(uchar_t *t, size_t tn,
                            const lchar_t *s, size_t sn,
                            const lchar_t *trunc, const lchar_t q)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'u', 'l', q, '\0', 'c',
+    LUB_OP_DEF(1, 'u', 'l', q, '\0', 'c',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, islqname,
                       isutruncstr, LUB_MAX_UOPTLEN,
                       (uchar_t *)NULL, isupadstr,
                       (lchar_t)'\0')
 #else
-    ;
+;
 #endif // LUB_DEFINITIONS
 
 extern uchar_t *uusnncpyqc(uchar_t *t, size_t tn,
                            const uchar_t *s, size_t sn,
                            const lchar_t *trunc, const lchar_t q)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'u', 'u', q, '\0', 'c',
+    LUB_OP_DEF(1, 'u', 'u', q, '\0', 'c',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, isuqname,
                       isutruncstr, LUB_MAX_UOPTLEN,
                       (uchar_t *)NULL, isupadstr,
                       (lchar_t)'\0')
 #else
-    ;
+;
 #endif // LUB_DEFINITIONS
 
 // Copy quoted uppercase.
@@ -4424,14 +4513,14 @@ extern lchar_t *llsnnCPYQC(lchar_t *t, size_t tn,
                            const lchar_t *s, size_t sn,
                            const lchar_t *trunc, const lchar_t q)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'l', 'l', q, '\0', 'C',
+    LUB_OP_DEF(1, 'l', 'l', q, '\0', 'C',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, islqname,
                       isltruncstr, LUB_MAX_LOPTLEN,
                       (lchar_t *)NULL, islpadstr,
                       (lchar_t)'\0')
 #else
-    ;
+;
 #endif // LUB_DEFINITIONS
 
 extern lchar_t *lusnnCPYQC(lchar_t *t, size_t tn,
@@ -4439,21 +4528,21 @@ extern lchar_t *lusnnCPYQC(lchar_t *t, size_t tn,
                            const lchar_t *trunc, const lchar_t q,
                            const lchar_t lrep)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'l', 'u', q, '\0', 'C',
+    LUB_OP_DEF(1, 'l', 'u', q, '\0', 'C',
                       lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, isuqname,
                       isltruncstr, LUB_MAX_LOPTLEN,
                       (lchar_t *)NULL, islpadstr,
                       lrep)
 #else
-    ;
+;
 #endif // LUB_DEFINITIONS
 
 extern uchar_t *ulsnnCPYQC(uchar_t *t, size_t tn,
                            const lchar_t *s, size_t sn,
                            const lchar_t *trunc, const lchar_t q)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'u', 'l', q, '\0', 'C',
+    LUB_OP_DEF(1, 'u', 'l', q, '\0', 'C',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_LSTRLEN, lcsnlen, islqname,
                       isutruncstr, LUB_MAX_UOPTLEN,
@@ -4467,7 +4556,7 @@ extern uchar_t *uusnnCPYQC(uchar_t *t, size_t tn,
                            const uchar_t *s, size_t sn,
                            const lchar_t *trunc, const lchar_t q)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'u', 'u', q, '\0', 'C',
+    LUB_OP_DEF(1, 'u', 'u', q, '\0', 'C',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, isuqname,
                       isutruncstr, LUB_MAX_UOPTLEN,
@@ -4483,7 +4572,7 @@ extern uchar_t *uusncpyname(uchar_t *t, size_t tn,
                              const uchar_t *s, size_t sn,
                             const lchar_t *trunc, const lchar_t q)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'u', 'u', q, 'N', '\0',
+    LUB_OP_DEF(1, 'u', 'u', q, 'N', '\0',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, isuqname,
                       isutruncstr, LUB_MAX_UOPTLEN,
@@ -4499,7 +4588,7 @@ extern uchar_t *uusncpynamec(uchar_t *t, size_t tn,
                               const uchar_t *s, size_t sn,
                              const lchar_t *trunc, const lchar_t q)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'u', 'u', q, 'N', 'c',
+    LUB_OP_DEF(1, 'u', 'u', q, 'N', 'c',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, isuqname,
                       isutruncstr, LUB_MAX_UOPTLEN,
@@ -4515,7 +4604,7 @@ extern uchar_t *uusnCPYNAMEC(uchar_t *t, size_t tn,
                               const uchar_t *s, size_t sn,
                              const lchar_t *trunc, const lchar_t q)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(1, 'u', 'u', q, 'N', 'C',
+    LUB_OP_DEF(1, 'u', 'u', q, 'N', 'C',
                       uchar_t, LUB_MAX_USTRLEN, ucsnlen,
                       LUB_MAX_USTRLEN, ucsnlen, isuqname,
                       isutruncstr, LUB_MAX_UOPTLEN,
@@ -4580,7 +4669,7 @@ extern byte_t *blsnncpy(byte_t *t, size_t tn, const lchar_t *s, size_t sn)
     return t;
 }
 #else
-    ;
+;
 #endif // LUB_DEFINITIONS
 
 extern byte_t *busnncpy(byte_t *t, size_t tn, const uchar_t *s, size_t sn)
@@ -4601,7 +4690,7 @@ extern byte_t *busnncpy(byte_t *t, size_t tn, const uchar_t *s, size_t sn)
     return t;
 }
 #else
-    ;
+;
 #endif // LUB_DEFINITIONS
 
 // Copy bytes <- bytes.
@@ -4668,7 +4757,6 @@ extern byte_t *bbsnncpy(byte_t *t, size_t tn, const byte_t *s, size_t sn)
  * @return Pointer to t, or NULL if an error occurs,
  *
  * @note Errors:
- * 
  * - LUB_PTR_INVALID if t, s, st, or trim is not a valid pointer (value
  *   is reserved as an error value).
  * - LUB_UNTERMINATED if s, trunc, or trim is not null terminated.
@@ -4682,51 +4770,46 @@ extern byte_t *bbsnncpy(byte_t *t, size_t tn, const byte_t *s, size_t sn)
 
 #if defined(LUB_DEFINITIONS)
 
-#if defined(LUB__TRIM_LEFT_MODE__) || \
-    defined(LUB__TRIM_RIGHT_MODE__)
-#error "lubtype.h: A LUB__TRIM_*_MODE__ macro is unexpectedly " \
-       "already defined. #undef before including lubtype.h. " \
-       "These macros are undefined after their last use " \
-       "by the include. After including, define again as needed."
-#endif // defined macros
-
-#define LUB__TRIM_LEFT_MODE__(trim) \
-    ((trim) == 'L' || (trim) == 'B' || (trim) == 'l' || (trim) == 'b')
-#define LUB__TRIM_RIGHT_MODE__(trim) \
-    ((trim) == 'R' || (trim) == 'B' || (trim) == 'r' || (trim) == 'b')
-
 // Trim helper macro.
 
-#undef LUB__OP_HELPER__
-#define LUB__OP_HELPER__(ttype, stype, \
+#undef LUB_OP_DEF
+#define LUB_OP_DEF(ttype, stype, \
                           max_strlen, snlen_func, \
                           space_func, cast) \
     {   if (!t) return (ttype *)NULL; \
-        if (LUB_PTR_ERR(t, 0)) return (ttype *)LUB_PTR_ERR(LUB_PTR_INVALID, 0); \
+        if (LUB_PTR_ERR(t, 0))
+          return (ttype *)LUB_PTR_ERR(LUB_PTR_INVALID, 0); \
         if (!s) {*t = (ttype)0; return t;} \
-        if (LUB_PTR_ERR(s, 0)) {*t = (ttype)0; return (ttype *)LUB_PTR_ERR(LUB_PTR_INVALID, 0);} \
+        if (LUB_PTR_ERR(s, 0))
+        { *t = (ttype)0; return (ttype *)LUB_PTR_ERR(LUB_PTR_INVALID, 0); } \
         if (sn > max_strlen) sn = max_strlen; \
         size_t len = snlen_func(s, sn); \
-        if (LUB_SIZE_ERR(len, 0)) {*t = (ttype)0; return (ttype *)LUB_PTR_ERR(len, 0);} \
+        if (LUB_SIZE_ERR(len, 0))
+        { *t = (ttype)0; return (ttype *)LUB_PTR_ERR(len, 0); } \
         size_t start = 0, end = len; \
-        if (LUB__TRIM_LEFT_MODE__(trim)) \
-            while (start < end && space_func(s[start])) start++; \
-        if (LUB__TRIM_RIGHT_MODE__(trim)) \
-            while (end > start && space_func(s[end - 1])) end--; \
+        if (trim_mode == 'L' || trim_mode == 'B') \
+          while (start < end && space_func(s[start])) start++; \
+        if (trim_mode == 'R' || trim_mode == 'B') \
+          while (end > start && space_func(s[end - 1])) end--; \
         /* TBD: If trimset is neither NULL nor empty, use it */ \
         /* instead of whitespace characters. */ \
-        if (delim) { \
-            size_t ti = 0; \
-            int pending_space = 0; \
-            for (size_t i = start; i < end; ++i) { \
-                if (space_func(s[i])) { pending_space = 1; } \
-                else { if (pending_space) t[ti++] = delim; t[ti++] = cast s[i]; pending_space = 0; } \
+        if (delim) \
+        { size_t ti = 0; \
+          int pending_space = 0; \
+          for (size_t i = start; i < end; ++i) \
+          { if (space_func(s[i])) { pending_space = 1; } \
+            else
+            { if (pending_space) t[ti++] = delim;
+              t[ti++] = cast s[i];
+              pending_space = 0;
             } \
-            if (pending_space) t[ti++] = delim; \
-            t[ti] = (ttype)0; \
-        } else { \
-            for (size_t i = start; i < end; ++i) t[i - start] = cast s[i]; \
-            t[end - start] = (ttype)0; \
+          } \
+          if (pending_space) t[ti++] = delim; \
+          t[ti] = (ttype)0; \
+        } \
+        else \
+        { for (size_t i = start; i < end; ++i) t[i - start] = cast s[i]; \
+          t[end - start] = (ttype)0; \
         } \
         return t; \
     }
@@ -4740,8 +4823,8 @@ extern lchar_t *llsnntrim
      const lchar_t *trimset, const char trim, const lchar_t delim
     )
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(lchar_t, lchar_t,
-                      LUB_MAX_LSTRLEN, lcsnlen, islspace, )
+LUB_OP_DEF(lchar_t, lchar_t,
+LUB_MAX_LSTRLEN, lcsnlen, islspace, )
 #else
 ;
 #endif // LUB_DEFINITIONS for llsntrim.
@@ -4753,8 +4836,8 @@ extern uchar_t *lusnntrim
      const lchar_t lrep
     )
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(lchar_t, uchar_t,
-                      LUB_MAX_LSTRLEN, ucsnlen, isuspace, (lchar_t))
+LUB_OP_DEF(lchar_t, uchar_t,
+           LUB_MAX_LSTRLEN, ucsnlen, isuspace, (lchar_t))
 #else
 ;
 #endif // LUB_DEFINITIONS for lusnntrim.
@@ -4765,8 +4848,8 @@ extern uchar_t *ulsnntrim
      const lchar_t *trimset, const char trim, const uchar_t delim
     )
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(uchar_t, lchar_t,
-                      LUB_MAX_USTRLEN, lcsnlen, islspace, (uchar_t))
+LUB_OP_DEF(uchar_t, lchar_t,
+          LUB_MAX_USTRLEN, lcsnlen, islspace, (uchar_t))
 #else
 ;
 #endif // LUB_DEFINITIONS for ulsnnbtrim.
@@ -4777,18 +4860,13 @@ extern uchar_t *uusnntrim
      const uchar_t *trimset, const char trim, const uchar_t delim
     )
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(uchar_t, uchar_t,
-                      LUB_MAX_USTRLEN, ucsnlen, isuspace, )
+LUB_OP_DEF(uchar_t, uchar_t,
+           LUB_MAX_USTRLEN, ucsnlen, isuspace, )
+#else
+;
+#endif // LUB_DEFINITIONS for uusnntrim.
+
 /** @} */
-
-#if defined(LUB_DEFINITIONS)
-#undef LUB__OP_HELPER__  // For trim functions.
-#endif // LUB_DEFINITIONS
-
-#if defined(LUB_DEFINITIONS)
-#undef LUB__TRIM_LEFT_MODE__
-#undef LUB__TRIM_RIGHT_MODE__
-#endif // LUB_DEFINITIONS
 
 /**
  * @defgroup Reverse Reverse
@@ -4821,10 +4899,10 @@ extern uchar_t *uusnntrim
  
 #if defined(LUB_DEFINITIONS)
 
-#undef LUB__OP_HELPER__
-#define LUB__OP_HELPER__(t_xt, tn_max, \
-                               s_xt, sn_max, xcsnlen, \
-                               lrep) \
+#undef LUB_OP_DEF
+#define LUB_OP_DEF(t_xt, tn_max, \
+                   s_xt, sn_max, xcsnlen, \
+                   lrep) \
 {   if (LUB_PTR_ERR(t, 0)) \
       return (t_xt *)LUB_PTR_ERR(LUB_PTR_INVALID, 0); \
     if (tn > tn_max) tn = tn_max; \
@@ -4841,11 +4919,11 @@ extern uchar_t *uusnntrim
     if (!t) return (t_xt *)NULL; \
     t_xt *tt = t; \
     size_t i = sn; \
-        if (!sn) \
-        { *t = (t_xt)0; \
-            return t; \
-        } \
-        if (t + sn <= (t_xt *)s || t >= (t_xt *)(s + sn)) \
+    if (!sn) \
+    { *t = (t_xt)0; \
+      return t; \
+    } \
+    if (t + sn <= (t_xt *)s || t >= (t_xt *)(s + sn)) \
     { /* No overlap: simple reverse copy. */ \
       s += (sn - 1); \
       if (sizeof(t_xt) < sizeof(s_xt)) \
@@ -4922,20 +5000,20 @@ extern uchar_t *uusnntrim
 extern lchar_t *llsnnreverse(lchar_t *t, size_t tn,
                              lchar_t *s, size_t sn)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(lchar_t, LUB_MAX_LSTRLEN,
-                      lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
-                      ((lchar_t)'\0'))
+LUB_OP_DEF(lchar_t, LUB_MAX_LSTRLEN,
+           lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
+           ((lchar_t)'\0'))
 #else
-    ;
+;
 #endif // LUB_DEFINITIONS for llsnnreverse.
 
 extern lchar_t *lusnnreverse(lchar_t *t, size_t tn,
                              uchar_t *s, size_t sn,
                              const lchar_t lrep)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(lchar_t, LUB_MAX_LSTRLEN,
-                      uchar_t, LUB_MAX_USTRLEN, ucsnlen,
-                      lrep)
+LUB_OP_DEF(lchar_t, LUB_MAX_LSTRLEN,
+           uchar_t, LUB_MAX_USTRLEN, ucsnlen,
+           lrep)
 #else
     ;
 #endif // LUB_DEFINITIONS for lusnnreverse.
@@ -4944,9 +5022,9 @@ extern uchar_t *ulsnnreverse(uchar_t *t, size_t tn,
                              const lchar_t *s,
                              size_t sn)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(uchar_t, LUB_MAX_USTRLEN,
-                      lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
-                      ((lchar_t)'\0'))
+LUB_OP_DEF(uchar_t, LUB_MAX_USTRLEN,
+           lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
+           ((lchar_t)'\0'))
 #else
     ;
 #endif // LUB_DEFINITIONS for ulsnnreverse.
@@ -4954,11 +5032,11 @@ extern uchar_t *ulsnnreverse(uchar_t *t, size_t tn,
 extern uchar_t *uusnnreverse(uchar_t *t, size_t tn,
                              const uchar_t *s, size_t sn)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(uchar_t, LUB_MAX_USTRLEN,
-                      uchar_t, LUB_MAX_USTRLEN, ucsnlen,
-                      ((lchar_t)'\0'))
+LUB_OP_DEF(uchar_t, LUB_MAX_USTRLEN,
+           uchar_t, LUB_MAX_USTRLEN, ucsnlen,
+           ((lchar_t)'\0'))
 #else
-    ;
+;
 #endif // LUB_DEFINITIONS for uusnnreverse.
 /** @} */
 
@@ -5012,7 +5090,6 @@ extern uchar_t *uusnnreverse(uchar_t *t, size_t tn,
  *         *t is set to a null-terminator.
  *
  * @note Errors:
- * 
  * - (lchar_t/uchar_t *)LUB_PTR_INVALID if t or s is not a valid pointer.
  * - (lchar_t/uchar_t *)LUB_UNTERMINATED if source string
  *   is not null-terminated.
@@ -5030,10 +5107,10 @@ extern uchar_t *uusnnreverse(uchar_t *t, size_t tn,
  */
 
 #if defined(LUB_DEFINITIONS)
-#undef LUB__OP_HELPER__
-#define LUB__OP_HELPER__(xxcpy, \
-                          t_xt, tn_max, s_xt, sn_max, xcsnlen, \
-                          pad_xt, isxpadstr, conv_mode, lrep) \
+#undef LUB_OP_DEF
+#define LUB_OP_DEF(xxcpy, \
+                   t_xt, tn_max, s_xt, sn_max, xcsnlen, \
+                   pad_xt, isxpadstr, conv_mode, lrep) \
 {   xxcpy(t, tn, s, sn, trunc);
     if (LUB_PTR_ERR(t, 0)) \
             return (t_xt *)LUB_PTR_ERR(LUB_PTR_INVALID, 0); \
@@ -5092,9 +5169,9 @@ extern lchar_t *llsnnpad(lchar_t *t, size_t tn,
                          const lchar_t *s, size_t sn,
                          const lchar_t *pad)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(lchar_t, LUB_MAX_LSTRLEN,
-                      lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
-                      lchar_t, islpadstr, 0, 0)
+LUB_OP_DEF(lchar_t, LUB_MAX_LSTRLEN,
+           lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
+           lchar_t, islpadstr, 0, 0)
 #else
 ;
 #endif // LUB_DEFINITIONS for llsnnpad.
@@ -5104,9 +5181,9 @@ extern lchar_t *lusnnpad(lchar_t *t, size_t tn,
                          const lchar_t *pad,
                          const lchar_t lrep)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(lchar_t, LUB_MAX_LSTRLEN,
-                      uchar_t, LUB_MAX_USTRLEN, ucsnlen,
-                      lchar_t, islpadstr, 2, lrep)
+LUB_OP_DEF(lchar_t, LUB_MAX_LSTRLEN,
+           uchar_t, LUB_MAX_USTRLEN, ucsnlen,
+           lchar_t, islpadstr, 2, lrep)
 #else
 ;
 #endif // LUB_DEFINITIONS for lusnnpad.
@@ -5115,9 +5192,9 @@ extern uchar_t *ulsnnpad(uchar_t *t, size_t tn,
                          const lchar_t *s, size_t sn,
                          const uchar_t *pad)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(uchar_t, LUB_MAX_USTRLEN,
-                      lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
-                      uchar_t, isupadstr, 1, 0)
+LUB_OP_DEF(uchar_t, LUB_MAX_USTRLEN,
+           lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
+           uchar_t, isupadstr, 1, 0)
 #else
 ;
 #endif // LUB_DEFINITIONS for ulsnnpad.
@@ -5126,12 +5203,13 @@ extern uchar_t *uusnnpad(uchar_t *t, size_t tn,
                          const uchar_t *s, size_t sn,
                          const uchar_t *pad)
 #if defined(LUB_DEFINITIONS)
-    LUB__OP_HELPER__(uchar_t, LUB_MAX_USTRLEN,
-                      uchar_t, LUB_MAX_USTRLEN, ucsnlen,
-                      uchar_t, isupadstr, 1, 0)
+LUB_OP_DEF(uchar_t, LUB_MAX_USTRLEN,
+           uchar_t, LUB_MAX_USTRLEN, ucsnlen,
+           uchar_t, isupadstr, 1, 0)
 #else
 ;
 #endif // LUB_DEFINITIONS for uusnnpad.
+
 /** @} */
 
 /**
@@ -5166,24 +5244,21 @@ extern lchar_t *llsnnrepeat(
     if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
 
     size_t s_len = lcsnlen(s, sn);
-    if (s_len >= LUB_SIZE_ERRORS) {
-        t[tn] = (lchar_t)0; return (lchar_t *)s_len;
-    }
+    if (s_len >= LUB_SIZE_ERRORS)
+    { t[tn] = (lchar_t)0; return (lchar_t *)s_len; }
 
     if (times == 0) {t[0] = (lchar_t)0;  return t;}
 
-    if (s_len && times > tn / s_len) {
-        t[tn] = (lchar_t)0; return (lchar_t *)NULL;
-    }
+    if (s_len && times > tn / s_len)
+    { t[tn] = (lchar_t)0; return (lchar_t *)NULL; }
 
     size_t needed = s_len * times;
-    if (needed > tn) {
-        t[tn] = (lchar_t)0; return (lchar_t *)NULL;
-    }
+    if (needed > tn)
+    { t[tn] = (lchar_t)0; return (lchar_t *)NULL; }
 
     for (size_t rep = 0; rep < times; ++rep)
-        for (size_t i = 0; i < s_len; ++i)
-            t[rep * s_len + i] = s[i];
+      for (size_t i = 0; i < s_len; ++i)
+        t[rep * s_len + i] = s[i];
 
     t[needed] = (lchar_t)0;
     return t;
@@ -5200,30 +5275,21 @@ extern uchar_t *ulsnnrepeat(
     if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
 
     size_t s_len = lcsnlen(s, sn);
-    if (s_len >= LUB_SIZE_ERRORS) {
-        t[tn] = (uchar_t)0;
-        return (uchar_t *)s_len;
-    }
+    if (s_len >= LUB_SIZE_ERRORS)
+    { t[tn] = (uchar_t)0; return (uchar_t *)s_len; }
 
-    if (times == 0) {
-        t[0] = (uchar_t)0;
-        return t;
-    }
+    if (times == 0) { t[0] = (uchar_t)0; return t; }
 
-    if (s_len && times > tn / s_len) {
-        t[tn] = (uchar_t)0;
-        return (uchar_t *)NULL;
-    }
+    if (s_len && times > tn / s_len)
+    { t[tn] = (uchar_t)0; return (uchar_t *)NULL; }
 
     size_t needed = s_len * times;
-    if (needed > tn) {
-        t[tn] = (uchar_t)0;
-        return (uchar_t *)NULL;
-    }
+    if (needed > tn)
+    { t[tn] = (uchar_t)0; return (uchar_t *)NULL; }
 
     for (size_t rep = 0; rep < times; ++rep)
-        for (size_t i = 0; i < s_len; ++i)
-            t[rep * s_len + i] = (uchar_t)s[i];
+      for (size_t i = 0; i < s_len; ++i)
+        t[rep * s_len + i] = (uchar_t)s[i];
 
     t[needed] = (uchar_t)0;
     return t;
@@ -5240,36 +5306,28 @@ extern uchar_t *uusnnrepeat(
     if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
 
     size_t s_len = ucsnlen(s, sn);
-    if (s_len >= LUB_SIZE_ERRORS) {
-        t[tn] = (uchar_t)0;
-        return (uchar_t *)s_len;
-    }
+    if (s_len >= LUB_SIZE_ERRORS)
+    { t[tn] = (uchar_t)0;  return (uchar_t *)s_len; }
 
-    if (times == 0) {
-        t[0] = (uchar_t)0;
-        return t;
-    }
+    if (times == 0)
+    { t[0] = (uchar_t)0; return t; }
 
-    if (s_len && times > tn / s_len) {
-        t[tn] = (uchar_t)0;
-        return (uchar_t *)NULL;
-    }
+    if (s_len && times > tn / s_len)
+    { t[tn] = (uchar_t)0; return (uchar_t *)NULL; }
 
     size_t needed = s_len * times;
-    if (needed > tn) {
-        t[tn] = (uchar_t)0;
-        return (uchar_t *)NULL;
-    }
+    if (needed > tn)
+    { t[tn] = (uchar_t)0; return (uchar_t *)NULL; }
 
     for (size_t rep = 0; rep < times; ++rep)
-        for (size_t i = 0; i < s_len; ++i)
-            t[rep * s_len + i] = s[i];
+      for (size_t i = 0; i < s_len; ++i)
+        t[rep * s_len + i] = s[i];
 
     t[needed] = (uchar_t)0;
     return t;
 }
 #else
-    ;
+;
 #endif // LUB_DEFINITIONS for uusnnrepeat.
 
 /** @} */
@@ -5495,7 +5553,7 @@ extern lchar_t *llsnnreplace
     return t;
 }
 #else
-    ;
+;
 #endif // LUB_DEFINITIONS for uusnnrepeat
 
 extern uchar_t *ulsnnreplace(
@@ -5639,7 +5697,7 @@ extern uchar_t *ulsnnreplace(
     return t;
 }
 #else
-    ;
+;
 #endif // LUB_DEFINITIONS for uusnnrepeat
 
 extern uchar_t *uusnnreplace(
@@ -5782,7 +5840,7 @@ extern uchar_t *uusnnreplace(
     return t;
 }
 #else
-    ;
+;
 #endif // LUB_DEFINITIONS
 
 // Replace case-insensitive.
@@ -5931,7 +5989,7 @@ extern lchar_t *llsnnREPLACE(
     return t;
 }
 #else
-    ;
+;
 #endif // LUB_DEFINITIONS
 
 extern uchar_t *ulsnnREPLACE(
@@ -6079,7 +6137,7 @@ extern uchar_t *ulsnnREPLACE(
     return t;
 }
 #else
-    ;
+;
 #endif // LUB_DEFINITIONS
 
 extern uchar_t *uusnnREPLACE(
@@ -6220,8 +6278,9 @@ extern uchar_t *uusnnREPLACE(
     return t;
 }
 #else
-    ;
+;
 #endif // LUB_DEFINITIONS
+
 /** @} */
 
 /**
@@ -6260,7 +6319,7 @@ extern int llsnvprintf(lchar_t *t, size_t tn, const lchar_t *fmt, va_list ap)
     return rc;
 }
 #else
-    ;
+;
 #endif // LUB_DEFINITIONS
 
 extern int llsnprintf(lchar_t *t, size_t tn, const lchar_t *fmt, ...)
@@ -6272,8 +6331,9 @@ extern int llsnprintf(lchar_t *t, size_t tn, const lchar_t *fmt, ...)
     return rc;
 }
 #else
-    ;
+;
 #endif // LUB_DEFINITIONS
+
 /** @} */
 
 /**
@@ -6335,63 +6395,59 @@ extern int llsnprintf(lchar_t *t, size_t tn, const lchar_t *fmt, ...)
 /**
  * @section GlossaryOfTerms Glossary
  * lchar_t
- *     Latin-8 character (uint8_t). Values 1-255.
- *     0 is reserved for null terminator.
+ *   Latin-8 character (uint8_t). Values 1-255.
+ *   0 is reserved for null terminator.
  * 
  * uchar_t
- *     Unicode-16 character (uint16_t). Values 1-65535.
- *     0 is reserved for null terminator.
+ *   Unicode-16 character (uint16_t). Values 1-65535.
+ *   0 is reserved for null terminator.
  * 
  * byte_t
- *     Raw byte (uint8_t). Values x'00'-x'FF'. No null terminator semantics.
+ *   Raw byte (uint8_t). Values x'00'-x'FF'. No null terminator semantics.
  * 
  * lchar_t *
- *     Pointer to a null-terminated string (lchar_t *)
- *     of Latin characters (lchar_t).
+ *   Pointer to a null-terminated string (lchar_t *)
+ *   of Latin characters (lchar_t).
  * 
  * uchar_t *
- *     Pointer to a null-terminated string (uchar_t *)
- *     of Unicode characters (uchar_t).
+ *   Pointer to a null-terminated string (uchar_t *)
+ *   of Unicode characters (uchar_t).
  * 
  * byte_t *
- *     Pointer to a string (*byte_t) of bytes (byte_t). A specific
- *     length must be provided for byte strings, as they do not
- *     have null terminator semantics.
+ *   Pointer to a string (*byte_t) of bytes (byte_t). A specific
+ *   length must be provided for byte strings, as they do not
+ *   have null terminator semantics.
  * 
  * LUB_MAX_LSTRLEN
- *     Maximum number of characters in a Latin string (lchar_t *).
+ *   Maximum number of characters in a Latin string (lchar_t *).
  * 
  * LUB_MAX_USTRLEN
- *     Maximum number of characters in a Unicode string (uchar_t *).
+ *   Maximum number of characters in a Unicode string (uchar_t *).
  * 
  * LUB_MAX_BSTRLEN
- *     Maximum number of bytes in a byte string (*byte_t).
+ *   Maximum number of bytes in a byte string (*byte_t).
  * 
  * lrep
- *     Substitution char for out-of-range Unicode->Latin conversions.
+ *   Substitution char for out-of-range Unicode->Latin conversions.
  * 
  * sn
- *     Maximum source characters/bytes; for char strings, stops at null.
+ *   Maximum source characters/bytes; for char strings, stops at null.
  * 
  * tn
- *    Maximum target characters excluding null-terminator or
- *    target buffer byte length.
+ *   Maximum target characters excluding null-terminator or
+ *   target buffer byte length.
  * 
  * unterminated
- *     A character string that does not have a null terminator at or before
- *     the specified or default bound.
+ *   A character string that does not have a null terminator
+ *   at or before the specified or default bound.
  */
 
-// Undefine helper macros to avoid namespace pollution.
-#undef LUB__STATIC_ASSERT__
-#undef LUB__XPASTE__
-#undef LUB__PASTE__
-#undef LUB__XSTRINGIFY__
-#undef LUB__STRINGIFY__
+// Undefine LUB_*_DEF macros to avoid namespace pollution.
 
 #if defined(LUB_DEFINITIONS)
-#undef LUB__OP_HELPER__
-#undef LUB_DEFINITIONS
+
+#undef LUB_OP_DEF
+
 #endif // LUB_DEFINITIONS
 
 #ifdef __cplusplus
@@ -6399,4 +6455,3 @@ extern int llsnprintf(lchar_t *t, size_t tn, const lchar_t *fmt, ...)
 #endif
 
 // End of lubtype.h
-
