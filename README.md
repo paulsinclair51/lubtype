@@ -1,6 +1,6 @@
 # lubtype
 
-[![CI](https://github.com/paulsinclair51/lubtype/actions/workflows/ci.yml/badge.svg)](https://github.com/paulsinclair51/lubtype/actions/workflows/ci.yml)
+[GitHub Actions](https://github.com/paulsinclair51/lubtype/actions)
 
 Copyright (c) 2026 paulsinclair51  
 SPDX-License-Identifier: MIT  
@@ -24,10 +24,10 @@ Include `lubtype.h` everywhere you use the API.
 #include "lubtype.h"
 ```
 
-`lubtype.h` is header-only, but externally visible function bodies are emitted only when `LUB__DEFINITIONS__` is defined before the include. Define it in exactly one translation unit per final binary:
+`lubtype.h` is header-only, but externally visible function bodies are emitted only when `LUB_DEFINITIONS` is defined before the include. Define it in exactly one translation unit per final binary:
 
 ```c
-#define LUB__DEFINITIONS__
+#define LUB_DEFINITIONS
 #include "lubtype.h"
 ```
 
@@ -72,7 +72,7 @@ These mapping headers do not define stale `xchar_t`, `xstr_t`, or `xcstr_t` alia
 ## Quick Start
 
 ```c
-#define LUB__DEFINITIONS__
+#define LUB_DEFINITIONS
 #include "lubtype.h"
 
 int main(void) {
@@ -140,8 +140,8 @@ Important limits from `lubtype.h`:
 | `LUB_MAX_BYTE` | `255` |
 | `LUB_MAX_LSTRLEN` | `1000000` |
 | `LUB_MAX_USTRLEN` | `500000` |
-| `LUB_MAX_UNAMELEN` | `128` |
-| `LUB_MAX_UQNAMELEN` | `258` |
+| `LUB_MAX_NAMELEN` | `128` |
+| `LUB_MAX_QNAMELEN` | `258` |
 | `LUB_MAX_LOPTLEN` | `64000` |
 | `LUB_MAX_UOPTLEN` | `32000` |
 | `LUB_MAX_BSTRLEN` | `1000000` |
@@ -231,4 +231,4 @@ The checked-in test runner writes `lubtype_tests_report.txt` to its current work
 
 ## Continuous Integration
 
-GitHub Actions runs the test suite on pushes and pull requests. See `.github/workflows/ci.yml`.
+GitHub Actions runs the test suite on pushes and pull requests. If workflow files are included in your checkout, see `.github/workflows/ci.yml`.
