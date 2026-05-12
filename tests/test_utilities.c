@@ -65,14 +65,46 @@ static void test_reverse(void) {
 static void test_trim(void) {
     lchar_t out[33];
     lchar_t src[64];
+    lchar_t overlap[32];
+    const lchar_t *trim_b = (const lchar_t[]){ 'B', 0 };
+    const lchar_t *trim_l = (const lchar_t[]){ 'L', 0 };
+    const lchar_t *trunc_r = (const lchar_t[]){ 'R', '.', '.', 0 };
+    const lchar_t *trunc_l = (const lchar_t[]){ 'L', '.', '.', 0 };
+    const lchar_t *trunc_c = (const lchar_t[]){ 'C', '.', '.', 0 };
+    const lchar_t *trunc_b = (const lchar_t[]){ 'B', '.', '.', 0 };
 
     assert(llsnntrim(out, 32, make_lstr_local("  foo   bar  ", src, 64), 32,
-                     0, NULL, 'B', ' ') != NULL);
+                     0, trim_b, ' ') != NULL);
     assert(eq_lstr_ascii_local(out, "foo bar"));
 
     assert(llsnntrim(out, 32, make_lstr_local("  hello  ", src, 64), 32,
-                     0, NULL, 'L', 0) != NULL);
+                     0, trim_l, 0) != NULL);
     assert(eq_lstr_ascii_local(out, "hello  "));
+
+        assert((intptr_t)llsnntrim(out, 6,
+            make_lstr_local("  abcdefghij  ", src, 64), 64,
+            trunc_r, trim_b, 0) == (intptr_t)LUB_TRUNCATED);
+        assert(eq_lstr_ascii_local(out, "ab.."));
+
+        assert((intptr_t)llsnntrim(out, 6,
+            make_lstr_local("  abcdefghij  ", src, 64), 64,
+            trunc_l, trim_b, 0) == (intptr_t)LUB_TRUNCATED);
+        assert(eq_lstr_ascii_local(out, "..ij"));
+
+        assert((intptr_t)llsnntrim(out, 6,
+            make_lstr_local("  abcdefghij  ", src, 64), 64,
+            trunc_c, trim_b, 0) == (intptr_t)LUB_TRUNCATED);
+        assert(eq_lstr_ascii_local(out, "a..j"));
+
+        assert((intptr_t)llsnntrim(out, 6,
+            make_lstr_local("  abcdefghij  ", src, 64), 64,
+            trunc_b, trim_b, 0) == (intptr_t)LUB_TRUNCATED);
+        assert(eq_lstr_ascii_local(out, ".."));
+
+        make_lstr_local("  overlap  ", overlap, 32);
+        assert((intptr_t)llsnntrim(overlap + 1, 10, overlap, 32,
+            0, trim_b, 0) == (intptr_t)LUB_OVERLAP);
+        assert(overlap[1] == (lchar_t)0);
 }
 
 static void test_pad_and_repeat(void) {

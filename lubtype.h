@@ -152,8 +152,8 @@
  /**
  * @section ReservedNames Reserved Names
  * Besides the API provided type names and function names
- * (see @ref FunctionNamingConventions)
- * the API reserves names of the following forms:
+ * (see @ref FunctionNamingConventions), the API reserves
+ * names of the following forms:
  * 
  *   LUB_<W>[_<W>]... for macro names
  *   lub_<w>[_<w>]... for functions names
@@ -181,18 +181,17 @@
  *      part of the public API (e.g., lub_cat_cpy_pad_ext). Their
  *      definition may change with only a minor version number increase.
  *
- *    2. If a function name ends with _def, it is for a static (non-inline)
- *       function that is only visible when macro LUB_DEFINITIONS
- *       functions are only visible when macro LUB_DEFINITIONS is defined
- *       (e.g., lub_get_def and lub_set_ith_def). These  functions are
- *       documented and their definitions may change with only
- *       a patch version number increase.
+ *    2. If a function name ends with _def, it is for a static or static
+ *       inline function that is only visible when macro LUB_DEFINITIONS
+ *       functions is defined (e.g., lub_get_def and lub_set_ith_def).
+ *       These  functions are documented and their definitions may
+ *       change with only a patch version number increase.
  * 
- *    3. Otherwise, the second form is reserved for future use.
+ *    3. Otherwise, names with the second form are reserved for future use.
  * 
  * With these conventions, the likelihood of a name conflict is low. However, 
  *
- *   - For API and internal macros, if a conflict does arise with a name
+ *   - For macros, if a conflict does arise with a name
  *     when this header is included, the conflict must be resolved by
  *     an #undef of the macro before including this header and, if necessary,
  *     defining the macro again after including this header. Note that,
@@ -209,11 +208,11 @@
  *     since this change may require a major version number increase
  *     and potential incompatibilities for existing code.
  * 
- * If use of one of the internal extern functions is needed
+ * If use of one of the lub_*_ext functions is needed
  * (for instance, to use in  a wrapper that implements defaults for
  * certain parameters), then provide a wrapper that references,
- * preferably, a public API function or, if necessary, the
- * internal extern function. For example, an llstrim wrapper that has default
+ * preferably, a public API function or, if necessary,
+ * a lub_*_ext function. For example, an llstrim wrapper that has default
  * values for tn and sn parameters and references the API llsnntrim function
  * passing the defaults.
  */
@@ -245,6 +244,10 @@ extern "C" {
        "macro is unexpectedly already defined. " \
        "#undef before including lubtype.h."
 #endif // defined macros
+
+/**
+ * @section UtitilityMacros Utility Macros
+ */
 
 /**
  * @defgroup Paste Paste
@@ -349,7 +352,7 @@ extern "C" {
 /** @} */
 
 /**
- * @section Versioning Versioning
+ * @section VersioningMacros Versioning Macros
  */
 
 /**
@@ -456,11 +459,16 @@ LUB_STATIC_ASSERT(LUB_VERSION_PATCH <= 99, patch_fits_in_field);
 
 /** @} */ // End of Versioning.
 
+/**
+ * @section LUBTypes LUB Types
+ */
+
 #if defined(LUB_DEFINITIONS)
 
 // Ensure wchar_t is 2 or 4 bytes.
 LUB_STATIC_ASSERT(sizeof(wchar_t) == 2 || sizeof(wchar_t) == 4,
                         wchar_t_must_be_2_or_4_bytes);
+
                      
 // Ensure int, size_t, void *, and intptr_t are compatible
 // for casting error values.
@@ -477,12 +485,9 @@ LUB_STATIC_ASSERT((int)-2 == (int)(size_t)-2 &&
                              (intptr_t)-99 == (intptr_t)(int)-99 &&
                              (intptr_t)-99 == (intptr_t)(size_t)-99,
                              error_values_must_be_compatible_across_types);
+                             
 
 #endif // LUB_DEFINITIONS
-
-/**
- * @section LUBTypes LUB Types
- */
 
 /**
  * @defgroup LatinCharacterType Latin Character Type
@@ -535,6 +540,11 @@ typedef uint8_t byte_t;
 
 /** @} */
 
+
+/**
+ * @section LUBMacros LUB_* Macros
+ */
+
 /**
  * @defgroup CharacterLimits Character Limits
  * @name LUB_MAX_LCHAR, LUB_MAX_UCHAR, LUB_MAX_BYTE
@@ -543,8 +553,9 @@ typedef uint8_t byte_t;
  */
 
 #if defined(LUB_MAX_LCHAR) || defined(LUB_MAX_UCHAR) || defined(LUB_MAX_BYTE)
-#error "lubtype.h: A character limit LUB_MAX_* "\
-       "macro is unexpectedly already defined. " \
+#error "lubtype.h: A character limit LUB_MAX_LCHAR, "
+       "LUB_MAX_UCHAR, LUB_MAX_BYTE macro is unexpectedly "\
+       "already defined. " \
        "#undef before including lubtype.h."
 #endif // defined macros
 
@@ -570,7 +581,7 @@ typedef uint8_t byte_t;
     defined(LUB_MAX_NAMELEN) || defined(LUB_MAX_QNAMELEN) || \
     defined(LUB_MAX_LOPTLEN) || defined(LUB_MAX_UOPTLEN) || \
     defined(LUB_MAX_BSTRLEN) || defined(LUB_MAX_BOPTLEN)
-#error "lubtype.h: A string limit LUB_MAX_* macro " \
+#error "lubtype.h: A string limit LUB_MAX_*LEN macro " \
        "is unexpectedly already defined. " \
        "#undef before including lubtype.h."
 #endif // defined macros
@@ -585,10 +596,6 @@ typedef uint8_t byte_t;
 #define LUB_MAX_BOPTLEN    ((size_t)64000)
 
 /** @} */
-
-/**
- * @section SpecialReturnAndErrorValues Special Return and Error Values
- */
 
 /**
  * @defgroup SpecialReturnValues Special Return Values
@@ -622,7 +629,7 @@ typedef uint8_t byte_t;
     defined(LUB_CMP_LESS_THAN)
 #error "lubtype.h: A special value LUB_CMP_* " \
        "macro is unexpectedly already defined. " \
-       "#undef before including lubtype,h,"
+       "#undef before including lubtype.h."
 #endif // defined macros
 
 #if defined(LUB_QUOTEDNAME) || \
@@ -786,12 +793,18 @@ typedef uint8_t byte_t;
 /** @} */
 
 /**
- * @section Functions Functions
+ * @section LUBAPIFunctions LUB API Functions
  */
 
 /**
- * @subsection FunctionNamingConventions Function Naming Conventions
- *
+ * @subsection NamingConventions Naming Conventions
+ * 
+ * The following naming conventions are used for LUB API functions.
+ * These conventions are part of the documented and stable API and
+ * will not change without a major version number increase other than
+ * for new kind/operations (<kind>, <op>) where at least a minor version number
+ * increase occurs.
+ * 
  * {} required. [] optional. <> token. | alternatives.
  * 
  * l = Latin (lchar_t), u = Unicode (uchar_t), b = byte (byte_t)
@@ -899,7 +912,7 @@ typedef uint8_t byte_t;
  *         s1 and source s2 with s1n and s2n parameters for the bounds on
  *         s1 and s2, respectively.
  * 
- *    <op> = operation:
+ *    <op> = operation. The currently provided operations include:
  * 
  *      cmp/CMP = compare.
  *      fxdcmp/FXDCMP = fixed-length leading substring compare.
@@ -926,14 +939,14 @@ typedef uint8_t byte_t;
  *                                     for a name (maximum length of source
  *                                     is implicitly bounded to 128).
  * 
- *      trim/reverse/pad = copy modified string to target.
+ *      pad/trim/reverse = copy modified string to target.
  * 
  *      replace/REPLACE = character/string replacement.
  *
  *      vprintf/printf = format string.
  * 
- *    Examples: lusnncpy, ulsnnCATC, uusnCMP, ulsnnSTRM, uusncatnamec,
- *              uusnCATNAMEC, ulsncpyname, ulsncpynamec.
+ *    Examples: lusnncpy, ulsnnCATC, uusnnCMP, ulsnnSTRM,
+ *              uusncatnamec, uusnCATNAMEC, ulsncpyname, ulsncpynamec.
  *
  * @note Operations with Case Handling
  *
@@ -989,9 +1002,11 @@ typedef uint8_t byte_t;
  * 
  *              - If trunc is NULL, truncate mode defaults to "B" and truncated
  *                replacement string defaults to a 0-length string.
+ * 
  *              - If the first character is Latin alphabetic, it specifies
  *                the truncate mode and is followed by the truncated
  *                replacement string.
+ * 
  *              - If the first character is not Latin alphabetic, truncate
  *                mode defaults to 'R' and trunc is the truncated replacement
  *                string.
@@ -1001,17 +1016,21 @@ typedef uint8_t byte_t;
  *             - If 'L' or 'l', truncate on
  *               the left with the truncated replacement string
  *               added on the left.
+ * 
  *             - If 'R' or 'r', truncate on the right with the truncated
  *               replacement string added on the right.
+ * 
  *             - If 'C' or 'c', truncate in
  *               the center with the truncated replacement string
  *               added in the center.
+ * 
  *             - If 'B' or 'b', the result is the truncated replacement
  *               string.
  * 
  *             Truncated Replacement String:
  * 
  *             - May be a 0-length string.
+ * 
  *             - If this string is longer than the target buffer size (tn),
  *               a 0-length string is used instead.
  *
@@ -1028,30 +1047,36 @@ typedef uint8_t byte_t;
  * 
  *             - Length of trim is bounded by LUB_MAX_LOPTLEN or
  *               LUB_MAX_UOPTLEN.
+ * 
  *             - If NULL, trim defaults to "B".
+ * 
  *             - If the first character is Latin alphabetic, it specifies
  *               the trim mode and the rest of the characters are
  *               the trim characters.
+ * 
  *             - If the first character is not Latin alphabetic, trim mode defaults
  *               to 'B' and the characters in trim are the trim characters.
  * 
  *             Trim Mode (explicit or by default):
  * 
  *             - If 'L' or 'l', trim on the left.
+ * 
  *             - If 'R' or 'r', trim on the right.
+ * 
  *             - If 'B' or 'b', trim on both left and right.
+ * 
  *             - Other Latin alphabetic characters are reserved for future use
  *               and an error occurs if used.
  *
  *             Trim Characters (explicit or by default):
  * 
- *               Characters to trim from the beginning
+ *             - Characters to trim from the beginning
  *               and/or end of the source string).
  * 
- *               Matching is case-sensitive (include both cases
+ *             - Matching is case-sensitive (include both cases
  *               as trim characters if desired).
  * 
- *               If no trim characters, defaults to trimming
+ *             - If no trim characters, defaults to trimming
  *               whitespace characters as determined by islspace (when
  *               trim has lchar_t characters) or isuspace (when trim
  *               has uchar_t characters).
@@ -1076,22 +1101,41 @@ typedef uint8_t byte_t;
  *              characters are not replaced with a delimiter.
  * 
  * @param m mth occurrence for matching in replacement and search functions.
+ * 
  *          m > 0 counts from the beginning of the string
- *          (1 means first occurrence).
+ *              (1 means first occurrence).
+ * 
  *          m == 0 returns NULL for search functions.
+ * 
  *          m == 0 means replace all occurrences for replace functions.
+ * 
  *          m < 0 counts from the end of the string (-1 means last
  *                occurrence) when the operation supports reverse search.
  */
 
 #if defined(LUB_DEFINITIONS)
 
-#if defined(LUB_OP_HELPER__DEF)
-#error "lubtype.h: LUB_OP_HELPER__DEF macro is unexpectedly " \
+/**
+ * @subsection FunctionFamilies Function Families
+ * 
+ */
+
+#if defined(LUB_OP_DEF)
+
+ // Ensure LUB_OP_DEF is not already defined to avoid
+ // silently redefining it. This macro is defined and
+ // redefined as needed in lubtype.h with a helper
+ // macro definition specific to a function family.
+ // This macro is undefined prior to the end of header file.
+ // This helper macro is typically used when the macro definition
+ // is not complex and efficiency is important (e.g., for
+ // character classification functions. For more complex definitions,
+ // a helper lub_*_ext function is typically used instead.
+#error "lubtype.h: LUB_OP_DEF macro is unexpectedly " \
        "already defined. " \
        "#undef before defining LUB_DEFINITIONS and " \
-       "then including lubtype.h."
-#endif // LUB_OP_HELPER__DEF
+       "including lubtype.h."
+#endif // LUB_OP_DEF
 
 #endif // LUB_DEFINITIONS
 
@@ -1496,7 +1540,7 @@ int ilhex
  */
 
 extern
-size_t LUB_len__ext
+size_t LUB_len_ext
 ( const char xs, const lchar_t *s,  size_t sn )
 #if defined(LUB_DEFINITIONS)
 { if (!s) return (size_t)0;
@@ -1523,12 +1567,12 @@ size_t LUB_len__ext
 static inline
 size_t lcsnlen
 ( const lchar_t *s, size_t sn )
-{ return LUB_len__ext('l', s, sn); }
+{ return LUB_len_ext('l', s, sn); }
 
 static inline
 size_t ucsnlen
 ( const uchar_t *s, size_t sn )
-{ return LUB_len__ext('u', (const lchar_t *)s, sn); }
+{ return LUB_len_ext('u', (const lchar_t *)s, sn); }
 
 /**
  * @defgroup StringClassification String Classification
@@ -1549,10 +1593,10 @@ size_t ucsnlen
  *       <-1 Error.
  *
  * @note Errors:
- *       - (int)LUB_PTR_INVALID if s is an invalid pointer.
- *       - (int)LUB_UNTERMINATED if s is not null-terminated.
- *       - (int)LUB_NAME_TOO_LONG if s is too long for a name.
- *       - (int)LUB_NAME_INVALID if s is not a valid name.
+ * - (int)LUB_PTR_INVALID if s is an invalid pointer.
+ * - (int)LUB_UNTERMINATED if s is not null-terminated.
+ * - (int)LUB_NAME_TOO_LONG if s is too long for a name.
+ * - (int)LUB_NAME_INVALID if s is not a valid name.
  *
  * @note islnlatinstr, isunlatinstr:
  * 
@@ -1589,8 +1633,8 @@ size_t ucsnlen
 
 // String classification helper macro.
 
-#undef LUB__OP___DEF
-#define LUB__OP__DEF(lkind, ukind) \
+#undef LUB_OP_DEF
+#define LUB_OP_DEF(lkind, ukind) \
 { if (!s) return (int)1; \
   if (LUB_PTR_ERR(s, 0)) return LUB_INT_ERR(LUB_PTR_INVALID, 0); \
   const size_t maxlen = (xs == 'u') ? LUB_MAX_USTRLEN : LUB_MAX_LSTRLEN; \
@@ -1620,69 +1664,69 @@ size_t ucsnlen
 #endif // LUB_DEFINITIONS for string classification helper macro.
 
 extern
-int LUB__string_latin__ext
+int LUB_string_latin_ext
 ( const char xs, const lchar_t *s, size_t sn )
 #if defined(LUB_DEFINITIONS)
-LUB__OP__DEF(1, (*us <= (uchar_t)LUB_MAX_LCHAR))
+LUB_OP_DEF(1, (*us <= (uchar_t)LUB_MAX_LCHAR))
 #else
 ;
-#endif // LUB_DEFINITIONS for LUB__string_latin__ext.
+#endif // LUB_DEFINITIONS for LUB_string_latin_ext.
 
 static inline
 int islnlatinstr
 ( const lchar_t *s, size_t sn )
-{ return LUB__string_latin__ext('l', s, sn); }
+{ return LUB_string_latin_ext('l', s, sn); }
 
 static inline
 int isunlatinstr
 ( const uchar_t *s, size_t sn )
-{ return LUB__string_latin__ext('u', (const lchar_t *)s, sn); }
+{ return LUB_string_latin_ext('u', (const lchar_t *)s, sn); }
 
 // String with only alphabetic characters.
 
 extern
-int LUB__string_alpha__ext
+int LUB_string_alpha_ext
 ( const char xs,  const lchar_t *s, size_t sn
 )
 #if defined(LUB_DEFINITIONS)
-LUB__OP__DEF((islalpha(*s)), (isualpha(*us)))
+LUB_OP_DEF((islalpha(*s)), (isualpha(*us)))
 #else
 ;
-#endif // LUB_DEFINITIONS for LUB__string_alpha__ext.
+#endif // LUB_DEFINITIONS for LUB_string_alpha_ext.
 
 static inline
  int islnalphastr
  ( const lchar_t *s, size_t sn )
-{ return LUB__string_alpha__ext('l', s, sn); }
+{ return LUB_string_alpha_ext('l', s, sn); }
 
 static inline
 int isunalphastr
 ( const uchar_t *s, size_t sn )
-{ return LUB__string_alpha__ext('u', (const lchar_t *)s, sn); }
+{ return LUB_string_alpha_ext('u', (const lchar_t *)s, sn); }
 
 // Hex digit string classification.
 
 extern
-int LUB__string_hex__ext
+int LUB_string_hex_ext
 ( const char xs, const lchar_t *s,  size_t sn )
 #if defined(LUB_DEFINITIONS)
-LUB__OP__DEF((islhex(*s)), (isuhex(*us)))
+LUB_OP_DEF((islhex(*s)), (isuhex(*us)))
 #else
 ;
-#endif // LUB_DEFINITIONS
+#endif // LUB_DEFINITIONS for LUB_string_hex_ext.
 
 static inline
 int islnhexstr
 ( const lchar_t *s, size_t sn )
-{ return LUB__string_hex__ext('l', s, sn); }
+{ return LUB_string_hex_ext('l', s, sn); }
 
 static inline 
 int isunhexstr
 ( const uchar_t *s, size_t sn )
-{ return LUB__string_hex__ext('u', (const lchar_t *)s, sn); }
+{ return LUB_string_hex_ext('u', (const lchar_t *)s, sn); }
 
 extern
-int LUB__is_reserved__ext
+int LUB_is_reserved_ext
 ( const char xs, const lchar_t *s )
 #if defined(LUB_DEFINITIONS)
 { // Teradata reserved words list.
@@ -1802,14 +1846,14 @@ int LUB__is_reserved__ext
         if (c > (uchar_t)*r) { cmp = 1; break; }
       }
     }
-    else
+    else // xs == 'l' 
     { const lchar_t *ls = s;
       for (; ; ++r, ++ls)
       { if (!*r && !*ls) { cmp = 0; break; }
         if (*ls > LUB_MAX_LCHAR) { cmp = 0; break; }
         const lchar_t c = lltoupper(*ls);
-        if (c < *r) { cmp = -1; break; }
-        if (c > *r) { cmp = 1; break; }
+        if (c < (lchar_t)*r) { cmp = -1; break; }
+        if (c > (lchar_t)*r) { cmp = 1; break; }
       }
     }
     if (cmp == 0) return (int)1;
@@ -1819,17 +1863,17 @@ int LUB__is_reserved__ext
 }
 #else
 ;
-#endif // LUB_DEFINITIONS for LUB__is_reserved_helper.
+#endif // LUB_DEFINITIONS for lub_is_reserved_ext.
 
 static inline
 int islreserved
 ( const lchar_t *s )
-{ return LUB__is_reserved__ext('l', s);}
+{ return lub_is_reserved_ext('l', s);}
 
 static inline
 int isureserved
 ( const uchar_t *s )
-{ return LUB__is_reserved__ext('u', (const lchar_t *)s);}
+{ return lub_is_reserved_ext('u', (const lchar_t *)s);}
 
 extern
 int islqname
@@ -1876,10 +1920,10 @@ int isuqname
  * @return 1 Valid option string or error.
  *
  * @note Errors:
- *       - (int)LUB_PTR_INVALID if s is an invalid pointer.
- *       - (int)LUB_UNTERMINATED if s is not null-terminated.
- *       - (int)LUB_OPT_INVALID if s is not a valid option string.
- *       - (int)LUB_OPT_TOO_LONG if s is too long.
+ * - (int)LUB_PTR_INVALID if s is an invalid pointer.
+ * - (int)LUB_UNTERMINATED if s is not null-terminated.
+ * - (int)LUB_OPT_INVALID if s is not a valid option string.
+ * - (int)LUB_OPT_TOO_LONG if s is too long.
  *
  * @note isltruncstr/isutruncstr:
  * 
@@ -1888,8 +1932,8 @@ int isuqname
  *       A valid string is NULL, null-terminated by the
  *       bound LUB_MAX_LOPTLEN, an empty string, or
  *       a string where the first character is not
- *       a reserved Latin alphabetic character (see trunc
- *       parameter for details).
+ *       a reserved Latin alphabetic character. See trunc
+ *       parameter in @ref CommonParameters for details.
  * 
  * @note isltrimstr/isutrimstr:
  * 
@@ -1898,8 +1942,8 @@ int isuqname
  *       A valid string is NULL, null-terminated by the
  *       bound LUB_MAX_LOPTLEN, an empty string, or a
  *       string where the first character is not a
- *       reserved Latin alphabetic character (see trim
- *       parameter for details).
+ *       reserved Latin alphabetic character. See trim
+ *       parameter in @ref CommonParameters for details.
  * 
  * @note islpadstr/isupadstr:
  * 
@@ -1908,10 +1952,10 @@ int isuqname
  *       A valid string is NULL, null-terminated by the
  *       bound LUB_MAX_LOPTLEN, an empty string, or a
  *       string where the first character is not a
- *       reserved Latin alphabetic character (see pad
- *       parameter for details), and length <= 2
- *       if the first character is a Latin alphabetic
- *       character or length <= 1.
+ *       reserved Latin alphabetic character,
+ *       and length <= 2 if the first character is a
+ *       Latin alphabetic character or length <= 1. See pad
+ *       parameter in @ref CommonParameters for details.
  *
  * @note islneedlestr/isuneedlestr:
  * 
@@ -3229,88 +3273,6 @@ size_t uusnCNT(const uchar_t *s1, size_t s1n, const uchar_t *const s2,
 
 /** @} */
 
-/**
- * @defgroup Concatenate Concatenate
- * @name llsnncat, lusnncat, ulsnncat, uusnncat (case-preserving)
- *       llsnncatc, lusnncatc, ulsnncatc, uusnncatc (lowercase)
- *       llsnnCATC, lusnnCATC, ulsnnCATC, uusnnCATC (uppercase)
- *       llsnncatq, lusnncatq, ulsnncatq, uusnncatq (case-preserving, quoted)
- *       llsnncatqc, lusnncatqc, ulsnncatqc, uusnncatqc (lowercase, quoted)
- *       llsnnCATQC, lusnnCATQC, ulsnnCATQC, uusnnCATQC (uppercase, quoted)
- *       llsncatname, lusncatname, ulsncatname, uusncatname (case-preserving, unquoted/quoted)
- *       llsncatnamec, lusncatnamec, ulsncatnamec, uusncatnamec (lowercase, unquoted/quoted)
- *       llsnCATNAMEC, lusnCATNAMEC, ulsnCATNAMEC, uusnCATNAMEC (uppercase, unquoted/quoted)
- *       lbsnncatc, ubsnncatc (lowercase)
- *       lbsnnCATC, ubsnnCATC (uppercase)
- * @brief Concatenate to target character buffer with options for
- *        case-mapping (preserving, lower, or upper), quoting, and
- *        truncation handling.
- *
- *        For sncatname/snCATNAME functions, concatenate source
- *        if it is a valid unquoted name (see isuqname);
- *        otherwise, if it is valid name, concatenate quoted source.
- *        Error if not a valid name.
- * @param t Pointer to the target buffer.
- * @param tn tn is the maximum number of characters for buffer t,
- *           excluding the null terminator; tn is clamped to
- *           LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN.
- * @param s Pointer to source string.
- * @param sn For a character source string, sn is the maximum length of the
- *           string. sn is clamped to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN.
- * 
- *           sn is omitted for sncatname/snCATNAME functions
- *           since the source is expected to be a name
- *           and thus sn defaults to LUB_MAX_NAMELEN (128 characters).
- * 
- *           For a copy of a byte string to a character string, sn 
- *           defines the length of the source string.
- * @param trunc Pointer to a string that specifies how to handle
- *              truncation (optional alphabetic truncate mode
- *              character and truncated replacement string).
- *              See parameter trunc in @ref CommonParameters
- *              "Common Parameters" for details.
- * @param q  Quote (' or ") character for quoted string and
- *           quoted name concatenate functions.
- * @param lrep For lus functions only,
- *             - if NULL ('\0') character, return an error for
- *               an Unicode source containing a character that is
- *               out-of-range for Latin.
- *             - Otherwise, use lrep as the replacement Latin character
- *               for out-of-range Unicode source characters.
- * @return t, NULL (if t is null), or an error.
- * 
- *         If t is not null and t is not null-terminated, the target buffer
- *         is set to an empty string (that is, *t = '\0').
- *
- * @note Errors:
- * 
- * - (lchar_t/uchar_t *)LUB_PTR_INVALID if t or s is an
- *   invalid pointer.
- * - (lchar_t/uchar_t *)LUB_UNTERMINATED if t or s is
- *   not null-terminated.
- * - (lchar_t/uchar_t *)LUB_OPT_TOO_LONG if trunc is too long.
- * - (lchar_t/uchar_t *)LUB_OPT_INVALID if trunc is invalid.
- * - (lchar_t/uchar_t *)LUB_OPT_RESERVED if trunc is valid
- *   except that the first character is a reserved alphabetic
- *   character.
- * - (lchar_t/uchar_t *)LUB_OVERLAP if source and target
- *   overlap when not allowed.
- * - (lchar_t/uchar_t *)LUB_TRUNCATED if truncation occurs.
- * - (lchar_t/uchar_t *)LUB_NONLATIN_SOURCE if a character
- *   for Latin when lrep is null.
- * - (lchar_t/uchar_t *)LUB_INTERNAL_ERROR if internal error
- *   detected.
- *
- * @note Except for lus and uls, q/Q, name/NAME functions,
- *       concatenate is target buffer overlap-safe (target
- *       result is correct but source may be overridden if
- *       there is overlap).
- * 
- *       For lus and uls, q/Q, name/NAME functions,
- *       overlap raises an error.
- * @{
- */
-
 #if defined(LUB_DEFINITIONS)
 
 // Concatenate/copy local static functions. Only visible
@@ -3586,6 +3548,87 @@ lchar_t *lub_cat_cpy_pad_ext
     ;
 #endif // LUB_DEFINITIONS
 
+/**
+ * @defgroup Concatenate Concatenate
+ * @name llsnncat, lusnncat, ulsnncat, uusnncat (case-preserving)
+ *       llsnncatc, lusnncatc, ulsnncatc, uusnncatc (lowercase)
+ *       llsnnCATC, lusnnCATC, ulsnnCATC, uusnnCATC (uppercase)
+ *       llsnncatq, lusnncatq, ulsnncatq, uusnncatq (case-preserving, quoted)
+ *       llsnncatqc, lusnncatqc, ulsnncatqc, uusnncatqc (lowercase, quoted)
+ *       llsnnCATQC, lusnnCATQC, ulsnnCATQC, uusnnCATQC (uppercase, quoted)
+ *       llsncatname, lusncatname, ulsncatname, uusncatname (case-preserving, unquoted/quoted)
+ *       llsncatnamec, lusncatnamec, ulsncatnamec, uusncatnamec (lowercase, unquoted/quoted)
+ *       llsnCATNAMEC, lusnCATNAMEC, ulsnCATNAMEC, uusnCATNAMEC (uppercase, unquoted/quoted)
+ *       lbsnncatc, ubsnncatc (lowercase)
+ *       lbsnnCATC, ubsnnCATC (uppercase)
+ * @brief Concatenate to target character buffer with options for
+ *        case-mapping (preserving, lower, or upper), quoting, and
+ *        truncation handling.
+ *
+ *        For sncatname/snCATNAME functions, concatenate source
+ *        if it is a valid unquoted name (see isuqname);
+ *        otherwise, if it is valid name, concatenate quoted source.
+ *        Error if not a valid name.
+ * @param t Pointer to the target buffer.
+ * @param tn tn is the maximum number of characters for buffer t,
+ *           excluding the null terminator; tn is clamped to
+ *           LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN.
+ * @param s Pointer to source string.
+ * @param sn For a character source string, sn is the maximum length of the
+ *           string. sn is clamped to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN.
+ * 
+ *           sn is omitted for sncatname/snCATNAME functions
+ *           since the source is expected to be a name
+ *           and thus sn defaults to LUB_MAX_NAMELEN (128 characters).
+ * 
+ *           For a copy of a byte string to a character string, sn 
+ *           defines the length of the source string.
+ * @param trunc Pointer to a string that specifies how to handle
+ *              truncation (optional alphabetic truncate mode
+ *              character and truncated replacement string).
+ *              See parameter trunc in @ref CommonParameters
+ *              "Common Parameters" for details.
+ * @param q  Quote (' or ") character for quoted string and
+ *           quoted name concatenate functions.
+ * @param lrep For lus functions only,
+ *             - if NULL ('\0') character, return an error for
+ *               an Unicode source containing a character that is
+ *               out-of-range for Latin.
+ *             - Otherwise, use lrep as the replacement Latin character
+ *               for out-of-range Unicode source characters.
+ * @return t, NULL (if t is null), or an error.
+ * 
+ *         If t is not null and t is not null-terminated, the target buffer
+ *         is set to an empty string (that is, *t = '\0').
+ *
+ * @note Errors:
+ * - (lchar_t/uchar_t *)LUB_PTR_INVALID if t or s is an
+ *   invalid pointer.
+ * - (lchar_t/uchar_t *)LUB_UNTERMINATED if t or s is
+ *   not null-terminated.
+ * - (lchar_t/uchar_t *)LUB_OPT_TOO_LONG if trunc is too long.
+ * - (lchar_t/uchar_t *)LUB_OPT_INVALID if trunc is invalid.
+ * - (lchar_t/uchar_t *)LUB_OPT_RESERVED if trunc is valid
+ *   except that the first character is a reserved alphabetic
+ *   character.
+ * - (lchar_t/uchar_t *)LUB_OVERLAP if source and target
+ *   overlap when not allowed.
+ * - (lchar_t/uchar_t *)LUB_TRUNCATED if truncation occurs.
+ * - (lchar_t/uchar_t *)LUB_NONLATIN_SOURCE if a character
+ *   for Latin when lrep is null.
+ * - (lchar_t/uchar_t *)LUB_INTERNAL_ERROR if internal error
+ *   detected.
+ *
+ * @note Except for lus and uls, q/Q, name/NAME functions,
+ *       concatenate is target buffer overlap-safe (target
+ *       result is correct but source may be overridden if
+ *       there is overlap).
+ * 
+ *       For lus and uls, q/Q, name/NAME functions,
+ *       overlap raises an error.
+ * @{
+ */
+
 // Concatenate case-preserving.
 
 static inline
@@ -3776,17 +3819,17 @@ lchar_t *llsnncatq
 
 static inline
 lchar_t *lusnncatq
-(   lchar_t *t, size_t tn,
-    const uchar_t *s, size_t sn,
-    const lchar_t *trunc, lchar_t q,
-    const lchar_t lrep
+( lchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  const lchar_t *trunc, lchar_t q,
+  const lchar_t lrep
 )
-{   return (lchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'l', 'u', 'q', '\0', '\0',
-                t, tn, (lchar_t *)s, sn,
-                q, trunc, (lchar_t)NULL,
-                lrep
-              ); \
+{ return (lchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'l', 'u', 'q', '\0', '\0',
+             t, tn, (lchar_t *)s, sn,
+             q, trunc, (lchar_t)NULL,
+             lrep
+            ); \
 }
 
 static inline
@@ -4229,34 +4272,43 @@ uchar_t *ubsnnCATC
 
 // Copy case-preserving.
 
-static inline lchar_t *llsnncpy(lchar_t *t, size_t tn, const lchar_t *s, size_t sn,
-                                const lchar_t *trunc)
+static inline
+lchar_t *llsnncpy
+( lchar_t *t, size_t tn, const lchar_t *s, size_t sn,
+  const lchar_t *trunc
+)
 { return (lchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'l', 'l', '\0', '\0', '\0',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           (lchar_t)'\0', trunc, (const lchar_t *)NULL,
-           (lchar_t)'\0'
-         );
+          ( 1, 'l', 'l', '\0', '\0', '\0',
+            (lchar_t *)t, tn, (lchar_t *)s, sn,
+            (lchar_t)'\0', trunc, (const lchar_t *)NULL,
+            (lchar_t)'\0'
+          );
 }
 
-static inline lchar_t *lusnncpy(lchar_t *t, size_t tn, uchar_t *s, size_t sn,
-                                const lchar_t *trunc, const lchar_t lrep)
+static inline
+lchar_t *lusnncpy
+( lchar_t *t, size_t tn, uchar_t *s, size_t sn,
+  const lchar_t *trunc, const lchar_t lrep
+)
 { return (lchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'l', 'u', '\0', '\0', '\0',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           (lchar_t)'\0', trunc, (const lchar_t *)NULL,
-           lrep
-         );
+           ( 1, 'l', 'u', '\0', '\0', '\0',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             (lchar_t)'\0', trunc, (const lchar_t *)NULL,
+             lrep
+           );
 }
 
-static inline uchar_t *ulsnncpy(uchar_t *t, size_t tn, lchar_t *s, size_t sn,
-                                const lchar_t *trunc)
+static inline
+uchar_t *ulsnncpy
+( uchar_t *t, size_t tn, lchar_t *s, size_t sn,
+  const lchar_t *trunc
+)
 { return (uchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'u', 'l', '\0', '\0', '\0',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           (lchar_t)'\0', trunc, (const lchar_t *)NULL,
-           (lchar_t)'\0'
-         );
+           ( 1, 'u', 'l', '\0', '\0', '\0',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             (lchar_t)'\0', trunc, (const lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 static inline uchar_t *uusnncpy(uchar_t *t, size_t tn, uchar_t *s, size_t sn,
@@ -4540,10 +4592,12 @@ static inline uchar_t *uusnCPYNAMEC(uchar_t *t, size_t tn,
 
 // Copy hex digit characters lowercase <- bytes.
 
-static inline lchar_t *lbsnncpyc(lchar_t *t, size_t tn,
-                                 const byte_t *s, size_t sn,
-                                 const lchar_t *trunc)
-    {if (!t) return (lchar_t *)NULL;
+static inline
+lchar_t *lbsnncpyc
+( lchar_t *t, size_t tn,
+  const byte_t *s, size_t sn,
+  const lchar_t *trunc)
+{if (!t) return (lchar_t *)NULL;
      if (LUB_PTR_ERR(t, 0)) return (lchar_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0);
      *t = (lchar_t)0;
      return lbsnncatc(t, tn, s, sn, trunc) ? t : (lchar_t *)NULL;}
