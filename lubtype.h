@@ -1970,7 +1970,7 @@ int isuqname
 // Trunc, Trim, Pad, and Needle Option Validation helper function.
 
 extern
-int LUB__is_option__ext
+int lub_is_option_ext
 ( const char op, const char xs, const lchar_t *s, const char *mode )
 // op: 1=trunc, 2=trim, 3=pad, 4=needle; xs: 'l' or 'u'.
 #if defined(LUB_DEFINITIONS)
@@ -2006,42 +2006,42 @@ int LUB__is_option__ext
 static inline
 int isltruncstr
 ( const lchar_t *s )
-{ return LUB__is_option__ext(1, 'l', s, "LRCB"); }
+{ return lub_is_option_ext(1, 'l', s, "LRCB"); }
 
 static inline
 int isutruncstr
 ( const uchar_t *s )
-{ return LUB__is_option__ext(1, 'u', (lchar_t *)s, "LRCB"); }
+{ return lub_is_option_ext(1, 'u', (lchar_t *)s, "LRCB"); }
 
 static inline
 int isltrimstr
 ( const lchar_t *s )
-{ return LUB__is_option__ext(2, 'l', s, "LRB"); }
+{ return lub_is_option_ext(2, 'l', s, "LRB"); }
 
 static inline 
 int isutrimstr
 ( const uchar_t *s )
-{ return LUB__is_option__ext(2, 'u', (lchar_t *)s, "LRB"); }
+{ return lub_is_option_ext(2, 'u', (lchar_t *)s, "LRB"); }
 
 static inline
 int islpadstr
 ( const lchar_t *s)
-{ return LUB__is_option__ext(3, 'l', s, "LRB"); }
+{ return lub_is_option_ext(3, 'l', s, "LRB"); }
 
 static inline
 int isupadstr
 ( const uchar_t *s  )
-{ return LUB__is_option__ext(3, 'u', (lchar_t *)s, "LRB"); }
+{ return lub_is_option_ext(3, 'u', (lchar_t *)s, "LRB"); }
 
 static inline
 int islneedlestr
 ( const lchar_t *s )
-{ return LUB__is_option__ext(4, 'l', s, ""); }
+{ return lub_is_option_ext(4, 'l', s, ""); }
 
 static inline
 int isuneedlestr
 ( const uchar_t *s )
-{ return LUB__is_option__ext(4, 'u', (lchar_t *)s, ""); }
+{ return lub_is_option_ext(4, 'u', (lchar_t *)s, ""); }
 
 /** @} */
 
@@ -2049,7 +2049,7 @@ int isuneedlestr
 // prefix ('p'), and suffix ('s') comparisons.
 
 extern
-int LUB__cfps_cmp__ext
+int lub_cfps_cmp_ext
 // op: 'c' (full compare), 'f' (fixed-length compare),
 //     'p' (prefix compare), or 's' (suffix compare).
 // xs1, xs2: 'l' (Latin) or 'u' (Unicode).
@@ -2210,7 +2210,7 @@ int LUB__cfps_cmp__ext
 }
 #else
 ;
-#endif // LUB_DEFINITIONS for LUB__cfps_cmp__ext.
+#endif // LUB_DEFINITIONS for lub_cfps_cmp_ext.
 
 /**
  * @defgroup Compare Compare
@@ -2237,25 +2237,25 @@ int LUB__cfps_cmp__ext
 static inline
 int llsnncmp
 ( const lchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return lub_cfps_cmp_ext
            ('c', 'l', s1, s1n, 'l', s2, s2n, 's'); }
 
 static inline
 int lusnncmp
 ( const lchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('c', 'l', s1, s1n, 'u', (const lchar_t*)s2, s2n, 's'); }
 
 static inline
 int ulsnncmp
 ( const uchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('c', 'u', (const lchar_t*)s1, s1n, 'l', s2, s2n, 's'); }
 
 static inline
 int uusnncmp
 ( const uchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('c', 'u', (const lchar_t*)s1, s1n, 'u', (const lchar_t*)s2, s2n, 's'); }
 
 // Compare case-insensitive.
@@ -2263,25 +2263,25 @@ int uusnncmp
 static inline
 int llsnnCMP
 ( const lchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('c', 'l', s1, s1n, 'l', s2, s2n, 'i'); }
 
 static inline
 int lusnnCMP
 ( const lchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('c', 'l', s1, s1n, 'u', (const lchar_t*)s2, s2n, 'i'); }
 
 static inline
 int ulsnnCMP
 ( const uchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('c', 'u', (const lchar_t*)s1, s1n, 'l', s2, s2n, 'i'); }
 
 static inline
 int uusnnCMP
 ( const uchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('c', 'u', (const lchar_t*)s1, s1n, 'u', (const lchar_t*)s2, s2n, 'i'); }
 
 extern
@@ -2340,25 +2340,25 @@ int bbsnncmp
 static inline
 int llsnnfxdcmp
 ( const lchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return lub_cfps_cmp_ext
            ('f', 'l', s1, s1n, 'l', s2, s2n, 's'); }
 
 static inline
 int lusnnfxdcmp
 ( const lchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('f', 'l', s1, s1n, 'u', (const lchar_t*)s2, s2n, 's'); }
 
 static inline
 int ulsnnfxdcmp
 ( const uchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('f', 'u', (const lchar_t*)s1, s1n, 'l', s2, s2n, 's'); }
 
 static inline
 int uusnnfxdcmp
 ( const uchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('f', 'u', (const lchar_t*)s1, s1n, 'u', (const lchar_t*)s2, s2n, 's'); }
 
 // Fixed-length leading substring compare case-insensitive.
@@ -2366,25 +2366,25 @@ int uusnnfxdcmp
 static inline
 int llsnnFXDCMP
 ( const lchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('f', 'l', s1, s1n, 'l', s2, s2n, 'i'); }
 
 static inline
 int lusnnFXDCMP
 ( const lchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('f', 'l', s1, s1n, 'u', (const lchar_t*)s2, s2n, 'i'); }
 
 static inline
 int ulsnnFXDCMP
 ( const uchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('f', 'u', (const lchar_t*)s1, s1n, 'l', s2, s2n, 'i'); }
 
 static inline
 int uusnnFXDCMP
 ( const uchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('f', 'u', (const lchar_t*)s1, s1n, 'u', (const lchar_t*)s2, s2n, 'i'); }
 
 /** @} */
@@ -2416,25 +2416,25 @@ int uusnnFXDCMP
 static inline
 int llsnnpfxcmp
 ( const lchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('p', 'l', s1, s1n, 'l', s2, s2n, 's'); }
 
 static inline
 int lusnnpfxcmp
 ( const lchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('p', 'l', s1, s1n, 'u', (const lchar_t*)s2, s2n, 's'); }
 
 static inline
 int ulsnnpfxcmp
 ( const uchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('p', 'u', (const lchar_t*)s1, s1n, 'l', s2, s2n, 's'); }
 
 static inline
 int uusnnpfxcmp
 ( const uchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('p', 'u', (const lchar_t*)s1, s1n, 'u', (const lchar_t*)s2, s2n, 's'); }
 
 // Fixed-length leading substring compare case-insensitive.
@@ -2442,25 +2442,25 @@ int uusnnpfxcmp
 static inline
 int llsnnPFXCMP
 ( const lchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('p', 'l', s1, s1n, 'l', s2, s2n, 'i'); }
 
 static inline
 int lusnnPFXCMP
 ( const lchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('p', 'l', s1, s1n, 'u', (const lchar_t*)s2, s2n, 'i'); }
 
 static inline
 int ulsnnPFXCMP
 ( const uchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('p', 'u', (const lchar_t*)s1, s1n, 'l', s2, s2n, 'i'); }
 
 static inline
 int uusnnPFXCMP
 ( const uchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('p', 'u', (const lchar_t*)s1, s1n, 'u', (const lchar_t*)s2, s2n, 'i'); }
 
 /** @} */
@@ -2493,25 +2493,25 @@ int uusnnPFXCMP
 static inline
 int llsnnsfxcmp
 ( const lchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp_helper
+{ return lub_cfps_cmp_ext
            ('s', 'l', s1, s1n, 'l', s2, s2n, 's'); }
 
 static inline
 int lusnnsfxcmp
 ( const lchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('s', 'l', s1, s1n, 'u', (lchar_t*)s2, s2n, 's'); }
 
 static inline
 int ulsnnsfxcmp
 ( const uchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('s', 'u', (lchar_t*)s1, s1n, 'l', s2, s2n, 's'); }
 
 static inline
 int uusnnsfxcmp
 ( const uchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('s', 'u', (lchar_t*)s1, s1n, 'u', (lchar_t*)s2, s2n, 's'); }
 
 // Fixed-length leading substring compare case-insensitive.
@@ -2519,25 +2519,25 @@ int uusnnsfxcmp
 static inline
 int llsnnSFXCMP
 ( const lchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('s', 'l', s1, s1n, 'l', s2, s2n, 'i'); }
 
 static inline
 int lusnnSFXCMP
 ( const lchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('s', 'l', s1, s1n, 'u', (lchar_t*)s2, s2n, 'i'); }
 
 static inline
 int ulsnnSFXCMP
 ( const uchar_t *s1, size_t s1n, const lchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('s', 'u', (lchar_t*)s1, s1n, 'l', s2, s2n, 'i'); }
 
 static inline
 int uusnnSFXCMP
 ( const uchar_t *s1, size_t s1n, const uchar_t *s2, size_t s2n )
-{ return LUB__cfps_cmp__ext
+{ return lub_cfps_cmp_ext
            ('s', 'u', (lchar_t*)s1, s1n, 'u', (lchar_t*)s2, s2n, 'i'); }
 
 /** @} */
@@ -2583,7 +2583,7 @@ int uusnnSFXCMP
 // Helper function for pointer trim operations (ll, lu, ul, uu).
 
 extern
-const lchar_t *LUB__pointer_trim__ext
+const lchar_t *lub_pointer_trim_ext
 ( const char xs, const lchar_t *s, size_t sn,
   const char xt, const lchar_t *trim,
   size_t *trimlen
@@ -2742,7 +2742,7 @@ const lchar_t *LUB__pointer_trim__ext
 }
 #else
 ;
-#endif // LUB_DEFINITIONS for LUB__pointer_trim__ext.
+#endif // LUB_DEFINITIONS for lub_pointer_trim_ext.
 
 static inline
 const lchar_t *llsnptrim
@@ -2750,7 +2750,7 @@ const lchar_t *llsnptrim
   const lchar_t * const trim,
   size_t *const trimlen
 )
-{ return LUB__pointer_trim__ext
+{ return lub_pointer_trim_ext
            ('l', s, sn, 'l', trim, trimlen); }
 
 static inline
@@ -2759,7 +2759,7 @@ const lchar_t *lusnptrim
   const uchar_t * const trim,
   size_t *const trimlen
 )
-{ return LUB__pointer_trim__ext
+{ return lub_pointer_trim_ext
            ('l', s, sn, 'u', (const lchar_t *)trim, trimlen); }
 
 static inline
@@ -2768,7 +2768,7 @@ const uchar_t *ulsnptrim
   const lchar_t * const trim,
   size_t *const trimlen
 )
-{ return (const uchar_t *)LUB__pointer_trim__ext
+{ return (const uchar_t *)lub_pointer_trim_ext
            ('u', (const lchar_t *)s, sn, 'l', trim, trimlen); }
 
 static inline
@@ -2777,7 +2777,7 @@ const uchar_t *uusnptrim
   const uchar_t * const trim,
   size_t *const trimlen
 )
-{ return (const uchar_t *)LUB__pointer_trim__ext
+{ return (const uchar_t *)lub_pointer_trim_ext
            ('u', (const lchar_t *)s, sn, 'u', (const lchar_t *)trim, trimlen); }
 
 /** @} */
@@ -2807,10 +2807,10 @@ const uchar_t *uusnptrim
 #if defined(LUB_DEFINITIONS)
 
 // Skip function macro helper.
-#undef LUB__OP__DEF
-#define LUB__OP__DEF(s_xt, s_xmax, s_xcsnlen, \
-                         skip_xt, skip_max, skip_xcsnlen, \
-                         skip_space_expr, skip_match_expr) \
+#undef LUB_OP_DEF
+#define LUB_OP_DEF(s_xt, s_xmax, s_xcsnlen, \
+                   skip_xt, skip_max, skip_xcsnlen, \
+                   skip_space_expr, skip_match_expr) \
 { /* Validate parameters. */ \
   /* Note: *csnlen functions return 0 if argument is NULL. */ \
   sn = s_xcsnlen(s, sn > s_xmax ? s_xmax : sn); \
@@ -2837,10 +2837,10 @@ extern
 lchar_t *llsnskip
 ( const lchar_t *s, size_t sn, const lchar_t *skip )
 #if defined(LUB_DEFINITIONS)
-LUB__OP__DEF(lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
-             lchar_t, LUB_MAX_LOPTLEN, lcsnlen,
-             islspace((int)*s),
-             (*s == *ss))
+LUB_OP_DEF(lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
+           lchar_t, LUB_MAX_LOPTLEN, lcsnlen,
+           islspace((int)*s),
+           (*s == *ss))
 #else
 ;
 #endif // LUB_DEFINITIONS for llsskip.
@@ -2849,10 +2849,10 @@ extern
 uchar_t *ulsnskip
 ( const uchar_t *s, size_t sn, const lchar_t *skip )
 #if defined(LUB_DEFINITIONS)
-LUB__OP__DEF(uchar_t, LUB_MAX_USTRLEN, ucsnlen,
-             lchar_t, LUB_MAX_LOPTLEN, lcsnlen,
-             (*s <= LUB_MAX_LCHAR && islspace((int)(lchar_t)*s)),
-             (*s == (uchar_t)*ss))
+LUB_OP_DEF(uchar_t, LUB_MAX_USTRLEN, ucsnlen,
+           lchar_t, LUB_MAX_LOPTLEN, lcsnlen,
+           (*s <= LUB_MAX_LCHAR && islspace((int)(lchar_t)*s)),
+           (*s == (uchar_t)*ss))
 #else
 ;
 #endif // LUB_DEFINITIONS for ulsnskip.
@@ -2861,10 +2861,10 @@ extern
 uchar_t *uusnskip
 ( const uchar_t *s, size_t sn, const uchar_t *skip )
 #if defined(LUB_DEFINITIONS)
-LUB__OP__DEF(uchar_t, LUB_MAX_USTRLEN, ucsnlen,
-             uchar_t, LUB_MAX_UOPTLEN, ucsnlen,
-             isuspace((unsigned int)*s),
-             (*s == *ss))
+LUB_OP_DEF(uchar_t, LUB_MAX_USTRLEN, ucsnlen,
+           uchar_t, LUB_MAX_UOPTLEN, ucsnlen,
+           isuspace((unsigned int)*s),
+           (*s == *ss))
 #else
 ;
 #endif // LUB_DEFINITIONS for uusnskip.
@@ -2893,20 +2893,24 @@ LUB__OP__DEF(uchar_t, LUB_MAX_USTRLEN, ucsnlen,
  * @param delim Delimiter character (case-sensitive) for needle substrings.
  *              If delim is the null character, indicates
  *              s2 is a string of needle characters.
- * @param m Occurrence index (1 = first, 2 = second, ...). 0 returns NULL.
- *          mth occurrence of any needle substring or needle character.
- *          m > 0 counts from the
- *          beginning of the haystack (1 means first occurrence).
- *          m == 0 returns NULL. m < 0 counts from the end of the string
- *          (-1 means last occurrence) when the operation
- *          supports reverse selection.
+ * @param m Indicates to search for the mth occurrence of any needle
+ *          substring or needle character.
+ * 
+ *          m > 0 counts from the beginning of the haystack string s1.
+ *                (1 means first occurrence).
+ * 
+ *          m == 0 returns NULL (not found).
+ * 
+ *          m < 0 counts from the end of the haystack string s1.
+ *               (-1 means last occurrence).
  *
  *          Example (character-needle mode, delim = '\0'):
+ * 
  *            haystack = "aaabccdeebe", needles = "db"
  *            m = 1 -> points to first 'b'
  *            m = 2 -> points to 'd'
  *            m = 3 -> points to second 'b'
- * @return Pointer to mth match in s1, NULL if not found, or error.
+ * @return Pointer to mth match in s1, NULL if not found or m is 0, or error.
  *
  * @note Errors:
  *  - (lchar_t/uchar_t *)LUB_PTR_INVALID if s1 or s2 is an invalid pointer.
@@ -2916,7 +2920,7 @@ LUB__OP__DEF(uchar_t, LUB_MAX_USTRLEN, ucsnlen,
 
 #if defined(LUB_DEFINITIONS)
 
-static inline int LUB__search_char_lcl
+static inline int lub_search_char_def
 ( const char xs, const lchar_t *s, const uchar_t *us,
   const size_t i, const char Case
 )
@@ -2925,12 +2929,11 @@ static inline int LUB__search_char_lcl
 }
 
 static
-size_t LUB_match_count__def
+size_t lub_match_count_def
 ( const char xs1, const lchar_t *s1, size_t *s1n_ptr,
   const char xs2, const lchar_t *s2, size_t *s2_n_ptr,
   const int delim, const char Case
 )
-#if defined(LUB_DEFINITIONS)
 { const uchar_t *us1 = (const uchar_t *)s1;
   const uchar_t *us2 = (const uchar_t *)s2;
 
@@ -2941,8 +2944,10 @@ size_t LUB_match_count__def
 
   if (LUB_PTR_ERR(s1, 0)) return LUB_SIZE_ERR(LUB_PTR_INVALID, 0);
   *s1n_ptr = xs1 == 'u' ?
-       ucsnlen(us1, *s1n_ptr > LUB_MAX_USTRLEN ? LUB_MAX_USTRLEN : *s1n_ptr) :
-       lcsnlen(s1, *s1n_ptr > LUB_MAX_LSTRLEN ? LUB_MAX_LSTRLEN : *s1n_ptr);
+             ucsnlen(us1, *s1n_ptr > LUB_MAX_USTRLEN ?
+             LUB_MAX_USTRLEN : *s1n_ptr) :
+             lcsnlen(s1, *s1n_ptr > LUB_MAX_LSTRLEN ?
+             LUB_MAX_LSTRLEN : *s1n_ptr);
   if (LUB_SIZE_ERR(*s1n_ptr, 0)) return *s1n_ptr;
 
   int isneedlestr = xs2 == 'u' ?
@@ -2966,9 +2971,9 @@ size_t LUB_match_count__def
   if (!delim)
   { /* Character-set mode: count occurrences of each character in s2 within s1 */
     for (size_t j = 0; j < s2_n; ++j)
-    { int needle_char = LUB__search_char_lcl(xs2, s2, us2, j, Case);
+    { int needle_char = lub_search_char_def(xs2, s2, us2, j, Case);
       for (size_t i = 0; i < s1n; ++i)
-      { int s1_char = LUB__search_char_lcl(xs1, s1, us1, i, Case);
+      { int s1_char = lub_search_char_def(xs1, s1, us1, i, Case);
         if (s1_char == needle_char)
           ++total_count;
       }
@@ -2980,26 +2985,21 @@ size_t LUB_match_count__def
     for (; seg <= s2_n; )
     { size_t end = seg;
       while (end < s2_n)
-      { int cd = LUB__search_char_lcl(xs2, s2, us2, end, 's');
-        if (cd == delim) break;
+      { int cd = lub_search_char_def(xs2, s2, us2, end, 's');
+        if (cd == delim) { break; }
         ++end;
       }
       size_t tok_n = end - seg;
-      if (!tok_n)
-      { if (!s1n)
-          ++total_count;
-      }
+      if (!tok_n) { if (!s1n) { ++total_count; } }
       else if (tok_n <= s1n)
       { for (size_t i = 0; i <= s1n - tok_n; ++i)
         { size_t k = 0;
           for (; k < tok_n; ++k)
-          { int c1 = LUB__search_char_lcl(xs1, s1, us1, i + k, Case);
-            int c2 = LUB__search_char_lcl(xs2, s2, us2, seg + k, Case);
-            if (c1 != c2) break;
+          { int c1 = lub_search_char_def(xs1, s1, us1, i + k, Case);
+            int c2 = lub_search_char_def(xs2, s2, us2, seg + k, Case);
+            if (c1 != c2) { break; }
           }
-          if (k == tok_n)
-            ++total_count;
-        }
+          if (k == tok_n) { ++total_count; }
       }
       seg = end + 1;
     }
@@ -3011,7 +3011,7 @@ size_t LUB_match_count__def
 #endif // LUB_DEFINITIONS for strm/cnt functions.
 
 extern
-lchar_t *LUB__strm__ext
+lchar_t *lub_strm_ext
 ( const char xs1, const lchar_t *s1, size_t s1n,
   const char xs2, const lchar_t *s2,
   const int delim, const int m,
@@ -3021,11 +3021,11 @@ lchar_t *LUB__strm__ext
 { const uchar_t *us1 = (const uchar_t *)s1;
   const uchar_t *us2 = (const uchar_t *)s2;
 
-  if (!m) return (lchar_t *)NULL;
+  if (!m) { return (lchar_t *)NULL; }
 
   size_t s2_n = s1n;
-  size_t total_count = LUB__match_count_lcl(xs1, s1, &s1n, xs2, s2, &s2_n, delim, Case);
-  if (LUB_SIZE_ERR(total_count, 0)) return (lchar_t *)LUB_PTR_ERR(total_count, 0);
+  size_t total_count = lub_match_count_def(xs1, s1, &s1n, xs2, s2, &s2_n, delim, Case);
+  if (LUB_SIZE_ERR(total_count, 0)) { return (lchar_t *)LUB_PTR_ERR(total_count, 0); }
 
   if (!delim && !s2_n) return (lchar_t *)NULL;
 
@@ -3036,11 +3036,11 @@ lchar_t *LUB__strm__ext
     if (!delim)
     { for (size_t i = 0; i < s1n; ++i)
       { for (size_t k = 0; k < s2_n; ++k)
-        { int c1 = LUB__search_char_lcl(xs1, s1, us1, i, Case);
-          int c2 = LUB__search_char_lcl(xs2, s2, us2, k, Case);
+        { int c1 = lub_search_char_def(xs1, s1, us1, i, Case);
+          int c2 = lub_search_char_def(xs2, s2, us2, k, Case);
           if (c1 == c2)
-          { if (!pass) ++count;
-            else if (++count == target) return (lchar_t *)(s1 + i);
+          { if (!pass) { ++count; }
+            else if (++count == target) { return (lchar_t *)(s1 + i); }
             break;
           }
         }
@@ -3051,28 +3051,28 @@ lchar_t *LUB__strm__ext
       for (; seg <= s2_n; )
       { size_t end = seg;
         while (end < s2_n)
-        { int cd = LUB__search_char_lcl(xs2, s2, us2, end, 's');
-          if (cd == delim) break;
+        { int cd = lub_search_char_def(xs2, s2, us2, end, 's');
+          if (cd == delim) { break; }
           ++end;
         }
         size_t tok_n = end - seg;
         if (!tok_n)
         { if (!s1n && (m == 1 || m == -1))
-          { if (!pass) ++count;
-            else if (++count == target) return (lchar_t *)s1;
+          { if (!pass) { ++count; }
+            else if (++count == target) { return (lchar_t *)s1; }
           }
         }
         else if (tok_n <= s1n)
         { for (size_t i = 0; i <= s1n - tok_n; ++i)
           { size_t k = 0;
             for (; k < tok_n; ++k)
-            { int c1 = LUB__search_char_lcl(xs1, s1, us1, i + k, Case);
-              int c2 = LUB__search_char_lcl(xs2, s2, us2, seg + k, Case);
-              if (c1 != c2) break;
+            { int c1 = lub_search_char_def(xs1, s1, us1, i + k, Case);
+              int c2 = lub_search_char_def(xs2, s2, us2, seg + k, Case);
+              if (c1 != c2) { break; }
             }
             if (k == tok_n)
-            { if (!pass) ++count;
-              else if (++count == target) return (lchar_t *)(s1 + i);
+            { if (!pass) { ++count; }
+              else if (++count == target) { return (lchar_t *)(s1 + i); }
             }
           }
         }
@@ -3081,7 +3081,7 @@ lchar_t *LUB__strm__ext
     }
 
     if (!pass)
-    { if (count < target) return (lchar_t *)NULL;
+    { if (count < target) { return (lchar_t *)NULL; }
       target = count - target + 1;
     }
   }
@@ -3099,7 +3099,7 @@ lchar_t *llsnstrm
 ( const lchar_t *s1, size_t s1n, const lchar_t *const s2,
   const lchar_t delim, const int m
 )
-{ return (lchar_t *)LUB_strm__ext
+{ return (lchar_t *)lub_strm_ext
            ('l', s1, s1n,
             'l', s2, (int)delim, m, 's'); }
 
@@ -3108,7 +3108,7 @@ lchar_t *lusnstrm
 ( const lchar_t *s1, size_t s1n, const uchar_t *const s2,
   const uchar_t delim, const int m
 )
-{ return (lchar_t *)LUB_strm__ext
+{ return (lchar_t *)lub_strm_ext
            ('l', s1, s1n,
             'u', (const lchar_t *)s2, (int)delim, m, 's'); }
 
@@ -3117,7 +3117,7 @@ uchar_t *ulsnstrm
 ( const uchar_t *s1, size_t s1n, const lchar_t *const s2,
   const lchar_t delim, const int m
 )
-{ return (uchar_t *)LUB__strm__ext
+{ return (uchar_t *)lub_strm_ext
            ('u', (const lchar_t *)s1, s1n,
             'l', s2, (int)delim, m, 's'); }
 
@@ -3126,7 +3126,7 @@ uchar_t *uusnstrm
 ( const uchar_t *const s1, size_t s1n, const uchar_t *const s2,
   const uchar_t delim, const int m
 )
-{ return (uchar_t *)LUB__strm__ext
+{ return (uchar_t *)lub_strm_ext
            ('u', (const lchar_t *)s1, s1n,
             'u', (const lchar_t *)s2, (int)delim, m, 's'); }
 
@@ -3137,7 +3137,7 @@ lchar_t *llsnSTRM
 ( const lchar_t *s1, size_t s1n, const lchar_t *const s2,
   const lchar_t delim, const int m
 )
-{ return (lchar_t *)LUB__strm__ext
+{ return (lchar_t *)lub_strm_ext
            ('l', s1, s1n,
             'l', s2, (int)delim, m, 'i'); }
 
@@ -3146,7 +3146,7 @@ lchar_t *lusnSTRM
 ( const lchar_t *s1, size_t s1n, const uchar_t *const s2,
     const uchar_t delim, const int m
 )
-{ return (lchar_t *)LUB__strm__ext
+{ return (lchar_t *)lub_strm_ext
            ('l', s1, s1n, 'u',
             (const lchar_t *)s2, (int)delim, m, 'i'); }
 
@@ -3155,7 +3155,7 @@ uchar_t *ulsnSTRM
 ( const uchar_t *s1, size_t s1n, const lchar_t *const s2,
   const lchar_t delim, const int m
 )
-{ return (uchar_t *)LUB__strm__ext
+{ return (uchar_t *)lub_strm_ext
            ('u', (const lchar_t *)s1, s1n,
             'l', s2, (int)delim, m, 'i'); }
 
@@ -3164,7 +3164,7 @@ uchar_t *uusnSTRM
 ( const uchar_t *s1, size_t s1n, const uchar_t *const s2,
   const uchar_t delim, const int m
 )
-{ return (uchar_t *)LUB__strm__ext
+{ return (uchar_t *)lub_strm_ext
            ('u', (const lchar_t *)s1, s1n,
             'u', (const lchar_t *)s2, (int)delim, m, 'i'); }
 
@@ -3199,7 +3199,7 @@ uchar_t *uusnSTRM
 
 #if defined(LUB_DEFINITIONS)
 
-static inline int LUB__cnt_char__def
+static inline int lub_cnt_char_def
 ( const char xs, const lchar_t *s, const uchar_t *us,
   const size_t i, const char Case
 )
@@ -3207,17 +3207,17 @@ static inline int LUB__cnt_char__def
   return Case == 'i' ? (xs == 'u' ? uutoupper(c) : lltoupper(c)) : c;
 }
 
-#endif // LUB_DEFINITIONS for LUB__cnt_char__def
+#endif // LUB_DEFINITIONS for lub_cnt_char_def
 
 extern
-size_t LUB__cnt__ext
+size_t lub_cnt_ext
 ( const char xs1, const lchar_t *s1, size_t s1n,
   const char xs2, const lchar_t *s2,
   const int delim, const char Case
 )
 #if defined(LUB_DEFINITIONS)
 { size_t s2_n = s1n;
-  return LUB_match_count__def(xs1, s1, &s1n, xs2, s2, &s2_n, delim, Case);
+  return lub_match_count_def(xs1, s1, &s1n, xs2, s2, &s2_n, delim, Case);
 }
 #else
 ;
@@ -3230,21 +3230,21 @@ size_t llsncnt
 ( const lchar_t *s1, size_t s1n, const lchar_t *const s2,
         const lchar_t delim
 )
-{ return LUB__cnt_helper
+{ return lub_cnt_ext
            ('l', s1, s1n,
             'l', s2, (int)delim, 's'); }
 
 static inline
 size_t ulsncnt(const uchar_t *s1, size_t s1n, const lchar_t *const s2,
                       const lchar_t delim)
-{ return LUB__cnt_helper
+{ return lub_cnt_ext
            ('u', (const lchar_t *)s1, s1n,
             'l', s2, (int)delim, 's'); }
 
 static inline
 size_t uusncnt(const uchar_t *s1, size_t s1n, const uchar_t *const s2,
                       const uchar_t delim)
-{ return LUB__cnt_helper
+{ return lub_cnt_ext
            ('u', (const lchar_t *)s1, s1n,
             'u', (const lchar_t *)s2, (int)delim, 's'); }
 
@@ -3253,21 +3253,21 @@ size_t uusncnt(const uchar_t *s1, size_t s1n, const uchar_t *const s2,
 static inline
 size_t llsnCNT(const lchar_t *s1, size_t s1n, const lchar_t *s2,
                       const lchar_t delim)
-{ return LUB__cnt_helper
+{ return lub_cnt_ext
            ('l', s1, s1n,
             'l', s2, (int)delim, 'i'); }
 
 static inline
 size_t ulsnCNT(const uchar_t *s1, size_t s1n, const lchar_t *const s2,
                       const lchar_t delim)
-{ return LUB__cnt_helper
+{ return lub_cnt_ext
            ('u', (const lchar_t *)s1, s1n,
             'l', s2, (int)delim, 'i'); }
 
 static inline
 size_t uusnCNT(const uchar_t *s1, size_t s1n, const uchar_t *const s2,
                       const uchar_t delim)
-{ return LUB__cnt_helper
+{ return lub_cnt_ext
            ('u', (const lchar_t *)s1, s1n,
             'u', (const lchar_t *)s2, (int)delim, 'i'); }
 
@@ -3293,31 +3293,31 @@ static inline uchar_t lub_get_ith_def
 }
 static inline void lub_set_def
 ( char xt, lchar_t *t, const uchar_t c, const lchar_t lrep)
-{   if (xt == 'u') *((uchar_t *)t) = c;
-    else *t = (c > LUB_MAX_LCHAR) ?
-              (!lrep ? (lchar_t)'?' : lrep) : (lchar_t)c;
-    return;
+{ if (xt == 'u') { *((uchar_t *)t) = c; }
+  else { *t = (c > LUB_MAX_LCHAR) ?
+            (!lrep ? (lchar_t)'?' : lrep) : (lchar_t)c; }
+  return;
 }
 static inline void lub_set_ith_def
 ( char xt, lchar_t *t, const size_t i, const uchar_t c, const lchar_t lrep )
-{ if (xt == 'u') *((uchar_t *)t + i) = c;
-  else *(t + i) = (c > LUB_MAX_LCHAR) ?
-                  (!lrep ? (lchar_t)'?' : lrep) : (lchar_t)c;
+{ if (xt == 'u') { *((uchar_t *)t + i) = c; }
+  else { *(t + i) = (c > LUB_MAX_LCHAR) ?
+                  (!lrep ? (lchar_t)'?' : lrep) : (lchar_t)c; }
   return;
 }
 
 static inline
 void lub_terminate_def
 ( char xt, lchar_t *t)
-{ if (xt == 'u') *((uchar_t *)t) = (uchar_t)0;
-  else *t = (lchar_t)0;
+{ if (xt == 'u') { *((uchar_t *)t) = (uchar_t)0; }
+  else { *t = (lchar_t)0; }
   return;
 }
 static inline
 void lub_terminate_ith_def
 ( char xt, lchar_t *t, const size_t i )
-{ if (xt == 'u') *((uchar_t *)t + i) = (uchar_t)0;
-  else *(t + i) = (lchar_t)0;
+{ if (xt == 'u') { *((uchar_t *)t + i) = (uchar_t)0; }
+  else { *(t + i) = (lchar_t)0; }
   return;
 }
 
@@ -3332,8 +3332,10 @@ lchar_t *lub_cat_quoted_def
 )
 { /** @todo check for truncation and trunc fit.
    */
-   const size_t t_size = (xt == 'u') ? sizeof(uchar_t) : sizeof(lchar_t);
-  const size_t s_size = (xs == 'u') ? sizeof(uchar_t) : sizeof(lchar_t);
+   const size_t t_size = (xt == 'u') ? sizeof(uchar_t)
+                                     : sizeof(lchar_t);
+  const size_t s_size = (xs == 'u') ? sizeof(uchar_t)
+                                    : sizeof(lchar_t);
   char *tb = (char *)t;
   const char *sb = (const char *)s;
   size_t tr = (tn > tl) ? (tn - tl) : 0;
@@ -3343,15 +3345,14 @@ lchar_t *lub_cat_quoted_def
     tr -= 2;
     while (tr && sn)
     { uchar_t c = lub_get_def(xs, (const lchar_t *)sb);
-      if (!c) break;
+      if (!c) { break; }
       sb += s_size;
       sn--;
       if (c == (uchar_t)q)
-      { if (tr == 1) break;
+      { if (tr == 1) { break; }
         lub_set_def(xt, (lchar_t *)tb, (uchar_t)q, lrep);
         tb += t_size;
         tr--;
-      }
       c = (Case == 'C') ? uutoupper(c)
                         : (Case == 'c') ? uutolower(c)
                         : c;
@@ -3363,14 +3364,13 @@ lchar_t *lub_cat_quoted_def
     tb += t_size;
   }
   lub_set_def(xt, (lchar_t *)tb, 0, lrep);
-  return sn ? (lchar_t *)LUB_PTR_ERR(LUB_TRUNCATED, 0) : (lchar_t *)tb;
+  return sn ? (lchar_t *)LUB_PTR_ERR(LUB_TRUNCATED, 0)
+            : (lchar_t *)tb;
 }
 
 #endif // LUB_DEFINITIONS
 
-// Concatenate/copy/pad extern helper function
-// Primarily intended for internal use but visible to API users.
-// Documentation is not provided to API users.
+// Concatenate/copy/pad extern helper function.
 
 extern
 lchar_t *lub_cat_cpy_pad_ext
@@ -3400,7 +3400,7 @@ lchar_t *lub_cat_cpy_pad_ext
         (Case && Case != 'c' && Case != 'C') ||
         (xt != 'l' && xs != 'u' && lrep) ||
         (op != 2 /*pad*/ && pad))
-      return (lchar_t *)LUB_PTR_ERR(LUB_INTERNAL_ERROR, 0);
+    { return (lchar_t *)LUB_PTR_ERR(LUB_INTERNAL_ERROR, 0); }
 
     size_t t_size = (xt == 'u') ? sizeof(uchar_t) : sizeof(lchar_t);
     size_t s_size = (xs == 'u') ? sizeof(uchar_t) : sizeof(lchar_t);
@@ -3408,15 +3408,15 @@ lchar_t *lub_cat_cpy_pad_ext
     // Validate target t.
     size_t tl; // Current length of t for concatenate, 0 for copy and pad.
     if (xt == 'u' && tn > LUB_MAX_USTRLEN)
-      tn = LUB_MAX_USTRLEN;
+    { tn = LUB_MAX_USTRLEN; }
     else if (tn > LUB_MAX_LSTRLEN)
-      tn = LUB_MAX_LSTRLEN;
+    { tn = LUB_MAX_LSTRLEN; }
     if (!op /*concatenate*/)
     { // Get current length tl of t for concatenate.
       tl = (xt == 'u') ? ucsnlen((uchar_t *)t, tn) : lcsnlen(t, tn);
       if (LUB_SIZE_ERR(tl, 0))
       { if (LUB_INT_ERR(tl, LUB_UNTERMINATED) && t)
-          lub_terminate_def(xt, t);
+        { lub_terminate_def(xt, t); }
         return (lchar_t *)LUB_PTR_ERR(tl, 0);
       }
     }
@@ -3428,7 +3428,7 @@ lchar_t *lub_cat_cpy_pad_ext
             lcsnlen(s,
                     sn > LUB_MAX_LSTRLEN ? LUB_MAX_LSTRLEN : sn);
       if (LUB_SIZE_ERR(sn, 0))
-      { if (op && t) lub_terminate_def(xt, t);
+      { if (op && t) { lub_terminate_def(xt, t); }
         return (lchar_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0);
       }
       /* Validate q. */
@@ -3445,7 +3445,7 @@ lchar_t *lub_cat_cpy_pad_ext
       }
       if (q != '\'' && q != '"')
       { return (lchar_t *)LUB_PTR_ERR(LUB_OPT_INVALID, 0); }
-      if (!quoted) q = '\0';
+      if (!quoted) { q = '\0'; }
     }
 
     // Validate trunc.
@@ -3453,7 +3453,7 @@ lchar_t *lub_cat_cpy_pad_ext
                            isutruncstr((const uchar_t *)trunc) :
                            isltruncstr(trunc);
     if (LUB_INT_ERR(istruncstr, 0))
-    { if (op && t) lub_terminate_def(xt, t);
+    { if (op && t) { lub_terminate_def(xt, t); }
       return (lchar_t *)LUB_PTR_ERR(istruncstr, 0);
     }
 
@@ -3471,7 +3471,7 @@ lchar_t *lub_cat_cpy_pad_ext
         trunc += t_size; trunc_n--;
       }
       if (trunc_n > tn)
-      { if (op && t) lub_terminate_def(xt, t);
+      { if (op && t) { lub_terminate_def(xt, t); }
         return (lchar_t *)LUB_PTR_ERR(LUB_OPT_TOO_LONG, 0);
       }
     }
@@ -3484,7 +3484,7 @@ lchar_t *lub_cat_cpy_pad_ext
                            isupadstr((const uchar_t *)pad) :
                            islpadstr(pad);
       if (LUB_INT_ERR(ispadstr, 0))
-      { if (t) lub_terminate_def(xt, t);
+      { if (t) { lub_terminate_def(xt, t); }
         return (lchar_t *)LUB_PTR_ERR(ispadstr, 0);
       }
       pad_mode = 'R';
@@ -3494,23 +3494,24 @@ lchar_t *lub_cat_cpy_pad_ext
         pad += t_size;
         pad_c = (uchar_t)lub_get_def(xt, pad);
       }
-      if (!pad_c) pad_c = (uchar_t)' ';
+      if (!pad_c) { pad_c = (uchar_t)' '; }
     }
 
     // Validate source does not not contain out-of-range characters
     // when source is Unicode, target is Latin, and lrep is NULL.
     if (xt == 'l' && xs == 'u' && !lrep &&
         !isunlatinstr((const uchar_t *)s, sn))
-    { if (op && t) lub_terminate_def(xt, t);
+    { if (op && t) { lub_terminate_def(xt, t); }
       return (lchar_t *)LUB_PTR_ERR(LUB_NONLATIN_SOURCE, 0);
     }
-    if (!t) return (lchar_t *)NULL;
+    if (!t) { return (lchar_t *)NULL; }
 
     if (q)
-      return LUB__cat_quoted_lcl
+    { return LUB__cat_quoted_lcl
                (xt, xs, q, Case,
                 t + t_size * tl, tn, tl, s, sn,
                 trunc_mode, trunc, trunc_n, lrep);
+    }
 
     if (!s || !sn)
       { LUB__terminate_lcl(xt, t + t_size * tl);
@@ -3531,9 +3532,9 @@ lchar_t *lub_cat_cpy_pad_ext
     { if (trunc_mode && trunc && trunc_n)
       { if (trunc_n <= tn)
         { size_t keep = tn - trunc_n;
-          if (out_n > keep) out_n = keep;
+          if (out_n > keep) { out_n = keep;
           for (size_t i = 0; i < trunc_n && out_n < tn; ++i)
-            LUB__set_lcl(xt, t, out_n++, lub_get_ith_def(xt, trunc, i), lrep);
+          { LUB__set_lcl(xt, t, out_n++, lub_get_ith_def(xt, trunc, i), lrep); }
         }
       }
       lub_terminate_ith_def(xt, t, out_n);
@@ -3637,12 +3638,12 @@ lchar_t *llsnncat
     lchar_t *s, size_t sn,
     const lchar_t *trunc
 )
-{   return (lchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'l', 'l', '\0', '\0', '\0',
-                t, tn, s, sn,
-                (lchar_t)'\0', trunc, (lchar_t *)NULL,
-                (lchar_t)'\0'
-              ); \
+{ return (lchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'l', 'l', '\0', '\0', '\0',
+             t, tn, s, sn,
+             (lchar_t)'\0', trunc, (lchar_t *)NULL,
+             (lchar_t)'\0'
+           ); \
 }
 
 static inline
@@ -3651,170 +3652,174 @@ lchar_t *lusnncat
     uchar_t *s, size_t sn, const lchar_t *trunc,
     const lchar_t lrep
 )
-{   return (lchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'l', 'u', '\0', '\0', '\0',
-                t, tn, (lchar_t *)s, sn,
-                (lchar_t)'\0', trunc, (lchar_t *)NULL,
-                lrep
-              ); \
+{ return (lchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'l', 'u', '\0', '\0', '\0',
+             t, tn, (lchar_t *)s, sn,
+             (lchar_t)'\0', trunc, (lchar_t *)NULL,
+             lrep
+           ); \
 }
 
 static inline
 uchar_t *ulsnncat
-(   uchar_t *t, size_t tn,
-    lchar_t *s, size_t sn,
-    const lchar_t *trunc
+( uchar_t *t, size_t tn,
+  lchar_t *s, size_t sn,
+  const lchar_t *trunc
 )
-{   return (uchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'u', 'l', '\0', '\0', '\0',
-                (lchar_t *)t, tn, s, sn,
-                (lchar_t)'\0', (lchar_t *)trunc, (lchar_t *)NULL,
-                (lchar_t)'\0'
-              ); \
+{ return (uchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'u', 'l', '\0', '\0', '\0',
+             (lchar_t *)t, tn, s, sn,
+             (lchar_t)'\0', (lchar_t *)trunc, (lchar_t *)NULL,
+             (lchar_t)'\0'
+           ); \
 }
 
 static inline
 uchar_t *uusnncat
-(   uchar_t *t, size_t tn,
-    uchar_t *s, size_t sn,
-    const lchar_t *trunc
+( uchar_t *t, size_t tn,
+  uchar_t *s, size_t sn,
+  const lchar_t *trunc
 )
-{   return (uchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'u', 'u', '\0', '\0', '\0',
-                (lchar_t *)t, tn, (lchar_t *)s, sn,
-                (lchar_t)'\0', (lchar_t *)trunc, (lchar_t *)NULL,
-                (lchar_t)'\0'
-              ); \
+{ return (uchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'u', 'u', '\0', '\0', '\0',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+              (lchar_t)'\0', (lchar_t *)trunc, (lchar_t *)NULL,
+              (lchar_t)'\0'
+           ); \
 }
 
 // Concatenate lowercase.
 
 static inline
 lchar_t *llsnncatc
-(   lchar_t *t, size_t tn,
-    lchar_t *s, size_t sn,
-    const lchar_t *trunc
+( lchar_t *t, size_t tn,
+  lchar_t *s, size_t sn,
+  const lchar_t *trunc
 )
-{   return (lchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'l', 'l', '\0', '\0', 'c',
-                t, tn, s, sn,
-                (lchar_t)'\0', trunc, (lchar_t *)NULL,
-                (lchar_t)'\0'
-              ); \
+{ return (lchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'l', 'l', '\0', '\0', 'c',
+             t, tn, s, sn,
+              (lchar_t)'\0', trunc, (lchar_t *)NULL,
+              (lchar_t)'\0'
+           ); \
 }
 
 static inline
 lchar_t *lusnncatc
-(   lchar_t *t, size_t tn,
-    uchar_t *s, size_t sn,
-    const lchar_t *trunc,
-    const lchar_t lrep
+( lchar_t *t, size_t tn,
+  uchar_t *s, size_t sn,
+  const lchar_t *trunc,
+  const lchar_t lrep
 )
-{   return (lchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'l', 'u', '\0', '\0', 'c',
-                t, tn, (lchar_t *)s, sn,
-                (lchar_t)'\0', trunc, (lchar_t *)NULL,
-                lrep
-              ); \
+{ return (lchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'l', 'u', '\0', '\0', 'c',
+             t, tn, (lchar_t *)s, sn,
+             (lchar_t)'\0', trunc, (lchar_t *)NULL,
+             lrep
+           ); \
 }
 
 static inline
 uchar_t *ulsnncatc
-(   uchar_t *t, size_t tn,
-    lchar_t *s, size_t sn,
-    const lchar_t *trunc
+( uchar_t *t, size_t tn,
+  lchar_t *s, size_t sn,
+  const lchar_t *trunc
 )
-{   return (uchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'u', 'l', '\0', '\0', 'c',
-                (lchar_t *)t, tn, s, sn,
-                (lchar_t)'\0', (lchar_t *)trunc, (lchar_t *)NULL,
-                (lchar_t)'\0'
-              ); \
+{ return (uchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'u', 'l', '\0', '\0', 'c',
+             (lchar_t *)t, tn, s, sn,
+             (lchar_t)'\0', (lchar_t *)trunc, (lchar_t *)NULL,
+             (lchar_t)'\0'
+           ); \
 }
 
 static inline
-uchar_t *uusnncatc(uchar_t *t, size_t tn,
-                   uchar_t *s, size_t sn,
-                   const lchar_t *trunc)
-{   return (uchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'u', 'u', '\0', '\0', 'c',
-                (lchar_t *)t, tn, (lchar_t *)s, sn,
-                (lchar_t)'\0', (lchar_t *)trunc, (lchar_t *)NULL,
-                (lchar_t)'\0'
-              ); \
+uchar_t *uusnncatc
+( uchar_t *t, size_t tn,
+  uchar_t *s, size_t sn,
+  const lchar_t *trunc
+)
+{ return (uchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'u', 'u', '\0', '\0', 'c',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             (lchar_t)'\0', (lchar_t *)trunc, (lchar_t *)NULL,
+             (lchar_t)'\0'
+           ); \
 }
 
 // Concatenate uppercase.
 
 static inline
-lchar_t *llsnnCATC(lchar_t *t, size_t tn,
-                   lchar_t *s, size_t sn,
-                   const lchar_t *trunc)
-{   return (lchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'l', 'l', '\0', '\0', 'C',
-                t, tn, s, sn,
-                (lchar_t)'\0', trunc, (lchar_t *)NULL,
-                (lchar_t)'\0'
-              ); \
+lchar_t *llsnnCATC
+( lchar_t *t, size_t tn,
+  lchar_t *s, size_t sn,
+  const lchar_t *trunc
+)
+{ return (lchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'l', 'l', '\0', '\0', 'C',
+             t, tn, s, sn,
+             (lchar_t)'\0', trunc, (lchar_t *)NULL,
+             (lchar_t)'\0'
+           ); \
 }
 
 static inline
 lchar_t *lusnnCATC
-(   lchar_t *t, size_t tn,
-    uchar_t *s, size_t sn,
-    const lchar_t *trunc,
-    const lchar_t lrep
+( lchar_t *t, size_t tn,
+  uchar_t *s, size_t sn,
+  const lchar_t *trunc,
+  const lchar_t lrep
 )
-{   return (lchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'l', 'u', '\0', '\0', 'C',
-                t, tn, (lchar_t *)s, sn,
-                (lchar_t)'\0', trunc, (lchar_t *)NULL,
-                lrep
-              ); \
+{ return (lchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'l', 'u', '\0', '\0', 'C',
+             t, tn, (lchar_t *)s, sn,
+             (lchar_t)'\0', trunc, (lchar_t *)NULL,
+             lrep
+           ); \
 }
 
 static inline
 uchar_t *ulsnnCATC
-(   uchar_t *t, size_t tn,
-    lchar_t *s, size_t sn,
-    const lchar_t *trunc
+( uchar_t *t, size_t tn,
+  lchar_t *s, size_t sn,
+  const lchar_t *trunc
 )
-{   return (uchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'u', 'l', '\0', '\0', 'C',
-                (lchar_t *)t, tn, s, sn,
-                (lchar_t)'\0', (lchar_t *)trunc, (lchar_t *)NULL,
-                (lchar_t)'\0'
-              ); \
+{ return (uchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'u', 'l', '\0', '\0', 'C',
+             (lchar_t *)t, tn, s, sn,
+             (lchar_t)'\0', (lchar_t *)trunc, (lchar_t *)NULL,
+             (lchar_t)'\0'
+           ); \
 }
 
 static inline
 uchar_t *uusnnCATC
-(   uchar_t *t, size_t tn,
-    const uchar_t *s, size_t sn,
-    const lchar_t *trunc
+( uchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  const lchar_t *trunc
 )
-{   return (uchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'u', 'u', '\0', '\0', 'C',
-                (lchar_t *)t, tn, (lchar_t *)s, sn,
-                (lchar_t)'\0', (lchar_t *)trunc, (lchar_t *)NULL,
-                (lchar_t)'\0'
-              ); \
+{ return (uchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'u', 'u', '\0', '\0', 'C',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             (lchar_t)'\0', (lchar_t *)trunc, (lchar_t *)NULL,
+             (lchar_t)'\0'
+           ); \
 }
 
 // Concatenate quoted case-preserving.
 
 static inline
 lchar_t *llsnncatq
-(   lchar_t *t, size_t tn,
-    const lchar_t *s, size_t sn,
-    const lchar_t *trunc, lchar_t q
+( lchar_t *t, size_t tn,
+  const lchar_t *s, size_t sn,
+  const lchar_t *trunc, lchar_t q
 )
-{   return (lchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'l', 'l', 'q', '\0', '\0',
-                t, tn, s, sn,
-                q, trunc, (lchar_t)NULL,
-                (lchar_t)'\0'
-              ); \
+{ return (lchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'l', 'l', 'q', '\0', '\0',
+             t, tn, s, sn,
+             q, trunc, (lchar_t)NULL,
+             (lchar_t)'\0'
+           ); \
 }
 
 static inline
@@ -3834,240 +3839,240 @@ lchar_t *lusnncatq
 
 static inline
 uchar_t *ulsnncatq
-(   uchar_t *t, size_t tn,
-    const lchar_t *s, size_t sn,
-    const lchar_t *trunc, lchar_t q
+( uchar_t *t, size_t tn,
+  const lchar_t *s, size_t sn,
+  const lchar_t *trunc, lchar_t q
 )
-{   return (lchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'u', 'l', 'q', '\0', '\0',
-                (lchar_t *)t, tn, s, sn,
-                q, (lchar_t *)trunc, (lchar_t)NULL,
-                (lchar_t)'\0'
-              ); \
+{ return (uchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'u', 'l', 'q', '\0', '\0',
+             (lchar_t *)t, tn, s, sn,
+             q, (lchar_t *)trunc, (lchar_t)NULL,
+             (lchar_t)'\0'
+           ); \
 }
 
 static inline
 uchar_t *uusnncatq
-(   uchar_t *t, size_t tn,
-    const uchar_t *s, size_t sn,
-    const lchar_t *trunc, lchar_t q
+( uchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  const lchar_t *trunc, lchar_t q
 )
-{   return (uchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'u', 'u', 'q', '\0', '\0',
-                (lchar_t *)t, tn, (lchar_t *)s, sn,
-                q, (lchar_t *)trunc, (lchar_t)NULL,
-                (lchar_t)'\0'
-              ); \
+{ return (uchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'u', 'u', 'q', '\0', '\0',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             q, (lchar_t *)trunc, (lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 // Concatenate quoted lowercase.
 
 static inline
 lchar_t *llsnncatqc
-(   lchar_t *t, size_t tn,
-    const lchar_t *s, size_t sn,
-    const lchar_t *trunc, lchar_t q
+( lchar_t *t, size_t tn,
+  const lchar_t *s, size_t sn,
+  const lchar_t *trunc, lchar_t q
 )
-{   return (lchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'l', 'l', 'q', '\0', 'c',
-                t, tn, s, sn,
-                q, trunc, (lchar_t *)NULL,
-                (lchar_t)'\0'
-              );
+{ return (lchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'l', 'l', 'q', '\0', 'c',
+             t, tn, s, sn,
+             q, trunc, (lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 static inline
 lchar_t *lusnncatqc
-(   lchar_t *t, size_t tn,
-    const uchar_t *s, size_t sn,
-    const lchar_t *trunc, lchar_t q,
-    const lchar_t lrep
+( lchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  const lchar_t *trunc, lchar_t q,
+  const lchar_t lrep
 )
-{   return (lchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'l', 'u', 'q', '\0', 'c',
-                t, tn, (lchar_t *)s, sn,
-                q, trunc, (lchar_t *)NULL,
-                lrep
-              ); \
+{ return (lchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'l', 'u', 'q', '\0', 'c',
+             t, tn, (lchar_t *)s, sn,
+             q, trunc, (lchar_t *)NULL,
+             lrep
+           ); \
 }
 
 static inline
 uchar_t *ulsnncatqc
-(   uchar_t *t, size_t tn,
-    const lchar_t *s, size_t sn,
-    const lchar_t *trunc, lchar_t q
+( uchar_t *t, size_t tn,
+  const lchar_t *s, size_t sn,
+  const lchar_t *trunc, lchar_t q
 )
-{   return (uchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'u', 'l', 'q', '\0', 'c',
-                (lchar_t *)t, tn, s, sn,
-                q, (lchar_t *)trunc, (lchar_t *)NULL,
-                (lchar_t)'\0'
-              );
+{ return (uchar_t *)lub_cat_cpy_pad_ext
+            ( 0, 'u', 'l', 'q', '\0', 'c',
+              (lchar_t *)t, tn, s, sn,
+              q, (lchar_t *)trunc, (lchar_t *)NULL,
+              (lchar_t)'\0'
+            );
 }
 
 static inline
 uchar_t *uusnncatqc
-(   uchar_t *t, size_t tn,
-    const uchar_t *s, size_t sn,
-    const lchar_t *trunc, lchar_t q
+( uchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  const lchar_t *trunc, lchar_t q
 )
-{   return (uchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'u', 'u', 'q', '\0', 'c',
-                (lchar_t *)t, tn, (lchar_t *)s, sn,
-                q, (lchar_t *)trunc, (lchar_t *)NULL,
-                (lchar_t)'\0'
-              );
+{ return (uchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'u', 'u', 'q', '\0', 'c',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             q, (lchar_t *)trunc, (lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 // Concatenate quoted uppercase.
 
 static inline
 lchar_t *llsnnCATQC
-(   lchar_t *t, size_t tn,
-    const lchar_t *s, size_t sn,
-    const lchar_t *trunc, lchar_t q
+( lchar_t *t, size_t tn,
+  const lchar_t *s, size_t sn,
+  const lchar_t *trunc, lchar_t q
 )
-{   return (lchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'l', 'l', 'Q', '\0', 'C',
-                t, tn, s, sn,
-                q, trunc, (lchar_t *)NULL,
-                (lchar_t)'\0'
-              );
+{ return (lchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'l', 'l', 'Q', '\0', 'C',
+             t, tn, s, sn,
+             q, trunc, (lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 static inline
 lchar_t *lusnnCATQC
-(   lchar_t *t, size_t tn,
-    const uchar_t *s, size_t sn,
-    const lchar_t *trunc, lchar_t q,
-    const lchar_t lrep
+( lchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  const lchar_t *trunc, lchar_t q,
+  const lchar_t lrep
 )
-{   return (lchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'l', 'u', 'Q', '\0', 'C',
-                t, tn, (lchar_t *)s, sn,
-                q, trunc, (lchar_t *)NULL,
-                lrep
-              );
+{ return (lchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'l', 'u', 'Q', '\0', 'C',
+             t, tn, (lchar_t *)s, sn,
+             q, trunc, (lchar_t *)NULL,
+             lrep
+           );
 }
 
 static inline
 uchar_t *ulsnnCATQC
-(   uchar_t *t, size_t tn,
-    const lchar_t *s, size_t sn,
-    const lchar_t *trunc, lchar_t q
+( uchar_t *t, size_t tn,
+  const lchar_t *s, size_t sn,
+  const lchar_t *trunc, lchar_t q
 )
-{   return (lchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'l', 'l', 'Q', '\0', 'C',
-                (lchar_t *)t, tn, s, sn,
-                q, (lchar_t *)trunc, (lchar_t *)NULL,
-                (lchar_t)'\0'
-              );
+{ return (uchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'u', 'l', 'Q', '\0', 'C',
+             (lchar_t *)t, tn, s, sn,
+             q, (lchar_t *)trunc, (lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 static inline
 uchar_t *uusnnCATQC
-(   uchar_t *t, size_t tn,
-    const uchar_t *s, size_t sn,
-    const lchar_t *trunc, lchar_t q
+( uchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  const lchar_t *trunc, lchar_t q
 )
-{   return (lchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'u', 'u', 'Q', '\0', 'C',
-                (lchar_t *)t, tn, (lchar_t *)s, sn,
-                q, (lchar_t *)trunc, (lchar_t *)NULL,
-                (lchar_t)'\0'
-              );
+{ return (uchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'u', 'u', 'Q', '\0', 'C',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             q, (lchar_t *)trunc, (lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 // Concatenate name case-preserving.
 
 static inline
 uchar_t *uusncatname
-(   uchar_t *t, size_t tn,
-    const uchar_t *s, size_t sn,
-    lchar_t q, const lchar_t *trunc
+( uchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  lchar_t q, const lchar_t *trunc
 )
-{   return (uchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'u', 'u', 'q', 'N', '\0',
-                (lchar_t *)t, tn, (lchar_t *)s, sn,
-                q, (lchar_t *)trunc, (lchar_t *)NULL,
-                (lchar_t)'\0'
-              );
+{ return (uchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'u', 'u', 'q', 'N', '\0',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             q, (lchar_t *)trunc, (lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 // Concatenate name lowercase.
 
 static inline
 uchar_t *llsncatnamec
-(   lchar_t *t, size_t tn,
-    const lchar_t *s, size_t sn,
-    lchar_t q, const lchar_t *trunc,
-    const lchar_t lrep
+( lchar_t *t, size_t tn,
+  const lchar_t *s, size_t sn,
+  lchar_t q, const lchar_t *trunc,
+  const lchar_t lrep
 )
-{   return (lchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'l', 'l', 'q', 'n', 'c',
-                t, tn, s, sn,
-                q, (lchar_t *)trunc, (lchar_t *)NULL,
-                (lchar_t)'\0'
-              );
+{ return (lchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'l', 'l', 'q', 'n', 'c',
+             t, tn, s, sn,
+             q, (lchar_t *)trunc, (lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 static inline
 lchar_t *lusncatnamec
-(   lchar_t *t, size_t tn,
-    const uchar_t *s, size_t sn,
-    lchar_t q, const lchar_t *trunc,
-    const lchar_t lrep
+( lchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  lchar_t q, const lchar_t *trunc,
+  const lchar_t lrep
 )
-{   return (lchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'l', 'l', 'q', 'n', 'c',
-                t, tn, (lchar_t *)s, sn,
-                q, trunc, (lchar_t *)NULL,
-                lrep
-              );
+{ return (lchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'l', 'l', 'q', 'n', 'c',
+             t, tn, (lchar_t *)s, sn,
+             q, trunc, (lchar_t *)NULL,
+             lrep
+           );
 }
 
 static inline
 uchar_t *ulsncatnamec
-(   uchar_t *t, size_t tn,
-    const lchar_t *s, size_t sn,
-    lchar_t q, const uchar_t *trunc
+( uchar_t *t, size_t tn,
+  const lchar_t *s, size_t sn,
+  lchar_t q, const uchar_t *trunc
 )
-{   return (lchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'l', 'l', 'q', 'n', 'c',
-                (lchar_t *)t, tn, s, sn,
-                q, (lchar_t *)trunc, (lchar_t *)NULL,
-                (lchar_t)'\0'
-              );
+{ return (uchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'l', 'l', 'q', 'n', 'c',
+             (lchar_t *)t, tn, s, sn,
+             q, (lchar_t *)trunc, (lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 static inline
 uchar_t *uusncatnamec
-(   uchar_t *t, size_t tn,
-    const uchar_t *s, size_t sn,
+( uchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
     lchar_t q, const lchar_t *trunc
 )
-{   return (lchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'l', 'l', 'q', 'n', 'c',
-                (lchar_t *)t, tn, (lchar_t *)s, sn,
-                q, (lchar_t *)trunc, (lchar_t *)NULL,
-                (lchar_t)'\0'
-              );
+{ return (uchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'u', 'l', 'q', 'n', 'c',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             q, (lchar_t *)trunc, (lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 // Concatenate name uppercase.
 
 static inline
 uchar_t *uusnCATNAMEC
-(   uchar_t *t, size_t tn,
-    const uchar_t *s, size_t sn,
-    lchar_t q, const lchar_t *trunc
+( uchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  lchar_t q, const lchar_t *trunc
 )
-{   return (lchar_t *)lub_cat_cpy_pad_ext
-              ( 0, 'u', 'u', 'Q', 'N', 'C',
-                (lchar_t *)t, tn, (lchar_t *)s, sn,
-                q, (lchar_t *)trunc, (lchar_t *)NULL,
-                (lchar_t)'\0'
-              );
+{ return (uchar_t *)lub_cat_cpy_pad_ext
+           ( 0, 'u', 'u', 'Q', 'N', 'C',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             q, (lchar_t *)trunc, (lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 // Concatenate hex digit characters <- bytes function helpers.
@@ -4076,81 +4081,83 @@ uchar_t *uusnCATNAMEC
 
 static
 lchar_t lub_to_hex_def
-(   const byte_t b, int shift, const uint8_t Case)
-{   if (shift) shift = 4;
-    const byte_t nib = (byte_t)((b >> shift) & 0xF);
-    return nib < 10 ?
-           (lchar_t)(nib + '0') :
-           (lchar_t)(nib - 10 + (Case == 'c' ? 'a' : 'A'));
+( const byte_t b, int shift, const uint8_t Case)
+{ if (shift) { shift = 4; }
+  const byte_t nib = (byte_t)((b >> shift) & 0xF);
+  return nib < 10 ?
+         (lchar_t)(nib + '0') :
+         (lchar_t)(nib - 10 + (Case == 'c' ? 'a' : 'A'));
 }
 
 #endif // LUB_DEFINITIONS.
 
 extern
 lchar_t *lub_lbs_cat_ext
-(   lchar_t *t, size_t tn, 
-    const byte_t *s, size_t sn,
-    const lchar_t *trunc,
-    const uint8_t Case
+( lchar_t *t, size_t tn, 
+  const byte_t *s, size_t sn,
+  const lchar_t *trunc,
+  const uint8_t Case
 )
 #if defined(LUB_DEFINITIONS)
-{   if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0) || LUB_PTR_ERR(trunc, 0))
-      return (lchar_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0);
-    if (!t) return (lchar_t *)NULL;
-    if (tn > LUB_MAX_LSTRLEN) tn = LUB_MAX_LSTRLEN;
-    const size_t tl = lcsnlen(t, tn);
-    if (LUB_SIZE_ERR(tl, 0)) return (lchar_t *)LUB_PTR_ERR(tl, 0);
-    lchar_t *o = t + tl;
-    size_t rem = (tl < tn) ? (tn - tl) : 0;
-    int truncated = 0;
-    if (sn > LUB_MAX_LSTRLEN >> 1) sn = LUB_MAX_LSTRLEN >> 1;
-    if (sn > LUB_MAX_BSTRLEN) sn = LUB_MAX_BSTRLEN;
-    for (; sn; sn--)
-    { // Note: if s is NULL, treat as sn x'00' bytes.
-      const byte_t c = s ? *s++ : (byte_t)0;
-      if (rem < 2) { truncated = 1; break; }
-      *o++ = lub_to_hex_def(c, 4, Case);
-      *o++ = lub_to_hex_def(c, 0, Case);
-      rem -= 2;
-    }
-    if (rem) *o = (lchar_t)0;
-    else if (tn) t[tn - 1] = (lchar_t)0;
-    return truncated ? (lchar_t *)LUB_PTR_ERR(LUB_TRUNCATED, 0) : o;
+{ if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0) || LUB_PTR_ERR(trunc, 0))
+  { return (lchar_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0); }
+  if (!t) { return (lchar_t *)NULL; }
+  if (tn > LUB_MAX_LSTRLEN) { tn = LUB_MAX_LSTRLEN; }
+  const size_t tl = lcsnlen(t, tn);
+  if (LUB_SIZE_ERR(tl, 0)) { return (lchar_t *)LUB_PTR_ERR(tl, 0); }
+  lchar_t *o = t + tl;
+  size_t rem = (tl < tn) ? (tn - tl) : 0;
+  int truncated = 0;
+  if (sn > LUB_MAX_LSTRLEN >> 1) { sn = LUB_MAX_LSTRLEN >> 1; }
+  if (sn > LUB_MAX_BSTRLEN) sn = LUB_MAX_BSTRLEN;
+  for (; sn; sn--)
+  { // Note: if s is NULL, treat as sn x'00' bytes.
+    const byte_t c = s ? *s++ : (byte_t)0;
+    if (rem < 2) { truncated = 1; break; }
+    *o++ = lub_to_hex_def(c, 4, Case);
+    *o++ = lub_to_hex_def(c, 0, Case);
+    rem -= 2;
   }
+  if (rem) *o = (lchar_t)0;
+  else if (tn) t[tn - 1] = (lchar_t)0;
+  return truncated ? (lchar_t *)LUB_PTR_ERR(LUB_TRUNCATED, 0) : o;
+}
 #else
 ;
 #endif // LUB_DEFINITIONS.
 
 extern
 uchar_t *lub_ubs_cat_ext
-(   uchar_t *t, size_t tn,
-    const byte_t *s, size_t sn,
-    const lchar_t *trunc,
-    const uint8_t Case
+( uchar_t *t, size_t tn,
+  const byte_t *s, size_t sn,
+  const lchar_t *trunc,
+  const uint8_t Case
 )
 #if defined(LUB_DEFINITIONS)
-{   if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0) || LUB_PTR_ERR(trunc, 0))
-      return (uchar_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0);
-    if (!t) return (uchar_t *)NULL;
-    if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
-    const size_t tl = ucsnlen(t, tn);
-    if (LUB_SIZE_ERR(tl, 0)) return (uchar_t *)LUB_PTR_ERR(tl, 0);
-    uchar_t *o = t + tl;
-    size_t rem = (tl < tn) ? (tn - tl) : 0;
-    int truncated = 0;
-    if (sn > LUB_MAX_USTRLEN >> 1) sn = LUB_MAX_USTRLEN >> 1;
-    if (sn > LUB_MAX_BSTRLEN) sn = LUB_MAX_BSTRLEN;
-    for (; sn; sn--) {
-      // Note: if s is NULL, treat as sn x'00' bytes.
-      const byte_t c = s ? *s++ : (byte_t)0;
-      if (rem < 2) { truncated = 1; break; }
-      *o++ = (uchar_t)lub_to_hex_def(c, 4, Case);
-      *o++ = (uchar_t)lub_to_hex_def(c, 0, Case);
-      rem -= 2;
-    }
-    if (rem) *o = (uchar_t)0;
-    else if (tn) t[tn - 1] = (uchar_t)0;
-    return truncated ? (uchar_t *)LUB_PTR_ERR(LUB_TRUNCATED, 0) : o;
+{ if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0) || LUB_PTR_ERR(trunc, 0))
+  { return (uchar_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0); }
+  if (!t) { return (uchar_t *)NULL; }
+  if (tn > LUB_MAX_USTRLEN) { tn = LUB_MAX_USTRLEN; }
+  const size_t tl = ucsnlen(t, tn);
+  if (LUB_SIZE_ERR(tl, 0)) { return (uchar_t *)LUB_PTR_ERR(tl, 0); }
+  uchar_t *o = t + tl;
+  size_t rem = (tl < tn) ? (tn - tl) : 0;
+  int truncated = 0;
+  if (sn > LUB_MAX_USTRLEN >> 1) { sn = LUB_MAX_USTRLEN >> 1; }
+  if (sn > LUB_MAX_BSTRLEN) { sn = LUB_MAX_BSTRLEN; }
+  for (; sn; sn--)
+  { // Note: if s is NULL, treat as sn x'00' bytes.
+    const byte_t c = s ? *s++ : (byte_t)0;
+    if (rem < 2) { truncated = 1; break; }
+    *o++ = (uchar_t)lub_to_hex_def(c, 4, Case);
+    *o++ = (uchar_t)lub_to_hex_def(c, 0, Case);
+    rem -= 2;
+  }
+  if (rem) { *o = (uchar_t)0; }
+  else if (tn) { t[tn - 1] = (uchar_t)0; }
+  return truncated ?
+          (uchar_t *)LUB_PTR_ERR(LUB_TRUNCATED, 0) :
+          o;
 }
 #else
 ;
@@ -4160,37 +4167,38 @@ uchar_t *lub_ubs_cat_ext
 
 static inline
 lchar_t *lbsnncatc
-(   lchar_t *t, size_t tn,
-    const byte_t *s, size_t sn,
-    const lchar_t *trunc
+( lchar_t *t, size_t tn,
+  const byte_t *s, size_t sn,
+  const lchar_t *trunc
 )
-{   return lub_lbs_cat_ext(t, tn, s, sn, trunc, -1);}
+{ return lub_lbs_cat_ext(t, tn, s, sn, trunc, -1);}
 
 static inline
 uchar_t *ubsnncatc
-(   uchar_t *t, size_t tn,
-    const byte_t *s, size_t sn,
-    const lchar_t *trunc
+( uchar_t *t, size_t tn,
+  const byte_t *s, size_t sn,
+  const lchar_t *trunc
 )
-{   return lub_ubs_cat_ext(t, tn, s, sn, trunc, -1);}
+{ return lub_ubs_cat_ext(t, tn, s, sn, trunc, -1);}
 
 // Concatenate hex digit characters (uppercase) <- bytes.
 
 static inline
 lchar_t *lbsnnCATC
-(   lchar_t *t, size_t tn,
-    const byte_t *s, size_t sn,
-    const lchar_t *trunc
+( lchar_t *t, size_t tn,
+  const byte_t *s, size_t sn,
+  const lchar_t *trunc
 )
-{   return lub_lbs_cat_ext(t, tn, s, sn, trunc, 1);}
+{ return lub_lbs_cat_ext(t, tn, s, sn, trunc, 1);}
 
 static inline
 uchar_t *ubsnnCATC
-(   uchar_t *t, size_t tn,
-    const byte_t *s, size_t sn,
-    const lchar_t *trunc
+( uchar_t *t, size_t tn,
+  const byte_t *s, size_t sn,
+  const lchar_t *trunc
 )
-{   return lub_ubs_cat_ext(t, tn, s, sn, trunc, 1);}
+{ return lub_ubs_cat_ext(t, tn, s, sn, trunc, 1);}
+
 /** @} */
 
 /**
@@ -4311,65 +4319,80 @@ uchar_t *ulsnncpy
            );
 }
 
-static inline uchar_t *uusnncpy(uchar_t *t, size_t tn, uchar_t *s, size_t sn,
-                                 const lchar_t *trunc)
+static inline
+uchar_t *uusnncpy
+( uchar_t *t, size_t tn, uchar_t *s, size_t sn,
+  const lchar_t *trunc
+)
 { return (uchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'u', 'u', '\0', '\0', '\0',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           (lchar_t)'\0', trunc, (const lchar_t *)NULL,
-           (lchar_t)'\0'
-         );
+           ( 1, 'u', 'u', '\0', '\0', '\0',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             (lchar_t)'\0', trunc, (const lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 // Copy lowercase.
 
-static inline lchar_t *llsnncpyc(lchar_t *t, size_t tn,
-                                 const lchar_t *s, size_t sn,
-                                 const lchar_t *trunc)
+static inline
+lchar_t *llsnncpyc
+( lchar_t *t, size_t tn,
+  const lchar_t *s, size_t sn,
+  const lchar_t *trunc
+)
 { return (lchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'l', 'l', '\0', '\0', 'c',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           (lchar_t)'\0', trunc, (const lchar_t *)NULL,
-           (lchar_t)'\0'
-         );
+           ( 1, 'l', 'l', '\0', '\0', 'c',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             (lchar_t)'\0', trunc, (const lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
-static inline lchar_t *lusnncpyc(lchar_t *t, size_t tn,
-                                 uchar_t *s, size_t sn,
-                                 const lchar_t *trunc, const lchar_t lrep)
+static inline
+lchar_t *lusnncpyc
+( lchar_t *t, size_t tn,
+  uchar_t *s, size_t sn,
+  const lchar_t *trunc, const lchar_t lrep
+)
 { return (lchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'l', 'u', '\0', '\0', 'c',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           (lchar_t)'\0', trunc, (const lchar_t *)NULL,
-           lrep
-         );
+           ( 1, 'l', 'u', '\0', '\0', 'c',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             (lchar_t)'\0', trunc, (const lchar_t *)NULL,
+             lrep
+           );
 }
 
-static inline uchar_t *ulsnncpyc(uchar_t *t, size_t tn,
-                                 lchar_t *s, size_t sn,
-                                 const lchar_t *trunc)
+static inline
+uchar_t *ulsnncpyc
+( uchar_t *t, size_t tn,
+  lchar_t *s, size_t sn,
+  const lchar_t *trunc)
 { return (uchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'u', 'l', '\0', '\0', 'c',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           (lchar_t)'\0', trunc, (const lchar_t *)NULL,
-           (lchar_t)'\0'
-         );
+           ( 1, 'u', 'l', '\0', '\0', 'c',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             (lchar_t)'\0', trunc, (const lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
-static inline uchar_t *uusnncpyc(uchar_t *t, size_t tn,
-                                 uchar_t *s, size_t sn,
-                                 const lchar_t *trunc)
+static inline
+uchar_t *uusnncpyc
+( uchar_t *t, size_t tn,
+  uchar_t *s, size_t sn,
+  const lchar_t *trunc)
 { return (uchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'u', 'u', '\0', '\0', 'c',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           (lchar_t)'\0', trunc, (const lchar_t *)NULL,
-           (lchar_t)'\0'
-         );
+           ( 1, 'u', 'u', '\0', '\0', 'c',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             (lchar_t)'\0', trunc, (const lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 // Copy uppercase.
 
-static inline lchar_t *llsnnCPYC(lchar_t *t, size_t tn,
+static inline
+lchar_t *llsnnCPYC
+(lchar_t *t, size_t tn,
                                  const lchar_t *s, size_t sn,
                                  const lchar_t *trunc)
 { return (lchar_t *)lub_cat_cpy_pad_ext
@@ -4380,214 +4403,267 @@ static inline lchar_t *llsnnCPYC(lchar_t *t, size_t tn,
          );
 }
 
-static inline lchar_t *lusnnCPYC(lchar_t *t, size_t tn, uchar_t *s, size_t sn,
-                                 const lchar_t *trunc, const lchar_t lrep)
+static inline
+lchar_t *lusnnCPYC
+( lchar_t *t, size_t tn, uchar_t *s, size_t sn,
+  const lchar_t *trunc, const lchar_t lrep
+)
 { return (lchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'l', 'u', '\0', '\0', 'C',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           (lchar_t)'\0', trunc, (const lchar_t *)NULL,
-           lrep
-         );
+           ( 1, 'l', 'u', '\0', '\0', 'C',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             (lchar_t)'\0', trunc, (const lchar_t *)NULL,
+             lrep
+           );
 }
 
-static inline uchar_t *ulsnnCPYC(uchar_t *t, size_t tn, uchar_t *s, size_t sn,
-                                 const lchar_t *trunc)
+static inline
+uchar_t *ulsnnCPYC
+( uchar_t *t, size_t tn, uchar_t *s, size_t sn,
+  const lchar_t *trunc
+)
 { return (uchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'u', 'l', '\0', '\0', 'C',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           (lchar_t)'\0', trunc, (const lchar_t *)NULL,
-           (lchar_t)'\0'
-         );
+           ( 1, 'u', 'l', '\0', '\0', 'C',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             (lchar_t)'\0', trunc, (const lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
-static inline uchar_t *uusnnCPYC(uchar_t *t, size_t tn, uchar_t *s, size_t sn,
-                                  const lchar_t *trunc)
+static inline
+uchar_t *uusnnCPYC
+( uchar_t *t, size_t tn, uchar_t *s, size_t sn,
+  const lchar_t *trunc
+)
 { return (uchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'u', 'u', '\0', '\0', 'C',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           (lchar_t)'\0', trunc, (const lchar_t *)NULL,
-           (lchar_t)'\0'
-         );
+           ( 1, 'u', 'u', '\0', '\0', 'C',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             (lchar_t)'\0', trunc, (const lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 // Copy quoted case-preserving.
 
-static inline lchar_t *llsnncpyq(lchar_t *t, size_t tn,
-                                 const lchar_t *s, size_t sn,
-                                 const lchar_t *trunc, const lchar_t q)
+static inline
+lchar_t *llsnncpyq
+( lchar_t *t, size_t tn,
+  const lchar_t *s, size_t sn,
+  const lchar_t *trunc, const lchar_t q
+)
 { return (lchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'l', 'l', q, '\0', '\0',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           q, trunc, (const lchar_t *)NULL,
-           (lchar_t)'\0'
-         );
+           ( 1, 'l', 'l', q, '\0', '\0',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             q, trunc, (const lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
-static inline lchar_t *lusnncpyq(lchar_t *t, size_t tn,
-                                 const uchar_t *s, size_t sn,
-                                 const lchar_t *trunc, const lchar_t q,
-                                 const lchar_t lrep)
+static inline
+lchar_t *lusnncpyq
+( lchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  const lchar_t *trunc, const lchar_t q,
+  const lchar_t lrep
+)
 { return (lchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'l', 'u', q, '\0', '\0',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           q, trunc, (const lchar_t *)NULL,
-           lrep
-         );
+           ( 1, 'l', 'u', q, '\0', '\0',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             q, trunc, (const lchar_t *)NULL,
+             lrep
+           );
 }
 
-static inline uchar_t *ulsnncpyq(uchar_t *t, size_t tn,
-                                 const lchar_t *s, size_t sn,
-                                 const lchar_t *trunc, const lchar_t q)
+static inline
+uchar_t *ulsnncpyq
+( uchar_t *t, size_t tn,
+  const lchar_t *s, size_t sn,
+  const lchar_t *trunc, const lchar_t q
+)
 { return (uchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'u', 'l', q, '\0', '\0',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           q, trunc, (const lchar_t *)NULL,
-           (lchar_t)'\0'
-         );
+           ( 1, 'u', 'l', q, '\0', '\0',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+               q, trunc, (const lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
-static inline uchar_t *uusnncpyq(uchar_t *t, size_t tn,
-                                 const uchar_t *s, size_t sn,
-                                 const lchar_t *trunc, const lchar_t q)
+static inline
+uchar_t *uusnncpyq
+( uchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  const lchar_t *trunc, const lchar_t q
+)
 { return (uchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'u', 'u', q, '\0', '\0',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           q, trunc, (const lchar_t *)NULL,
-           (lchar_t)'\0'
-         );
+           ( 1, 'u', 'u', q, '\0', '\0',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             q, trunc, (const lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 // Copy quoted lowercase.
 
-static inline lchar_t *llsnncpyqc(lchar_t *t, size_t tn,
-                                  const lchar_t *s, size_t sn,
-                                  const lchar_t *trunc, const lchar_t q)
+static inline
+lchar_t *llsnncpyqc
+( lchar_t *t, size_t tn,
+  const lchar_t *trunc, const lchar_t q
+)
 { return (lchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'l', 'l', q, '\0', 'c',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           q, trunc, (const lchar_t *)NULL,
-           (lchar_t)'\0'
-         );
+           ( 1, 'l', 'l', q, '\0', 'c',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             q, trunc, (const lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
-static inline lchar_t *lusnncpyqc(lchar_t *t, size_t tn,
-                                  const uchar_t *s, size_t sn,
-                                  const lchar_t *trunc, const lchar_t q,
-                                  const lchar_t lrep)
+static inline
+lchar_t *lusnncpyqc
+( lchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  const lchar_t *trunc, const lchar_t q,
+  const lchar_t lrep
+)
 { return (lchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'l', 'u', q, '\0', 'c',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           q, trunc, (const lchar_t *)NULL,
-           lrep
-         );
+           ( 1, 'l', 'u', q, '\0', 'c',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             q, trunc, (const lchar_t *)NULL,
+             lrep
+           );
 }
 
-static inline uchar_t *ulsnncpyqc(uchar_t *t, size_t tn,
-                                  const lchar_t *s, size_t sn,
-                                  const lchar_t *trunc, const lchar_t q)
+static inline
+uchar_t *ulsnncpyqc
+( uchar_t *t, size_t tn,
+  const lchar_t *s, size_t sn,
+  const lchar_t *trunc, const lchar_t q
+)
 { return (uchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'u', 'l', q, '\0', 'c',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           q, trunc, (const lchar_t *)NULL,
-           (lchar_t)'\0'
-         );
+           ( 1, 'u', 'l', q, '\0', 'c',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             q, trunc, (const lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
-static inline uchar_t *uusnncpyqc(uchar_t *t, size_t tn,
-                                  const uchar_t *s, size_t sn,
-                                  const lchar_t *trunc, const lchar_t q)
+static inline
+uchar_t *uusnncpyqc
+( uchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  const lchar_t *trunc, const lchar_t q
+)
 { return (uchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'u', 'u', q, '\0', 'c',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           q, trunc, (const lchar_t *)NULL,
-           (lchar_t)'\0'
-         );
+           ( 1, 'u', 'u', q, '\0', 'c',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             q, trunc, (const lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 // Copy quoted uppercase.
 
-static inline lchar_t *llsnnCPYQC(lchar_t *t, size_t tn,
-                                  const lchar_t *s, size_t sn,
-                                  const lchar_t *trunc, const lchar_t q)
+static inline
+lchar_t *llsnnCPYQC
+( lchar_t *t, size_t tn,
+  const lchar_t *s, size_t sn,
+  const lchar_t *trunc, const lchar_t q
+)
 { return (lchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'l', 'l', q, '\0', 'C',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           q, trunc, (const lchar_t *)NULL,
-           (lchar_t)'\0'
-         );
+           ( 1, 'l', 'l', q, '\0', 'C',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             q, trunc, (const lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
-static inline lchar_t *lusnnCPYQC(lchar_t *t, size_t tn,
-                                  const uchar_t *s, size_t sn,
-                                  const lchar_t *trunc, const lchar_t q,
-                                  const lchar_t lrep)
+static inline
+lchar_t *lusnnCPYQC
+( lchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  const lchar_t *trunc, const lchar_t q,
+  const lchar_t lrep
+)
 { return (lchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'l', 'u', q, '\0', 'C',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           q, trunc, (const lchar_t *)NULL,
-           lrep
-         );
+           ( 1, 'l', 'u', q, '\0', 'C',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             q, trunc, (const lchar_t *)NULL,
+             lrep
+           );
 }
 
-static inline uchar_t *ulsnnCPYQC(uchar_t *t, size_t tn,
-                                  const lchar_t *s, size_t sn,
-                                  const lchar_t *trunc, const lchar_t q)
+static inline
+uchar_t *ulsnnCPYQC
+( uchar_t *t, size_t tn,
+  const lchar_t *s, size_t sn,
+  const lchar_t *trunc, const lchar_t q
+)
 { return (uchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'u', 'l', q, '\0', 'C',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           q, trunc, (const lchar_t *)NULL,
-           (lchar_t)'\0'
-         );
+           ( 1, 'u', 'l', q, '\0', 'C',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             q, trunc, (const lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
-static inline uchar_t *uusnnCPYQC(uchar_t *t, size_t tn,
-                                  const uchar_t *s, size_t sn,
-                                  const lchar_t *trunc, const lchar_t q)
+static inline
+uchar_t *uusnnCPYQC
+( uchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  const lchar_t *trunc, const lchar_t q
+)
 { return (uchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'u', 'u', q, '\0', 'C',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           q, trunc, (const lchar_t *)NULL,
-           (lchar_t)'\0'
-         );
+           ( 1, 'u', 'u', q, '\0', 'C',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             q, trunc, (const lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 // Copy quoted/unquoted name case-preserving.
 
-static inline uchar_t *uusncpyname(uchar_t *t, size_t tn,
-                                   const uchar_t *s, size_t sn,
-                                   const lchar_t *trunc, const lchar_t q)
+static inline
+uchar_t *uusncpyname
+( uchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  const lchar_t *trunc, const lchar_t q
+)
 { return (uchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'u', 'u', q, 'N', '\0',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           q, trunc, (const lchar_t *)NULL,
-           (lchar_t)'\0'
-         );
+           ( 1, 'u', 'u', q, 'N', '\0',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             q, trunc, (const lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 // Copy quoted/unquoted name lowercase.
 
-static inline uchar_t *uusncpynamec(uchar_t *t, size_t tn,
-                                    const uchar_t *s, size_t sn,
-                                    const lchar_t *trunc, const lchar_t q)
+static inline
+uchar_t *uusncpynamec
+( uchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  const lchar_t *trunc, const lchar_t q
+)
 { return (uchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'u', 'u', q, 'N', 'c',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           q, trunc, (const lchar_t *)NULL,
-           (lchar_t)'\0'
-         );
+           ( 1, 'u', 'u', q, 'N', 'c',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             q, trunc, (const lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 // Copy quoted/unquoted name uppercase.
 
-static inline uchar_t *uusnCPYNAMEC(uchar_t *t, size_t tn,
-                                    const uchar_t *s, size_t sn,
-                                    const lchar_t *trunc, const lchar_t q)
+static inline
+uchar_t *uusnCPYNAMEC
+( uchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  const lchar_t *trunc, const lchar_t q
+)
 { return (uchar_t *)lub_cat_cpy_pad_ext
-         ( 1, 'u', 'u', q, 'N', 'C',
-           (lchar_t *)t, tn, (lchar_t *)s, sn,
-           q, trunc, (const lchar_t *)NULL,
-           (lchar_t)'\0'
-         );
+           ( 1, 'u', 'u', q, 'N', 'C',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             q, trunc, (const lchar_t *)NULL,
+             (lchar_t)'\0'
+           );
 }
 
 // Copy hex digit characters lowercase <- bytes.
@@ -4596,76 +4672,108 @@ static inline
 lchar_t *lbsnncpyc
 ( lchar_t *t, size_t tn,
   const byte_t *s, size_t sn,
-  const lchar_t *trunc)
+  const lchar_t *trunc
+)
 {if (!t) return (lchar_t *)NULL;
      if (LUB_PTR_ERR(t, 0)) return (lchar_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0);
      *t = (lchar_t)0;
      return lbsnncatc(t, tn, s, sn, trunc) ? t : (lchar_t *)NULL;}
 
-static inline  uchar_t *ubsnncpyc(uchar_t *t, size_t tn,
-                                  const byte_t *s, size_t sn,
-                                  const lchar_t *trunc)
-    {if (!t) return (uchar_t *)NULL;
-     if (LUB_PTR_ERR(t, 0)) return (uchar_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0);
-     *t = (uchar_t)0;
-     return ubsnncatc(t, tn, s, sn, trunc) ? t : (uchar_t *)NULL;}
+static inline
+uchar_t *ubsnncpyc
+( uchar_t *t, size_t tn,
+  const byte_t *s, size_t sn,
+  const lchar_t *trunc
+)
+{ if (!t) { return ( uchar_t *)NULL; }
+  if (LUB_PTR_ERR(t, 0))
+  { return (uchar_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0); }
+  *t = (uchar_t)0;
+  return ubsnncatc(t, tn, s, sn, trunc) ?
+         t : (uchar_t *)NULL;
+}
 
 // Copy hex digit characters uppercase <- bytes.
 
-static inline lchar_t *lbsnnCPYC(lchar_t *t, size_t tn,
-                                 const byte_t *s, size_t sn,
-                                 const lchar_t *trunc)
-    {if (!t) return (lchar_t *)NULL;
-     if (LUB_PTR_ERR(t, 0)) return (lchar_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0);
-     *t = (lchar_t)0;
-     return lbsnnCATC(t, tn, s, sn, trunc) ? t : (lchar_t *)NULL;}
+static inline
+lchar_t *lbsnnCPYC
+( lchar_t *t, size_t tn,
+  const byte_t *s, size_t sn,
+  const lchar_t *trunc
+)
+{ if (!t) { return (lchar_t *)NULL; }
+  if (LUB_PTR_ERR(t, 0))
+  { return (lchar_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0); } 
+  *t = (lchar_t)0;
+  return lbsnnCATC(t, tn, s, sn, trunc) ?
+         t : (lchar_t *)NULL;
+}
 
-static inline  uchar_t *ubsnnCPYC(uchar_t *t, size_t tn,
-                                  const byte_t *s, size_t sn,
-                                  const lchar_t *trunc)
-    {if (!t) return (uchar_t *)NULL;
-     if (LUB_PTR_ERR(t, 0)) return (uchar_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0);
-     *t = (uchar_t)0;
-     return ubsnnCATC(t, tn, s, sn, trunc) ? t : (uchar_t *)NULL;}
+static inline
+uchar_t *ubsnnCPYC
+( uchar_t *t, size_t tn,
+  const byte_t *s, size_t sn,
+  const lchar_t *trunc
+)
+{ if (!t) { return (uchar_t *)NULL; }
+  if (LUB_PTR_ERR(t, 0))
+  { return (uchar_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0); }
+  *t = (uchar_t)0;
+  return ubsnnCATC(t, tn, s, sn, trunc) ? t : (uchar_t *)NULL;
+}
 
 // Copy bytes <- hex digit characters.
 
-extern byte_t *blsnncpy(byte_t *t, size_t tn, const lchar_t *s, size_t sn)
+extern
+byte_t *blsnncpy
+( byte_t *t, size_t tn, const lchar_t *s, size_t sn)
 #if defined(LUB_DEFINITIONS)
-{   if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0))
-      return (byte_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0); 
-    if (!t || !s) return t;
-    if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
-    int hi, lo;
-    for (; sn && *s; sn--, s++) {
-      hi = ilhex(*s);
-      if (sn && s[1]) {lo = ilhex(*++s); sn--;} else lo = 0;
-    if (hi < 0 || lo < 0) return (byte_t *)NULL; // Invalid hex digit.
-      *t++ = (unsigned char)((hi << 4) | lo);
-    }
-    if (*s) return (byte_t *)NULL; // Missing null terminator for source string.
-    return t;
+{ if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0))
+  { return (byte_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0); }
+  if (!t || !s) { return t; }
+  if (sn > LUB_MAX_LSTRLEN) { sn = LUB_MAX_LSTRLEN; }
+
+  int hi, lo;
+  for (; sn && *s; sn--, s++)
+  { hi = ilhex(*s);
+    if (sn && s[1]) { lo = ilhex(*++s); sn--; } else { lo = 0; }
+    if (hi < 0 || lo < 0) // Invalid hex digit.
+    { return (byte_t *)NULL; } 
+    *t++ = (unsigned char)((hi << 4) | lo);
+  }
+
+  if (*s) // Missing null terminator for source string.
+  { return (byte_t *)NULL; }
+
+  return t;
 }
 #else
 ;
 #endif // LUB_DEFINITIONS
 
-extern byte_t *busnncpy(byte_t *t, size_t tn, const uchar_t *s, size_t sn)
+extern
+byte_t *busnncpy
+( byte_t *t, size_t tn, const uchar_t *s, size_t sn )
 #if defined(LUB_DEFINITIONS)
-{   if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0))
-      return (byte_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0); 
-    if (!t || !s) return t;
-    if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
-    int hi, lo;
-    for (; sn && *s; sn--, s++)
-    { hi = iuhex(*s);
-       lo = 0;
-       if (sn && s[1]) {lo = iuhex(*++s); sn--;} else lo = 0;
-    if (hi < 0 || lo < 0) return (byte_t *)NULL; // Invalid hex digit.
-       *t++ = (unsigned char)((hi << 4) | lo);
-    }
-    if (*s) return (byte_t *)NULL; // Missing null terminator for source string.
-    return t;
+{ if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0))
+  { return (byte_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0); }
+  if (!t || !s) { return t; }
+  if (sn > LUB_MAX_USTRLEN) { sn = LUB_MAX_USTRLEN; }
+
+  int hi, lo;
+  for (; sn && *s; sn--, s++)
+  { hi = iuhex(*s);
+    lo = 0;
+    if (sn && s[1]) { lo = iuhex(*++s); sn--; } else { lo = 0; }
+    if (hi < 0 || lo < 0) // Invalid hex digit.
+    { return (byte_t *)NULL; }
+    *t++ = (unsigned char)((hi << 4) | lo);
+  }
+
+  if (*s) // Missing null terminator for source string.
+  { return (byte_t *)NULL; }
+
+  return t;
 }
 #else
 ;
@@ -4673,30 +4781,36 @@ extern byte_t *busnncpy(byte_t *t, size_t tn, const uchar_t *s, size_t sn)
 
 // Copy bytes <- bytes.
 
-extern byte_t *bbsnncpy(byte_t *t, size_t tn, const byte_t *s, size_t sn)
+extern
+byte_t *bbsnncpy
+( byte_t *t, size_t tn, const byte_t *s, size_t sn)
 #if defined(LUB_DEFINITIONS)
-{   if (!t) return (byte_t *)NULL;
-    if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0))
-      return (byte_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0);
-    if (sn > LUB_MAX_BSTRLEN) return (byte_t *)NULL;
-    if (!s) {
-      // Copy sn null bytes if s is NULL.
-      for (; sn; sn--) *t++ = (byte_t)0;
-    } else
-    if (t <= s || t >= s + sn) {
-      // Safe to copy sn bytes left-to-right, even with overlap.
-      for (; sn; sn--) *t++ = *s++;
-    } else {
-      // Avoid potential overlap with copy sn bytes right-to-left.
-             byte_t *tt = (t += sn) - 1;
-      s += sn - 1;
-      for (; sn; sn--) *tt-- = *s--;
-    }
-    return t;
+{ if (!t) { return (byte_t *)NULL; }
+  if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0))
+  { return (byte_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0); }
+  if (sn > LUB_MAX_BSTRLEN) { return (byte_t *)NULL; }
+
+  if (!s)
+  {  // Copy sn null bytes if s is NULL.
+    for (; sn; sn--) *t++ = (byte_t)0;
+  }
+  else if (t <= s || t >= s + sn)
+  { // Safe to copy sn bytes left-to-right, even with overlap.
+    for (; sn; sn--) *t++ = *s++;
+  }
+  else
+  { // Avoid potential overlap with copy sn bytes right-to-left.
+    byte_t *tt = (t += sn) - 1;
+    s += sn - 1;
+    for (; sn; sn--) *tt-- = *s--;
+  }
+
+  return t;
 }
 #else
 ;
 #endif // LUB_DEFINITIONS
+
 /** @} */
 
 /**
@@ -4748,30 +4862,29 @@ extern byte_t *bbsnncpy(byte_t *t, size_t tn, const byte_t *s, size_t sn)
 
 #if defined(LUB_DEFINITIONS)
 
-static inline int lub_trim_match_def(
-  const uchar_t c,
+static inline
+int lub_trim_match_def
+( const uchar_t c,
   const char trim_xt,
-  const lchar_t *trimset)
-{
-  if (!trimset)
-    return isuspace((int)c);
+  const lchar_t *trimset
+)
+{ if (!trimset) { return isuspace((int)c); }
 
-  if (trim_xt == 'u') {
-    const uchar_t *scan = (const uchar_t *)trimset;
-    while (*scan) {
-      if (*scan++ == c) return 1;
-    }
-    return 0;
+  if (trim_xt == 'u')
+  { const uchar_t *scan = (const uchar_t *)trimset;
+    while (*scan)
+    { if (*scan++ == c) { return 1; } }
   }
-
-  while (*trimset) {
-    if ((uchar_t)*trimset++ == c) return 1;
+  else // trim_xt == 'l'
+  { while (*trimset)
+    { if ((uchar_t)*trimset++ == c) { return 1;} }
   }
   return 0;
 }
 
-extern lchar_t *lub_trim_ext(
-  const char xt,
+extern
+lchar_t *lub_trim_ext
+( const char xt,
   const char xs,
   const char trim_xt,
   lchar_t *t,
@@ -4781,16 +4894,17 @@ extern lchar_t *lub_trim_ext(
   const lchar_t *trunc,
   const lchar_t *trim,
   const lchar_t delim,
-  const lchar_t lrep)
-{
-  if (!t) return (lchar_t *)NULL;
+  const lchar_t lrep
+)
+{ if (!t) return (lchar_t *)NULL;
+
   if (LUB_PTR_ERR(t, 0))
-    return (lchar_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0);
+  { return (lchar_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0); }
 
   lub_terminate_def(xt, t);
 
   if (LUB_PTR_ERR(s, 0) || LUB_PTR_ERR(trunc, 0) || LUB_PTR_ERR(trim, 0))
-    return (lchar_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0);
+  { return (lchar_t *)LUB_PTR_ERR(LUB_PTR_INVALID, 0); }
   if (!s) return (lchar_t *)NULL;
 
   if (xt == 'u') {
@@ -4800,33 +4914,33 @@ extern lchar_t *lub_trim_ext(
   }
 
   size_t trimlen = 0;
-  const lchar_t *trimmed = LUB__pointer_trim__ext(xs, s, sn, trim_xt, trim, &trimlen);
-  if (LUB_PTR_ERR(trimmed, 0))
-    return (lchar_t *)trimmed;
-  if (!trimmed) return (lchar_t *)NULL;
+  const lchar_t *trimmed =
+           lub_pointer_trim_ext
+             (xs, s, sn, trim_xt, trim, &trimlen);
 
-  {
-    const size_t t_size = (xt == 'u') ? sizeof(uchar_t) : sizeof(lchar_t);
-    const size_t s_size = (xs == 'u') ? sizeof(uchar_t) : sizeof(lchar_t);
-    const char *tb = (const char *)t;
-    const char *sb = (const char *)trimmed;
-    const size_t t_bytes = (tn + 1) * t_size;
-    const size_t s_bytes = (trimlen + 1) * s_size;
+  if (LUB_PTR_ERR(trimmed, 0)) { return (lchar_t *)trimmed; }
+  if (!trimmed) { return (lchar_t *)NULL; }
 
-    if (tb < sb + s_bytes && sb < tb + t_bytes)
-      return (lchar_t *)LUB_PTR_ERR(LUB_OVERLAP, 0);
-  }
+  const size_t t_size = (xt == 'u') ? sizeof(uchar_t) : sizeof(lchar_t);
+  const size_t s_size = (xs == 'u') ? sizeof(uchar_t) : sizeof(lchar_t);
+  const char *tb = (const char *)t;
+  const char *sb = (const char *)trimmed;
+  const size_t t_bytes = (tn + 1) * t_size;
+  const size_t s_bytes = (trimlen + 1) * s_size;
 
+  if (tb < sb + s_bytes && sb < tb + t_bytes)
+  { return (lchar_t *)LUB_PTR_ERR(LUB_OVERLAP, 0); }
+  
   const lchar_t *trimset = trim;
-  if (trim) {
-    if (trim_xt == 'u') {
-      const uchar_t *utrim = (const uchar_t *)trim;
-      if (*utrim && islalpha((int)*utrim))
-        trimset = (const lchar_t *)(utrim + 1);
-      if (!*(const uchar_t *)trimset)
-        trimset = (const lchar_t *)NULL;
-    } else {
-      if (*trimset && islalpha((int)*trimset)) ++trimset;
+  if (trim)
+  { if (trim_xt == 'u') {
+    const uchar_t *utrim = (const uchar_t *)trim;
+    if (*utrim && islalpha((int)*utrim))
+     { trimset = (const lchar_t *)(utrim + 1); }
+    if (!*(const uchar_t *)trimset)
+    { trimset = (const lchar_t *)NULL; }
+    else
+    { if (*trimset && islalpha((int)*trimset)) ++trimset;
       if (trimset && !*trimset) trimset = (const lchar_t *)NULL;
     }
   }
@@ -4835,122 +4949,142 @@ extern lchar_t *lub_trim_ext(
   uchar_t normalized[(trimlen ? trimlen : 1) + 1];
   int pending_trim = 0;
 
-  for (size_t i = 0; i < trimlen; ++i) {
-    const uchar_t c = lub_get_ith_def(xs, trimmed, i);
+  for (size_t i = 0; i < trimlen; ++i)
+  { const uchar_t c = lub_get_ith_def(xs, trimmed, i);
     const int is_trim = delim && lub_trim_match_def(c, trim_xt, trimset);
 
-    if (is_trim) {
-      pending_trim = 1;
-      continue;
-    }
+    if (is_trim) { pending_trim = 1; continue; }
 
     if (pending_trim && normalized_len)
-      normalized[normalized_len++] = (uchar_t)delim;
+    { normalized[normalized_len++] = (uchar_t)delim; }
 
-    if (xt == 'l' && c > LUB_MAX_LCHAR && !lrep) {
-      lub_terminate_def(xt, t);
+    if (xt == 'l' && c > LUB_MAX_LCHAR && !lrep)
+    { lub_terminate_def(xt, t);
       return (lchar_t *)LUB_PTR_ERR(LUB_NONLATIN_SOURCE, 0);
     }
 
     normalized[normalized_len++] = c;
     pending_trim = 0;
   }
+
   normalized[normalized_len] = (uchar_t)0;
 
-  if (normalized_len <= tn) {
-    for (size_t i = 0; i < normalized_len; ++i)
-      lub_set_ith_def(xt, t, i, normalized[i], lrep);
-    lub_terminate_ith_def(xt, t, normalized_len);
-    return t;
+  if (normalized_len <= tn)
+  { for (size_t i = 0; i < normalized_len; ++i)
+    { lub_set_ith_def(xt, t, i, normalized[i], lrep);
+      lub_terminate_ith_def(xt, t, normalized_len);
+      return t;
+    }
   }
 
   char trunc_mode = 'R';
   const lchar_t *replacement = trunc;
   size_t replacement_len = 0;
 
-  if (trunc) {
-    replacement_len = lcsnlen(trunc, LUB_MAX_LOPTLEN);
+  if (trunc)
+  { replacement_len = lcsnlen(trunc, LUB_MAX_LOPTLEN);
     if (LUB_SIZE_ERR(replacement_len, 0))
-      return (lchar_t *)LUB_PTR_ERR(replacement_len, 0);
-    if (*replacement && islalpha((int)*replacement)) {
-      trunc_mode = (char)toupper((int)*replacement++);
+    { return (lchar_t *)LUB_PTR_ERR(replacement_len, 0); }
+    if (*replacement && islalpha((int)*replacement))
+    { trunc_mode = (char)toupper((int)*replacement++);
       --replacement_len;
     }
   }
 
   size_t keep_left = 0;
   size_t keep_right = 0;
-  if (replacement_len && tn > 2 * replacement_len) {
-    const size_t keep_total = tn - 2 * replacement_len;
+  if (replacement_len && tn > 2 * replacement_len)
+  { const size_t keep_total = tn - 2 * replacement_len;
     if (trunc_mode == 'L')
-      keep_right = keep_total;
-    else if (trunc_mode == 'C') {
-      keep_left = (keep_total + 1) / 2;
+    { keep_right = keep_total; }
+    else if (trunc_mode == 'C')
+    { keep_left = (keep_total + 1) / 2;
       keep_right = keep_total / 2;
-    } else if (trunc_mode == 'B') {
-      keep_left = 0;
-      keep_right = 0;
-    } else {
-      keep_left = keep_total;
     }
+    else if (trunc_mode == 'B')
+    { keep_left = 0;
+      keep_right = 0;
+    }
+    else
+    { keep_left = keep_total; }
   }
 
   size_t out = 0;
   for (size_t i = 0; i < keep_left && out < tn; ++i)
-    lub_set_ith_def(xt, t, out++, normalized[i], lrep);
+  { lub_set_ith_def(xt, t, out++, normalized[i], lrep); }
   for (size_t i = 0; i < replacement_len && out < tn; ++i)
-    lub_set_ith_def(xt, t, out++, (uchar_t)replacement[i], lrep);
-  if (keep_right) {
-    const size_t start = normalized_len - keep_right;
+  { lub_set_ith_def(xt, t, out++, (uchar_t)replacement[i], lrep); }
+  if (keep_right)
+  { const size_t start = normalized_len - keep_right;
     for (size_t i = start; i < normalized_len && out < tn; ++i)
-      lub_set_ith_def(xt, t, out++, normalized[i], lrep);
+    { lub_set_ith_def(xt, t, out++, normalized[i], lrep); }
   }
   lub_terminate_ith_def(xt, t, out);
+
   return (lchar_t *)LUB_PTR_ERR(LUB_TRUNCATED, 0);
 }
 
 #endif // LUB_DEFINITIONS for trim mode macros.
 
 // Trim (case-preserving).
-static inline lchar_t *llsnntrim(
-  lchar_t *t, size_t tn,
+static inline
+lchar_t *llsnntrim
+( lchar_t *t, size_t tn,
   const lchar_t *s, size_t sn,
   const lchar_t *trunc,
   const lchar_t *trim,
-  const lchar_t delim)
-{
-  return lub_trim_ext('l', 'l', 'l', t, tn, s, sn, trunc, trim, delim, (lchar_t)'\0');
+  const lchar_t delim
+)
+{ return lub_trim_ext
+           ('l', 'l', 'l',
+             t, tn, s, sn,
+             trunc, trim,
+             delim, (lchar_t)'\0');
 }
 
-static inline lchar_t *lusnntrim(
-  lchar_t *t, size_t tn,
+static inline
+lchar_t *lusnntrim
+( lchar_t *t, size_t tn,
   const uchar_t *s, size_t sn,
   const lchar_t *trunc,
   const lchar_t *trim,
   const lchar_t delim,
-  const lchar_t lrep)
-{
-  return lub_trim_ext('l', 'u', 'l', t, tn, (const lchar_t *)s, sn, trunc, trim, delim, lrep);
+  const lchar_t lrep
+)
+{ return lub_trim_ext
+           ('l', 'u', 'l',
+             t, tn, (const lchar_t *)s, sn,
+             trunc, trim,
+             delim, lrep);
 }
 
-static inline uchar_t *ulsnntrim(
-  uchar_t *t, size_t tn,
+static inline
+uchar_t *ulsnntrim
+( uchar_t *t, size_t tn,
   const lchar_t *s, size_t sn,
   const lchar_t *trunc,
   const lchar_t *trim,
   const uchar_t delim)
-{
-  return (uchar_t *)lub_trim_ext('u', 'l', 'l', (lchar_t *)t, tn, s, sn, trunc, trim, (lchar_t)delim, (lchar_t)'\0');
+{ return (uchar_t *)lub_trim_ext
+           ('u', 'l', 'l',
+            (lchar_t *)t, tn, s, sn,
+            trunc, trim,
+            (lchar_t)delim, (lchar_t)'\0');
 }
 
-static inline uchar_t *uusnntrim(
-  uchar_t *t, size_t tn,
+static inline
+uchar_t *uusnntrim
+( uchar_t *t, size_t tn,
   const uchar_t *s, size_t sn,
   const lchar_t *trunc,
   const uchar_t *trim,
-  const uchar_t delim)
-{
-  return (uchar_t *)lub_trim_ext('u', 'u', 'u', (lchar_t *)t, tn, (const lchar_t *)s, sn, trunc, (const lchar_t *)trim, (lchar_t)delim, (lchar_t)'\0');
+  const uchar_t delim
+)
+{ return (uchar_t *)lub_trim_ext
+           ('u', 'u', 'u', (lchar_t *)t, tn,
+            (const lchar_t *)s, sn,
+             trunc, (const lchar_t *)trim,
+             (lchar_t)delim, (lchar_t)'\0');
 }
 
 /** @} */
@@ -4972,10 +5106,9 @@ static inline uchar_t *uusnntrim(
  * @return t, NULL if t is NULL, or an error.
  *
  * @note Errors: 
- * 
- *       - LUB_PTR_INVALID if t or s is not a valid pointer.
- *       - LUB_UNTERMINATED if source string is not NULL terminated.
- *       - LUB_TRUNCATED if the target buffer is too small.
+ * - LUB_PTR_INVALID if t or s is not a valid pointer.
+ * - LUB_UNTERMINATED if source string is not NULL terminated.
+ * - LUB_TRUNCATED if the target buffer is too small.
  * 
  * @note If the source and target buffer overlap, the target
  *       buffer is set correctly to the reverse of the source
