@@ -111,6 +111,14 @@ const lchar_t map[] = { 'c','a','t','|','d','o','g',0 };
 llsnnreplace(out, 32, src, 32, map, '|', 2);
 ```
 
+```c
+/* Pad centered with odd-width padding: extra pad character goes on the right. */
+lchar_t out[8 + 1];
+const lchar_t src[] = { 'c','a','t',0 };
+llsnnpad(out, 8, src, 8, "B.");
+/* out -> "..cat..." */
+```
+
 For the full API reference and additional examples, see the docblocks in `lubtype.h`.
 
 ## Version Macros
@@ -162,6 +170,12 @@ Name classification helpers also use:
 - `LUB_UNQUOTEDNAME` = `0`
 - `LUB_QUOTEDNAME` = `1`
 
+String classification helpers (`isln*`, `isun*`, `islreserved`, `isureserved`, `islqname`, `isuqname`) return:
+
+- `1` for satisfied condition and no error
+- `0` for unsatisfied condition and no error
+- an error value in the reserved error range (`-99` to `-2`) on error
+
 Reserved error values occupy the range `-99` to `-2` and are exposed through macros such as:
 
 - `LUB_PTR_INVALID`
@@ -183,6 +197,12 @@ if (LUB_SIZE_ERR(len, 0)) {
 ```
 
 Pointer-returning functions return `NULL` on ordinary failure and may also encode reserved error values through the `LUB_PTR_ERR` helpers.
+
+For pad helpers (`llsnnpad`, `lusnnpad`, `ulsnnpad`, `uusnnpad`), the `pad` option matches the header docs:
+
+- `NULL` pad defaults to center mode with space pad (`"B "`)
+- pad mode letters are `L`, `R`, and `B` (case-insensitive)
+- for center mode with odd-width padding, the extra pad character is placed on the right
 
 ## Naming Conventions
 
