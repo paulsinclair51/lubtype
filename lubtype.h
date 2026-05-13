@@ -246,7 +246,7 @@ extern "C" {
 #endif // defined macros
 
 /**
- * @section UtitilityMacros Utility Macros
+ * @section UtilityMacros Utility Macros
  */
 
 /**
@@ -275,7 +275,7 @@ extern "C" {
 // Expand tokens before pasting.
 #define LUB_PASTE(a, b) LUB_TOKEN_PASTE(a, b)
 
-/** @) */
+/** @} */
 
 /**
  * @defgroup Stringify Stringify
@@ -301,7 +301,7 @@ extern "C" {
 // Expand token before stringifying.
 #define LUB_STRINGIFY(s) LUB_TOKEN_STRINGIFY(s)
 
-/** @) */
+/** @} */
 
 #if defined(LUB_DEFINITIONS)
 
@@ -1180,9 +1180,6 @@ typedef uint8_t byte_t;
  *       whitespace characters (e.g., U+00A0 NO-BREAK SPACE,
  *       U+2003 EM SPACE, etc.).
  *
- * @note isllatin/isulatin classifies whether c is in the
- *       Latin character set, i.e., c in range [0, 255].
- *
  * @note isuhex/islhex classifies whether c is a
  *       hexadecimal digit character, i.e., ('0' to '9',
  *       'A' to 'F', or 'a' to 'f').
@@ -1422,9 +1419,11 @@ int isuhex
  * @return Preserve/upper/lower case version of c if one defined,
  *         otherwise c.
  *
- * @note For lutocase/lutoupper/lutolower, if converted c is not a valid
- *       Latin character and c is a valid Latin character,
- *       return c, otherwise return lrep.
+ * @note For lutocase/lutoupper/lutolower, if converted result
+ *       is within the valid Latin range, return that result.
+ *       If the converted result is outside the Latin range
+ *       but c is within the Latin range, return c.
+ *       Otherwise, return lrep.
  * @{
  */
 
@@ -1588,9 +1587,9 @@ size_t ucsnlen
  *           For islreserved, isureserved, islqname and
  *           isuqname, sn is omitted and sn defaults
  *           to LUB_MAX_NAMELEN.
- * @return 1 Condition satisfied.
+ * @return 1 Condition satisfied and no error.
  *         0 Condition unsatisfied and no error.
- *       <-1 Error.
+ *         Otherwise, an error value.
  *
  * @note Errors:
  * - (int)LUB_PTR_INVALID if s is an invalid pointer.
@@ -3593,7 +3592,7 @@ lchar_t *lub_cat_cpy_pad_ext
  *           quoted name concatenate functions.
  * @param lrep For lus functions only,
  *             - if NULL ('\0') character, return an error for
- *               an Unicode source containing a character that is
+ *               a Unicode source containing a character that is
  *               out-of-range for Latin.
  *             - Otherwise, use lrep as the replacement Latin character
  *               for out-of-range Unicode source characters.
@@ -4821,29 +4820,36 @@ byte_t *bbsnncpy
  * @param t Pointer to target buffer.
  * @param tn Maximum buffer length (excluding null terminator).
  * @param s Pointer to source string.
- * @param sn Bound on source string. Clamped to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN
- *          for bounded functions. For default-bounded functions,
- *          sn defaults to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN.
+ * @param sn Bound on source string. Clamped to LUB_MAX_LSTRLEN
+ *           or LUB_MAX_USTRLEN.
  * @param trunc Pointer to a string that specifies how to handle
  *              truncation (optional alphabetic truncate mode
  *              character and truncated replacement string).
  *              See parameter trunc in @ref CommonParameters
  *              "Common Parameters" for details.
- * @param pad Pointer to a source pad indicator string (optional
+ * @param pad Pointer to a pad indicator string (optional
  *            alphabetic pad mode character and pad character):
  * 
  *            - Maximum length of pad is 2.
+ * 
  *            - If NULL, pad indicator string defaults to "B ".
+ * 
  *            - If the first character is Latin alphabetic, it specifies
  *              the pad mode and the second character, if any, is the pad character.
+ * 
  *            - If the first character is not Latin alphabetic, pad mode defaults
  *              to 'B' and the first character, if any, is the pad character.
  * 
  *            Pad mode character (explicit or by default):
  * 
  *             - 'L' or 'l' pad on left (for right-aligned text).
+ * 
  *             - 'R' or 'r' pad on right (for left-aligned text).
+ * 
  *             - 'B' or 'b' pad on left and right (for center-aligned text).
+ *                          For odd-width padding, the extra pad character
+ *                          is added on the right.
+ * 
  *             - Other alphabetic characters are reserved for future use
  *               and an error occurs if used.
  *
@@ -4855,7 +4861,7 @@ byte_t *bbsnncpy
  *               If no pad character specified, defaults to Latin ' ' (space).
  * @param lrep For lus* functions only,
  *             - if NULL ('\0') character, return an error for
- *               an Unicode source containing a character that is
+ *               a Unicode source containing a character that is
  *               out-of-range for Latin.
  *             - Otherwise, use lrep as the replacement Latin character
  *               for out-of-range Unicode source characters.
@@ -4866,13 +4872,17 @@ byte_t *bbsnncpy
  * - (lchar_t/uchar_t *)LUB_PTR_INVALID if t or s is not a valid pointer.
  * - (lchar_t/uchar_t *)LUB_UNTERMINATED if source string
  *   is not null-terminated.
- * - (lchar_t/uchar_t *)LUB_NON_LATIN_CHAR if a Unicode
- *   character cannot be converted to a Latin character.
+ * - (lchar_t/uchar_t *)LUB_OPT_TOO_LONG if trunc or pad string
+ *   exceeds maximum length of LUB_MAX_LOPTLEN or LUB_MAX_UOPTLEN.
+ * - (lchar_t/uchar_t *)LUB_OPT_RESERVED if trunc or pad
+ *   uses a reserved trunc mode or pad mode, respectively.
+ * - (lchar_t/uchar_t *)LUB_OPT_INVALID if trunc or pad is invalid.
  * - (lchar_t/uchar_t *)LUB_TRUNCATED if source string is
  *   longer than tn.
  * - (lchar_t/uchar_t *)LUB_NONLATIN_SOURCE if a character
  *   in a Unicode source for a Latin target is out-of-range
  *   for Latin when lrep is null.
+ * 
  * @note If the source and target buffer overlap, the target
  *       buffer is set correctly to the padded source string
  *       (the source string may be overwritten during the operation).
@@ -4983,7 +4993,7 @@ uchar_t *uusnnpad
  *              be 'B', 'b', or default to 'B'.
  * @param lrep For lus* functions only,
  *             - if NULL ('\0') character, return an error for
- *               an Unicode source containing a character that is
+ *               a Unicode source containing a character that is
  *               out-of-range for Latin.
  *             - Otherwise, use lrep as the replacement Latin character
  *               for out-of-range Unicode source characters.
@@ -5440,7 +5450,7 @@ LUB_OP_DEF(uchar_t, LUB_MAX_USTRLEN,
  * @param times Number of times to repeat source. 0 yields empty string.
  * @return t, null (if t is NULL), or error.
  * 
- *         For an error, if !t, *t is set to a null-terminator.
+ *         For an error, if t, *t is set to a null-terminator.
  *
  * @note Errors:
  * - LUB_PTR_INVALID if s is an invalid pointer.
@@ -5617,7 +5627,7 @@ uchar_t *uusnnrepeat
  *           <0 replaces the mth match from end (-1 is last).
  * @return t, NULL (if t is NULL), or error.
  * 
- *         For an error, if !t, *t is set to a null-terminator.
+ *         For an error, if t, *t is set to a null-terminator.
  *
  * @note Errors: 
  * - LUB_PTR_INVALID if s or map is an invalid pointer.
@@ -6725,10 +6735,6 @@ int llsnprintf
  *
  *   llsnnreplace(t, 64, src4, 64, map3, '|', 1);
  *   // -> NULL (multi-pair map requires m == 0)
- *
- * - Replace, case-sensitive:
- *   llsnnreplace(t, 64, src, 64, map, '|', 2);
- *   // -> "cat and dog"
  *
  * - Replace, case-insensitive:
  *   llsnnREPLACE(t, 64, src5, 64, map5, '|', 0);
