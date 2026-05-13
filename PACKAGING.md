@@ -11,8 +11,7 @@ SPDX-License-Identifier: MIT
 - lubtype.h, xlatin.h, and xunicode.h are designed for direct inclusion—no build step required.
 - Document required defines/macros in the README.
 - Document that one translation unit must define LUB_DEFINITIONS before including lubtype.h.
-- Ensure xlatin.h and xunicode.h only expose x-mappings for symbols that exist in lubtype.h (no stale aliases).
-- Ensure removed aliases are not reintroduced (for example, xstr_t/xcstr_t).
+- Ensure xlatin.h and xunicode.h only expose x-mappings for symbols that exist in lubtype.h.
 
 ## Versioning
 - Use semantic versioning (MAJOR.MINOR.PATCH).

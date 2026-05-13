@@ -21,7 +21,6 @@ For license details, see the LICENSE file in the project root.
 ## Packaging
 - [ ] Header files (lubtype.h, xlatin.h, xunicode.h) are self-contained and ready for drop-in use.
 - [ ] xlatin.h/xunicode.h contain only mappings for symbols present in lubtype.h.
-- [ ] Removed/deprecated aliases are not present in xlatin.h/xunicode.h.
 - [ ] All test files are in a dedicated tests/ directory.
 - [ ] README.md includes usage, API overview, and examples.
 - [ ] License file is present and correct.
