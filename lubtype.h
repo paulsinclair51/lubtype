@@ -1100,14 +1100,14 @@ typedef uint8_t byte_t;
  *              If delim is 0 for trim, embedded sequences of trim
  *              characters are not replaced with a delimiter.
  * 
- * @param m mth occurrence for matching in replacement and search functions.
+ * @param m mth occurrence for matching in search and replacement functions.
  * 
  *          m > 0 counts from the beginning of the string
  *              (1 means first occurrence).
  * 
  *          m == 0 returns NULL for search functions.
  * 
- *          m == 0 means replace all occurrences for replace functions.
+ *          m == 0 means replace all occurrences for replacement functions.
  * 
  *          m < 0 counts from the end of the string (-1 means last
  *                occurrence) when the operation supports reverse search.
@@ -4814,6 +4814,147 @@ byte_t *bbsnncpy
 /** @} */
 
 /**
+ * @defgroup Pad Pad
+ * @name llsnnpad, lusnnpad, ulsnnpad, uusnnpad
+ * @brief Pad source string to exactly tn characters using left, center, or
+ *        right alignment (bounded).
+ * @param t Pointer to target buffer.
+ * @param tn Maximum buffer length (excluding null terminator).
+ * @param s Pointer to source string.
+ * @param sn Bound on source string. Clamped to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN
+ *          for bounded functions. For default-bounded functions,
+ *          sn defaults to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN.
+ * @param trunc Pointer to a string that specifies how to handle
+ *              truncation (optional alphabetic truncate mode
+ *              character and truncated replacement string).
+ *              See parameter trunc in @ref CommonParameters
+ *              "Common Parameters" for details.
+ * @param pad Pointer to a source pad indicator string (optional
+ *            alphabetic pad mode character and pad character):
+ * 
+ *            - Maximum length of pad is 2.
+ *            - If NULL, pad indicator string defaults to "B ".
+ *            - If the first character is Latin alphabetic, it specifies
+ *              the pad mode and the second character, if any, is the pad character.
+ *            - If the first character is not Latin alphabetic, pad mode defaults
+ *              to 'B' and the first character, if any, is the pad character.
+ * 
+ *            Pad mode character (explicit or by default):
+ * 
+ *             - 'L' or 'l' pad on left (for right-aligned text).
+ *             - 'R' or 'r' pad on right (for left-aligned text).
+ *             - 'B' or 'b' pad on left and right (for center-aligned text).
+ *             - Other alphabetic characters are reserved for future use
+ *               and an error occurs if used.
+ *
+ *             Pad character (explicit or by default): 
+ * 
+ *               Character to pad from the beginning
+ *               and/or end of the source string.
+ * 
+ *               If no pad character specified, defaults to Latin ' ' (space).
+ * @param lrep For lus* functions only,
+ *             - if NULL ('\0') character, return an error for
+ *               an Unicode source containing a character that is
+ *               out-of-range for Latin.
+ *             - Otherwise, use lrep as the replacement Latin character
+ *               for out-of-range Unicode source characters.
+ * @return t, NULL (if t is NULL), error. For an error,
+ *         *t is set to a null-terminator.
+ *
+ * @note Errors:
+ * - (lchar_t/uchar_t *)LUB_PTR_INVALID if t or s is not a valid pointer.
+ * - (lchar_t/uchar_t *)LUB_UNTERMINATED if source string
+ *   is not null-terminated.
+ * - (lchar_t/uchar_t *)LUB_NON_LATIN_CHAR if a Unicode
+ *   character cannot be converted to a Latin character.
+ * - (lchar_t/uchar_t *)LUB_TRUNCATED if source string is
+ *   longer than tn.
+ * - (lchar_t/uchar_t *)LUB_NONLATIN_SOURCE if a character
+ *   in a Unicode source for a Latin target is out-of-range
+ *   for Latin when lrep is null.
+ * @note If the source and target buffer overlap, the target
+ *       buffer is set correctly to the padded source string
+ *       (the source string may be overwritten during the operation).
+ * @{
+ */
+
+extern
+lchar_t *llsnnpad
+( lchar_t *t, size_t tn,
+  const lchar_t *s, size_t sn,
+   const lchar_t *pad
+)
+#if defined(LUB_DEFINITIONS)
+{ return (lchar_t *)lub_cat_cpy_pad_ext
+       ( 2, 'l', 'l', '\0', '\0', '\0',
+       t, tn, (lchar_t *)s, sn,
+       (lchar_t)'\0', (const lchar_t *)NULL, pad,
+       (lchar_t)'\0'
+       );
+}
+#else
+;
+#endif // LUB_DEFINITIONS for llsnnpad.
+
+extern
+lchar_t *lusnnpad
+( lchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  const lchar_t *pad,
+  const lchar_t lrep
+)
+#if defined(LUB_DEFINITIONS)
+{ return (lchar_t *)lub_cat_cpy_pad_ext
+           ( 2, 'l', 'u', '\0', '\0', '\0',
+             t, tn, (lchar_t *)s, sn,
+             (lchar_t)'\0', (const lchar_t *)NULL, pad,
+             lrep
+           );
+}
+#else
+;
+#endif // LUB_DEFINITIONS for lusnnpad.
+
+extern
+uchar_t *ulsnnpad
+( uchar_t *t, size_t tn,
+  const lchar_t *s, size_t sn,
+   const uchar_t *pad
+)
+#if defined(LUB_DEFINITIONS)
+{ return (uchar_t *)lub_cat_cpy_pad_ext
+           ( 2, 'u', 'l', '\0', '\0', '\0',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             (lchar_t)'\0', (const lchar_t *)NULL, (const lchar_t *)pad,
+             (lchar_t)'\0'
+           );
+}
+#else
+;
+#endif // LUB_DEFINITIONS for ulsnnpad.
+
+extern
+uusnnpad
+( uchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn,
+  const uchar_t *pad
+)
+#if defined(LUB_DEFINITIONS)
+{ return (uchar_t *)lub_cat_cpy_pad_ext
+           ( 2, 'u', 'u', '\0', '\0', '\0',
+             (lchar_t *)t, tn, (lchar_t *)s, sn,
+             (lchar_t)'\0', (const lchar_t *)NULL, (const lchar_t *)pad,
+             (lchar_t)'\0'
+           );
+}
+#else
+;
+#endif // LUB_DEFINITIONS for uusnnpad.
+
+/** @} */
+
+/**
  * @defgroup Trim Trim
  * @name llsnntrim, ulsnntrim, uusnntrim (case-preserving)
  *       llsnntrimc, ulsnntrimc, uusnntrimc (lowercase)
@@ -5119,106 +5260,122 @@ uchar_t *uusnntrim
  
 #if defined(LUB_DEFINITIONS)
 
+// Reverse helper macro.
+
 #undef LUB_OP_DEF
 #define LUB_OP_DEF(t_xt, tn_max, \
                    s_xt, sn_max, xcsnlen, \
                    lrep) \
-{   if (LUB_PTR_ERR(t, 0)) \
-      return (t_xt *)LUB_PTR_ERR(LUB_PTR_INVALID, 0); \
-    if (tn > tn_max) tn = tn_max; \
-    if (sn > sn_max) sn = sn_max; \
-    sn = xcsnlen(s, sn); \
-    if (LUB_SIZE_ERR(sn, 0)) \
-    { if (t) *t = (t_xt)0; \
-      return (t_xt *)LUB_PTR_ERR(sn, 0); \
-    } \
-    if (sn > tn) \
-    { if (t) *t = (t_xt)0; \
-      return (t_xt *)LUB_PTR_ERR(LUB_TRUNCATED, 0); \
-    } \
-    if (!t) return (t_xt *)NULL; \
-    t_xt *tt = t; \
-    size_t i = sn; \
-    if (!sn) \
-    { *t = (t_xt)0; \
-      return t; \
-    } \
-    if (t + sn <= (t_xt *)s || t >= (t_xt *)(s + sn)) \
-    { /* No overlap: simple reverse copy. */ \
-      s += (sn - 1); \
-      if (sizeof(t_xt) < sizeof(s_xt)) \
-        for (; i; i--, tt++, s--) \
-          if (*s > LUB_MAX_LCHAR) \
-            if (lrep) *tt = lrep; \
-            else return (t_xt *)LUB_PTR_ERR(LUB_NON_LATIN_CHAR, 0); \
-          else *tt = (t_xt)*s; \
-      else \
-        for (; i; i--, tt++, s--) *tt = (t_xt)*s; \
-      *tt = (t_xt)0; \
-      return t; \
-    } \
-    /* Handle overlap. */ \
-    /* Copy source to target with overlap-safe logic. */ \
-    if (t <= (t_xt *)s) \
-    { /* Safe to copy left to right. */ \
-      if (t < (t_xt *)s && sizeof(t_xt) == sizeof(s_xt)) \
-      { for (; i; i--, tt++, s++) *tt = *s; \
-      } else if (sizeof(t_xt) < sizeof(s_xt)) \
-      { /* Copy Unicode cast as Latin to target buffer left to right. */ \
-        for (; i; i--, tt++, s++) \
-          if (*s > LUB_MAX_LCHAR) \
-            if (lrep) *tt = (t_xt)lrep; \
-            else return (t_xt *)LUB_PTR_ERR(LUB_NON_LATIN_CHAR, 0); \
-          else *tt = (t_xt)*s; \
-      } else \
-      { /* Copy Latin characters to target buffer left to right. */ \
-        s_xt *ss = (s_xt *)t; \
-        for (; i; i--, ss++, s++) *ss = *s; \
-      } \
-    } else \
-    { /* Safe to copy right to left. */ \
-      tt += sn - 1; \
-      s += sn - 1; \
-      if (sizeof(t_xt) == sizeof(s_xt)) \
-        for (; i;  i--, tt--, s--) *tt = *s; \
-      else if (sizeof(t_xt) < sizeof(s_xt)) \
-      { /* Copy Unicode cast as Latin to target buffer right to left. */ \
-        for (; i; i--, tt--, s--) \
-          if (*s > LUB_MAX_LCHAR) \
-            if (lrep) *tt = (t_xt)lrep; \
-            else return (t_xt *)LUB_PTR_ERR(LUB_NON_LATIN_CHAR, 0); \
-          else *tt = (t_xt)*s; \
-      } else \
-      { /* Copy Latin characters to target buffer right to left. */ \
-        s_xt *ss = ((s_xt *)t) + sn - 1; \
-        for (; i; i--, ss--, s--) *ss = *s; \
-            } \
-    } \
-    if (sizeof(t_xt) > sizeof(s_xt)) \
-    { /* Expand Latin characters to Unicode right to left. */ \
-      tt = t + sn - 1; \
-      s = (s_xt *)t + sn - 1; \
-      i = sn; \
-     /* Expand Latin characters to Unicode right to left. */ \
-        for (; i; i--, tt--, s--) *tt = (t_xt)*s; \
-    } \
-    /* In-place reversal */ \
-    tt = t + sn - 1; \
-    t_xt *tr = t; \
-        for (; tt > tr; tt--, tr++) \
-        { t_xt tmp = *tr; \
-            *tr = *tt; \
-            *tt = tmp; \
-        } \
-    t[sn] = (t_xt)0; \
+{ if (LUB_PTR_ERR(t, 0)) \
+  { return (t_xt *)LUB_PTR_ERR(LUB_PTR_INVALID, 0); } \
+  if (tn > tn_max) { tn = tn_max; } \
+  if (sn > sn_max) { sn = sn_max; } \
+  sn = xcsnlen(s, sn); \
+  if (LUB_SIZE_ERR(sn, 0)) \
+  { if (t) { *t = (t_xt)0; } \
+    return (t_xt *)LUB_PTR_ERR(sn, 0); \
+  } \
+  if (sn > tn) \
+  { if (t) { *t = (t_xt)0; } \
+    return (t_xt *)LUB_PTR_ERR(LUB_TRUNCATED, 0); \
+  } \
+  if (!t) { return (t_xt *)NULL; } \
+  t_xt *tt = t; \
+  size_t i = sn; \
+  if (!sn) \
+  { *t = (t_xt)0; \
     return t; \
+  } \
+  if (t + sn <= (t_xt *)s || t >= (t_xt *)(s + sn)) \
+  { /* No overlap: simple reverse copy. */ \
+    s += (sn - 1); \
+    if (sizeof(t_xt) < sizeof(s_xt)) \
+    { for (; i; --i, ++tt, --s) \
+      { if (*s > LUB_MAX_LCHAR) \
+        { if (lrep) \
+          { *tt = lrep; } \
+          else
+          { return (t_xt *)LUB_PTR_ERR(LUB_NON_LATIN_CHAR, 0); } \
+        } \
+        else { *tt = (t_xt)*s; } \
+      } \
+    } \
+    else \
+      for (; i; --i, ++tt, --s) *tt = (t_xt)*s; \
+    *tt = (t_xt)0; \
+    return t; \
+  } \
+  /* Handle overlap. */ \
+  /* Copy source to target with overlap-safe logic. */ \
+  if (t <= (t_xt *)s) \
+  { /* Safe to copy left to right. */ \
+    if (t < (t_xt *)s && sizeof(t_xt) == sizeof(s_xt)) \
+    { for (; i; --i, ++tt, ++s) *tt = *s; \
+    } \
+    else if (sizeof(t_xt) < sizeof(s_xt)) \
+    { /* Copy Unicode cast as Latin to target buffer left to right. */ \
+      for (; i; --i, ++tt, ++s) \
+      { if (*s > LUB_MAX_LCHAR) \
+        { if (lrep) { *tt = (t_xt)lrep; } \
+          else return (t_xt *)LUB_PTR_ERR(LUB_NON_LATIN_CHAR, 0); \
+        } \
+        else \
+        { *tt = (t_xt)*s; } \
+      } \
+    } \
+    else \
+    { /* Copy Latin characters to target buffer left to right. */ \
+      s_xt *ss = (s_xt *)t; \
+      for (; i; --i, ++ss, ++s) { *ss = *s; } \
+    } \
+  } else \
+  { /* Safe to copy right to left. */ \
+    tt += sn - 1; \
+    s += sn - 1; \
+    if (sizeof(t_xt) == sizeof(s_xt)) \
+    { for (; i;  --i, --tt, --s) *tt = *s; } \
+    else if (sizeof(t_xt) < sizeof(s_xt)) \
+    { /* Copy Unicode cast as Latin to target buffer right to left. */ \
+      for (; i; --i, --tt, --s) \
+      { if (*s > LUB_MAX_LCHAR) \
+          if (lrep) *tt = (t_xt)lrep; \
+          else return (t_xt *)LUB_PTR_ERR(LUB_NON_LATIN_CHAR, 0); \
+        else *tt = (t_xt)*s; \
+      } \
+    }
+    else \
+    { /* Copy Latin characters to target buffer right to left. */ \
+      s_xt *ss = ((s_xt *)t) + sn - 1; \
+      for (; i; --i, --ss, --s) { *ss = *s; } \
+    } \
+  } \
+  if (sizeof(t_xt) > sizeof(s_xt)) \
+  { /* Expand Latin characters to Unicode right to left. */ \
+    tt = t + sn - 1; \
+    s = (s_xt *)t + sn - 1; \
+    i = sn; \
+    /* Expand Latin characters to Unicode right to left. */ \
+    for (; i; --i, --tt, --s) { *tt = (t_xt)*s; } \
+  /* In-place reversal */ \
+  tt = t + sn - 1; \
+  t_xt *tr = t; \
+  for (; tt > tr; --tt, ++tr) \
+  { t_xt tmp = *tr; \
+    *tr = *tt; \
+    *tt = tmp; \
+  } \
+  t[sn] = (t_xt)0; \
+  return t; \
 }
 #endif // LUB_DEFINITIONS for reverse macro helper.
 
 // Reverse.
 
-extern lchar_t *llsnnreverse(lchar_t *t, size_t tn,
-                             lchar_t *s, size_t sn)
+extern
+lchar_t *llsnnreverse
+( lchar_t *t, size_t tn,
+  lchar_t *s, size_t sn
+)
 #if defined(LUB_DEFINITIONS)
 LUB_OP_DEF(lchar_t, LUB_MAX_LSTRLEN,
            lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
@@ -5227,9 +5384,12 @@ LUB_OP_DEF(lchar_t, LUB_MAX_LSTRLEN,
 ;
 #endif // LUB_DEFINITIONS for llsnnreverse.
 
-extern lchar_t *lusnnreverse(lchar_t *t, size_t tn,
-                             uchar_t *s, size_t sn,
-                             const lchar_t lrep)
+extern
+lchar_t *lusnnreverse
+( lchar_t *t, size_t tn,
+  uchar_t *s, size_t sn,
+  const lchar_t lrep
+)
 #if defined(LUB_DEFINITIONS)
 LUB_OP_DEF(lchar_t, LUB_MAX_LSTRLEN,
            uchar_t, LUB_MAX_USTRLEN, ucsnlen,
@@ -5238,9 +5398,11 @@ LUB_OP_DEF(lchar_t, LUB_MAX_LSTRLEN,
     ;
 #endif // LUB_DEFINITIONS for lusnnreverse.
 
-extern uchar_t *ulsnnreverse(uchar_t *t, size_t tn,
-                             const lchar_t *s,
-                             size_t sn)
+extern
+uchar_t *ulsnnreverse
+( uchar_t *t, size_t tn,
+  const lchar_t *s, size_t sn
+)
 #if defined(LUB_DEFINITIONS)
 LUB_OP_DEF(uchar_t, LUB_MAX_USTRLEN,
            lchar_t, LUB_MAX_LSTRLEN, lcsnlen,
@@ -5249,8 +5411,11 @@ LUB_OP_DEF(uchar_t, LUB_MAX_USTRLEN,
     ;
 #endif // LUB_DEFINITIONS for ulsnnreverse.
 
-extern uchar_t *uusnnreverse(uchar_t *t, size_t tn,
-                             const uchar_t *s, size_t sn)
+extern
+uchar_t *uusnnreverse
+( uchar_t *t, size_t tn,
+  const uchar_t *s, size_t sn
+)
 #if defined(LUB_DEFINITIONS)
 LUB_OP_DEF(uchar_t, LUB_MAX_USTRLEN,
            uchar_t, LUB_MAX_USTRLEN, ucsnlen,
@@ -5258,134 +5423,6 @@ LUB_OP_DEF(uchar_t, LUB_MAX_USTRLEN,
 #else
 ;
 #endif // LUB_DEFINITIONS for uusnnreverse.
-/** @} */
-
-/**
- * @defgroup Pad Pad
- * @name llsnnpad, lusnnpad, ulsnnpad, uusnnpad
- * @brief Pad source string to exactly tn characters using left, center, or
- *        right alignment (bounded).
- * @param t Pointer to target buffer.
- * @param tn Maximum buffer length (excluding null terminator).
- * @param s Pointer to source string.
- * @param sn Bound on source string. Clamped to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN
- *          for bounded functions. For default-bounded functions,
- *          sn defaults to LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN.
- * @param trunc Pointer to a string that specifies how to handle
- *              truncation (optional alphabetic truncate mode
- *              character and truncated replacement string).
- *              See parameter trunc in @ref CommonParameters
- *              "Common Parameters" for details.
- * @param pad Pointer to a source pad indicator string (optional
- *            alphabetic pad mode character and pad character):
- * 
- *            - Maximum length of pad is 2.
- *            - If NULL, pad indicator string defaults to "B ".
- *            - If the first character is Latin alphabetic, it specifies
- *              the pad mode and the second character, if any, is the pad character.
- *            - If the first character is not Latin alphabetic, pad mode defaults
- *              to 'B' and the first character, if any, is the pad character.
- * 
- *            Pad mode character (explicit or by default):
- * 
- *             - 'L' or 'l' pad on left (for right-aligned text).
- *             - 'R' or 'r' pad on right (for left-aligned text).
- *             - 'B' or 'b' pad on left and right (for center-aligned text).
- *             - Other alphabetic characters are reserved for future use
- *               and an error occurs if used.
- *
- *             Pad character (explicit or by default): 
- * 
- *               Character to pad from the beginning
- *               and/or end of the source string.
- * 
- *               If no pad character specified, defaults to Latin ' ' (space).
- * @param lrep For lus* functions only,
- *             - if NULL ('\0') character, return an error for
- *               an Unicode source containing a character that is
- *               out-of-range for Latin.
- *             - Otherwise, use lrep as the replacement Latin character
- *               for out-of-range Unicode source characters.
- * @return t, NULL (if t is NULL), error. For an error,
- *         *t is set to a null-terminator.
- *
- * @note Errors:
- * - (lchar_t/uchar_t *)LUB_PTR_INVALID if t or s is not a valid pointer.
- * - (lchar_t/uchar_t *)LUB_UNTERMINATED if source string
- *   is not null-terminated.
- * - (lchar_t/uchar_t *)LUB_NON_LATIN_CHAR if a Unicode
- *   character cannot be converted to a Latin character.
- * - (lchar_t/uchar_t *)LUB_TRUNCATED if source string is
- *   longer than tn.
- * - (lchar_t/uchar_t *)LUB_NONLATIN_SOURCE if a character
- *   in a Unicode source for a Latin target is out-of-range
- *   for Latin when lrep is null.
- * @note If the source and target buffer overlap, the target
- *       buffer is set correctly to the padded source string
- *       (the source string may be overwritten during the operation).
- * @{
- */
-
-extern lchar_t *llsnnpad(lchar_t *t, size_t tn,
-                         const lchar_t *s, size_t sn,
-                         const lchar_t *pad)
-#if defined(LUB_DEFINITIONS)
-{ return (lchar_t *)lub_cat_cpy_pad_ext
-       ( 2, 'l', 'l', '\0', '\0', '\0',
-       t, tn, (lchar_t *)s, sn,
-       (lchar_t)'\0', (const lchar_t *)NULL, pad,
-       (lchar_t)'\0'
-       );
-}
-#else
-;
-#endif // LUB_DEFINITIONS for llsnnpad.
-
-extern lchar_t *lusnnpad(lchar_t *t, size_t tn,
-                         const uchar_t *s, size_t sn,
-                         const lchar_t *pad,
-                         const lchar_t lrep)
-#if defined(LUB_DEFINITIONS)
-{ return (lchar_t *)lub_cat_cpy_pad_ext
-           ( 2, 'l', 'u', '\0', '\0', '\0',
-             t, tn, (lchar_t *)s, sn,
-             (lchar_t)'\0', (const lchar_t *)NULL, pad,
-             lrep
-           );
-}
-#else
-;
-#endif // LUB_DEFINITIONS for lusnnpad.
-
-extern uchar_t *ulsnnpad(uchar_t *t, size_t tn,
-                         const lchar_t *s, size_t sn,
-                         const uchar_t *pad)
-#if defined(LUB_DEFINITIONS)
-{ return (uchar_t *)lub_cat_cpy_pad_ext
-           ( 2, 'u', 'l', '\0', '\0', '\0',
-             (lchar_t *)t, tn, (lchar_t *)s, sn,
-             (lchar_t)'\0', (const lchar_t *)NULL, (const lchar_t *)pad,
-             (lchar_t)'\0'
-           );
-}
-#else
-;
-#endif // LUB_DEFINITIONS for ulsnnpad.
-
-extern uchar_t *uusnnpad(uchar_t *t, size_t tn,
-                         const uchar_t *s, size_t sn,
-                         const uchar_t *pad)
-#if defined(LUB_DEFINITIONS)
-{ return (uchar_t *)lub_cat_cpy_pad_ext
-           ( 2, 'u', 'u', '\0', '\0', '\0',
-             (lchar_t *)t, tn, (lchar_t *)s, sn,
-             (lchar_t)'\0', (const lchar_t *)NULL, (const lchar_t *)pad,
-             (lchar_t)'\0'
-           );
-}
-#else
-;
-#endif // LUB_DEFINITIONS for uusnnpad.
 
 /** @} */
 
@@ -5401,44 +5438,47 @@ extern uchar_t *uusnnpad(uchar_t *t, size_t tn,
  * @param sn Bound on source string. Clamped to
  *           LUB_MAX_LSTRLEN or LUB_MAX_USTRLEN.
  * @param times Number of times to repeat source. 0 yields empty string.
- * @return t, null (if t is NULL), or error. For an error,
- *         *t is set to a null-terminator.
+ * @return t, null (if t is NULL), or error.
+ * 
+ *         For an error, if !t, *t is set to a null-terminator.
  *
  * @note Errors:
- *       - LUB_PTR_INVALID if s is an invalid pointer.
- *       - LUB_UNTERMINATED if s is not null-terminated.
- *       - LUB_OVERLAP if target and source buffers overlap in a way
- *         that would cause incorrect results in the target buffer.
- *       - LUB_TRUNCATED if the result cannot fit in the target buffer.
+ * - LUB_PTR_INVALID if s is an invalid pointer.
+ * - LUB_UNTERMINATED if s is not null-terminated.
+ * - LUB_OVERLAP if target and source buffers overlap in a way
+ *   that could cause incorrect results in the target buffer.
+ * - LUB_TRUNCATED if the result cannot fit in the target buffer.
  * @{
  */
 
-extern lchar_t *llsnnrepeat(
-    lchar_t *t, size_t tn, const lchar_t *s, size_t sn, size_t times)
+extern
+lchar_t *llsnnrepeat
+( lchar_t *t, size_t tn, const lchar_t *s, size_t sn, size_t times)
 #if defined(LUB_DEFINITIONS)
-{   if (!t || !s) return (lchar_t *)NULL;
-    if (tn > LUB_MAX_LSTRLEN) tn = LUB_MAX_LSTRLEN;
-    if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
+{ if (!t || !s) { return (lchar_t *)NULL; }
+  if (tn > LUB_MAX_LSTRLEN) { tn = LUB_MAX_LSTRLEN; }
+  if (sn > LUB_MAX_LSTRLEN) { sn = LUB_MAX_LSTRLEN; }
 
-    size_t s_len = lcsnlen(s, sn);
-    if (s_len >= LUB_SIZE_ERRORS)
-    { t[tn] = (lchar_t)0; return (lchar_t *)s_len; }
+  size_t s_len = lcsnlen(s, sn);
+  if (s_len >= LUB_SIZE_ERRORS)
+  { t[tn] = (lchar_t)0; return (lchar_t *)s_len; }
 
-    if (times == 0) {t[0] = (lchar_t)0;  return t;}
+  if (times == 0) { t[0] = (lchar_t)0;  return t; }
 
-    if (s_len && times > tn / s_len)
-    { t[tn] = (lchar_t)0; return (lchar_t *)NULL; }
+  if (s_len && times > tn / s_len)
+  { t[tn] = (lchar_t)0; return (lchar_t *)NULL; }
 
-    size_t needed = s_len * times;
-    if (needed > tn)
-    { t[tn] = (lchar_t)0; return (lchar_t *)NULL; }
+  size_t needed = s_len * times;
+  if (needed > tn)
+  { t[tn] = (lchar_t)0; return (lchar_t *)NULL; }
 
-    for (size_t rep = 0; rep < times; ++rep)
-      for (size_t i = 0; i < s_len; ++i)
-        t[rep * s_len + i] = s[i];
+  for (size_t rep = 0; rep < times; ++rep)
+  { for (size_t i = 0; i < s_len; ++i)
+    { t[rep * s_len + i] = s[i]; }
+  }
 
-    t[needed] = (lchar_t)0;
-    return t;
+  t[needed] = (lchar_t)0;
+  return t;
 }
 #else
 ;
@@ -5447,61 +5487,64 @@ extern lchar_t *llsnnrepeat(
 extern uchar_t *ulsnnrepeat(
      uchar_t *t, size_t tn, const lchar_t *s, size_t sn, size_t times)
 #if defined(LUB_DEFINITIONS)
-{   if (!t || !s) return (uchar_t *)NULL;
-    if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
-    if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
+{ if (!t || !s) { return (uchar_t *)NULL; }
+  if (tn > LUB_MAX_USTRLEN) { tn = LUB_MAX_USTRLEN; }
+  if (sn > LUB_MAX_LSTRLEN) { sn = LUB_MAX_LSTRLEN; }
 
-    size_t s_len = lcsnlen(s, sn);
-    if (s_len >= LUB_SIZE_ERRORS)
-    { t[tn] = (uchar_t)0; return (uchar_t *)s_len; }
+  size_t s_len = lcsnlen(s, sn);
+  if (s_len >= LUB_SIZE_ERRORS)
+  { t[tn] = (uchar_t)0; return (uchar_t *)s_len; }
 
-    if (times == 0) { t[0] = (uchar_t)0; return t; }
+  if (times == 0) { t[0] = (uchar_t)0; return t; }
 
-    if (s_len && times > tn / s_len)
-    { t[tn] = (uchar_t)0; return (uchar_t *)NULL; }
+  if (s_len && times > tn / s_len)
+  { t[tn] = (uchar_t)0; return (uchar_t *)NULL; }
 
-    size_t needed = s_len * times;
-    if (needed > tn)
-    { t[tn] = (uchar_t)0; return (uchar_t *)NULL; }
+  size_t needed = s_len * times;
+  if (needed > tn)
+  { t[tn] = (uchar_t)0; return (uchar_t *)NULL; }
 
-    for (size_t rep = 0; rep < times; ++rep)
-      for (size_t i = 0; i < s_len; ++i)
-        t[rep * s_len + i] = (uchar_t)s[i];
+  for (size_t rep = 0; rep < times; ++rep)
+  { for (size_t i = 0; i < s_len; ++i)
+    { t[rep * s_len + i] = (uchar_t)s[i]; }
+  }
 
-    t[needed] = (uchar_t)0;
-    return t;
+  t[needed] = (uchar_t)0;
+  return t;
 }
 #else
-    ;
+;
 #endif // LUB_DEFINITIONS for ulsnnrepeat.
 
-extern uchar_t *uusnnrepeat(
-     uchar_t *t, size_t tn, const uchar_t *s, size_t sn, size_t times)
+extern
+uchar_t *uusnnrepeat
+( uchar_t *t, size_t tn, const uchar_t *s, size_t sn, size_t times)
 #if defined(LUB_DEFINITIONS)
-{   if (!t || !s) return (uchar_t *)NULL;
-    if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
-    if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
+{ if (!t || !s) return (uchar_t *)NULL;
+  if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
+  if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
 
-    size_t s_len = ucsnlen(s, sn);
-    if (s_len >= LUB_SIZE_ERRORS)
-    { t[tn] = (uchar_t)0;  return (uchar_t *)s_len; }
+  size_t s_len = ucsnlen(s, sn);
+  if (s_len >= LUB_SIZE_ERRORS)
+  { t[tn] = (uchar_t)0;  return (uchar_t *)s_len; }
 
-    if (times == 0)
-    { t[0] = (uchar_t)0; return t; }
+  if (times == 0)
+  { t[0] = (uchar_t)0; return t; }
 
-    if (s_len && times > tn / s_len)
-    { t[tn] = (uchar_t)0; return (uchar_t *)NULL; }
+  if (s_len && times > tn / s_len)
+  { t[tn] = (uchar_t)0; return (uchar_t *)NULL; }
 
-    size_t needed = s_len * times;
-    if (needed > tn)
-    { t[tn] = (uchar_t)0; return (uchar_t *)NULL; }
+  size_t needed = s_len * times;
+  if (needed > tn)
+  { t[tn] = (uchar_t)0; return (uchar_t *)NULL; }
 
-    for (size_t rep = 0; rep < times; ++rep)
-      for (size_t i = 0; i < s_len; ++i)
-        t[rep * s_len + i] = s[i];
+  for (size_t rep = 0; rep < times; ++rep)
+  { for (size_t i = 0; i < s_len; ++i)
+    { t[rep * s_len + i] = s[i]; }
+  }
 
-    t[needed] = (uchar_t)0;
-    return t;
+  t[needed] = (uchar_t)0;
+  return t;
 }
 #else
 ;
@@ -5521,16 +5564,16 @@ extern uchar_t *uusnnrepeat(
  * @param s Pointer to source string.
  * @param sn Maximum number of characters in source string
  *           (excluding null-terminator).
- * @param trunc Pointer to a string that specifies how to handle
+ * @param trunc Pointer to string that specifies how to handle
  *              truncation (optional alphabetic truncate mode
  *              character and truncated replacement string).
  *              See parameter trunc in @ref CommonParameters
  *              "Common Parameters" for details.
- * @param map Pointer to string of needles and replacements.
+ * @param map Pointer to a string of needles and their replacements.
  * 
  *   1. If delim is not a null-character, string is encoded as:
  * 
- *         needle1<delim>rep1<delim>needle2<delim>rep2...<null-terminator>
+ *         <<needle1><delim><rep1><delim><needle2><delim><rep2>...<null-terminator>
  *
  *      where needle and replace substrings are not null-terminated
  *      but are separated by the delim character.
@@ -5546,62 +5589,84 @@ extern uchar_t *uusnnrepeat(
  * 
  *   2. If delim is a null-character, string is encoded as:
  *
- *         needle1rep1needle2rep2...<null-terminator>
+ *         <needle1><rep1><needle2><rep2>...<null-terminator>
  * 
  *      where needles and replacements are single nonnull characters.
  * @param delim Mapping delimiter. Null character indicates character mapping
- *              otherwise, delimited string mapping.
- * @param m Replacement selector:
- *            0 replaces all matches;
- *           >0 replaces the mth match from start (1-based);
+ *              otherwise, delimited substring mapping.
+ * @param m Indicates to search for the mth occurrence of any needle
+ *          substring or needle character.
+ * 
+ *          m > 0 counts from the beginning of the haystack string s1.
+ *                (1 means first occurrence).
+ * 
+ *          m = 0 replaces all occurrences of any needle substring
+ *                or needle character.
+ * 
+ *          m < 0 counts from the end of the haystack string s1.
+ *                (-1 means last occurrence).
+ *
+ *          Example (character-needle mode, delim = '\0'):
+ * 
+ *            haystack = "aaabccdeebe", map = "dgbh"
+ *            m = 0 -> replaces all 'b' with 'h' and 'd' with 'g': "aaahccgeehe"
+ *            m = 1 -> replaces first 'b' with 'h': "aaahccdeebe"
+ *            m = 2 -> replaces 'd' with 'g': "aaabccgeebe"
+ *            m = 3 -> replaces second 'b' with 'h': "aaabccdeehe"
+ * 
  *           <0 replaces the mth match from end (-1 is last).
- * @return t, NULL (if t is NULL), or error. For an error,
- *         *t is set to a null-terminator.
+ * @return t, NULL (if t is NULL), or error.
+ * 
+ *         For an error, if !t, *t is set to a null-terminator.
  *
  * @note Errors: 
- *       - LUB_PTR_INVALID if s or map is an invalid pointer.
- *       - LUB_UNTERMINATED if s or map is not null-terminated
- *       - LUB_OPT_INVALID if malformed map syntax
- *         (missing delimiter or empty needle)
- *       - LUB_OVERLAP if target and source buffers overlap in a way
- *         that would cause incorrect results in the target buffer.
- *       - LUB_TRUNCATED if the result cannot fit in the target buffer.
+ * - LUB_PTR_INVALID if s or map is an invalid pointer.
+ * - LUB_UNTERMINATED if s or map is not null-terminated
+ * - LUB_OPT_INVALID if malformed map syntax
+ *   (missing delimiter or empty needle)
+ * - LUB_OVERLAP if target and source buffers overlap in a way
+ *   that would cause incorrect results in the target buffer.
+ *  - LUB_TRUNCATED if the result cannot fit in the target buffer.
  *
- * @note The first matching needle string/character in map wins.
- *       For a string map, list a longer needle before any of its
+ * @note The first matching needle substring/character in map wins.
+ *       For a substring map, list a longer needle before any of its
  *       prefixes to match to the longer needle (otherwise, the shorter
- *       prefix would match first and the longer needle is ignored).
+ *       prefix matches first and the longer needle is ignored).
  *
- * @note Needle matching is case-sensitive (replace) or
- *       case-insensitive (REPLACE);
- *       delimiter matching is case-sensitive;
- *       replacement text is written as-is.
- *
- * @note If result would exceed tn characters, returns NULL and writes
- *       terminator at t[tn].
- *
- * @note If map has more than one pair, m must be 0.
+ * @note Case Handling:
+ * 
+ *   For replace variants, character/substring matching is case-sensitive.
+ * 
+ *   For REPLACE variants, character/substring matching is case-insensitive.
+ * 
+ *   delimiter matching is case-sensitive;
+ * 
+ *   replacement is case-preserving.
  *
  * @note For multi-pair maps, the first matching needle in map order wins.
  *       List longer needles before shorter ones if overlap matters.
  * @{
  */
 
-// Replace case-sensitive.
-static lchar_t *lub_llsnnreplace_def
-       (lchar_t *t, size_t tn, const lchar_t *s, size_t sn,
-        const lchar_t *map, lchar_t delim, ptrdiff_t m)
 #if defined(LUB_DEFINITIONS)
-{   if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0) || LUB_PTR_ERR(map, 0))
-      return LUB_PTR_ERR(LUB_PTR_INVALID, 0);
-    if (!t || !s || !map || !delim) return (lchar_t *)NULL;
-    if (tn > LUB_MAX_LSTRLEN) tn = LUB_MAX_LSTRLEN;
-    if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
 
-    size_t s_len = lcsnlen(s, sn);
-    if (s_len >= LUB_SIZE_ERRORS) return NULL;
-    size_t map_len = lcsnlen(map, LUB_MAX_LOPTLEN);
-    if (map_len >= LUB_SIZE_ERRORS) return (lchar_t *)NULL;
+// Replace case-sensitive.
+
+static
+lchar_t *lub_llsnnreplace_def
+( lchar_t *t, size_t tn, const lchar_t *s, size_t sn,
+  const lchar_t *map, lchar_t delim, ptrdiff_t m
+)
+{ if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0) || LUB_PTR_ERR(map, 0))
+    return LUB_PTR_ERR(LUB_PTR_INVALID, 0);
+  if (!t || !s || !map || !delim) return (lchar_t *)NULL;
+  if (tn > LUB_MAX_LSTRLEN) tn = LUB_MAX_LSTRLEN;
+  if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
+
+  size_t s_len = lcsnlen(s, sn);
+  if (s_len >= LUB_SIZE_ERRORS) return NULL;
+  size_t map_len = lcsnlen(map, LUB_MAX_LOPTLEN);
+  if (map_len >= LUB_SIZE_ERRORS) return (lchar_t *)NULL;
 
     const lchar_t *p = map;
     const lchar_t *map_end = map + map_len;
@@ -5733,21 +5798,22 @@ static lchar_t *lub_llsnnreplace_def
 ;
 #endif // LUB_DEFINITIONS for uusnnrepeat
 
-static uchar_t *lub_ulsnnreplace_def(
-     uchar_t *t, size_t tn, const lchar_t *s, size_t sn,
-    const lchar_t *map, lchar_t delim, ptrdiff_t m)
-#if defined(LUB_DEFINITIONS)
-{   if (!t || !s || !map || !delim) return (uchar_t *)NULL;
-    if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
-    if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
+static
+uchar_t *lub_ulsnnreplace_def
+( uchar_t *t, size_t tn, const lchar_t *s, size_t sn,
+  const lchar_t *map, lchar_t delim, ptrdiff_t m
+)
+{ if (!t || !s || !map || !delim) return (uchar_t *)NULL;
+  if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
+  if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
 
-    size_t s_len = ucsnlen(s, sn);
-    if (s_len >= LUB_SIZE_ERRORS) return NULL;
-    size_t map_len = lcsnlen(map, LUB_MAX_LOPTLEN);
-    if (map_len >= LUB_SIZE_ERRORS) return NULL;
+  size_t s_len = ucsnlen(s, sn);
+  if (s_len >= LUB_SIZE_ERRORS) return NULL;
+  size_t map_len = lcsnlen(map, LUB_MAX_LOPTLEN);
+  if (map_len >= LUB_SIZE_ERRORS) return NULL;
 
-    const lchar_t *p = map;
-    const lchar_t *map_end = map + map_len;
+  const lchar_t *p = map;
+  const lchar_t *map_end = map + map_len;
 
     const lchar_t *first_needle = p;
     while (p < map_end && *p != delim) p++;
@@ -5873,14 +5939,11 @@ static uchar_t *lub_ulsnnreplace_def(
     t[ti] = (uchar_t)0;
     return t;
 }
-#else
-;
-#endif // LUB_DEFINITIONS for uusnnrepeat
 
-static uchar_t *lub_uusnnreplace_def(
-    uchar_t *t, size_t tn, const uchar_t *s, size_t sn, const lchar_t *st,
-    const uchar_t *map, uchar_t delim, ptrdiff_t m)
-#if defined(LUB_DEFINITIONS)
+static
+uchar_t *lub_uusnnreplace_def
+( uchar_t *t, size_t tn, const uchar_t *s, size_t sn, const lchar_t *st,
+  const uchar_t *map, uchar_t delim, ptrdiff_t m)
 {   if (!t || !s || !map || !delim) return (uchar_t *)NULL;
     if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
     if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
@@ -6016,18 +6079,16 @@ static uchar_t *lub_uusnnreplace_def(
     t[ti] = (uchar_t)0;
     return t;
 }
-#else
-;
-#endif // LUB_DEFINITIONS
 
 // Replace case-insensitive.
-static lchar_t *lub_llsnnREPLACE_def(
-    lchar_t *t, size_t tn, const lchar_t *s, const lchar_t *map, lchar_t delim, size_t n,
-    ptrdiff_t m)
-#if defined(LUB_DEFINITIONS)
-{   if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0)) \
-      return LUB_PTR_ERR(LUB_PTR_INVALID, 0); \
-    if (!t || !s || !map || !delim) return (lchar_t *)NULL;
+
+static lchar_t *lub_llsnnREPLACE_def
+( lchar_t *t, size_t tn, const lchar_t *s, const lchar_t *map, lchar_t delim, size_t n,
+    ptrdiff_t m
+)
+{ if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(s, 0)) \
+    return LUB_PTR_ERR(LUB_PTR_INVALID, 0); \
+  if (!t || !s || !map || !delim) return (lchar_t *)NULL;
     if (tn > LUB_MAX_LSTRLEN) tn = LUB_MAX_LSTRLEN;
     if (n > LUB_MAX_LSTRLEN) n = LUB_MAX_LSTRLEN;
 
@@ -6165,18 +6226,16 @@ static lchar_t *lub_llsnnREPLACE_def(
     t[ti] = (lchar_t)0;
     return t;
 }
-#else
-;
-#endif // LUB_DEFINITIONS
 
-static uchar_t *lub_ulsnnREPLACE_def(
-     uchar_t *t, size_t tn, const uchar_t *s,
-     const lchar_t *map, lchar_t delim, size_t n,
-     ptrdiff_t m)
-#if defined(LUB_DEFINITIONS)
-{   if (!t || !s || !map || !delim) return (uchar_t *)NULL;
-    if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
-    if (n > LUB_MAX_USTRLEN) n = LUB_MAX_USTRLEN;
+static
+uchar_t *lub_ulsnnREPLACE_def
+( uchar_t *t, size_t tn, const uchar_t *s,
+  const lchar_t *map, lchar_t delim, size_t n,
+  ptrdiff_t m
+)
+{ if (!t || !s || !map || !delim) return (uchar_t *)NULL;
+  if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
+  if (n > LUB_MAX_USTRLEN) n = LUB_MAX_USTRLEN;
 
     size_t s_len = ucsnlen(s, n);
     if (s_len >= LUB_SIZE_ERRORS) return NULL;
@@ -6317,93 +6376,94 @@ static uchar_t *lub_ulsnnREPLACE_def(
 ;
 #endif // LUB_DEFINITIONS
 
-static uchar_t *lub_uusnnREPLACE_def(
-     uchar_t *t, size_t tn, const uchar_t *s, size_t sn, const lchar_t *st,
-    const uchar_t *map, uchar_t delim, ptrdiff_t m)
-#if defined(LUB_DEFINITIONS)
-{   if (!t || !s || !map || !delim) return (uchar_t *)NULL;
-    if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
-    if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
+static
+uchar_t *lub_uusnnREPLACE_def
+( uchar_t *t, size_t tn, const uchar_t *s, size_t sn, const lchar_t *st,
+  const uchar_t *map, uchar_t delim, ptrdiff_t m
+)
+{ if (!t || !s || !map || !delim) return (uchar_t *)NULL;
+  if (tn > LUB_MAX_USTRLEN) tn = LUB_MAX_USTRLEN;
+  if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
 
-    size_t s_len = ucsnlen(s, sn);
-    if (s_len >= LUB_SIZE_ERRORS) return NULL;
-    size_t map_len = ucsnlen(map, LUB_MAX_UOPTLEN);
-    if (map_len >= LUB_SIZE_ERRORS) return NULL;
+  size_t s_len = ucsnlen(s, sn);
+  if (s_len >= LUB_SIZE_ERRORS) return NULL;
+  size_t map_len = ucsnlen(map, LUB_MAX_UOPTLEN);
+  if (map_len >= LUB_SIZE_ERRORS) return NULL;
+  
+  const uchar_t *p = map;
+  const uchar_t *map_end = map + map_len;
 
-    const uchar_t *p = map;
-    const uchar_t *map_end = map + map_len;
+  const uchar_t *first_needle = p;
+  while (p < map_end && *p != delim) p++;
+  if (p >= map_end) return (uchar_t *)NULL;
+  size_t first_needle_len = (size_t)(p - first_needle);
+  if (!first_needle_len) return (uchar_t *)NULL;
+  p++;
 
-    const uchar_t *first_needle = p;
-    while (p < map_end && *p != delim) p++;
-    if (p >= map_end) return (uchar_t *)NULL;
-    size_t first_needle_len = (size_t)(p - first_needle);
-    if (!first_needle_len) return (uchar_t *)NULL;
-    p++;
+  const uchar_t *first_repl = p;
+  while (p < map_end && *p != delim) p++;
+  size_t first_repl_len = (size_t)(p - first_repl);
 
-    const uchar_t *first_repl = p;
-    while (p < map_end && *p != delim) p++;
-    size_t first_repl_len = (size_t)(p - first_repl);
+  int multi_pair = (p < map_end);
+  if (multi_pair && m) return (uchar_t *)NULL;
 
-    int multi_pair = (p < map_end);
-    if (multi_pair && m) return (uchar_t *)NULL;
+  if (!multi_pair) {
+    size_t needle_len = first_needle_len, repl_len = first_repl_len;
+    size_t matches = 0;
+    if (m < 0) {
+      for (size_t si = 0; si + needle_len <= s_len;) {
+        int match = 1;
+        for (size_t j = 0; j < needle_len; ++j)
+        if (uutoupper(s[si + j]) != uutoupper(first_needle[j])) {match = 0; break;}
+        if (match) {matches++; si += needle_len;} else si++;
+      }
+    }
 
-    if (!multi_pair) {
-        size_t needle_len = first_needle_len, repl_len = first_repl_len;
-        size_t matches = 0;
-        if (m < 0) {
-            for (size_t si = 0; si + needle_len <= s_len;) {
-                int match = 1;
-                for (size_t j = 0; j < needle_len; ++j)
-                    if (uutoupper(s[si + j]) != uutoupper(first_needle[j])) {match = 0; break;}
-                if (match) {matches++; si += needle_len;} else si++;
-            }
+    size_t target = 0;
+    if (m > 0) target = (size_t)m;
+    else if (m < 0) {
+      ptrdiff_t idx = (ptrdiff_t)matches + m + 1;
+      if (idx > 0) target = (size_t)idx;
+    }
+    if (m < 0 && (!target || target > matches)) {
+      if (s_len > tn) {t[tn] = (uchar_t)0; return (uchar_t *)NULL;}
+      for (size_t i = 0; i < s_len; ++i) t[i] = s[i];
+      t[s_len] = (uchar_t)0;
+      return t;
+    }
+
+    size_t si = 0, ti = 0, occ = 0;
+    while (si < s_len) {
+      int match = si + needle_len <= s_len;
+      for (size_t j = 0; match && j < needle_len; ++j)
+        if (uutoupper(s[si + j]) != uutoupper(first_needle[j])) match = 0;
+
+      if (match) {
+        occ++;
+        if (!m || occ == target) {
+          if (ti + repl_len > tn) {
+            t[tn] = (uchar_t)0;
+            return (uchar_t *)NULL;
+          }
+          for (size_t j = 0; j < repl_len; ++j) t[ti + j] = first_repl[j];
+          ti += repl_len;
+        } else {
+          if (ti + needle_len > tn) {
+            t[tn] = (uchar_t)0;
+            return (uchar_t *)NULL;
+          }
+          for (size_t j = 0; j < needle_len; ++j) t[ti + j] = s[si + j];
+          ti += needle_len;
         }
-
-        size_t target = 0;
-        if (m > 0) target = (size_t)m;
-        else if (m < 0) {
-            ptrdiff_t idx = (ptrdiff_t)matches + m + 1;
-            if (idx > 0) target = (size_t)idx;
+        si += needle_len;
+      } else {
+        if (ti >= tn) {
+          t[tn] = (uchar_t)0;
+          return (uchar_t *)NULL;
         }
-        if (m < 0 && (!target || target > matches)) {
-            if (s_len > tn) {t[tn] = (uchar_t)0; return (uchar_t *)NULL;}
-            for (size_t i = 0; i < s_len; ++i) t[i] = s[i];
-            t[s_len] = (uchar_t)0;
-            return t;
-        }
-
-        size_t si = 0, ti = 0, occ = 0;
-        while (si < s_len) {
-            int match = si + needle_len <= s_len;
-            for (size_t j = 0; match && j < needle_len; ++j)
-                if (uutoupper(s[si + j]) != uutoupper(first_needle[j])) match = 0;
-
-            if (match) {
-                occ++;
-                if (!m || occ == target) {
-                    if (ti + repl_len > tn) {
-                        t[tn] = (uchar_t)0;
-                        return (uchar_t *)NULL;
-                    }
-                    for (size_t j = 0; j < repl_len; ++j) t[ti + j] = first_repl[j];
-                    ti += repl_len;
-                } else {
-                    if (ti + needle_len > tn) {
-                        t[tn] = (uchar_t)0;
-                        return (uchar_t *)NULL;
-                    }
-                    for (size_t j = 0; j < needle_len; ++j) t[ti + j] = s[si + j];
-                    ti += needle_len;
-                }
-                si += needle_len;
-            } else {
-                if (ti >= tn) {
-                    t[tn] = (uchar_t)0;
-                    return (uchar_t *)NULL;
-                }
-                t[ti++] = s[si++];
-            }
-        }
+        t[ti++] = s[si++];
+    }
+  }
         t[ti] = (uchar_t)0;
         return t;
     }
@@ -6454,8 +6514,7 @@ static uchar_t *lub_uusnnREPLACE_def(
     t[ti] = (uchar_t)0;
     return t;
 }
-#else
-;
+
 #endif // LUB_DEFINITIONS
 
 extern lchar_t *lub_replace_ext
@@ -6469,31 +6528,31 @@ extern lchar_t *lub_replace_ext
   if (Case == 's')
   { if (xt == 'l' && xs == 'l' && xm == 'l')
       return (lchar_t *)lub_llsnnreplace_def
-             ((lchar_t *)t, tn, (const lchar_t *)s, sn,
-              (const lchar_t *)map, (lchar_t)delim, m);
+               ((lchar_t *)t, tn, (const lchar_t *)s, sn,
+                (const lchar_t *)map, (lchar_t)delim, m);
     if (xt == 'u' && xs == 'l' && xm == 'l')
       return (lchar_t *)lub_ulsnnreplace_def
              ((uchar_t *)t, tn, (const lchar_t *)s, sn,
               (const lchar_t *)map, (lchar_t)delim, m);
     if (xt == 'u' && xs == 'u' && xm == 'u')
       return (lchar_t *)lub_uusnnreplace_def
-             ((uchar_t *)t, tn, (const uchar_t *)s, sn,
-              (const lchar_t *)NULL,
-              (const uchar_t *)map, (uchar_t)delim, m);
+               ((uchar_t *)t, tn, (const uchar_t *)s, sn,
+                (const lchar_t *)NULL,
+                (const uchar_t *)map, (uchar_t)delim, m);
   }
   else if (Case == 'i')
   { if (xt == 'l' && xs == 'l' && xm == 'l')
       return (lchar_t *)lub_llsnnREPLACE_def
-             ((lchar_t *)t, tn, (const lchar_t *)s,
-              (const lchar_t *)map, (lchar_t)delim, sn, m);
+               ((lchar_t *)t, tn, (const lchar_t *)s,
+                (const lchar_t *)map, (lchar_t)delim, sn, m);
     if (xt == 'u' && xs == 'u' && xm == 'l')
       return (lchar_t *)lub_ulsnnREPLACE_def
-             ((uchar_t *)t, tn, (const uchar_t *)s,
-              (const lchar_t *)map, (lchar_t)delim, sn, m);
+               ((uchar_t *)t, tn, (const uchar_t *)s,
+                (const lchar_t *)map, (lchar_t)delim, sn, m);
     if (xt == 'u' && xs == 'u' && xm == 'u')
       return (lchar_t *)lub_uusnnREPLACE_def
-             ((uchar_t *)t, tn, (const uchar_t *)s, sn, (const lchar_t *)NULL,
-              (const uchar_t *)map, (uchar_t)delim, m);
+               ((uchar_t *)t, tn, (const uchar_t *)s, sn, (const lchar_t *)NULL,
+                (const uchar_t *)map, (uchar_t)delim, m);
   }
   return (lchar_t *)LUB_PTR_ERR(LUB_INTERNAL_ERROR, 0);
 }
@@ -6501,9 +6560,11 @@ extern lchar_t *lub_replace_ext
 ;
 #endif
 
-static inline lchar_t *llsnnreplace
+static inline
+lchar_t *llsnnreplace
 ( lchar_t *t, size_t tn, const lchar_t *s, size_t sn,
-  const lchar_t *map, lchar_t delim, ptrdiff_t m )
+  const lchar_t *map, lchar_t delim, ptrdiff_t m
+)
 { return (lchar_t *)lub_replace_ext
            ( 'l', t, tn,
              'l', s, sn,
@@ -6512,11 +6573,11 @@ static inline lchar_t *llsnnreplace
            );
 }
 
-static inline uchar_t *ulsnnreplace
-
-          #endif // LUB_DEFINITIONS for search helpers.
+static inline
+uchar_t *ulsnnreplace
 ( uchar_t *t, size_t tn, const lchar_t *s, size_t sn,
-  const lchar_t *map, lchar_t delim, ptrdiff_t m )
+  const lchar_t *map, lchar_t delim, ptrdiff_t m
+)
 { return (uchar_t *)lub_replace_ext
            ( 'u', (lchar_t *)t, tn,
              'l', s, sn,
@@ -6525,7 +6586,8 @@ static inline uchar_t *ulsnnreplace
            );
 }
 
-static inline uchar_t *uusnnreplace
+static inline
+uchar_t *uusnnreplace
 ( uchar_t *t, size_t tn, const uchar_t *s, size_t sn,
   const uchar_t *map, uchar_t delim, ptrdiff_t m )
 { return (uchar_t *)lub_replace_ext
@@ -6536,10 +6598,12 @@ static inline uchar_t *uusnnreplace
            );
 }
 
-static inline lchar_t *llsnnREPLACE
+static inline
+lchar_t *llsnnREPLACE
 ( lchar_t *t, size_t tn, const lchar_t *s,
   const lchar_t *map, lchar_t delim, size_t n,
-  ptrdiff_t m )
+  ptrdiff_t m
+)
 { return (lchar_t *)lub_replace_ext
            ( 'l', t, tn,
              'l', s, n,
@@ -6548,10 +6612,12 @@ static inline lchar_t *llsnnREPLACE
            );
 }
 
-static inline uchar_t *ulsnnREPLACE
+static inline
+uchar_t *ulsnnREPLACE
 ( uchar_t *t, size_t tn, const uchar_t *s,
   const lchar_t *map, lchar_t delim, size_t n,
-  ptrdiff_t m )
+  ptrdiff_t m
+)
 { return (uchar_t *)lub_replace_ext
            ( 'u', (lchar_t *)t, tn,
              'u', (const lchar_t *)s, n,
@@ -6560,9 +6626,11 @@ static inline uchar_t *ulsnnREPLACE
            );
 }
 
-static inline uchar_t *uusnnREPLACE
+static inline
+uchar_t *uusnnREPLACE
 ( uchar_t *t, size_t tn, const uchar_t *s, size_t sn,
-  const uchar_t *map, uchar_t delim, ptrdiff_t m )
+  const uchar_t *map, uchar_t delim, ptrdiff_t m
+)
 { return (uchar_t *)lub_replace_ext
            ( 'u', (lchar_t *)t, tn,
              'u', (const lchar_t *)s, sn,
@@ -6590,35 +6658,40 @@ static inline uchar_t *uusnnREPLACE
  * @{
  */
 
-extern int llsnvprintf(lchar_t *t, size_t tn, const lchar_t *fmt, va_list ap)
+extern
+int llsnvprintf
+( lchar_t *t, size_t tn, const lchar_t *fmt, va_list ap )
 #if defined(LUB_DEFINITIONS)
-{   if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(fmt, 0))
-      return LUB_INT_ERR(LUB_PTR_INVALID, 0);
-    if (!t || !fmt || !tn) {
-        if (t && tn) *t = (lchar_t)0;
-        return -1;
-    }
+{ if (LUB_PTR_ERR(t, 0) || LUB_PTR_ERR(fmt, 0))
+  { return LUB_INT_ERR(LUB_PTR_INVALID, 0); }
+  if (!t || !fmt || !tn) {
+   if (t && tn) *t = (lchar_t)0;
+   return -1;
+  }
 
-    if (tn > LUB_MAX_LSTRLEN + 1) tn = LUB_MAX_LSTRLEN + 1;
+  if (tn > LUB_MAX_LSTRLEN + 1) tn = LUB_MAX_LSTRLEN + 1;
 
-    int rc = vsnprintf((char *)t, tn, (const char *)fmt, ap);
-    if (rc < 0 || (size_t)rc >= tn) {
-        t[tn - 1] = (lchar_t)0;
-        return -1;
-    }
-    return rc;
+  int rc = vsnprintf((char *)t, tn, (const char *)fmt, ap);
+  if (rc < 0 || (size_t)rc >= tn)
+  { t[tn - 1] = (lchar_t)0;
+    return -1;
+  }
+
+  return rc;
 }
 #else
 ;
 #endif // LUB_DEFINITIONS
 
-extern int llsnprintf(lchar_t *t, size_t tn, const lchar_t *fmt, ...)
+extern
+int llsnprintf
+( lchar_t *t, size_t tn, const lchar_t *fmt, ... )
 #if defined(LUB_DEFINITIONS)
-{   va_list ap;
-    va_start(ap, fmt);
-    int rc = llsnvprintf(t, tn, fmt, ap);
-    va_end(ap);
-    return rc;
+{ va_list ap;
+  va_start(ap, fmt);
+  int rc = llsnvprintf(t, tn, fmt, ap);
+  va_end(ap);
+  return rc;
 }
 #else
 ;
