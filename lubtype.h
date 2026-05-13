@@ -4935,7 +4935,7 @@ uchar_t *ulsnnpad
 #endif // LUB_DEFINITIONS for ulsnnpad.
 
 extern
-uusnnpad
+uchar_t *uusnnpad
 ( uchar_t *t, size_t tn,
   const uchar_t *s, size_t sn,
   const uchar_t *pad
