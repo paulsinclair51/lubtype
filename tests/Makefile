@@ -6,6 +6,9 @@ CC ?= clang
 CFLAGS ?= -std=c11 -Wall -Wextra -O2
 CPPFLAGS ?= -I..
 
+LUB_DEFINITIONS_SRC = ../lubdefinitions.c
+LUB_DEFINITIONS_OBJ = lubdefinitions.o
+
 TEST_SOURCES = \
 	lubtype_tests.c \
 	test_error_edge.c \
@@ -24,13 +27,16 @@ TEST_SOURCES = \
 
 all: lubtype_tests
 
-lubtype_tests: $(TEST_SOURCES)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $(TEST_SOURCES)
+$(LUB_DEFINITIONS_OBJ): $(LUB_DEFINITIONS_SRC)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $(LUB_DEFINITIONS_SRC) -o $@
+
+lubtype_tests: $(TEST_SOURCES) $(LUB_DEFINITIONS_OBJ)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $(TEST_SOURCES) $(LUB_DEFINITIONS_OBJ)
 
 run: lubtype_tests
 	./lubtype_tests
 
 clean:
-	rm -f lubtype_tests lubtype_tests_report.txt
+	rm -f lubtype_tests lubtype_tests_report.txt $(LUB_DEFINITIONS_OBJ)
 
 .PHONY: all run clean

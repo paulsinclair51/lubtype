@@ -44,7 +44,12 @@ if (-not $cl) {
 }
 
 # Build command
-$cmd = 'cl /nologo /W4 /EHsc /Fe:lubtype_tests.exe lubtype_tests.c test_error_edge.c test_advanced_ops.c test_cmp_search.c test_strlen_validation.c test_charclass.c test_reserved_matrix.c test_search_families.c test_span_count.c test_core_families.c test_type_matrix.c test_utilities.c test_fuzz_edge.c test_skip.c /I.. /D_CRT_SECURE_NO_WARNINGS'
+$compileDefsCmd = 'cl /nologo /W4 /EHsc /I.. /D_CRT_SECURE_NO_WARNINGS /c ..\lubdefinitions.c /Fo:lubdefinitions.obj'
+Write-Host "> $compileDefsCmd"
+Invoke-Expression $compileDefsCmd
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+$cmd = 'cl /nologo /W4 /EHsc /Fe:lubtype_tests.exe lubtype_tests.c test_error_edge.c test_advanced_ops.c test_cmp_search.c test_strlen_validation.c test_charclass.c test_reserved_matrix.c test_search_families.c test_span_count.c test_core_families.c test_type_matrix.c test_utilities.c test_fuzz_edge.c test_skip.c lubdefinitions.obj /I.. /D_CRT_SECURE_NO_WARNINGS'
 Write-Host "> $cmd"
 Invoke-Expression $cmd
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
