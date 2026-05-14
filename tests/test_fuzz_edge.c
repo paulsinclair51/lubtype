@@ -51,8 +51,8 @@ static void fuzz_copy_append_cat(void) {
         llsnncat(dst, sizeof(dst), src, len + 1, NULL);
         uusnncat(udst, sizeof(udst), usrc, len + 1, NULL);
         // Current API contract: results stay null-terminated within bounds.
-        assert(lcsnlen(dst, sizeof(dst)) < LUB_SIZE_ERRORS);
-        assert(ucsnlen(udst, sizeof(udst)) < LUB_SIZE_ERRORS);
+        assert(!LUB_SIZE_ERR(lcsnlen(dst, sizeof(dst)), 0));
+        assert(!LUB_SIZE_ERR(ucsnlen(udst, sizeof(udst)), 0));
     }
 }
 
@@ -103,8 +103,8 @@ static void test_overlapping_buffers(void) {
     ubuf[7] = 0;
     lusnncat(buf, sizeof(buf), ubuf, 7, NULL, '?');
     ulsnncat(ubuf, sizeof(ubuf), buf, 7, NULL);
-    assert(lcsnlen(buf, sizeof(buf)) < LUB_SIZE_ERRORS);
-    assert(ucsnlen(ubuf, sizeof(ubuf)) < LUB_SIZE_ERRORS);
+    assert(!LUB_SIZE_ERR(lcsnlen(buf, sizeof(buf)), 0));
+    assert(!LUB_SIZE_ERR(ucsnlen(ubuf, sizeof(ubuf)), 0));
 
     // Error substitution: Unicode->Latin with out-of-range
     uchar_t uni_bad[8] = {0x1234, 0x20, 0x7F, 0x100, 0};
@@ -112,7 +112,7 @@ static void test_overlapping_buffers(void) {
     out[0] = 0;
     lusnncat(out, sizeof(out), uni_bad, 8, NULL, '?');
     assert(out[0] == '?');
-    assert(lcsnlen(out, sizeof(out)) < LUB_SIZE_ERRORS);
+    assert(!LUB_SIZE_ERR(lcsnlen(out, sizeof(out)), 0));
 }
 
 void run_fuzz_edge_tests(void) {

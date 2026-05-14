@@ -11,23 +11,82 @@ lubtype is a header-only C/C++ API for Latin-8 (lchar_t), Unicode-16 (uchar_t), 
 The repository includes three headers:
 
 - lubtype.h - core API and version macros.
-- xlatin.h - polymorphic x... macro remapping to Latin-backed operations.
-- xunicode.h - polymorphic x... macro remapping to Unicode-backed operations.
+- xlatin.h - polymorphic x macro remapping to Latin-backed operations.
+- xunicode.h - polymorphic x macro remapping to Unicode-backed operations.
 
-The current documented API version is 1.0.0 (LUB_VERSION in lubtype.h).
+The documented API version is 1.0.0 (LUB_VERSION in lubtype.h).
 
-## Header Layout
+See lubtype.h, xlatin.h, and xunicode.h for the full API reference and more examples.
 
-Include lubtype.h everywhere you use the API.
+*Tip: To view this file with formatting applied, see [Viewing Formatted README](#viewing-formatted-readme).*
 
+## Header Usage
+
+Include lubtype.h in every source file that uses the API.
+
+```c
 #include "lubtype.h"
+```
 
-The API is header-only, but function body definitions are emitted only when macro LUB_DEFINITIONS is defined before the include. Define this macro in exactly one source file per final binary:
+The API is header-only, but function body definitions are emitted only when the macro LUB_DEFINITIONS is defined. Define this macro in exactly one source file
+per final binary. In practice, this source file is usually a
+LUB_DEFINITIONS-only source file such as the following:
 
+```c
+/**
+ * @file lubdefinitions.c
+ * @brief Provide function definitions for the LUB API.
+ */
+#if !defined(LUB_DEFINITIONS)
 #define LUB_DEFINITIONS
+#endif
 #include "lubtype.h"
+/* End of lubdefinitions.c */
+```
 
-All other source files must include lubtype.h without that define.
+This repository includes this sample source file as [lubdefinitions.c](lubdefinitions.c).
+
+All other source files must include lubtype.h without defining LUB_DEFINITIONS
+in the source file or in the compile command.
+
+To select xlatin.h or xunicode.h at compile time, add the following to your source
+after including lubtype.h:
+
+```c
+#if defined(LUB_XLATIN)
+#include "xlatin.h"
+#elif defined(LUB_XUNICODE)
+#include "xunicode.h"
+#else
+#error "Define LUB_XLATIN or LUB_XUNICODE"
+#endif
+```
+
+Then compile using the define flag (-D) for LUB_XLATIN:
+
+```sh
+gcc -DLUB_XLATIN -c myfile.c -o myfile.o
+```
+
+Or for LUB_XUNICODE:
+
+```sh
+gcc -DLUB_XUNICODE -c myfile.c -o myfile.o
+```
+
+## Design Principles
+
+lubtype.h is built around six guiding principles documented in the header:
+
+- Symmetry: operations exist for every encoding direction where meaningful.
+- Clarity: function names encode type, direction, bounds, operation, and case behavior.
+- Safety: explicit bounds, terminator validation, representability checks,
+  and defined error values throughout.
+- Predictability: behavior mirrors familiar C string patterns; comparison
+  functions operate on raw code units only with no normalization or substitution.
+- Portability: requires only standard C headers; compatible with C90 and later.
+- Compatibility: usable from C and C++; all declarations are wrapped in
+  extern "C" when compiled as C++.
 
 ## What The API Covers
 
@@ -38,29 +97,32 @@ The lubtype.h API includes:
 - Bounded string-length validation.
 - String classification.
 - Compare, fixed-length compare, prefix compare, and suffix compare.
-- Pointer-trim, and skip.
+- Pointer-trim and skip.
 - Search and count.
 - Concatenate and copy.
+- Quoted concatenate and copy.
 - Pad, trim, reverse, repeat, and replace.
-- Latin formatting (llsnprintf, llsnvprintf).
+- Latin formatting.
 
 Operations are provided in Latin/Unicode/byte combinations where they are meaningful. Function names encode the target/source types, bound behavior, operation, and case behavior.
 
 ## Polymorphic Mapping Headers
 
-xlatin.h and xunicode.h remap x macros onto existing lubtype.h symbols so one source file can be built twice: once for Latin and once for Unicode. For example,
+xlatin.h and xunicode.h remap x macros onto existing lubtype.h symbols. They also set LUB_XTYPE to l or u, respectively. With these headers, one source file can be built twice: once for Latin and once for Unicode (see [Header Usage](#header-usage)). For example:
 
- - LUB_MAX_XCHAR maps to LUB_MAX_LCHAR with xlatin.h and to LUB_MAX_UCHAR with xunicode.h.
- - xltolower maps to lltolower with xlatin.h and to ultolower with xunicode.h.
- - xxsnncat maps to llsnncat with xlatin.h and to uusnncat with xunicode.h.
+- LUB_MAX_XCHAR maps to LUB_MAX_LCHAR with xlatin.h and to LUB_MAX_UCHAR with xunicode.h.
+- LUB_MAX_XSTRLEN maps to LUB_MAX_LSTRLEN with xlatin.h and to LUB_MAX_USTRLEN with xunicode.h.
+- xltolower maps to lltolower with xlatin.h and to ultolower with xunicode.h.
+- xxsnncat maps to llsnncat with xlatin.h and to uusnncat with xunicode.h.
 
 ## Quick Start
 
+```c
 #define LUB_DEFINITIONS
 #include "lubtype.h"
 
 int main(void) {
-    lchar_t src[] = { 'h', 'e', 'l', 'l', 'o', 0 };
+    lchar_t src[] = "hello";
     uchar_t dst[16];
 
     if (!ulsnncpy(dst, 15, src, 5, NULL)) {
@@ -69,40 +131,63 @@ int main(void) {
 
     return 0;
 }
+```
 
-## Verified Examples
+## Examples
 
+```c
 /* Search for the second occurrence of "two". */
-const lchar_t haystack[] = { 'o','n','e',' ','t','w','o',' ','t','w','o',0 };
-const lchar_t needle[] = { 't','w','o',0 };
-const lchar_t *match = llsnstrm(haystack, needle, 32, 0, 2);
+const lchar_t haystack[] = "one two two";
+const lchar_t needle[] = "two";
+const lchar_t *match = llsnstrm(haystack, sizeof(haystack) - 1, needle, 0, 2);
+/* match -> points to the second "two" */
+```
 
+```c
 /* Trim both ends and collapse runs of whitespace to a single space. */
 lchar_t out[16 + 1];
-const lchar_t spaced[] = { ' ',' ','a','b','c',' ',' ',0 };
-llsnntrim(out, 16, spaced, 16, 0, NULL, 'B', ' ');
+const lchar_t spaced[] = "  abc  ";
+llsnntrim(out, 16, spaced, 16, NULL, "B", ' ');
+/* out -> "abc" */
+```
 
+```c
 /* Replace the second occurrence of "cat" with "dog". */
-lchar_t out[32 + 1];
-const lchar_t src[] = { 'c','a','t',' ','a','n','d',' ','c','a','t',0 };
-const lchar_t map[] = { 'c','a','t','|','d','o','g',0 };
-llsnnreplace(out, 32, src, 32, map, '|', 2);
+lchar_t buf[32 + 1];
+const lchar_t animals[] = "cat and cat";
+const lchar_t map[] = "cat|dog";
+llsnnreplace(buf, 32, animals, 32, map, '|', 2);
+/* buf -> "cat and dog" */
+```
 
-/* Pad centered with odd-width padding: extra pad character goes on the right. */
-lchar_t out[8 + 1];
-const lchar_t src[] = { 'c','a','t',0 };
-llsnnpad(out, 8, src, 8, "B.");
-/* out -> "..cat..." */
-
-See lubtype.h, xlatin.h, and ulatin.h for the full API reference and additional examples,.
+```c
+/* Pad with '.' and centered with odd-width padding: extra pad
+ * character goes on the right. */
+lchar_t padded[8 + 1];
+const lchar_t src[] = "cat";
+llsnnpad(padded, 8, src, 8, "B.");
+/* padded -> "..cat..." */
+```
 
 ## Version Macros
 
+```c
+LUB_VERSION_MAJOR                /* 1 */
+LUB_VERSION_MINOR                /* 0 */
+LUB_VERSION_PATCH                /* 0 */
 LUB_VERSION                     /* "1.0.0" */
 LUB_VERSION_NUM                 /* 10000 */
 LUB_VERSION_HEX                 /* 0x010000 */
 LUB_VERSION_EQ(1, 0, 0)         /* true if exactly 1.0.0 */
 LUB_VERSION_AT_LEAST(1, 0, 0)   /* true if >= 1.0.0 */
+```
+
+## Utility Macros
+
+The header also provides public token-handling and compile-time assertion macros:
+
+- LUB_PASTE and LUB_STRINGIFY are macros for token pasting and stringification.
+- LUB_STATIC_ASSERT is used for compile-time checks.
 
 ## Core Types And Limits
 
@@ -112,19 +197,19 @@ LUB_VERSION_AT_LEAST(1, 0, 0)   /* true if >= 1.0.0 */
 | uchar_t | uint16_t  | Unicode BMP code unit              |
 | byte_t  | uint8_t   | Raw byte, no null-string semantics |
 
-| Macro | Value |
-|-------|-------|
-| LUB_MAX_LCHAR | 255 |
-| LUB_MAX_UCHAR | 65535 |
-| LUB_MAX_BYTE | 255 |
-| LUB_MAX_LSTRLEN | 1000000 |
-| LUB_MAX_USTRLEN | 500000 |
-| LUB_MAX_NAMELEN | 128 |
-| LUB_MAX_QNAMELEN | 258 |
-| LUB_MAX_LOPTLEN | 64000 |
-| LUB_MAX_UOPTLEN | 32000 |
-| LUB_MAX_BSTRLEN | 1000000 |
-| LUB_MAX_BOPTLEN | 64000 |
+| Macro            | Value   |
+|------------------|---------|
+| LUB_MAX_LCHAR    |     255 |
+| LUB_MAX_UCHAR    |   65535 |
+| LUB_MAX_BYTE     |     255 |
+| LUB_MAX_LSTRLEN  | 1000000 |
+| LUB_MAX_USTRLEN  |  500000 |
+| LUB_MAX_NAMELEN  |     128 |
+| LUB_MAX_QNAMELEN |     258 |
+| LUB_MAX_LOPTLEN  |   64000 |
+| LUB_MAX_UOPTLEN  |   32000 |
+| LUB_MAX_BSTRLEN  | 1000000 |
+| LUB_MAX_BOPTLEN  |   64000 |
 
 Caller-supplied bounds are clamped to the corresponding maximums.
 
@@ -145,21 +230,21 @@ Name classification functions return:
 
 String classification functions (isln*, isun*, islreserved, isureserved, islqname, isuqname) return:
 
-- 1 for satisfied condition and no error
-- 0 for unsatisfied condition and no error
-- error value (see below)
+- 1 for satisfied condition and no error.
+- 0 for unsatisfied condition and no error.
+- error value (see below).
 
-Reserved error values occupy the range -99 to -2. The currently defined error values for int, size_t, and pointer-returning functions are:
+Reserved error values occupy the range -99 to -2 for int (with equivalent values for size_t and intptr_t). The currently defined error values for int, size_t, and pointer returning functions are:
 
 - LUB_PTR_INVALID
 - LUB_UNTERMINATED
+- LUB_NONLATIN_SOURCE
 - LUB_BSTR_TOO_LONG
 - LUB_NAME_TOO_LONG
 - LUB_NAME_INVALID
 - LUB_OPT_TOO_LONG
 - LUB_OPT_INVALID
 - LUB_OPT_RESERVED
-- LUB_NONLATIN_SOURCE
 - LUB_NON_LATIN_CHAR
 - LUB_OVERLAP
 - LUB_TRUNCATED
@@ -167,12 +252,21 @@ Reserved error values occupy the range -99 to -2. The currently defined error va
 
 Use the error classification/cast macros instead of comparing a value directly with an error value:
 
-c
+```c
 size_t len = lcsnlen(src, 32);
 if (LUB_SIZE_ERR(len, 0)) {
-    /* handle error */
+  /* handle error */
 }
+```
 
+Three macros handle the three return types:
+
+- LUB_SIZE_ERR(value, error) - for size_t-returning functions.
+- LUB_PTR_ERR(value, error)  - for pointer-returning functions.
+- LUB_INT_ERR(value, error)  - for int-returning functions.
+
+Pass 0 as the error argument to test for any error, or pass a specific error value to test for that exact error. Each macro returns the error cast to the appropriate type, or 0 if not an error.
+If LUB_PTR_ERR is used to return an error to a caller, cast it to the specific pointer type.
 
 ## Naming Conventions
 
@@ -192,41 +286,75 @@ Examples:
 - llsnncpy - Latin target, Latin source, explicit target and source bounds
 - uusnnREPLACE - Unicode target/source replace, explicit bounds, case-insensitive
 
+## Reserved Names
+
+The API reserves the following name patterns for current and future use:
+
+- LUB_<W>[_<W>]... for macro names (<W> is uppercase letters).
+- lub_<w>[_<w>]... for function names (<w> is lowercase letters).
+
+If a name conflict arises with a macro, #undef the conflicting macro before including lubtype.h and redefine it afterward if needed. For type or function conflicts, rename the conflicting symbol in the including code. See lubtype.h for the full reserved names policy.
+
 ## Notes
 
 - Unicode classification and case conversion use the C runtime's isw* and tow* routines, so results are locale- and
   CRT-dependent.
 - The API operates on individual code units only. It does not perform Unicode normalization or surrogate-pair handling.
 - When a function writes into a caller-supplied target buffer, the target is null-terminated on error.
-- Overlapping source and target buffers are implementation-defined: a function may succeed or return an error depending 
-  the operation.
+- Overlapping source and target buffers are implementation-defined: a function may succeed or return an error depending
+  on the operation.
 - No dynamic memory allocation or recursion is used.
 - The API is thread-safe as long as threads do not concurrently write to the same target buffer without external synchronization.
+- Search and replace functions have worst-case O(n*m) complexity where n is input length and m is pattern or map size. Most other operations are O(n).
+- The header is compatible with C90 and later, and with C++. All declarations are wrapped in extern "C" when compiled as C++.
 - Supported platforms must satisfy the compile-time assertions documented in lubtype.h.
 
 ## Building And Running Tests
+
+From the tests directory:
+
+```sh
+make
+make run
+```
+
+On Windows, use the provided PowerShell helper in [tests/build_lubtype_tests.ps1](tests/build_lubtype_tests.ps1).
 
 ### Windows (MSVC)
 
 From the tests directory:
 
-powershell
+```powershell
 powershell -ExecutionPolicy Bypass -File ./build_lubtype_tests.ps1
 .\lubtype_tests.exe
-
+```
 
 ### Linux / macOS
 
 From the repository root:
 
+```sh
 make -C tests run
+```
 
 To build with gcc instead of clang:
 
+```sh
 make -C tests CC=gcc run
+```
 
 The checked-in test runner writes lubtype_tests_report.txt to its current working directory when executed.
 
 ## Continuous Integration
 
 GitHub Actions runs the test suite on pushes and pull requests. If workflow files are included in your checkout, see .github/workflows/ci.yml.
+
+## Viewing Formatted README
+
+To view the formatted README while editing in VS Code:
+
+- Open README.md and press Ctrl+Shift+V.
+- For side-by-side editor + preview, press Ctrl+K then V.
+- To revert to unformatted viewing, close and reopen.
+
+For repository formatted viewing, open the README on GitHub after committing changes.

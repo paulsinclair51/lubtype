@@ -174,7 +174,7 @@
  *      If LUB_DEFINITIONS is defined, these macros must not be defined
  *      before including this header. They are undefined at the end of this header.
  * 
- * Functions namees:
+ * Functions names:
  * 
  *   1. If a function name ends with _ext, it is for an extern
  *     `function that is visible to API users but is not documented as
@@ -302,8 +302,6 @@ extern "C" {
 #define LUB_STRINGIFY(s) LUB_TOKEN_STRINGIFY(s)
 
 /** @} */
-
-#if defined(LUB_DEFINITIONS)
 
 /**
  * @defgroup StaticAssert Static Assert
@@ -784,8 +782,6 @@ typedef uint8_t byte_t;
 
 #define LUB_SIZE_ERR(value, error) \
     ((size_t)(intptr_t)LUB_PTR_ERR(value, error))
-
-#define LUB_SIZE_ERRORS ((size_t)(intptr_t)(-99))
 
 #define LUB_INT_ERR(value, error) \
     ((int)(intptr_t)LUB_PTR_ERR(value, error))
@@ -5470,7 +5466,7 @@ lchar_t *llsnnrepeat
   if (sn > LUB_MAX_LSTRLEN) { sn = LUB_MAX_LSTRLEN; }
 
   size_t s_len = lcsnlen(s, sn);
-  if (s_len >= LUB_SIZE_ERRORS)
+  if (LUB_SIZE_ERR(s_len, 0))
   { t[tn] = (lchar_t)0; return (lchar_t *)s_len; }
 
   if (times == 0) { t[0] = (lchar_t)0;  return t; }
@@ -5502,7 +5498,7 @@ extern uchar_t *ulsnnrepeat(
   if (sn > LUB_MAX_LSTRLEN) { sn = LUB_MAX_LSTRLEN; }
 
   size_t s_len = lcsnlen(s, sn);
-  if (s_len >= LUB_SIZE_ERRORS)
+  if (LUB_SIZE_ERR(s_len, 0))
   { t[tn] = (uchar_t)0; return (uchar_t *)s_len; }
 
   if (times == 0) { t[0] = (uchar_t)0; return t; }
@@ -5535,7 +5531,7 @@ uchar_t *uusnnrepeat
   if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
 
   size_t s_len = ucsnlen(s, sn);
-  if (s_len >= LUB_SIZE_ERRORS)
+  if (LUB_SIZE_ERR(s_len, 0))
   { t[tn] = (uchar_t)0;  return (uchar_t *)s_len; }
 
   if (times == 0)
@@ -5674,9 +5670,9 @@ lchar_t *lub_llsnnreplace_def
   if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
 
   size_t s_len = lcsnlen(s, sn);
-  if (s_len >= LUB_SIZE_ERRORS) return NULL;
+  if (LUB_SIZE_ERR(s_len, 0)) return NULL;
   size_t map_len = lcsnlen(map, LUB_MAX_LOPTLEN);
-  if (map_len >= LUB_SIZE_ERRORS) return (lchar_t *)NULL;
+  if (LUB_SIZE_ERR(map_len, 0)) return (lchar_t *)NULL;
 
     const lchar_t *p = map;
     const lchar_t *map_end = map + map_len;
@@ -5818,9 +5814,9 @@ uchar_t *lub_ulsnnreplace_def
   if (sn > LUB_MAX_LSTRLEN) sn = LUB_MAX_LSTRLEN;
 
   size_t s_len = ucsnlen(s, sn);
-  if (s_len >= LUB_SIZE_ERRORS) return NULL;
+  if (LUB_SIZE_ERR(s_len, 0)) return NULL;
   size_t map_len = lcsnlen(map, LUB_MAX_LOPTLEN);
-  if (map_len >= LUB_SIZE_ERRORS) return NULL;
+  if (LUB_SIZE_ERR(map_len, 0)) return NULL;
 
   const lchar_t *p = map;
   const lchar_t *map_end = map + map_len;
@@ -5959,9 +5955,9 @@ uchar_t *lub_uusnnreplace_def
     if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
 
     size_t s_len = ucsnlen(s, sn);
-    if (s_len >= LUB_SIZE_ERRORS) return NULL;
+  if (LUB_SIZE_ERR(s_len, 0)) return NULL;
     size_t map_len = ucsnlen(map, LUB_MAX_UOPTLEN);
-    if (map_len >= LUB_SIZE_ERRORS) return NULL;
+  if (LUB_SIZE_ERR(map_len, 0)) return NULL;
 
     const uchar_t *p = map;
     const uchar_t *map_end = map + map_len;
@@ -6103,9 +6099,9 @@ static lchar_t *lub_llsnnREPLACE_def
     if (n > LUB_MAX_LSTRLEN) n = LUB_MAX_LSTRLEN;
 
     size_t s_len = lcsnlen(s, n);
-    if (s_len >= LUB_SIZE_ERRORS) return NULL;
+  if (LUB_SIZE_ERR(s_len, 0)) return NULL;
     size_t map_len = lcsnlen(map, LUB_MAX_LOPTLEN);
-    if (map_len >= LUB_SIZE_ERRORS) return NULL;
+  if (LUB_SIZE_ERR(map_len, 0)) return NULL;
 
     const lchar_t *p = map;
     const lchar_t *map_end = map + map_len;
@@ -6248,9 +6244,9 @@ uchar_t *lub_ulsnnREPLACE_def
   if (n > LUB_MAX_USTRLEN) n = LUB_MAX_USTRLEN;
 
     size_t s_len = ucsnlen(s, n);
-    if (s_len >= LUB_SIZE_ERRORS) return NULL;
+  if (LUB_SIZE_ERR(s_len, 0)) return NULL;
     size_t map_len = lcsnlen(map, LUB_MAX_LOPTLEN);
-    if (map_len >= LUB_SIZE_ERRORS) return NULL;
+  if (LUB_SIZE_ERR(map_len, 0)) return NULL;
 
     const lchar_t *p = map;
     const lchar_t *map_end = map + map_len;
@@ -6396,9 +6392,9 @@ uchar_t *lub_uusnnREPLACE_def
   if (sn > LUB_MAX_USTRLEN) sn = LUB_MAX_USTRLEN;
 
   size_t s_len = ucsnlen(s, sn);
-  if (s_len >= LUB_SIZE_ERRORS) return NULL;
+  if (LUB_SIZE_ERR(s_len, 0)) return NULL;
   size_t map_len = ucsnlen(map, LUB_MAX_UOPTLEN);
-  if (map_len >= LUB_SIZE_ERRORS) return NULL;
+  if (LUB_SIZE_ERR(map_len, 0)) return NULL;
   
   const uchar_t *p = map;
   const uchar_t *map_end = map + map_len;
