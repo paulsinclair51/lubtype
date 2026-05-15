@@ -10,7 +10,7 @@
 #include <stddef.h>
 
 #include "../lubtype.h"
-#include "test_declarations.h"
+#include "lubtype_test_declarations.h"
 
 /**
  * @brief Create a local Latin string from ASCII text.

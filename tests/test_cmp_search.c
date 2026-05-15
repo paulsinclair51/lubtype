@@ -6,73 +6,42 @@
  * For license details, see the LICENSE file in the project root.
  */
 
+#if !defined(LUB_X_IS_L) && !defined(LUB_X_IS_U)
+#define LUB_X_IS_L
+#endif
+
 #include <assert.h>
-#include "../lubtype.h"
-#include "test_declarations.h"
 #include <stdio.h>
+#include "lubtype_test_declarations.h"
+#include "../lubtype.h"
 
-static void test_search_delim_negative_m_all_variants(void) {
-    const lchar_t lhay[] = {'a','b','a','b','a',0};
-    const uchar_t uhay[] = {'a','b','a','b','a',0};
-    const lchar_t lneedle[] = {'a','b','a',0};
-    const uchar_t uneedle[] = {'a','b','a',0};
-
-    assert(llsnstrm(lhay, 16, lneedle, '|', -1) == lhay + 2);
-    assert(lusnstrm(lhay, 16, uneedle, '|', -1) == lhay + 2);
-    assert(ulsnstrm(uhay, 16, lneedle, '|', -1) == uhay + 2);
-    assert(uusnstrm(uhay, 16, uneedle, '|', -1) == uhay + 2);
-
-    assert(llsnSTRM(lhay, 16, lneedle, '|', -1) == lhay + 2);
-    assert(lusnSTRM(lhay, 16, uneedle, '|', -1) == lhay + 2);
-    assert(ulsnSTRM(uhay, 16, lneedle, '|', -1) == uhay + 2);
-    assert(uusnSTRM(uhay, 16, uneedle, '|', -1) == uhay + 2);
+static void test_search_delim_negative_m(void) {
+    const xchar_t hay[] = {'a','b','a','b','a',0};
+    const xchar_t needle[] = {'a','b','a',0};
+    assert(xlsnstrm(hay, 16, needle, '|', -1) == hay + 2);
+    assert(xlsnSTRM(hay, 16, needle, '|', -1) == hay + 2);
 }
 
-static void test_search_charset_negative_m_all_variants(void) {
-    const lchar_t lhay[] = {'a','b','a','c','a','d',0};
-    const uchar_t uhay[] = {'a','b','a','c','a','d',0};
-    const lchar_t lset[] = {'b','d',0};
-    const uchar_t uset[] = {'b','d',0};
-
-    assert(llsnstrm(lhay, 16, lset, 0, -1) == lhay + 5);
-    assert(lusnstrm(lhay, 16, uset, 0, -1) == lhay + 5);
-    assert(ulsnstrm(uhay, 16, lset, 0, -1) == uhay + 5);
-    assert(uusnstrm(uhay, 16, uset, 0, -1) == uhay + 5);
-
-    assert(llsnSTRM(lhay, 16, lset, 0, -1) == lhay + 5);
-    assert(lusnSTRM(lhay, 16, uset, 0, -1) == lhay + 5);
-    assert(ulsnSTRM(uhay, 16, lset, 0, -1) == uhay + 5);
-    assert(uusnSTRM(uhay, 16, uset, 0, -1) == uhay + 5);
+static void test_search_charset_negative_m(void) {
+    const xchar_t hay[] = {'a','b','a','c','a','d',0};
+    const xchar_t set[] = {'b','d',0};
+    assert(xlsnstrm(hay, 16, set, 0, -1) == hay + 5);
+    assert(xlsnSTRM(hay, 16, set, 0, -1) == hay + 5);
 }
 
-static void test_search_case_insensitive_variants(void) {
-    const lchar_t lhay[] = {'a','B','a','b','A',0};
-    const uchar_t uhay[] = {'a','B','a','b','A',0};
-    const lchar_t lneedle[] = {'A','B','A',0};
-    const uchar_t uneedle[] = {'A','B','A',0};
-
-    assert(llsnSTRM(lhay, 16, lneedle, '|', -1) == lhay + 2);
-    assert(lusnSTRM(lhay, 16, uneedle, '|', -1) == lhay + 2);
-    assert(ulsnSTRM(uhay, 16, lneedle, '|', -1) == uhay + 2);
-    assert(uusnSTRM(uhay, 16, uneedle, '|', -1) == uhay + 2);
+static void test_search_case_insensitive(void) {
+    const xchar_t hay[] = {'a','B','a','b','A',0};
+    const xchar_t needle[] = {'A','B','A',0};
+    assert(xlsnSTRM(hay, 16, needle, '|', -1) == hay + 2);
 }
 
-static void test_search_empty_token_behavior(void) {
-    const lchar_t empty_l[] = {0};
-    const uchar_t empty_u[] = {0};
-    const uchar_t one_u[] = {'a',0};
-    const lchar_t one_delim_l[] = {'|',0};
-    const uchar_t one_delim_u[] = {'|',0};
-
-    assert(llsnstrm(empty_l, 4, one_delim_l, '|', 1) == empty_l);
-    assert(lusnstrm(empty_l, 4, one_delim_u, '|', -1) == empty_l);
-    assert(ulsnstrm(empty_u, 4, one_delim_l, '|', 1) == empty_u);
-    assert(uusnstrm(empty_u, 4, one_delim_u, '|', -1) == empty_u);
-
-    assert(llsnstrm((const lchar_t *)"a", 4, empty_l, 0, 1) == NULL);
-    assert(lusnstrm((const lchar_t *)"a", 4, empty_u, 0, 1) == NULL);
-    assert(ulsnstrm(one_u, 4, empty_l, 0, 1) == NULL);
-    assert(uusnstrm(one_u, 4, empty_u, 0, 1) == NULL);
+static void test_search_empty_token(void) {
+    const xchar_t empty[] = {0};
+    const xchar_t one[] = {'a',0};
+    const xchar_t one_delim[] = {'|',0};
+    assert(xlsnstrm(empty, 4, one_delim, '|', 1) == empty);
+    assert(xlsnstrm((const xchar_t *)"a", 4, empty, 0, 1) == NULL);
+    assert(xlsnstrm(one, 4, empty, 0, 1) == NULL);
 }
 
 /**
@@ -82,22 +51,22 @@ static void test_search_empty_token_behavior(void) {
  * Each block checks a specific function or family for
  * correct behavior and edge cases.
  */
-void run_cmp_search_tests(void) {
-    lchar_t l1[16] = {'a','b','c','\0'};
-    lchar_t l2[16] = {'a','b','c','\0'};
-    lchar_t l3[16] = {'a','b','d','\0'};
+void LUB_PASTE(LUB_PASTE(run_, LUB_X), cmp_search_tests)(void) {
+    xchar_t s1[16] = {'a','b','c','\0'};
+    xchar_t s2[16] = {'a','b','c','\0'};
+    xchar_t s3[16] = {'a','b','d','\0'};
 
     // Compare.
-    assert(llsnncmp(l1, 3, l2, 3) == 0);
-    assert(llsnncmp(l1, 3, l3, 3) < 0);
+    assert(xlsnncmp(s1, 3, s2, 3) == 0);
+    assert(xlsnncmp(s1, 3, s3, 3) < 0);
 
     // Search/count.
-    test_search_delim_negative_m_all_variants();
-    test_search_charset_negative_m_all_variants();
-    test_search_case_insensitive_variants();
-    test_search_empty_token_behavior();
-    assert(llsncnt((const lchar_t *)"abcabc", 6, (const lchar_t *)"ab", '|') == 2);
+    test_search_delim_negative_m();
+    test_search_charset_negative_m();
+    test_search_case_insensitive();
+    test_search_empty_token();
+    assert(xlsncnt((const xchar_t *)"abcabc", 6, (const xchar_t *)"ab", '|') == 2);
 
-    printf("Comparison/search tests passed.\n");
-
+    printf("x-macro comparison/search tests passed for LUB_X=%s.\n",
+           LUB_STRINGIFY(LUB_X));
 }

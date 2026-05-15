@@ -1,0 +1,5 @@
+cc -I.. -std=c11 -Wall -Wextra -O2 -o lubtype_tests lubtype_tests.o test_error_edge.o test_advanced_ops.o test_strlen_validation.o test_reserved_matrix.o test_search_families.o test_span_count.o test_core_families.o test_type_matrix.o test_utilities.o test_fuzz_edge.o test_skip.o test_charclass_l.o test_charclass_u.o test_cmp_search_l.o test_cmp_search_u.o lubdefinitions.o
+/usr/bin/ld: lubtype_tests.o: in function `main':
+lubtype_tests.c:(.text.startup+0x22d): undefined reference to `run_cmp_search_tests'
+collect2: error: ld returned 1 exit status
+make: *** [Makefile:64: lubtype_tests] Error 1

@@ -1,6 +1,6 @@
 /**
- * @file test_declarations.h
- * @brief Shared declarations for all lubtype test modules.
+ * @file lubtype_test_declarations.h
+ * @brief Common test declarations for lubtype tests.
  * @copyright Copyright (c) 2026 paulsinclair51
  * SPDX-License-Identifier: MIT
  * For license details, see the LICENSE file in the project root.
@@ -11,7 +11,8 @@
 
 extern void run_error_edge_tests(void);
 extern void run_advanced_ops_tests(void);
-extern void run_cmp_search_tests(void);
+extern void run_lcmp_search_tests(void);
+extern void run_ucmp_search_tests(void);
 extern void run_strlen_validation_tests(void);
 extern void run_lcharclass_tests(void);
 extern void run_ucharclass_tests(void);

@@ -10,7 +10,7 @@
 #include <stddef.h>
 
 #include "../lubtype.h"
-#include "test_declarations.h"
+#include "lubtype_test_declarations.h"
 
 static const lchar_t *make_lstr_local(const char *src, lchar_t *dst, size_t cap) {
     size_t i = 0;

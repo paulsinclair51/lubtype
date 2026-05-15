@@ -7,7 +7,7 @@
  */
 
 #include "../lubtype.h"
-#include "test_declarations.h"
+#include "lubtype_test_declarations.h"
 
 #include <assert.h>
 #include <stdarg.h>
@@ -58,7 +58,8 @@ int main(void) {
 	// Run all test modules
 	run_error_edge_tests();
 	run_advanced_ops_tests();
-	run_cmp_search_tests();
+	run_lcmp_search_tests();
+	run_ucmp_search_tests();
 	run_strlen_validation_tests();
 	run_lcharclass_tests();
 	run_ucharclass_tests();

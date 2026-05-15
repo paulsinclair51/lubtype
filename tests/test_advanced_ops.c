@@ -9,7 +9,7 @@
 
 #include <assert.h>
 #include "../lubtype.h"
-#include "test_declarations.h"
+#include "lubtype_test_declarations.h"
 #include <stdio.h>
 #include <string.h>
 
