@@ -62,11 +62,12 @@
 #include "lubtype.h"
 // End of lubdefinitions.c
  * @endcode
- * This repository includes this sample source file as [lubdefinitions.c](lubdefinitions.c).
+ * The repository includes this sample source file as [lubdefinitions.c](lubdefinitions.c).
  *
  * All other source files must include lubtype.h without defining LUB_DEFINITIONS
  * in the source file or in the compile command.
  *
+ * @section PolymorphicMacrosUsage Polymorphic Macros Usage
  * To use the x macros (see @ref PolymorphicMacros), the names of extern
  * functions in the source file must be defined based on LUB_X_IS_L or
  * LUB_X_IS_U. For example:
@@ -466,9 +467,9 @@ extern "C" {
 
 // LUB API version string in "major.minor.patch" format.
 #define LUB_VERSION \
-    (LUB__XSTRINGIFY__EXT(LUB_VERSION_MAJOR) "." \
-     LUB__XSTRINGIFY__EXT(LUB_VERSION_MINOR) "." \
-     LUB__XSTRINGIFY__EXT(LUB_VERSION_PATCH))
+  (LUB_STRINGIFY(LUB_VERSION_MAJOR) "." \
+   LUB_STRINGIFY(LUB_VERSION_MINOR) "." \
+   LUB_STRINGIFY(LUB_VERSION_PATCH))
 
 // LUB API version as an integer for comparisons.
 #define LUB_VERSION_NUM \
@@ -1769,7 +1770,7 @@ int isunhexstr
 { return LUB_string_hex_ext('u', (const lchar_t *)s, sn); }
 
 extern
-int LUB_is_reserved_ext
+int lub_is_reserved_ext
 ( const char xs, const lchar_t *s )
 #if defined(LUB_DEFINITIONS)
 { // Teradata reserved words list.
@@ -3044,6 +3045,7 @@ size_t lub_match_count_def
           }
           if (k == tok_n) { ++total_count; }
       }
+        }
       seg = end + 1;
     }
   }
@@ -3396,6 +3398,7 @@ lchar_t *lub_cat_quoted_def
         lub_set_def(xt, (lchar_t *)tb, (uchar_t)q, lrep);
         tb += t_size;
         tr--;
+      }
       c = (Case == 'C') ? uutoupper(c)
                         : (Case == 'c') ? uutolower(c)
                         : c;
@@ -3550,14 +3553,14 @@ lchar_t *lub_cat_cpy_pad_ext
     if (!t) { return (lchar_t *)NULL; }
 
     if (q)
-    { return LUB__cat_quoted_lcl
+    { return lub_cat_quoted_def
                (xt, xs, q, Case,
                 t + t_size * tl, tn, tl, s, sn,
                 trunc_mode, trunc, trunc_n, lrep);
     }
 
     if (!s || !sn)
-      { LUB__terminate_lcl(xt, t + t_size * tl);
+      { lub_terminate_def(xt, t + t_size * tl);
         return t + t_size * tl;
     }
 
@@ -3566,7 +3569,7 @@ lchar_t *lub_cat_cpy_pad_ext
     { uchar_t c = lub_get_ith_def(xs, s, copied);
       if (Case == 'C') c = uutoupper(c);
       else if (Case == 'c') c = uutolower(c);
-      LUB__set_lcl(xt, t, tl + copied, c, lrep);
+      lub_set_ith_def(xt, t, tl + copied, c, lrep);
     }
 
     size_t out_n = tl + copied;
@@ -3577,9 +3580,10 @@ lchar_t *lub_cat_cpy_pad_ext
         { size_t keep = tn - trunc_n;
           if (out_n > keep) { out_n = keep;
           for (size_t i = 0; i < trunc_n && out_n < tn; ++i)
-          { LUB__set_lcl(xt, t, out_n++, lub_get_ith_def(xt, trunc, i), lrep); }
+          { lub_set_ith_def(xt, t, out_n++, lub_get_ith_def(xt, trunc, i), lrep); }
         }
       }
+        }
       lub_terminate_ith_def(xt, t, out_n);
       return (lchar_t *)LUB_PTR_ERR(LUB_TRUNCATED, 0);
     }
@@ -4549,6 +4553,7 @@ uchar_t *uusnncpyq
 static inline
 lchar_t *llsnncpyqc
 ( lchar_t *t, size_t tn,
+  const lchar_t *s, size_t sn,
   const lchar_t *trunc, const lchar_t q
 )
 { return (lchar_t *)lub_cat_cpy_pad_ext
@@ -5139,6 +5144,7 @@ lchar_t *lub_trim_ext
       if (trimset && !*trimset) trimset = (const lchar_t *)NULL;
     }
   }
+  }
 
   size_t normalized_len = 0;
   uchar_t normalized[(trimlen ? trimlen : 1) + 1];
@@ -5348,7 +5354,7 @@ uchar_t *uusnntrim
       { if (*s > LUB_MAX_LCHAR) \
         { if (lrep) \
           { *tt = lrep; } \
-          else
+            else \
           { return (t_xt *)LUB_PTR_ERR(LUB_NON_LATIN_CHAR, 0); } \
         } \
         else { *tt = (t_xt)*s; } \
@@ -5396,7 +5402,7 @@ uchar_t *uusnntrim
           else return (t_xt *)LUB_PTR_ERR(LUB_NON_LATIN_CHAR, 0); \
         else *tt = (t_xt)*s; \
       } \
-    }
+    } \
     else \
     { /* Copy Latin characters to target buffer right to left. */ \
       s_xt *ss = ((s_xt *)t) + sn - 1; \
@@ -5410,6 +5416,7 @@ uchar_t *uusnntrim
     i = sn; \
     /* Expand Latin characters to Unicode right to left. */ \
     for (; i; --i, --tt, --s) { *tt = (t_xt)*s; } \
+  } \
   /* In-place reversal */ \
   tt = t + sn - 1; \
   t_xt *tr = t; \
@@ -6426,9 +6433,6 @@ uchar_t *lub_ulsnnREPLACE_def
     t[ti] = (uchar_t)0;
     return t;
 }
-#else
-;
-#endif // LUB_DEFINITIONS
 
 static
 uchar_t *lub_uusnnREPLACE_def
@@ -6568,8 +6572,6 @@ uchar_t *lub_uusnnREPLACE_def
     t[ti] = (uchar_t)0;
     return t;
 }
-
-#endif // LUB_DEFINITIONS
 
 extern lchar_t *lub_replace_ext
 ( const char xt, lchar_t *t, size_t tn,
@@ -7194,8 +7196,6 @@ int llsnprintf
 #undef LUB_OP_DEF
 
 #endif // LUB_DEFINITIONS
-
-#endif // defined(LUB_DEFINITIONS)
 
 #ifdef __cplusplus
 }

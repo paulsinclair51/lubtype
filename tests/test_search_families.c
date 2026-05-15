@@ -119,24 +119,24 @@ static void test_cmp_basic_and_case_insensitive(void) {
     lchar_t s2[64];
     int cmp_result;
 
-    cmp_result = llsncmp(make_lstr_local("hello", s1, 64),
-                         make_lstr_local("hello", s2, 64), 64);
+    cmp_result = llsnncmp(make_lstr_local("hello", s1, 64), 64,
+                          make_lstr_local("hello", s2, 64), 64);
     assert(cmp_result == 0);
 
-    cmp_result = llsncmp(make_lstr_local("apple", s1, 64),
-                         make_lstr_local("banana", s2, 64), 64);
+    cmp_result = llsnncmp(make_lstr_local("apple", s1, 64), 64,
+                          make_lstr_local("banana", s2, 64), 64);
     assert(cmp_result < 0);
 
-    cmp_result = llsncmp(make_lstr_local("zebra", s1, 64),
-                         make_lstr_local("apple", s2, 64), 64);
+    cmp_result = llsnncmp(make_lstr_local("zebra", s1, 64), 64,
+                          make_lstr_local("apple", s2, 64), 64);
     assert(cmp_result > 0);
 
-    cmp_result = llsnCMP(make_lstr_local("Hello", s1, 64),
-                         make_lstr_local("HELLO", s2, 64), 64);
+    cmp_result = llsnnCMP(make_lstr_local("Hello", s1, 64), 64,
+                          make_lstr_local("HELLO", s2, 64), 64);
     assert(cmp_result == 0);
 
-    cmp_result = llsnCMP(make_lstr_local("hello", s1, 64),
-                         make_lstr_local("world", s2, 64), 64);
+    cmp_result = llsnnCMP(make_lstr_local("hello", s1, 64), 64,
+                          make_lstr_local("world", s2, 64), 64);
     assert(cmp_result != 0);
 }
 
@@ -146,28 +146,28 @@ static void test_pfx_and_sfx_matching(void) {
     lchar_t sfx[64];
     int result;
 
-    result = llsnpfxcmp(make_lstr_local("hello world", str, 64),
-                        make_lstr_local("hello", pfx, 64), 64);
+    result = llsnnpfxcmp(make_lstr_local("hello world", str, 64), 64,
+                         make_lstr_local("hello", pfx, 64), 64);
     assert(result == 0);
 
-    result = llsnpfxcmp(make_lstr_local("hello world", str, 64),
-                        make_lstr_local("world", pfx, 64), 64);
+    result = llsnnpfxcmp(make_lstr_local("hello world", str, 64), 64,
+                         make_lstr_local("world", pfx, 64), 64);
     assert(result != 0);
 
-    result = llsnsfxcmp(make_lstr_local("hello world", str, 64),
-                        make_lstr_local("world", sfx, 64), 64);
+    result = llsnnsfxcmp(make_lstr_local("hello world", str, 64), 64,
+                         make_lstr_local("world", sfx, 64), 64);
     assert(result == 0);
 
-    result = llsnsfxcmp(make_lstr_local("hello world", str, 64),
-                        make_lstr_local("hello", sfx, 64), 64);
+    result = llsnnsfxcmp(make_lstr_local("hello world", str, 64), 64,
+                         make_lstr_local("hello", sfx, 64), 64);
     assert(result != 0);
 
-    result = llsnPFXCMP(make_lstr_local("Hello World", str, 64),
-                        make_lstr_local("HELLO", pfx, 64), 64);
+    result = llsnnPFXCMP(make_lstr_local("Hello World", str, 64), 64,
+                         make_lstr_local("HELLO", pfx, 64), 64);
     assert(result == 0);
 
-    result = llsnSFXCMP(make_lstr_local("Hello World", str, 64),
-                        make_lstr_local("WORLD", sfx, 64), 64);
+    result = llsnnSFXCMP(make_lstr_local("Hello World", str, 64), 64,
+                         make_lstr_local("WORLD", sfx, 64), 64);
     assert(result == 0);
 }
 

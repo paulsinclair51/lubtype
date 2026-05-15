@@ -127,55 +127,55 @@ static void test_matrix_consistency_cmp_pfx_sfx(void) {
     make_ustr_local("Alpha", u1, 64);
     make_ustr_local("alpha", u2, 64);
 
-    assert(llsncmp(l1, l2, 63) != 0);
-    assert(lusncmp(l1, u2, 63) != 0);
-    assert(ulsncmp(u1, l2, 63) != 0);
-    assert(uusncmp(u1, u2, 63) != 0);
+    assert(llsnncmp(l1, 63, l2, 63) != 0);
+    assert(lusnncmp(l1, 63, u2, 63) != 0);
+    assert(ulsnncmp(u1, 63, l2, 63) != 0);
+    assert(uusnncmp(u1, 63, u2, 63) != 0);
 
-    assert(llsnCMP(l1, l2, 63) == 0);
-    assert(lusnCMP(l1, u2, 63) == 0);
-    assert(ulsnCMP(u1, l2, 63) == 0);
-    assert(uusnCMP(u1, u2, 63) == 0);
+    assert(llsnnCMP(l1, 63, l2, 63) == 0);
+    assert(lusnnCMP(l1, 63, u2, 63) == 0);
+    assert(ulsnnCMP(u1, 63, l2, 63) == 0);
+    assert(uusnnCMP(u1, 63, u2, 63) == 0);
 
-    assert(llsncmp(l1, l2, LUB_MAX_LSTRLEN) == llsncmp(l1, l2, LUB_MAX_LSTRLEN));
-    assert(lusncmp(l1, u2, LUB_MAX_USTRLEN) == lusncmp(l1, u2, LUB_MAX_USTRLEN));
-    assert(ulsncmp(u1, l2, LUB_MAX_USTRLEN) == ulsncmp(u1, l2, LUB_MAX_USTRLEN));
-    assert(uusncmp(u1, u2, LUB_MAX_USTRLEN) == uusncmp(u1, u2, LUB_MAX_USTRLEN));
+    assert(llsnncmp(l1, LUB_MAX_LSTRLEN, l2, LUB_MAX_LSTRLEN) == llsnncmp(l1, LUB_MAX_LSTRLEN, l2, LUB_MAX_LSTRLEN));
+    assert(lusnncmp(l1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN) == lusnncmp(l1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN));
+    assert(ulsnncmp(u1, LUB_MAX_USTRLEN, l2, LUB_MAX_USTRLEN) == ulsnncmp(u1, LUB_MAX_USTRLEN, l2, LUB_MAX_USTRLEN));
+    assert(uusnncmp(u1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN) == uusnncmp(u1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN));
 
-    assert(llsnCMP(l1, l2, LUB_MAX_LSTRLEN) == llsnCMP(l1, l2, LUB_MAX_LSTRLEN));
-    assert(lusnCMP(l1, u2, LUB_MAX_USTRLEN) == lusnCMP(l1, u2, LUB_MAX_USTRLEN));
-    assert(ulsnCMP(u1, l2, LUB_MAX_USTRLEN) == ulsnCMP(u1, l2, LUB_MAX_USTRLEN));
-    assert(uusnCMP(u1, u2, LUB_MAX_USTRLEN) == uusnCMP(u1, u2, LUB_MAX_USTRLEN));
+    assert(llsnnCMP(l1, LUB_MAX_LSTRLEN, l2, LUB_MAX_LSTRLEN) == llsnnCMP(l1, LUB_MAX_LSTRLEN, l2, LUB_MAX_LSTRLEN));
+    assert(lusnnCMP(l1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN) == lusnnCMP(l1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN));
+    assert(ulsnnCMP(u1, LUB_MAX_USTRLEN, l2, LUB_MAX_USTRLEN) == ulsnnCMP(u1, LUB_MAX_USTRLEN, l2, LUB_MAX_USTRLEN));
+    assert(uusnnCMP(u1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN) == uusnnCMP(u1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN));
 
     make_lstr_local("PrefixBodySuffix", llhs, 64);
     make_lstr_local("prefix", lrhs, 64);
     make_ustr_local("PrefixBodySuffix", ulhs, 64);
     make_ustr_local("prefix", urhs, 64);
 
-    assert(llsnpfxcmp(llhs, lrhs, 63) != 0);
-    assert(lusnpfxcmp(llhs, urhs, 63) != 0);
-    assert(ulsnpfxcmp(ulhs, lrhs, 63) != 0);
-    assert(uusnpfxcmp(ulhs, urhs, 63) != 0);
+    assert(llsnnpfxcmp(llhs, 63, lrhs, 63) != 0);
+    assert(lusnnpfxcmp(llhs, 63, urhs, 63) != 0);
+    assert(ulsnnpfxcmp(ulhs, 63, lrhs, 63) != 0);
+    assert(uusnnpfxcmp(ulhs, 63, urhs, 63) != 0);
 
-    assert(llsnPFXCMP(llhs, lrhs, 63) == 0);
-    assert(lusnPFXCMP(llhs, urhs, 63) == 0);
-    assert(ulsnPFXCMP(ulhs, lrhs, 63) == 0);
-    assert(uusnPFXCMP(ulhs, urhs, 63) == 0);
+    assert(llsnnPFXCMP(llhs, 63, lrhs, 63) == 0);
+    assert(lusnnPFXCMP(llhs, 63, urhs, 63) == 0);
+    assert(ulsnnPFXCMP(ulhs, 63, lrhs, 63) == 0);
+    assert(uusnnPFXCMP(ulhs, 63, urhs, 63) == 0);
 
     make_lstr_local("PrefixBodySuffix", llhs, 64);
     make_lstr_local("suffix", lrhs, 64);
     make_ustr_local("PrefixBodySuffix", ulhs, 64);
     make_ustr_local("suffix", urhs, 64);
 
-    assert(llsnsfxcmp(llhs, lrhs, 63) != 0);
-    assert(lusnsfxcmp(llhs, urhs, 63) != 0);
-    assert(ulsnsfxcmp(ulhs, lrhs, 63) != 0);
-    assert(uusnsfxcmp(ulhs, urhs, 63) != 0);
+    assert(llsnnsfxcmp(llhs, 63, lrhs, 63) != 0);
+    assert(lusnnsfxcmp(llhs, 63, urhs, 63) != 0);
+    assert(ulsnnsfxcmp(ulhs, 63, lrhs, 63) != 0);
+    assert(uusnnsfxcmp(ulhs, 63, urhs, 63) != 0);
 
-    assert(llsnSFXCMP(llhs, lrhs, 63) == 0);
-    assert(lusnSFXCMP(llhs, urhs, 63) == 0);
-    assert(ulsnSFXCMP(ulhs, lrhs, 63) == 0);
-    assert(uusnSFXCMP(ulhs, urhs, 63) == 0);
+    assert(llsnnSFXCMP(llhs, 63, lrhs, 63) == 0);
+    assert(lusnnSFXCMP(llhs, 63, urhs, 63) == 0);
+    assert(ulsnnSFXCMP(ulhs, 63, lrhs, 63) == 0);
+    assert(uusnnSFXCMP(ulhs, 63, urhs, 63) == 0);
 }
 
 void run_reserved_matrix_tests(void) {

@@ -74,30 +74,30 @@ static void test_compare_matrix(void) {
     lchar_t l1[32], l2[32];
     uchar_t u1[32], u2[32];
 
-    assert(llsncmp(make_lstr_local("Match", l1, 32), make_lstr_local("Match", l2, 32), 32) == 0);
-    assert(lusncmp(make_lstr_local("Match", l1, 32), (const uchar_t *)make_ustr_local("Match", u1, 32), 32) == 0);
-    assert(ulsncmp((const uchar_t *)make_ustr_local("Match", u1, 32), make_lstr_local("Match", l2, 32), 32) == 0);
-    assert(uusncmp((const uchar_t *)make_ustr_local("Match", u1, 32), (const uchar_t *)make_ustr_local("Match", u2, 32), 32) == 0);
+    assert(llsnncmp(make_lstr_local("Match", l1, 32), 32, make_lstr_local("Match", l2, 32), 32) == 0);
+    assert(lusnncmp(make_lstr_local("Match", l1, 32), 32, (const uchar_t *)make_ustr_local("Match", u1, 32), 32) == 0);
+    assert(ulsnncmp((const uchar_t *)make_ustr_local("Match", u1, 32), 32, make_lstr_local("Match", l2, 32), 32) == 0);
+    assert(uusnncmp((const uchar_t *)make_ustr_local("Match", u1, 32), 32, (const uchar_t *)make_ustr_local("Match", u2, 32), 32) == 0);
 
-    assert(llsnCMP(make_lstr_local("MiXeD", l1, 32), make_lstr_local("mixed", l2, 32), 32) == 0);
-    assert(lusnCMP(make_lstr_local("MiXeD", l1, 32), (const uchar_t *)make_ustr_local("mixed", u1, 32), 32) == 0);
-    assert(ulsnCMP((const uchar_t *)make_ustr_local("MiXeD", u1, 32), make_lstr_local("mixed", l2, 32), 32) == 0);
-    assert(uusnCMP((const uchar_t *)make_ustr_local("MiXeD", u1, 32), (const uchar_t *)make_ustr_local("mixed", u2, 32), 32) == 0);
+    assert(llsnnCMP(make_lstr_local("MiXeD", l1, 32), 32, make_lstr_local("mixed", l2, 32), 32) == 0);
+    assert(lusnnCMP(make_lstr_local("MiXeD", l1, 32), 32, (const uchar_t *)make_ustr_local("mixed", u1, 32), 32) == 0);
+    assert(ulsnnCMP((const uchar_t *)make_ustr_local("MiXeD", u1, 32), 32, make_lstr_local("mixed", l2, 32), 32) == 0);
+    assert(uusnnCMP((const uchar_t *)make_ustr_local("MiXeD", u1, 32), 32, (const uchar_t *)make_ustr_local("mixed", u2, 32), 32) == 0);
 }
 
 static void test_prefix_suffix_cmp_matrix(void) {
     lchar_t l1[32], l2[32];
     uchar_t u1[32], u2[32];
 
-    assert(llsnpfxcmp(make_lstr_local("prefix", l1, 32), make_lstr_local("pre", l2, 32), 32) == 0);
-    assert(lusnpfxcmp(make_lstr_local("prefix", l1, 32), (const uchar_t *)make_ustr_local("pre", u1, 32), 32) == 0);
-    assert(ulsnpfxcmp((const uchar_t *)make_ustr_local("prefix", u1, 32), make_lstr_local("pre", l2, 32), 32) == 0);
-    assert(uusnpfxcmp((const uchar_t *)make_ustr_local("prefix", u1, 32), (const uchar_t *)make_ustr_local("pre", u2, 32), 32) == 0);
+    assert(llsnnpfxcmp(make_lstr_local("prefix", l1, 32), 32, make_lstr_local("pre", l2, 32), 32) == 0);
+    assert(lusnnpfxcmp(make_lstr_local("prefix", l1, 32), 32, (const uchar_t *)make_ustr_local("pre", u1, 32), 32) == 0);
+    assert(ulsnnpfxcmp((const uchar_t *)make_ustr_local("prefix", u1, 32), 32, make_lstr_local("pre", l2, 32), 32) == 0);
+    assert(uusnnpfxcmp((const uchar_t *)make_ustr_local("prefix", u1, 32), 32, (const uchar_t *)make_ustr_local("pre", u2, 32), 32) == 0);
 
-    assert(llsnsfxcmp(make_lstr_local("suffix", l1, 32), make_lstr_local("fix", l2, 32), 32) == 0);
-    assert(lusnsfxcmp(make_lstr_local("suffix", l1, 32), (const uchar_t *)make_ustr_local("fix", u1, 32), 32) == 0);
-    assert(ulsnsfxcmp((const uchar_t *)make_ustr_local("suffix", u1, 32), make_lstr_local("fix", l2, 32), 32) == 0);
-    assert(uusnsfxcmp((const uchar_t *)make_ustr_local("suffix", u1, 32), (const uchar_t *)make_ustr_local("fix", u2, 32), 32) == 0);
+    assert(llsnnsfxcmp(make_lstr_local("suffix", l1, 32), 32, make_lstr_local("fix", l2, 32), 32) == 0);
+    assert(lusnnsfxcmp(make_lstr_local("suffix", l1, 32), 32, (const uchar_t *)make_ustr_local("fix", u1, 32), 32) == 0);
+    assert(ulsnnsfxcmp((const uchar_t *)make_ustr_local("suffix", u1, 32), 32, make_lstr_local("fix", l2, 32), 32) == 0);
+    assert(uusnnsfxcmp((const uchar_t *)make_ustr_local("suffix", u1, 32), 32, (const uchar_t *)make_ustr_local("fix", u2, 32), 32) == 0);
 }
 
 void run_type_matrix_tests(void) {

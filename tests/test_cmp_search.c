@@ -87,8 +87,8 @@ void run_cmp_search_tests(void) {
     lchar_t l3[16] = {'a','b','d','\0'};
 
     // Compare.
-    assert(llsncmp(l1, l2, 3) == 0);
-    assert(llsncmp(l1, l3, 3) < 0);
+    assert(llsnncmp(l1, 3, l2, 3) == 0);
+    assert(llsnncmp(l1, 3, l3, 3) < 0);
 
     // Search/count.
     test_search_delim_negative_m_all_variants();
