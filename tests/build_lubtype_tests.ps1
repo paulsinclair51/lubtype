@@ -26,35 +26,111 @@ Push-Location $PSScriptRoot
 
 try {
 
-# Check if cl.exe is available
-$cl = Get-Command cl.exe -ErrorAction SilentlyContinue
-if (-not $cl) {
-    Write-Host '[INFO] MSVC environment not detected. Attempting to load vcvars64.bat...'
-    $vcvars = Find-VcVars64
-    if ($vcvars) {
-        cmd /c "`"$vcvars`" && set" | ForEach-Object {
-            if ($_ -match '^(\w+)=(.*)$') {
-                [System.Environment]::SetEnvironmentVariable($matches[1], $matches[2])
-            }
-        }
-    } else {
-        Write-Error '[ERROR] Could not find vcvars64.bat. Please run this script from a Developer Command Prompt.'
-        exit 1
-    }
+function Invoke-Checked {
+    param([string]$Cmd)
+    Write-Host "> $Cmd"
+    Invoke-Expression $Cmd
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 
-# Build command
-$compileDefsCmd = 'cl /nologo /W4 /EHsc /I.. /D_CRT_SECURE_NO_WARNINGS /c ..\lubdefinitions.c /Fo:lubdefinitions.obj'
-Write-Host "> $compileDefsCmd"
-Invoke-Expression $compileDefsCmd
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+$sourceFiles = @(
+    'lubtype_tests.c',
+    'test_error_edge.c',
+    'test_advanced_ops.c',
+    'test_cmp_search.c',
+    'test_strlen_validation.c',
+    'test_reserved_matrix.c',
+    'test_search_families.c',
+    'test_span_count.c',
+    'test_core_families.c',
+    'test_type_matrix.c',
+    'test_utilities.c',
+    'test_fuzz_edge.c',
+    'test_skip.c'
+)
 
-$cmd = 'cl /nologo /W4 /EHsc /Fe:lubtype_tests.exe lubtype_tests.c test_error_edge.c test_advanced_ops.c test_cmp_search.c test_strlen_validation.c test_charclass.c test_reserved_matrix.c test_search_families.c test_span_count.c test_core_families.c test_type_matrix.c test_utilities.c test_fuzz_edge.c test_skip.c lubdefinitions.obj /I.. /D_CRT_SECURE_NO_WARNINGS'
-Write-Host "> $cmd"
-Invoke-Expression $cmd
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+if ($IsWindows) {
+    # Check if cl.exe is available
+    $cl = Get-Command cl.exe -ErrorAction SilentlyContinue
+    if (-not $cl) {
+        Write-Host '[INFO] MSVC environment not detected. Attempting to load vcvars64.bat...'
+        $vcvars = Find-VcVars64
+        if ($vcvars) {
+            cmd /c "`"$vcvars`" && set" | ForEach-Object {
+                if ($_ -match '^(\w+)=(.*)$') {
+                    [System.Environment]::SetEnvironmentVariable($matches[1], $matches[2])
+                }
+            }
+        } else {
+            Write-Error '[ERROR] Could not find vcvars64.bat. Please run this script from a Developer Command Prompt.'
+            exit 1
+        }
+    }
 
-Write-Host 'Build complete: lubtype_tests.exe'
+    # Build object files first, then link one executable.
+    $baseFlags = '/nologo /W4 /EHsc /I.. /D_CRT_SECURE_NO_WARNINGS'
+    $objectFiles = @()
+
+    foreach ($src in $sourceFiles) {
+        $obj = [System.IO.Path]::GetFileNameWithoutExtension($src) + '.obj'
+        Invoke-Checked "cl $baseFlags /c $src /Fo:$obj"
+        $objectFiles += $obj
+    }
+
+    Invoke-Checked "cl $baseFlags /c ..\lubdefinitions.c /Fo:lubdefinitions.obj"
+    $objectFiles += 'lubdefinitions.obj'
+
+    Invoke-Checked "cl $baseFlags /DLUB_X_IS_L /c test_charclass.c /Fo:test_charclass_l.obj"
+    $objectFiles += 'test_charclass_l.obj'
+
+    Invoke-Checked "cl $baseFlags /DLUB_X_IS_U /c test_charclass.c /Fo:test_charclass_u.obj"
+    $objectFiles += 'test_charclass_u.obj'
+
+    Invoke-Checked "cl /nologo /Fe:lubtype_tests.exe $($objectFiles -join ' ')"
+
+    # Cleanup intermediate object files after successful link.
+    Remove-Item -Force -ErrorAction SilentlyContinue *.obj
+    Write-Host 'Build complete: lubtype_tests.exe (intermediate .obj files removed)'
+}
+else {
+    # Linux/macOS fallback using cc/clang/gcc.
+    $cc = Get-Command cc -ErrorAction SilentlyContinue
+    if (-not $cc) {
+        $cc = Get-Command clang -ErrorAction SilentlyContinue
+    }
+    if (-not $cc) {
+        $cc = Get-Command gcc -ErrorAction SilentlyContinue
+    }
+    if (-not $cc) {
+        Write-Error '[ERROR] Could not find cc, clang, or gcc in PATH.'
+        exit 1
+    }
+
+    $ccExe = $cc.Source
+    $baseFlags = '-I.. -std=c11 -Wall -Wextra -O2'
+    $objectFiles = @()
+
+    foreach ($src in $sourceFiles) {
+        $obj = [System.IO.Path]::GetFileNameWithoutExtension($src) + '.o'
+        Invoke-Checked "$ccExe $baseFlags -c $src -o $obj"
+        $objectFiles += $obj
+    }
+
+    Invoke-Checked "$ccExe $baseFlags -c ../lubdefinitions.c -o lubdefinitions.o"
+    $objectFiles += 'lubdefinitions.o'
+
+    Invoke-Checked "$ccExe $baseFlags -DLUB_X_IS_L -c test_charclass.c -o test_charclass_l.o"
+    $objectFiles += 'test_charclass_l.o'
+
+    Invoke-Checked "$ccExe $baseFlags -DLUB_X_IS_U -c test_charclass.c -o test_charclass_u.o"
+    $objectFiles += 'test_charclass_u.o'
+
+    Invoke-Checked "$ccExe $baseFlags -o lubtype_tests $($objectFiles -join ' ')"
+
+    # Cleanup intermediate object files after successful link.
+    Remove-Item -Force -ErrorAction SilentlyContinue *.o
+    Write-Host 'Build complete: lubtype_tests (intermediate .o files removed)'
+}
 }
 finally {
     Pop-Location

@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../lubtype.h"
+#include "test_declarations.h"
 
 // Helper: fill buffer with random bytes
 /**

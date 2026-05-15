@@ -10,6 +10,7 @@
 #include <stddef.h>
 
 #include "../lubtype.h"
+#include "test_declarations.h"
 
 /**
  * @brief Create a local Latin string from ASCII text.
@@ -31,27 +32,27 @@ static void test_chr_search_with_m_semantics(void) {
     lchar_t *result;
 
     result = llsnstrm(make_lstr_local("hello world", haystack, 64),
-                      make_lstr_local("l", needle, 4), 64, 0, 1);
+                      64, make_lstr_local("l", needle, 4), 0, 1);
     assert(result != NULL && *result == 'l');
 
     result = llsnstrm(make_lstr_local("hello world", haystack, 64),
-                      make_lstr_local("l", needle, 4), 64, 0, 2);
+                      64, make_lstr_local("l", needle, 4), 0, 2);
     assert(result != NULL && *result == 'l');
 
     result = llsnstrm(make_lstr_local("hello world", haystack, 64),
-                      make_lstr_local("l", needle, 4), 64, 0, 0);
+                      64, make_lstr_local("l", needle, 4), 0, 0);
     assert(result == NULL);
 
     result = llsnstrm(make_lstr_local("hello", haystack, 64),
-                      make_lstr_local("z", needle, 4), 64, 0, 1);
+                      64, make_lstr_local("z", needle, 4), 0, 1);
     assert(result == NULL);
 
     result = llsnstrm(make_lstr_local("hello world", haystack, 64),
-                      make_lstr_local("l", needle, 4), 64, 0, -1);
+                      64, make_lstr_local("l", needle, 4), 0, -1);
     assert(result != NULL && *result == 'l');
 
     result = llsnstrm(make_lstr_local("hello world", haystack, 64),
-                      make_lstr_local("l", needle, 4), 64, 0, -2);
+                      64, make_lstr_local("l", needle, 4), 0, -2);
     assert(result != NULL && *result == 'l');
 }
 
@@ -64,11 +65,11 @@ static void test_chr_search_case_insensitive(void) {
     lchar_t *result;
 
     result = llsnSTRM(make_lstr_local("Hello World", haystack, 64),
-                      make_lstr_local("h", needle, 4), 64, 0, 1);
+                      64, make_lstr_local("h", needle, 4), 0, 1);
     assert(result != NULL);
 
     result = llsnSTRM(make_lstr_local("Hello World", haystack, 64),
-                      make_lstr_local("h", needle, 4), 64, 0, -1);
+                      64, make_lstr_local("h", needle, 4), 0, -1);
     assert(result != NULL);
 }
 
@@ -81,19 +82,19 @@ static void test_str_search_with_m_semantics(void) {
     lchar_t *result;
 
     result = llsnstrm(make_lstr_local("cat dog cat", haystack, 64),
-                      make_lstr_local("cat", needle, 16), 64, '|', 1);
+                      64, make_lstr_local("cat", needle, 16), '|', 1);
     assert(result != NULL);
 
     result = llsnstrm(make_lstr_local("cat dog cat", haystack, 64),
-                      make_lstr_local("cat", needle, 16), 64, '|', 2);
+                      64, make_lstr_local("cat", needle, 16), '|', 2);
     assert(result != NULL);
 
     result = llsnstrm(make_lstr_local("cat dog cat", haystack, 64),
-                      make_lstr_local("xyz", needle, 16), 64, '|', 1);
+                      64, make_lstr_local("xyz", needle, 16), '|', 1);
     assert(result == NULL);
 
     result = llsnstrm(make_lstr_local("cat dog cat", haystack, 64),
-                      make_lstr_local("cat", needle, 16), 64, '|', -1);
+                      64, make_lstr_local("cat", needle, 16), '|', -1);
     assert(result != NULL);
 }
 
@@ -106,11 +107,10 @@ static void test_str_search_case_insensitive(void) {
     lchar_t *result;
 
     result = llsnSTRM(make_lstr_local("CAT dog cat", haystack, 64),
-                      make_lstr_local("cat", needle, 16), 64, '|', 1);
+                      64, make_lstr_local("cat", needle, 16), '|', 1);
     assert(result != NULL);
 
-    result = llsnSTRM(make_lstr_local("CAT dog CAT", haystack, 64),
-                      make_lstr_local("cat", needle, 16), 64, '|', 2);
+    result = llsnSTRM(make_lstr_local("CAT dog CAT", haystack, 64),                      64, make_lstr_local("cat", needle, 16), '|', 2);
     assert(result != NULL);
 }
 

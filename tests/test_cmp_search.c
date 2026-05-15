@@ -8,6 +8,7 @@
 
 #include <assert.h>
 #include "../lubtype.h"
+#include "test_declarations.h"
 #include <stdio.h>
 
 static void test_search_delim_negative_m_all_variants(void) {
@@ -16,15 +17,15 @@ static void test_search_delim_negative_m_all_variants(void) {
     const lchar_t lneedle[] = {'a','b','a',0};
     const uchar_t uneedle[] = {'a','b','a',0};
 
-    assert(llsnstrm(lhay, lneedle, 16, '|', -1) == lhay + 2);
-    assert(lusnstrm(lhay, uneedle, 16, '|', -1) == lhay + 2);
-    assert(ulsnstrm(uhay, lneedle, 16, '|', -1) == uhay + 2);
-    assert(uusnstrm(uhay, uneedle, 16, '|', -1) == uhay + 2);
+    assert(llsnstrm(lhay, 16, lneedle, '|', -1) == lhay + 2);
+    assert(lusnstrm(lhay, 16, uneedle, '|', -1) == lhay + 2);
+    assert(ulsnstrm(uhay, 16, lneedle, '|', -1) == uhay + 2);
+    assert(uusnstrm(uhay, 16, uneedle, '|', -1) == uhay + 2);
 
-    assert(llsnSTRM(lhay, lneedle, 16, '|', -1) == lhay + 2);
-    assert(lusnSTRM(lhay, uneedle, 16, '|', -1) == lhay + 2);
-    assert(ulsnSTRM(uhay, lneedle, 16, '|', -1) == uhay + 2);
-    assert(uusnSTRM(uhay, uneedle, 16, '|', -1) == uhay + 2);
+    assert(llsnSTRM(lhay, 16, lneedle, '|', -1) == lhay + 2);
+    assert(lusnSTRM(lhay, 16, uneedle, '|', -1) == lhay + 2);
+    assert(ulsnSTRM(uhay, 16, lneedle, '|', -1) == uhay + 2);
+    assert(uusnSTRM(uhay, 16, uneedle, '|', -1) == uhay + 2);
 }
 
 static void test_search_charset_negative_m_all_variants(void) {
@@ -33,15 +34,15 @@ static void test_search_charset_negative_m_all_variants(void) {
     const lchar_t lset[] = {'b','d',0};
     const uchar_t uset[] = {'b','d',0};
 
-    assert(llsnstrm(lhay, lset, 16, 0, -1) == lhay + 5);
-    assert(lusnstrm(lhay, uset, 16, 0, -1) == lhay + 5);
-    assert(ulsnstrm(uhay, lset, 16, 0, -1) == uhay + 5);
-    assert(uusnstrm(uhay, uset, 16, 0, -1) == uhay + 5);
+    assert(llsnstrm(lhay, 16, lset, 0, -1) == lhay + 5);
+    assert(lusnstrm(lhay, 16, uset, 0, -1) == lhay + 5);
+    assert(ulsnstrm(uhay, 16, lset, 0, -1) == uhay + 5);
+    assert(uusnstrm(uhay, 16, uset, 0, -1) == uhay + 5);
 
-    assert(llsnSTRM(lhay, lset, 16, 0, -1) == lhay + 5);
-    assert(lusnSTRM(lhay, uset, 16, 0, -1) == lhay + 5);
-    assert(ulsnSTRM(uhay, lset, 16, 0, -1) == uhay + 5);
-    assert(uusnSTRM(uhay, uset, 16, 0, -1) == uhay + 5);
+    assert(llsnSTRM(lhay, 16, lset, 0, -1) == lhay + 5);
+    assert(lusnSTRM(lhay, 16, uset, 0, -1) == lhay + 5);
+    assert(ulsnSTRM(uhay, 16, lset, 0, -1) == uhay + 5);
+    assert(uusnSTRM(uhay, 16, uset, 0, -1) == uhay + 5);
 }
 
 static void test_search_case_insensitive_variants(void) {
@@ -50,10 +51,10 @@ static void test_search_case_insensitive_variants(void) {
     const lchar_t lneedle[] = {'A','B','A',0};
     const uchar_t uneedle[] = {'A','B','A',0};
 
-    assert(llsnSTRM(lhay, lneedle, 16, '|', -1) == lhay + 2);
-    assert(lusnSTRM(lhay, uneedle, 16, '|', -1) == lhay + 2);
-    assert(ulsnSTRM(uhay, lneedle, 16, '|', -1) == uhay + 2);
-    assert(uusnSTRM(uhay, uneedle, 16, '|', -1) == uhay + 2);
+    assert(llsnSTRM(lhay, 16, lneedle, '|', -1) == lhay + 2);
+    assert(lusnSTRM(lhay, 16, uneedle, '|', -1) == lhay + 2);
+    assert(ulsnSTRM(uhay, 16, lneedle, '|', -1) == uhay + 2);
+    assert(uusnSTRM(uhay, 16, uneedle, '|', -1) == uhay + 2);
 }
 
 static void test_search_empty_token_behavior(void) {
@@ -63,15 +64,15 @@ static void test_search_empty_token_behavior(void) {
     const lchar_t one_delim_l[] = {'|',0};
     const uchar_t one_delim_u[] = {'|',0};
 
-    assert(llsnstrm(empty_l, one_delim_l, 4, '|', 1) == empty_l);
-    assert(lusnstrm(empty_l, one_delim_u, 4, '|', -1) == empty_l);
-    assert(ulsnstrm(empty_u, one_delim_l, 4, '|', 1) == empty_u);
-    assert(uusnstrm(empty_u, one_delim_u, 4, '|', -1) == empty_u);
+    assert(llsnstrm(empty_l, 4, one_delim_l, '|', 1) == empty_l);
+    assert(lusnstrm(empty_l, 4, one_delim_u, '|', -1) == empty_l);
+    assert(ulsnstrm(empty_u, 4, one_delim_l, '|', 1) == empty_u);
+    assert(uusnstrm(empty_u, 4, one_delim_u, '|', -1) == empty_u);
 
-    assert(llsnstrm((const lchar_t *)"a", empty_l, 4, 0, 1) == NULL);
-    assert(lusnstrm((const lchar_t *)"a", empty_u, 4, 0, 1) == NULL);
-    assert(ulsnstrm(one_u, empty_l, 4, 0, 1) == NULL);
-    assert(uusnstrm(one_u, empty_u, 4, 0, 1) == NULL);
+    assert(llsnstrm((const lchar_t *)"a", 4, empty_l, 0, 1) == NULL);
+    assert(lusnstrm((const lchar_t *)"a", 4, empty_u, 0, 1) == NULL);
+    assert(ulsnstrm(one_u, 4, empty_l, 0, 1) == NULL);
+    assert(uusnstrm(one_u, 4, empty_u, 0, 1) == NULL);
 }
 
 /**
@@ -95,7 +96,7 @@ void run_cmp_search_tests(void) {
     test_search_charset_negative_m_all_variants();
     test_search_case_insensitive_variants();
     test_search_empty_token_behavior();
-    assert(llsncnt((const lchar_t *)"abcabc", (const lchar_t *)"ab", 6, 0) == 2);
+    assert(llsncnt((const lchar_t *)"abcabc", 6, (const lchar_t *)"ab", '|') == 2);
 
     printf("Comparison/search tests passed.\n");
 

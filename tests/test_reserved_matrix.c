@@ -10,6 +10,7 @@
 #include <stddef.h>
 
 #include "../lubtype.h"
+#include "test_declarations.h"
 
 /**
  * @brief Create a local ucstr_t from ASCII string.

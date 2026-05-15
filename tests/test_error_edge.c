@@ -8,6 +8,7 @@
 
 #include <assert.h>
 #include "../lubtype.h"
+#include "test_declarations.h"
 #include <stdio.h>
 
 /**

@@ -1694,7 +1694,7 @@ size_t ucsnlen
     if (*us) return LUB_INT_ERR(LUB_UNTERMINATED, 0); \
   } \
   else \
-  { for (; sn && *s; --sn, ++s); \
+  { for (; sn && *s; --sn, ++s) \
       if (!lkind) \
       { /* Verify null terminator. */ \
         for (; sn && *s; --sn, ++s); \
@@ -2658,9 +2658,17 @@ const lchar_t *lub_pointer_trim_ext
   { int istrimstr = xt == 'u' ? isutrimstr((const uchar_t *)trim)
                               : isltrimstr(trim);
     if (LUB_INT_ERR(istrimstr, 0)) return (const lchar_t *)LUB_PTR_ERR(istrimstr, 0);
-    if (*trimset && islalpha((int)*trimset))
-      trim_mode = toupper((int)*trimset++);
-    if (!*trimset) trimset = (const lchar_t *)NULL;
+    if (xt == 'u')
+    { if (*utrim && isualpha((int)*utrim))
+        trim_mode = (char)uutoupper((int)*utrim++);
+      if (!*utrim) utrim = (const uchar_t *)NULL;
+      trimset = (const lchar_t *)utrim;
+    }
+    else
+    { if (*trimset && islalpha((int)*trimset))
+        trim_mode = (char)toupper((int)*trimset++);
+      if (!*trimset) trimset = (const lchar_t *)NULL;
+    }
   }
 
   if (!s) return (const lchar_t *)NULL;
@@ -3085,7 +3093,10 @@ lchar_t *lub_strm_ext
           int c2 = lub_search_char_def(xs2, s2, us2, k, Case);
           if (c1 == c2)
           { if (!pass) { ++count; }
-            else if (++count == target) { return (lchar_t *)(s1 + i); }
+            else if (++count == target)
+            { return xs1 == 'u' ? (lchar_t *)(us1 + i)
+                                : (lchar_t *)(s1 + i);
+            }
             break;
           }
         }
@@ -3117,7 +3128,10 @@ lchar_t *lub_strm_ext
             }
             if (k == tok_n)
             { if (!pass) { ++count; }
-              else if (++count == target) { return (lchar_t *)(s1 + i); }
+              else if (++count == target)
+              { return xs1 == 'u' ? (lchar_t *)(us1 + i)
+                                  : (lchar_t *)(s1 + i);
+              }
             }
           }
         }
@@ -3452,7 +3466,7 @@ lchar_t *lub_cat_cpy_pad_ext
     size_t s_size = (xs == 'u') ? sizeof(uchar_t) : sizeof(lchar_t);
 
     // Validate target t.
-    size_t tl; // Current length of t for concatenate, 0 for copy and pad.
+    size_t tl = 0; // Current length of t. Set to 0 for copy and pad.
     if (xt == 'u' && tn > LUB_MAX_USTRLEN)
     { tn = LUB_MAX_USTRLEN; }
     else if (tn > LUB_MAX_LSTRLEN)
@@ -3487,7 +3501,7 @@ lchar_t *lub_cat_cpy_pad_ext
                          islqname(s);
       if (LUB_INT_ERR(quoted, 0))
       { if (op && t) lub_terminate_def(xt, t);
-        {return (lchar_t *)LUB_PTR_ERR(quoted, 0); }
+        { return (lchar_t *)LUB_PTR_ERR(quoted, 0); }
       }
       if (q != '\'' && q != '"')
       { return (lchar_t *)LUB_PTR_ERR(LUB_OPT_INVALID, 0); }
@@ -3586,6 +3600,35 @@ lchar_t *lub_cat_cpy_pad_ext
         }
       lub_terminate_ith_def(xt, t, out_n);
       return (lchar_t *)LUB_PTR_ERR(LUB_TRUNCATED, 0);
+    }
+
+    if (op == 2 /*pad*/ && out_n < tn)
+    { const size_t pad_n = tn - out_n;
+      size_t left_pad = 0;
+      size_t right_pad = 0;
+
+      if (pad_mode == 'L') left_pad = pad_n;
+      else if (pad_mode == 'R') right_pad = pad_n;
+      else
+      { left_pad = pad_n / 2;
+        right_pad = pad_n - left_pad;
+      }
+
+      if (left_pad)
+      { for (size_t i = out_n; i > 0; --i)
+          lub_set_ith_def(xt, t, i + left_pad - 1,
+                          lub_get_ith_def(xt, t, i - 1), lrep);
+        for (size_t i = 0; i < left_pad; ++i)
+          lub_set_ith_def(xt, t, i, pad_c, lrep);
+      }
+
+      if (right_pad)
+      { const size_t right_start = left_pad + out_n;
+        for (size_t i = 0; i < right_pad; ++i)
+          lub_set_ith_def(xt, t, right_start + i, pad_c, lrep);
+      }
+
+      out_n = tn;
     }
 
     lub_terminate_ith_def(xt, t, out_n);
@@ -6938,7 +6981,7 @@ int llsnprintf
 #else // LUBX_IS_U
 #define xusnncat(t, tn, s, sn, trunc, lrep) \
         lusnncat(LUB_X, usnncat)
-#define xusnncatc(tn, tn, s, sn, trunc, lrep) \
+#define xusnncatc(t, tn, s, sn, trunc, lrep) \
         lusnncatc(t, tn, s, sn, trunc, lrep)
 #define xusnnCATC(t, tn, s, sn, trunc, lrep) \
         lusnnCATC(t, tn, s, sn, trunc, lrep)
@@ -6982,7 +7025,7 @@ int llsnprintf
 #else // LUBX_IS_U
 #define xusnncpy(t, tn, s, sn, trunc, lrep) \
         lusnncpy(LUB_X, usnncpy)
-#define xusnncpyc(tn, tn, s, sn, trunc, lrep) \
+#define xusnncpyc(t, tn, s, sn, trunc, lrep) \
         lusnncpyc(t, tn, s, sn, trunc, lrep)
 #define xusnncpyC(t, tn, s, sn, trunc, lrep) \
         lusnncpyC(t, tn, s, sn, trunc, lrep)

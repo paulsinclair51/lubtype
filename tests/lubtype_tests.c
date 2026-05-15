@@ -7,20 +7,8 @@
  */
 
 #include "../lubtype.h"
+#include "test_declarations.h"
 
-void run_error_edge_tests(void);
-void run_advanced_ops_tests(void);
-void run_cmp_search_tests(void);
-void run_strlen_validation_tests(void);
-void run_charclass_tests(void);
-void run_reserved_matrix_tests(void);
-void run_search_family_tests(void);
-void run_span_count_tests(void);
-void run_core_family_tests(void);
-void run_type_matrix_tests(void);
-void run_utilities_tests(void);
-void run_fuzz_edge_tests(void);
-void run_skip_tests(void);
 #include <assert.h>
 #include <stdarg.h>
 #include <stddef.h>
@@ -40,6 +28,9 @@ int main(void) {
 		return 1;
 	}
 
+	/* Keep report output on disk even if a test assertion aborts execution. */
+	(void)setvbuf(report, NULL, _IONBF, 0);
+
 	// Write header with date/time
 	time_t now = time(NULL);
 	char timebuf[64];
@@ -52,15 +43,16 @@ int main(void) {
 	fprintf(report, "  2. Advanced operations\n");
 	fprintf(report, "  3. Compare/search\n");
 	fprintf(report, "  4. String length/validation\n");
-	fprintf(report, "  5. Character classification\n");
-	fprintf(report, "  6. Reserved/matrix\n");
-	fprintf(report, "  7. Search families\n");
-	fprintf(report, "  8. Span/count\n");
-	fprintf(report, "  9. Core families\n");
-	fprintf(report, " 10. Type matrix\n");
-	fprintf(report, " 11. Utilities\n");
-	fprintf(report, " 12. Fuzz/edge cases\n");
-	fprintf(report, " 13. Skip functions\n");
+	fprintf(report, "  5. Charclass x-macro (L)\n");
+	fprintf(report, "  6. Charclass x-macro (U)\n");
+	fprintf(report, "  7. Reserved/matrix\n");
+	fprintf(report, "  8. Search families\n");
+	fprintf(report, "  9. Span/count\n");
+	fprintf(report, " 10. Core families\n");
+	fprintf(report, " 11. Type matrix\n");
+	fprintf(report, " 12. Utilities\n");
+	fprintf(report, " 13. Fuzz/edge cases\n");
+	fprintf(report, " 14. Skip functions\n");
 	fprintf(report, "----------------------------------------\n");
 
 	// Run all test modules
@@ -68,7 +60,8 @@ int main(void) {
 	run_advanced_ops_tests();
 	run_cmp_search_tests();
 	run_strlen_validation_tests();
-	run_charclass_tests();
+	run_lcharclass_tests();
+	run_ucharclass_tests();
 	run_reserved_matrix_tests();
 	run_search_family_tests();
 	run_span_count_tests();
