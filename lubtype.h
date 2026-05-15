@@ -6867,16 +6867,24 @@ int llsnprintf
 #define LUB_X u
 #endif
 
+// Types
+
+#define xchar_t LUB_PASTE(LUB_X, char_t)
+
 // Limits
 
 #define LUB_MAX_XCHAR LUB_PASTE(LUB_PASTE(LUB_MAX_, LUB_X), CHAR)
 #define LUB_MAX_XSTRLEN LUB_PASTE(LUB_PASTE(LUB_MAX_, LUB_X), STRLEN)
+#define LUB_MAX_XOPTLEN LUB_PASTE(LUB_PASTE(LUB_MAX_, LUB_X), OPTLEN)
 
 // Character classification
 
 #define isxalpha LUB_PASTE(LUB_PASTE(is, LUB_X), alpha)
 #define isxdigit LUB_PASTE(LUB_PASTE(is, LUB_X), digit)
 #define isxalnum LUB_PASTE(LUB_PASTE(is, LUB_X), alnum)
+#define isxlatin LUB_PASTE(LUB_PASTE(is, LUB_X), latin)
+#define isxname1c LUB_PASTE(LUB_PASTE(is, LUB_X), name1c)
+#define isxnamec LUB_PASTE(LUB_PASTE(is, LUB_X), namec)
 #define isxupper LUB_PASTE(LUB_PASTE(is, LUB_X), upper)
 #define isxlower LUB_PASTE(LUB_PASTE(is, LUB_X), lower)
 #define isxcntrl LUB_PASTE(LUB_PASTE(is, LUB_X), cntrl)
@@ -6884,26 +6892,41 @@ int llsnprintf
 #define isxpunct LUB_PASTE(LUB_PASTE(is, LUB_X), punct)
 #define isxblank LUB_PASTE(LUB_PASTE(is, LUB_X), blank)
 #define isxspace LUB_PASTE(LUB_PASTE(is, LUB_X), space)
-#define isxhexdigit LUB_PASTE(LUB_PASTE(is, LUB_X), hexdigit)
+#define isxgraph LUB_PASTE(LUB_PASTE(is, LUB_X), graph)
+#define isxhex LUB_PASTE(LUB_PASTE(is, LUB_X), hex)
 
 // int <- Hex digit
 
-#define ixhexdigit LUB_PASTE(LUB_PASTE(i, LUB_X), hexdigit)
+#define ixhex(c) LUB_PASTE(LUB_PASTE(is, LUB_X), hex)
 
 // String length
 
-#define xcsnlen LUB_PASTE(LUB_PASTE(x, LUB_X), snlen)
+#define xcsnlen LUB_PASTE(LUB_X, csnlen)
+
+// String classification
+
+#define isxnlatinstr LUB_PASTE(is, LUB_PASTE(LUB_X, nlatinstr))
+#define isxnalphastr LUB_PASTE(is, LUB_PASTE(LUB_X, nalphastr))
+#define isxnhexstr LUB_PASTE(is, LUB_PASTE(LUB_X, nhexstr))
+#define isxreserved LUB_PASTE(is, LUB_PASTE(LUB_X, reserved))
+#define isxqname LUB_PASTE(is, LUB_PASTE(LUB_X, qname))
+
+#define isxtruncstr LUB_PASTE(is, LUB_PASTE(LUB_X, truncstr))
+#define isxtrimstr LUB_PASTE(is, LUB_PASTE(LUB_X, trimstr))
+#define isxpadstr LUB_PASTE(is, LUB_PASTE(LUB_X, padstr))
+#define isxneedlestr LUB_PASTE(is, LUB_PASTE(LUB_X, needlestr))
 
 // Character case transforms
+
 #define xltocase LUB_PASTE(LUB_X, ltocase)
 #define xltolower LUB_PASTE(LUB_X, ltolower)
 #define xltoupper LUB_PASTE(LUB_X, ltoupper)
 
 #if defined(LUB_X_IS_L)
-#define xutocase(c, lrep) LUB_PASTE(LUB_X, utocase)((c), lrep)
-#define xutolower(c, lrep) LUB_PASTE(LUB_X, utolower)((c), lrep)
-#define xutoupper(c, lrep) LUB_PASTE(LUB_X, utoupper)((c), lrep)
-#else // LUBX_IS_U
+#define xutocase(c, lrep) LUB_PASTE(LUB_X, utocase)((c), (lrep))
+#define xutolower(c, lrep) LUB_PASTE(LUB_X, utolower)((c), (lrep))
+#define xutoupper(c, lrep) LUB_PASTE(LUB_X, utoupper)((c), (lrep))
+#else // LUB_X_IS_U
 #define xutocase(c, lrep) LUB_PASTE(LUB_X, utocase)((c))
 #define xutolower(c, lrep) LUB_PASTE(LUB_X, utolower)((c))
 #define xutoupper(c, lrep) LUB_PASTE(LUB_X, utoupper)((c))
@@ -6915,38 +6938,53 @@ int llsnprintf
 
 // Compare
 
-#define xlsncmp LUB_PASTE(LUB_X, lsncmp)
-#define xlsnCMP LUB_PASTE(LUB_X, lsCMP)
-#define xlsnfxdcmp LUB_PASTE(LUB_X, lsfxdcmp)
-#define xlsnFXDCMP LUB_PASTE(LUB_X, lsFXDCMP)
-#define xlsnpfxcmp LUB_PASTE(LUB_X, lspfxcmp)
-#define xlsnsfxcmp LUB_PASTE(LUB_X, lssfxcmp)
-#define xlsnSFXCMP LUB_PASTE(LUB_X, lsSFXCMP)
+#define xlsnncmp LUB_PASTE(LUB_X, lsnncmp)
+#define xlsnnCMP LUB_PASTE(LUB_X, lsnnCMP)
+#define xlsnnfxdcmp LUB_PASTE(LUB_X, lsnnfxdcmp)
+#define xlsnnFXDCMP LUB_PASTE(LUB_X, lsnnFXDCMP)
+#define xlsnnpfxcmp LUB_PASTE(LUB_X, lsnnpfxcmp)
+#define xlsnnPFXCMP LUB_PASTE(LUB_X, lsnnPFXCMP)
+#define xlsnnsfxcmp LUB_PASTE(LUB_X, lsnnsfxcmp)
+#define xlsnnSFXCMP LUB_PASTE(LUB_X, lsnnSFXCMP)
 
-#define xusncmp LUB_PASTE(LUB_X, usncmp)
-#define xusnCMP LUB_PASTE(LUB_X, usCMP)
-#define xusnfxdcmp LUB_PASTE(LUB_X, usfxdcmp)
-#define xusnFXDCMP LUB_PASTE(LUB_X, usFXDCMP)
-#define xusnpfxcmp LUB_PASTE(LUB_X, uspfxcmp)
-#define xusnsfxcmp LUB_PASTE(LUB_X, ussfxcmp)
-#define xusnSFXCMP LUB_PASTE(LUB_X, usSFXCMP)
+#define xusnncmp LUB_PASTE(LUB_X, usnncmp)
+#define xusnnCMP LUB_PASTE(LUB_X, usnnCMP)
+#define xusnnfxdcmp LUB_PASTE(LUB_X, usnnfxdcmp)
+#define xusnnFXDCMP LUB_PASTE(LUB_X, usnnFXDCMP)
+#define xusnnpfxcmp LUB_PASTE(LUB_X, usnnpfxcmp)
+#define xusnnPFXCMP LUB_PASTE(LUB_X, usnnPFXCMP)
+#define xusnnsfxcmp LUB_PASTE(LUB_X, usnnsfxcmp)
+#define xusnnSFXCMP LUB_PASTE(LUB_X, usnnSFXCMP)
 
-#define xxsncmp LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), sncmp)
-#define xxsnCMP LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), sCMP)
-#define xxsnfxdcmp LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), sfxdcmp)
-#define xxsnFXDCMP LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), sFXDCMP)
-#define xxsnpfxcmp LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), spfxcmp)
-#define xxsnPFXCMP LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), sPFXCMP)
-#define xxsnsfxcmp LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), ssfxcmp)
-#define xxsnSFXCMP LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), sSFXCMP)
+#define xxsnncmp LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snncmp)
+#define xxsnnCMP LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnCMP)
+#define xxsnnfxdcmp LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnfxdcmp)
+#define xxsnnFXDCMP LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnFXDCMP)
+#define xxsnnpfxcmp LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnpfxcmp)
+#define xxsnnPFXCMP LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnPFXCMP)
+#define xxsnnsfxcmp LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnsfxcmp)
+#define xxsnnSFXCMP LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnSFXCMP)
+
+// Pointer trim
+
+#define xlsnptrim LUB_PASTE(LUB_X, lsnptrim)
+#define xusnptrim LUB_PASTE(LUB_X, usnptrim)
+#define xxsnptrim LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snptrim)
+
+// Skip
+
+#define xlsnskip LUB_PASTE(LUB_X, lsnskip)
+#define xxsnskip LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snskip)
 
 // Search
 
-#define xlsnstrm LUB_PASTE(LUB_X, llsnstrm)
-#define xlsnSTRM LUB_PASTE(LUB_X, llsnSTRM)
-
+#define xlsnstrm LUB_PASTE(LUB_X, lsnstrm)
+#define xusnstrm LUB_PASTE(LUB_X, usnstrm)
 #define xxsnstrm LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snstrm)
-#define xxsnSTRM LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), STRM)
+
+#define xlsnSTRM LUB_PASTE(LUB_X, lsnSTRM)
+#define xusnSTRM LUB_PASTE(LUB_X, usnSTRM)
+#define xxsnSTRM LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snSTRM)
 
 // Count
 
@@ -6967,30 +7005,30 @@ int llsnprintf
 
 #if defined(LUB_X_IS_L)
 #define xusnncat(t, tn, s, sn, trunc, lrep) \
-        lusnncat((t), (tn), (s), (sn), (trunc), (lrep))
+  lusnncat((t), (tn), (s), (sn), (trunc), (lrep))
 #define xusnncatc(t, tn, s, sn, trunc, lrep) \
-        lusnncatc((t), (tn), (s), (sn), (trunc), (lrep))
+  lusnncatc((t), (tn), (s), (sn), (trunc), (lrep))
 #define xusnnCATC(t, tn, s, sn, trunc, lrep) \
-        lusnnCATC((t), (tn), (s), (sn), (trunc), (lrep))
-#define xusnncatq(t, tn, s, sn, trunc, lrep) \
-        lusnncatq((t), (tn), (s), (sn), (trunc), (lrep))
-#define xusnncatqc(t, tn, s, sn, trunc, lrep) \
-        lusnncatqc((t), (tn), (s), (sn), (trunc), (lrep))
-#define xusnnCATQC(t, tn, s, sn, trunc, lrep) \
-        lusnnCATQC((t), (tn), (s), (sn), (trunc), (lrep))
-#else // LUBX_IS_U
+  lusnnCATC((t), (tn), (s), (sn), (trunc), (lrep))
+#define xusnncatq(t, tn, s, sn, trunc, q, lrep) \
+  lusnncatq((t), (tn), (s), (sn), (trunc), (q), (lrep))
+#define xusnncatqc(t, tn, s, sn, trunc, q, lrep) \
+  lusnncatqc((t), (tn), (s), (sn), (trunc), (q), (lrep))
+#define xusnnCATQC(t, tn, s, sn, trunc, q, lrep) \
+  lusnnCATQC((t), (tn), (s), (sn), (trunc), (q), (lrep))
+#else // LUB_X_IS_U
 #define xusnncat(t, tn, s, sn, trunc, lrep) \
-        lusnncat(LUB_X, usnncat)
+  uusnncat((t), (tn), (s), (sn), (trunc))
 #define xusnncatc(t, tn, s, sn, trunc, lrep) \
-        lusnncatc(t, tn, s, sn, trunc, lrep)
+  uusnncatc((t), (tn), (s), (sn), (trunc))
 #define xusnnCATC(t, tn, s, sn, trunc, lrep) \
-        lusnnCATC(t, tn, s, sn, trunc, lrep)
-#define xusnncatq(t, tn, s, sn, trunc, lrep) \
-        lusnncatq)((t), (tn), (s), (sn), (trunc), (lrep))
-#define xusnncatqc(t, tn, s, sn, trunc, lrep) \
-        lusnncatqc((t), (tn), (s), (sn), (trunc), (lrep))
-#define xusnnCATQC(t, tn, s, sn, trunc, lrep) \
-        lusnnCATQC((t), (tn), (s), (sn), (trunc), (lrep))
+  uusnnCATC((t), (tn), (s), (sn), (trunc))
+#define xusnncatq(t, tn, s, sn, trunc, q, lrep) \
+  uusnncatq((t), (tn), (s), (sn), (trunc), (q))
+#define xusnncatqc(t, tn, s, sn, trunc, q, lrep) \
+  uusnncatqc((t), (tn), (s), (sn), (trunc), (q))
+#define xusnnCATQC(t, tn, s, sn, trunc, q, lrep) \
+  uusnnCATQC((t), (tn), (s), (sn), (trunc), (q))
 #endif
 
 #define xxsnncat LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snncat)
@@ -7011,36 +7049,35 @@ int llsnprintf
 
 #if defined(LUB_X_IS_L)
 #define xusnncpy(t, tn, s, sn, trunc, lrep) \
-        lusnncpy((t), (tn), (s), (sn), (trunc), (lrep))
+  lusnncpy((t), (tn), (s), (sn), (trunc), (lrep))
 #define xusnncpyc(t, tn, s, sn, trunc, lrep) \
-        lusnncpyc((t), (tn), (s), (sn), (trunc), (lrep))
-#define xusnncpyC(t, tn, s, sn, trunc, lrep) \
-        lusnncpyC((t), (tn), (s), (sn), (trunc), (lrep))
-#define xusnncpyq(t, tn, s, sn, trunc, lrep) \
-        lusnncpyq((t), (tn), (s), (sn), (trunc), (lrep))
-#define xusnncpyqc(t, tn, s, sn, trunc, lrep) \
-        lusnncpyqc((t), (tn), (s), (sn), (trunc), (lrep))
-#define xusnncpyQC(t, tn, s, sn, trunc, lrep) \
-        lusnncpyQC((t), (tn), (s), (sn), (trunc), (lrep))
-#else // LUBX_IS_U
+  lusnncpyc((t), (tn), (s), (sn), (trunc), (lrep))
+#define xusnnCPYC(t, tn, s, sn, trunc, lrep) \
+  lusnnCPYC((t), (tn), (s), (sn), (trunc), (lrep))
+#define xusnncpyq(t, tn, s, sn, trunc, q, lrep) \
+  lusnncpyq((t), (tn), (s), (sn), (trunc), (q), (lrep))
+#define xusnncpyqc(t, tn, s, sn, trunc, q, lrep) \
+  lusnncpyqc((t), (tn), (s), (sn), (trunc), (q), (lrep))
+#define xusnnCPYQC(t, tn, s, sn, trunc, q, lrep) \
+  lusnnCPYQC((t), (tn), (s), (sn), (trunc), (q), (lrep))
+#else // LUB_X_IS_U
 #define xusnncpy(t, tn, s, sn, trunc, lrep) \
-        lusnncpy(LUB_X, usnncpy)
+  uusnncpy((t), (tn), (s), (sn), (trunc))
 #define xusnncpyc(t, tn, s, sn, trunc, lrep) \
-        lusnncpyc(t, tn, s, sn, trunc, lrep)
-#define xusnncpyC(t, tn, s, sn, trunc, lrep) \
-        lusnncpyC(t, tn, s, sn, trunc, lrep)
-#define xusnncpyq(t, tn, s, sn, trunc, lrep) \
-        lusnncpyq((t), (tn), (s), (sn), (trunc), (lrep))
-#define xusnncpyqc(t, tn, s, sn, trunc, lrep) \
-        lusnncpyqc((t), (tn), (s), (sn), (trunc), (lrep))
-#define xusnncpyQC(t, tn, s, sn, trunc, lrep) \
-        lusnncpyQC((t), (tn), (s), (sn), (trunc), (lrep))
+  uusnncpyc((t), (tn), (s), (sn), (trunc))
+#define xusnnCPYC(t, tn, s, sn, trunc, lrep) \
+  uusnnCPYC((t), (tn), (s), (sn), (trunc))
+#define xusnncpyq(t, tn, s, sn, trunc, q, lrep) \
+  uusnncpyq((t), (tn), (s), (sn), (trunc), (q))
+#define xusnncpyqc(t, tn, s, sn, trunc, q, lrep) \
+  uusnncpyqc((t), (tn), (s), (sn), (trunc), (q))
+#define xusnnCPYQC(t, tn, s, sn, trunc, q, lrep) \
+  uusnnCPYQC((t), (tn), (s), (sn), (trunc), (q))
 #endif
 
 #define xxsnncpy LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snncpy)
 #define xxsnncpyc LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snncpyc)
 #define xxsnnCPYC LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnCPYC)
-#define xxsnncpyq LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snncpyq)
 #define xxsnncpyq LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snncpyq)
 #define xxsnncpyqc LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snncpyqc)
 #define xxsnnCPYQC LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnCPYQC)
@@ -7050,55 +7087,39 @@ int llsnprintf
 #define xlsnnpad LUB_PASTE(LUB_X, lsnnpad)
 
 #if defined(LUB_X_IS_L)
-#define xusnnpad(t, tn, s, sn, trunc, pad, lrep) \
-        lusnnpad((t), (tn), (s), (sn), (trunc), (pad), (lrep))
-
-#else // LUBX_IS_U
-#define xusnnpad(t, tn, s, sn, trunc, pad, lrep) \
-        uusnnpad((t), (tn), (s), (sn), (trunc), (pad))
+#define xusnnpad(t, tn, s, sn, pad, lrep) \
+  lusnnpad((t), (tn), (s), (sn), (pad), (lrep))
+#else // LUB_X_IS_U
+#define xusnnpad(t, tn, s, sn, pad, lrep) \
+  uusnnpad((t), (tn), (s), (sn), (pad))
 #endif
 
-#define xxsnnpad LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnnpad)
+#define xxsnnpad LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnpad)
+
+// Trim
+
+#define xlsnntrim LUB_PASTE(LUB_X, lsnntrim)
+
+#if defined(LUB_X_IS_L)
+#define xusnntrim(t, tn, s, sn, trunc, trim, delim, lrep) \
+  lusnntrim((t), (tn), (s), (sn), (trunc), (trim), (delim), (lrep))
+#else // LUB_X_IS_U
+#define xusnntrim(t, tn, s, sn, trunc, trim, delim, lrep) \
+  uusnntrim((t), (tn), (s), (sn), (trunc), (trim), (delim))
+#endif
+
+#define xxsnntrim LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snntrim)
 
 // Replace
 
 #define xlsnnreplace LUB_PASTE(LUB_X, lsnnreplace)
 #define xlsnnREPLACE LUB_PASTE(LUB_X, lsnnREPLACE)
-
-#if defined(LUB_X_IS_L)
-#define xusnnreplace(t, tn, s1, s1n, s2, trunc, lrep) \
-        lusnnreplace((t), (tn), (s1), (s1n), (s2), (trunc), (lrep))
-#define xusnnREPLACE(t, tn, s1, s1n, s2, trunc, lrep) \
-        lusnnREPLACE((t), (tn), (s1), (s1n), (s2), (trunc), (lrep))
-
-#else // LUBX_IS_U
-
-#define xusnnreplace(t, tn, s1, s1n, s2, trunc, lrep) \
-        uusnnreplace((t), (tn), (s1), (s1n), (s2), (trunc), (lrep))
-#define xusnnREPLACE(t, tn, s1, s1n, s2, trunc, lrep) \
-        uusnnREPLACE((t), (tn), (s1), (s1n), (s2), (trunc), (lrep))
-#endif
-
 #define xxsnnreplace LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnreplace)
 #define xxsnnREPLACE LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnREPLACE)
 
 // Repeat
+
 #define xlsnnrepeat LUB_PASTE(LUB_X, lsnnrepeat)
-
-#if defined(LUB_X_IS_L)
-#define xusnnrepeat(t, tn, s1, s1n, s2, trunc, lrep) \
-        lusnnrepeat((t), (tn), (s1), (s1n), (s2), (trunc), (lrep))
-#define xusnnREPEAT(t, tn, s1, s1n, s2, trunc, lrep) \
-        lusnnREPEAT((t), (tn), (s1), (s1n), (s2), (trunc), (lrep))
-
-#else // LUBX_IS_U
-
-#define xusnnrepeat(t, tn, s1, s1n, s2, trunc, lrep) \
-        uusnnrepeat((t), (tn), (s1), (s1n), (s2), (trunc))
-#define xusnnREPEAT(t, tn, s1, s1n, s2, trunc, lrep) \
-        uusnnREPEAT((t), (tn), (s1), (s1n), (s2), (trunc))
-#endif
-
 #define xxsnnrepeat LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnrepeat)
 
 // Reverse
@@ -7106,18 +7127,21 @@ int llsnprintf
 #define xlsnnreverse LUB_PASTE(LUB_X, lsnnreverse)
 
 #if defined(LUB_X_IS_L)
-#define xusnnreverse(t, tn, s1, s1n, s2, trunc, lrep) \
-        lusnnreverse((t), (tn), (s1), (s1n), (s2), (trunc), (lrep))
-#else // LUBX_IS_U
-#define xusnnreverse(t, tn, s1, s1n, s2, trunc, lrep) \
-        uusnnreverse((t), (tn), (s1), (s1n), (s2), (trunc), (lrep))
+#define xusnnreverse(t, tn, s, sn, lrep) \
+  lusnnreverse((t), (tn), (s), (sn), (lrep))
+#else // LUB_X_IS_U
+#define xusnnreverse(t, tn, s, sn, lrep) \
+  uusnnreverse((t), (tn), (s), (sn))
 #endif
 
 #define xxsnnreverse LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnreverse)
 
-// Printf-style formatting  (Latin-only; no Unicode equivalent)
-#define xlsnprintf LUB_PASTE(LUB_X, llsnprintf)
-#define xlsnvprintf LUB_PASTE(LUB_X, llsnvprintf)
+// Printf-style formatting (Latin-only; no Unicode equivalent)
+
+#if defined(LUB_X_IS_L)
+#define xlsnprintf llsnprintf
+#define xlsnvprintf llsnvprintf
+#endif
 
 #endif // !defined(LUB_DEFINITIONS)
 
