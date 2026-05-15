@@ -8,17 +8,15 @@ For license details, see the LICENSE file in the project root.
 
 lubtype is a header-only C/C++ API for Latin-8 (lchar_t), Unicode-16 (uchar_t), and raw byte (byte_t) character and string operations.
 
-The repository includes three headers:
+The repository includes onr header file:
 
 - lubtype.h - core API and version macros.
-- xlatin.h - polymorphic x macro remapping to Latin-backed operations.
-- xunicode.h - polymorphic x macro remapping to Unicode-backed operations.
 
 The documented API version is 1.0.0 (LUB_VERSION in lubtype.h).
 
-See lubtype.h, xlatin.h, and xunicode.h for the full API reference and more examples.
+See lubtype.h for the full API reference and more examples.
 
-*Tip: To view this file with formatting applied, see [Viewing Formatted README](#viewing-formatted-readme).*
+*Tip: To view this file with formatting applied, Ctrl-Shift-V or see [Viewing Formatted README](#viewing-formatted-readme).*
 
 ## Header Usage
 
@@ -49,29 +47,33 @@ This repository includes this sample source file as [lubdefinitions.c](lubdefini
 All other source files must include lubtype.h without defining LUB_DEFINITIONS
 in the source file or in the compile command.
 
-To select xlatin.h or xunicode.h at compile time, add the following to your source
-after including lubtype.h:
+To use the x macros, the names of extern functions in the source file
+must be defined based on LUB_X_IS_L or LUB_X_IS_U. For example:
 
 ```c
-#if defined(LUB_XLATIN)
-#include "xlatin.h"
-#elif defined(LUB_XUNICODE)
-#include "xunicode.h"
+#if defined(LUB_X_IS_L) 
+#define xfunc lfunc
+#elif defined(LUB_X_IS_U)
+#define xfunc ufunc
 #else
-#error "Define LUB_XLATIN or LUB_XUNICODE"
+#error "Neither LUB_X_IS_L nor LUB_X_IS_U. Specify option -DLUB_X_IS_L "
+       "or -DLUB_X_IS_U in compile command. For example, "
+       "gcc -DLUB_X_IS_L -c myfile.c -o myfile.o."
 #endif
+extern int xfunc(...)
+{ <function body> }
 ```
 
-Then compile using the define flag (-D) for LUB_XLATIN:
+Then compile using the define flag (-D) to define LUB_X_IS_L:
 
 ```sh
-gcc -DLUB_XLATIN -c myfile.c -o myfile.o
+gcc -DLUB_X_IS_L -c myfile.c -o myfile.o
 ```
 
-Or for LUB_XUNICODE:
+Or to define LUB_X_IS_U:
 
 ```sh
-gcc -DLUB_XUNICODE -c myfile.c -o myfile.o
+gcc -DLUB_X_IS_U -c myfile.c -o myfile.o
 ```
 
 ## Design Principles
@@ -106,14 +108,19 @@ The lubtype.h API includes:
 
 Operations are provided in Latin/Unicode/byte combinations where they are meaningful. Function names encode the target/source types, bound behavior, operation, and case behavior.
 
-## Polymorphic Mapping Headers
+## Polymorphic Macros
 
-xlatin.h and xunicode.h remap x macros onto existing lubtype.h symbols. They also set LUB_XTYPE to l or u, respectively. With these headers, one source file can be built twice: once for Latin and once for Unicode (see [Header Usage](#header-usage)). For example:
+Polymorphic macros map x macros onto LUB API symbols. With x macros, one source file can be built twice: once for Latin and once for Unicode (see [Header Usage](#header-usage)). For example:
 
-- LUB_MAX_XCHAR maps to LUB_MAX_LCHAR with xlatin.h and to LUB_MAX_UCHAR with xunicode.h.
-- LUB_MAX_XSTRLEN maps to LUB_MAX_LSTRLEN with xlatin.h and to LUB_MAX_USTRLEN with xunicode.h.
-- xltolower maps to lltolower with xlatin.h and to ultolower with xunicode.h.
-- xxsnncat maps to llsnncat with xlatin.h and to uusnncat with xunicode.h.
+|                 | #if defined(LUB_X_IS_L) | #if defined(LUB_X_IS_U) |
+| x macro         | maps to:                | maps to:                |
+|-----------------|---------------------------------------------------|
+| xchar_t         | lchar_t                 | uchar_t                 |
+| LUB_MAX_XCHAR   | LUB_MAX_LCHAR           | LUB_MAX_UCHAR           |
+| LUB_MAX_XSTRLEN | LUB_MAX_LSTRLEN         | LUB_MAX_USTRLEN         |
+| isxalpha        | islalpha                | isualpha                |
+| xltolower       | lltolower               | ultolower               |
+| xxsnncat        | llsnncat                | uusnncat                |
 
 ## Quick Start
 

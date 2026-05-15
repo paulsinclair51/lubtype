@@ -10,12 +10,6 @@
  * associated macros, extern function declarations (prototypes), and static
  * inline function definitions.
  * 
- * To include definitions of extern functions,
- * 
- *   #define LUB_DEFINITIONS
- * 
- * before including this header.
- * 
  * Functions include character classification/transformation,
  * string length/classification, option validation,
  * compare, fixed/prefix/suffix compare, ptrim, skip, search, count,
@@ -43,6 +37,60 @@
  * @copyright Copyright (c) 2026 paulsinclair51
  * @license SPDX-License-Identifier: MIT
  * For license details, see the LICENSE file in the project root.
+ */
+
+/**
+ * @section HeaderUsage Header Usage
+ *
+ * Include lubtype.h in every source file that uses the API.
+ *
+ * @code
+ * #include "lubtype.h"
+ * @endcode
+ *
+ * The API is header-only, but function body definitions are emitted
+ * only when the macro LUB_DEFINITIONS is defined. Define this macro
+ * in exactly one source file per final binary. In practice, this
+ * source file is usually a LUB_DEFINITIONS-only source file such
+ * as the following:
+ * @code
+// File: lubdefinitions.c
+// Brief: Provide function definitions for the LUB API.
+#if !defined(LUB_DEFINITIONS)
+#define LUB_DEFINITIONS
+#endif
+#include "lubtype.h"
+// End of lubdefinitions.c
+ * @endcode
+ * This repository includes this sample source file as [lubdefinitions.c](lubdefinitions.c).
+ *
+ * All other source files must include lubtype.h without defining LUB_DEFINITIONS
+ * in the source file or in the compile command.
+ *
+ * To use the x macros (see @ref PolymorphicMacros), the names of extern
+ * functions in the source file must be defined based on LUB_X_IS_L or
+ * LUB_X_IS_U. For example:
+ * @code
+#if defined(LUB_X_IS_L) 
+#define xfunc lfunc
+#elif defined(LUB_X_IS_U)
+#define xfunc ufunc
+#else
+#error "Neither LUB_X_IS_L nor LUB_X_IS_U. Specify option -DLUB_X_IS_L "
+       "or -DLUB_X_IS_U in compile command. For example, "
+       "gcc -DLUB_X_IS_L -c myfile.c -o myfile.o."
+#endif
+extern int xfunc(...)
+{ <function body> }
+ * @endcode
+ * Then compile using the define flag (-D) to define LUB_X_IS_L:
+ * @code
+gcc -DLUB_X_IS_L -c myfile.c -o myfile.o
+ * @endcode
+ * Or to define LUB_X_IS_U:
+ * @code
+gcc -DLUB_X_IS_U -c myfile.c -o myfile.o
+ * @endcode
  */
 
 /**
@@ -6706,6 +6754,329 @@ int llsnprintf
 /** @} */
 
 /**
+ * @section PolymorphicMacros Polymorphic Macros
+ *
+ * @brief Polymorphic macros (also referred to as x macros) are
+ * macros that map an x in their names to l if LUB_X_IS_L is defined
+ * or u if LUB_X_IS_U is defined such that the resulting name
+ * is the name of an API function or macro.
+ * 
+ * A .c file can reference the x macros for polymorphic code that
+ * works for both Latin and Unicode by compiling once for Latin
+ * and once for Unicode.
+ *
+ * Mapping (x resolved to l):
+ *
+ *   xl -> ll  (x-target <- l-source becomes l-target <- l-source)
+ *   lx -> ll  (l-target <- x-source becomes l-target <- l-source)
+ *   xx -> ll  (x-target <- x-source becomes l-target <- l-source)
+ *    x -> l   (x-type becomes l-type)
+ * 
+ * Mapping (x resolved to u):
+ *
+ *   xu -> uu  (x-target <- u-source becomes u-target <- u-source)
+ *   lx -> lu  (l-target <- x-source becomes l-target <- u-source)
+ *   xx -> uu  (x-target <- x-source becomes u-target <- u-source)
+ *    x -> u   (x-type becomes u-type)
+ * 
+ * @note At most one of LUB_X_IS_L and LUB_X_IS_U can be defined when
+ *       including lubtype.h for polymorphic macros.
+ *       If neither is defined, the x macros are not defined.
+ * 
+ * @note LUB_DEFINITIONS must not be defined when including lubtype.h for
+ *       polymorphic macros. If LUB_DEFINITIONS is defined, it indicates that
+ *       the function definitions are being included, and the x macros are not
+ *       intended to be used in that context.
+ */
+
+#if defined(LUB_X_IS_L) || defined(LUB_X_IS_U)
+
+#if defined(LUB_DEFINITIONS)
+#error "lubtype.h: LUB_DEFINITIONS macro must not be defined " \
+       "when including lubtype.h for polymorphic macros (i.e., " \
+       "when LUB_X_IS_L or LUB_X_IS_U is defined)."
+#endif
+
+#if defined(LUB_X_IS_L) && defined(LUB_X_IS_U)
+#error "lubtype.h: Both LUB_X_IS_L and LUB_X_IS_U are defined. " \
+       "At most one of them can be defined at a time."
+#endif
+
+/**
+ * @name LUB_X
+ * @brief A macro that defines whether x maps to l or to u for
+ *        polymorphic (x) macros.
+ *        Value is l if LUB_X_IS_L is defined, u if LUB_X_IS_U is defined.
+ *        If neither is defined, LUB_X is not defined and the polymorphic
+ *        macros are not defined.
+ */
+
+#if defined(LUB_X)
+#error "lubtype.h: LUB_X macro is unexpectedly already defined. " \
+       "#undef before including lubtype.h."
+#endif
+
+#if defined(LUB_X_IS_L)
+#define LUB_X l
+#else
+#define LUB_X u
+#endif
+
+// Limits
+
+#define LUB_MAX_XCHAR LUB_PASTE(LUB_PASTE(LUB_MAX_, LUB_X), CHAR)
+#define LUB_MAX_XSTRLEN LUB_PASTE(LUB_PASTE(LUB_MAX_, LUB_X), STRLEN)
+
+// Character classification
+
+#define isxalpha LUB_PASTE(LUB_PASTE(is, LUB_X), alpha)
+#define isxdigit LUB_PASTE(LUB_PASTE(is, LUB_X), digit)
+#define isxalnum LUB_PASTE(LUB_PASTE(is, LUB_X), alnum)
+#define isxupper LUB_PASTE(LUB_PASTE(is, LUB_X), upper)
+#define isxlower LUB_PASTE(LUB_PASTE(is, LUB_X), lower)
+#define isxcntrl LUB_PASTE(LUB_PASTE(is, LUB_X), cntrl)
+#define isxprint LUB_PASTE(LUB_PASTE(is, LUB_X), print)
+#define isxpunct LUB_PASTE(LUB_PASTE(is, LUB_X), punct)
+#define isxblank LUB_PASTE(LUB_PASTE(is, LUB_X), blank)
+#define isxspace LUB_PASTE(LUB_PASTE(is, LUB_X), space)
+#define isxhexdigit LUB_PASTE(LUB_PASTE(is, LUB_X), hexdigit)
+
+// int <- Hex digit
+
+#define ixhexdigit LUB_PASTE(LUB_PASTE(i, LUB_X), hexdigit)
+
+// String length
+
+#define xcsnlen LUB_PASTE(LUB_PASTE(x, LUB_X), snlen)
+
+// Character case transforms
+#define xltocase LUB_PASTE(LUB_X, ltocase)
+#define xltolower LUB_PASTE(LUB_X, ltolower)
+#define xltoupper LUB_PASTE(LUB_X, ltoupper)
+
+#if defined(LUB_X_IS_L)
+#define xutocase(c, lrep) LUB_PASTE(LUB_X, utocase)((c), lrep)
+#define xutolower(c, lrep) LUB_PASTE(LUB_X, utolower)((c), lrep)
+#define xutoupper(c, lrep) LUB_PASTE(LUB_X, utoupper)((c), lrep)
+#else // LUBX_IS_U
+#define xutocase(c, lrep) LUB_PASTE(LUB_X, utocase)((c))
+#define xutolower(c, lrep) LUB_PASTE(LUB_X, utolower)((c))
+#define xutoupper(c, lrep) LUB_PASTE(LUB_X, utoupper)((c))
+#endif
+
+#define xxtocase LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), tocase)
+#define xxtolower LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), tolower)
+#define xxtoupper LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), toupper)
+
+// Compare
+
+#define xlsncmp LUB_PASTE(LUB_X, lsncmp)
+#define xlsnCMP LUB_PASTE(LUB_X, lsCMP)
+#define xlsnfxdcmp LUB_PASTE(LUB_X, lsfxdcmp)
+#define xlsnFXDCMP LUB_PASTE(LUB_X, lsFXDCMP)
+#define xlsnpfxcmp LUB_PASTE(LUB_X, lspfxcmp)
+#define xlsnsfxcmp LUB_PASTE(LUB_X, lssfxcmp)
+#define xlsnSFXCMP LUB_PASTE(LUB_X, lsSFXCMP)
+
+#define xusncmp LUB_PASTE(LUB_X, usncmp)
+#define xusnCMP LUB_PASTE(LUB_X, usCMP)
+#define xusnfxdcmp LUB_PASTE(LUB_X, usfxdcmp)
+#define xusnFXDCMP LUB_PASTE(LUB_X, usFXDCMP)
+#define xusnpfxcmp LUB_PASTE(LUB_X, uspfxcmp)
+#define xusnsfxcmp LUB_PASTE(LUB_X, ussfxcmp)
+#define xusnSFXCMP LUB_PASTE(LUB_X, usSFXCMP)
+
+#define xxsncmp LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), sncmp)
+#define xxsnCMP LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), sCMP)
+#define xxsnfxdcmp LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), sfxdcmp)
+#define xxsnFXDCMP LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), sFXDCMP)
+#define xxsnpfxcmp LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), spfxcmp)
+#define xxsnPFXCMP LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), sPFXCMP)
+#define xxsnsfxcmp LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), ssfxcmp)
+#define xxsnSFXCMP LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), sSFXCMP)
+
+// Search
+
+#define xlsnstrm LUB_PASTE(LUB_X, llsnstrm)
+#define xlsnSTRM LUB_PASTE(LUB_X, llsnSTRM)
+
+#define xxsnstrm LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snstrm)
+#define xxsnSTRM LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), STRM)
+
+// Count
+
+#define xlsncnt LUB_PASTE(LUB_X, lsncnt)
+#define xlsnCNT LUB_PASTE(LUB_X, lsnCNT)
+
+#define xxsncnt LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), sncnt)
+#define xxsnCNT LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snCNT)
+
+// Concatenate
+
+#define xlsnncat LUB_PASTE(LUB_X, lsnncat)
+#define xlsnncatc LUB_PASTE(LUB_X, lsnncatc)
+#define xlsnnCATC LUB_PASTE(LUB_X, lsnnCATC)
+#define xlsnncatq LUB_PASTE(LUB_X, lsnncatq)
+#define xlsnncatqc LUB_PASTE(LUB_X, lsnncatqc)
+#define xlsnnCATQC LUB_PASTE(LUB_X, lsnnCATQC)
+
+#if defined(LUB_X_IS_L)
+#define xusnncat(t, tn, s, sn, trunc, lrep) \
+        lusnncat((t), (tn), (s), (sn), (trunc), (lrep))
+#define xusnncatc(t, tn, s, sn, trunc, lrep) \
+        lusnncatc((t), (tn), (s), (sn), (trunc), (lrep))
+#define xusnnCATC(t, tn, s, sn, trunc, lrep) \
+        lusnnCATC((t), (tn), (s), (sn), (trunc), (lrep))
+#define xusnncatq(t, tn, s, sn, trunc, lrep) \
+        lusnncatq((t), (tn), (s), (sn), (trunc), (lrep))
+#define xusnncatqc(t, tn, s, sn, trunc, lrep) \
+        lusnncatqc((t), (tn), (s), (sn), (trunc), (lrep))
+#define xusnnCATQC(t, tn, s, sn, trunc, lrep) \
+        lusnnCATQC((t), (tn), (s), (sn), (trunc), (lrep))
+#else // LUBX_IS_U
+#define xusnncat(t, tn, s, sn, trunc, lrep) \
+        lusnncat(LUB_X, usnncat)
+#define xusnncatc(tn, tn, s, sn, trunc, lrep) \
+        lusnncatc(t, tn, s, sn, trunc, lrep)
+#define xusnnCATC(t, tn, s, sn, trunc, lrep) \
+        lusnnCATC(t, tn, s, sn, trunc, lrep)
+#define xusnncatq(t, tn, s, sn, trunc, lrep) \
+        lusnncatq)((t), (tn), (s), (sn), (trunc), (lrep))
+#define xusnncatqc(t, tn, s, sn, trunc, lrep) \
+        lusnncatqc((t), (tn), (s), (sn), (trunc), (lrep))
+#define xusnnCATQC(t, tn, s, sn, trunc, lrep) \
+        lusnnCATQC((t), (tn), (s), (sn), (trunc), (lrep))
+#endif
+
+#define xxsnncat LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snncat)
+#define xxsnncatc LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snncatc)
+#define xxsnnCATC LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnCATC)
+#define xxsnncatq LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snncatq)
+#define xxsnncatqc LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snncatqc)
+#define xxsnnCATQC LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnCATQC)
+
+// Copy
+
+#define xlsnncpy LUB_PASTE(LUB_X, lsnncpy)
+#define xlsnncpyc LUB_PASTE(LUB_X, lsnncpyc)
+#define xlsnnCPYC LUB_PASTE(LUB_X, lsnnCPYC)
+#define xlsnncpyq LUB_PASTE(LUB_X, lsnncpyq)
+#define xlsnncpyqc LUB_PASTE(LUB_X, lsnncpyqc)
+#define xlsnnCPYQC LUB_PASTE(LUB_X, lsnnCPYQC)
+
+#if defined(LUB_X_IS_L)
+#define xusnncpy(t, tn, s, sn, trunc, lrep) \
+        lusnncpy((t), (tn), (s), (sn), (trunc), (lrep))
+#define xusnncpyc(t, tn, s, sn, trunc, lrep) \
+        lusnncpyc((t), (tn), (s), (sn), (trunc), (lrep))
+#define xusnncpyC(t, tn, s, sn, trunc, lrep) \
+        lusnncpyC((t), (tn), (s), (sn), (trunc), (lrep))
+#define xusnncpyq(t, tn, s, sn, trunc, lrep) \
+        lusnncpyq((t), (tn), (s), (sn), (trunc), (lrep))
+#define xusnncpyqc(t, tn, s, sn, trunc, lrep) \
+        lusnncpyqc((t), (tn), (s), (sn), (trunc), (lrep))
+#define xusnncpyQC(t, tn, s, sn, trunc, lrep) \
+        lusnncpyQC((t), (tn), (s), (sn), (trunc), (lrep))
+#else // LUBX_IS_U
+#define xusnncpy(t, tn, s, sn, trunc, lrep) \
+        lusnncpy(LUB_X, usnncpy)
+#define xusnncpyc(tn, tn, s, sn, trunc, lrep) \
+        lusnncpyc(t, tn, s, sn, trunc, lrep)
+#define xusnncpyC(t, tn, s, sn, trunc, lrep) \
+        lusnncpyC(t, tn, s, sn, trunc, lrep)
+#define xusnncpyq(t, tn, s, sn, trunc, lrep) \
+        lusnncpyq((t), (tn), (s), (sn), (trunc), (lrep))
+#define xusnncpyqc(t, tn, s, sn, trunc, lrep) \
+        lusnncpyqc((t), (tn), (s), (sn), (trunc), (lrep))
+#define xusnncpyQC(t, tn, s, sn, trunc, lrep) \
+        lusnncpyQC((t), (tn), (s), (sn), (trunc), (lrep))
+#endif
+
+#define xxsnncpy LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snncpy)
+#define xxsnncpyc LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snncpyc)
+#define xxsnnCPYC LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnCPYC)
+#define xxsnncpyq LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snncpyq)
+#define xxsnncpyq LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snncpyq)
+#define xxsnncpyqc LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snncpyqc)
+#define xxsnnCPYQC LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnCPYQC)
+
+// Pad
+
+#define xlsnnpad LUB_PASTE(LUB_X, lsnnpad)
+
+#if defined(LUB_X_IS_L)
+#define xusnnpad(t, tn, s, sn, trunc, pad, lrep) \
+        lusnnpad((t), (tn), (s), (sn), (trunc), (pad), (lrep))
+
+#else // LUBX_IS_U
+#define xusnnpad(t, tn, s, sn, trunc, pad, lrep) \
+        uusnnpad((t), (tn), (s), (sn), (trunc), (pad))
+#endif
+
+#define xxsnnpad LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnnpad)
+
+// Replace
+
+#define xlsnnreplace LUB_PASTE(LUB_X, lsnnreplace)
+#define xlsnnREPLACE LUB_PASTE(LUB_X, lsnnREPLACE)
+
+#if defined(LUB_X_IS_L)
+#define xusnnreplace(t, tn, s1, s1n, s2, trunc, lrep) \
+        lusnnreplace((t), (tn), (s1), (s1n), (s2), (trunc), (lrep))
+#define xusnnREPLACE(t, tn, s1, s1n, s2, trunc, lrep) \
+        lusnnREPLACE((t), (tn), (s1), (s1n), (s2), (trunc), (lrep))
+
+#else // LUBX_IS_U
+
+#define xusnnreplace(t, tn, s1, s1n, s2, trunc, lrep) \
+        uusnnreplace((t), (tn), (s1), (s1n), (s2), (trunc), (lrep))
+#define xusnnREPLACE(t, tn, s1, s1n, s2, trunc, lrep) \
+        uusnnREPLACE((t), (tn), (s1), (s1n), (s2), (trunc), (lrep))
+#endif
+
+#define xxsnnreplace LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnreplace)
+#define xxsnnREPLACE LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnREPLACE)
+
+// Repeat
+#define xlsnnrepeat LUB_PASTE(LUB_X, lsnnrepeat)
+
+#if defined(LUB_X_IS_L)
+#define xusnnrepeat(t, tn, s1, s1n, s2, trunc, lrep) \
+        lusnnrepeat((t), (tn), (s1), (s1n), (s2), (trunc), (lrep))
+#define xusnnREPEAT(t, tn, s1, s1n, s2, trunc, lrep) \
+        lusnnREPEAT((t), (tn), (s1), (s1n), (s2), (trunc), (lrep))
+
+#else // LUBX_IS_U
+
+#define xusnnrepeat(t, tn, s1, s1n, s2, trunc, lrep) \
+        uusnnrepeat((t), (tn), (s1), (s1n), (s2), (trunc))
+#define xusnnREPEAT(t, tn, s1, s1n, s2, trunc, lrep) \
+        uusnnREPEAT((t), (tn), (s1), (s1n), (s2), (trunc))
+#endif
+
+#define xxsnnrepeat LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnrepeat)
+
+// Reverse
+
+#define xlsnnreverse LUB_PASTE(LUB_X, lsnnreverse)
+
+#if defined(LUB_X_IS_L)
+#define xusnnreverse(t, tn, s1, s1n, s2, trunc, lrep) \
+        lusnnreverse((t), (tn), (s1), (s1n), (s2), (trunc), (lrep))
+#else // LUBX_IS_U
+#define xusnnreverse(t, tn, s1, s1n, s2, trunc, lrep) \
+        uusnnreverse((t), (tn), (s1), (s1n), (s2), (trunc), (lrep))
+#endif
+
+#define xxsnnreverse LUB_PASTE(LUB_PASTE(LUB_X, LUB_X), snnreverse)
+
+// Printf-style formatting  (Latin-only; no Unicode equivalent)
+#define xlsnprintf LUB_PASTE(LUB_X, llsnprintf)
+#define xlsnvprintf LUB_PASTE(LUB_X, llsnvprintf)
+
+#endif // !defined(LUB_DEFINITIONS)
+
+/**
  * @section Examples Examples
  *
  * - Copy, case-preserving:
@@ -6759,41 +7130,39 @@ int llsnprintf
 
 /**
  * @section GlossaryOfTerms Glossary
- * lchar_t
- *   Latin-8 character (uint8_t). Values 1-255.
- *   0 is reserved for null terminator.
- * 
- * uchar_t
- *   Unicode-16 character (uint16_t). Values 1-65535.
- *   0 is reserved for null terminator.
- * 
  * byte_t
  *   Raw byte (uint8_t). Values x'00'-x'FF'. No null terminator semantics.
- * 
- * lchar_t *
- *   Pointer to a null-terminated string (lchar_t *)
- *   of Latin characters (lchar_t).
- * 
- * uchar_t *
- *   Pointer to a null-terminated string (uchar_t *)
- *   of Unicode characters (uchar_t).
- * 
+ *
  * byte_t *
  *   Pointer to a string (*byte_t) of bytes (byte_t). A specific
  *   length must be provided for byte strings, as they do not
  *   have null terminator semantics.
- * 
- * LUB_MAX_LSTRLEN
- *   Maximum number of characters in a Latin string (lchar_t *).
- * 
- * LUB_MAX_USTRLEN
- *   Maximum number of characters in a Unicode string (uchar_t *).
+ *
+ * lchar_t
+ *   Latin-8 character (uint8_t). Values 1-255.
+ *   0 is reserved for null terminator.
+ *
+ * lchar_t *
+ *   Pointer to a null-terminated string (lchar_t *)
+ *   of Latin characters (lchar_t).
+ *
+ * lrep
+ *   Substitution char for out-of-range Unicode->Latin conversions.
  * 
  * LUB_MAX_BSTRLEN
  *   Maximum number of bytes in a byte string (*byte_t).
  * 
- * lrep
- *   Substitution char for out-of-range Unicode->Latin conversions.
+ * LUB_MAX_LSTRLEN
+ *   Maximum number of characters in a Latin string (lchar_t *).
+ *
+ * LUB_MAX_USTRLEN
+ *   Maximum number of characters in a Unicode string (uchar_t *).
+ * 
+ * Polymorphic macros (x macros)
+ *   Macros with x in their names where x is mapped to
+ *   l if LUB_X_IS_L is defined or u if LUB_X_IS_U is defined.
+ *   If neither is defined, x macros are not defined.
+ *   Polymorphic macros are not allowed if LUB_DEFINITIONS is defined.
  * 
  * sn
  *   Maximum source characters/bytes; for char strings, stops at null.
@@ -6801,10 +7170,21 @@ int llsnprintf
  * tn
  *   Maximum target characters excluding null-terminator or
  *   target buffer byte length.
+ *
+ * uchar_t
+ *   Unicode-16 character (uint16_t). Values 1-65535.
+ *   0 is reserved for null terminator.
  * 
+ * uchar_t *
+ *   Pointer to a null-terminated string (uchar_t *)
+ *   of Unicode characters (uchar_t).
+ *
  * unterminated
  *   A character string that does not have a null terminator
  *   at or before the specified or default bound.
+ * 
+ * x macros
+ *   See Polymorphic macros above.
  */
 
 // Undefine LUB_*_DEF macros to avoid namespace pollution.
