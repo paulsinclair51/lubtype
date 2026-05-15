@@ -25,6 +25,31 @@ TEST_SOURCES = \
 
 TEST_OBJECTS = $(TEST_SOURCES:.c=.o)
 
+# X-macro advanced ops object files (compiled from same source, different defines)
+XADVANCEDOPS_L_OBJ = test_advanced_ops_l.o
+XADVANCEDOPS_U_OBJ = test_advanced_ops_u.o
+
+TEST_SOURCES = \
+	lubtype_tests.c \
+	test_error_edge.c \
+	test_strlen_validation.c \
+	test_reserved_matrix.c \
+	test_search_families.c \
+	test_span_count.c \
+	test_core_families.c \
+	test_type_matrix.c \
+	test_utilities.c \
+	test_fuzz_edge.c \
+	test_skip.c
+
+TEST_OBJECTS = $(TEST_SOURCES:.c=.o) $(XADVANCEDOPS_L_OBJ) $(XADVANCEDOPS_U_OBJ)
+# Explicit rules for x-macro advanced ops object files
+$(XADVANCEDOPS_L_OBJ): test_advanced_ops.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_L -c $< -o $@
+
+$(XADVANCEDOPS_U_OBJ): test_advanced_ops.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_U -c $< -o $@
+
 # x-macro charclass object files (compiled from same source, different defines)
 XCHARCLASS_L_OBJ = test_charclass_l.o
 XCHARCLASS_U_OBJ = test_charclass_u.o

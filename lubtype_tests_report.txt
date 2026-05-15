@@ -1,0 +1,19 @@
+LUBTYPE TEST SUITE REPORT
+Generated: 2026-05-15 15:49:51
+----------------------------------------
+Test modules executed (in order):
+  1. Error/edge cases
+  2. Advanced operations
+  3. Compare/search
+  4. String length/validation
+  5. Charclass x-macro (L)
+  6. Charclass x-macro (U)
+  7. Reserved/matrix
+  8. Search families
+  9. Span/count
+ 10. Core families
+ 11. Type matrix
+ 12. Utilities
+ 13. Fuzz/edge cases
+ 14. Skip functions
+----------------------------------------

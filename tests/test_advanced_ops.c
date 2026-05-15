@@ -7,63 +7,80 @@
  * For license details, see the LICENSE file in the project root.
  */
 
+#if !defined(LUB_X_IS_L) && !defined(LUB_X_IS_U)
+#define LUB_X_IS_L
+#endif
+
 #include <assert.h>
-#include "../lubtype.h"
-#include "lubtype_test_declarations.h"
 #include <stdio.h>
 #include <string.h>
+
+#include "lubtype_test_declarations.h"
+#include "../lubtype.h"
 
 /**
  * @brief Run tests for advanced string operations
  *        (trim, reverse, pad, replace,
  *        split).
  */
-void run_advanced_ops_tests(void) {
-    lchar_t lsrc[32] = {' ','a','b','c',' ','\0'};
-    lchar_t ltrim_custom_src[32] = {'x','x','a','b','c','x',0};
-    lchar_t ltrim_custom_opt[3] = {'L','x',0};
-    lchar_t ltrim_invalid_opt[3] = {'Q','x',0};
-    lchar_t lout[32] = {0};
-    uchar_t lu_trim_nonlatin_opt[3] = {'B', 0x0120, 0};
-    uchar_t usrc[32] = {0x20, 'a', 'b', 'c', 0x20, 0};
-    uchar_t utrim_custom_src[32] = {'x','a','b','c','x','x',0};
-    uchar_t utrim_opt[2] = {'B', 0};
-    uchar_t utrim_custom_opt[3] = {'R','x',0};
-    size_t len = 0;
 
-    const lchar_t *ltrim = llsnptrim(lsrc, 32, (const lchar_t *)"B", &len);
-    assert(ltrim == lsrc + 1 && len == 3);
+void LUB_PASTE(run_advanced_ops_tests_, LUB_X)(void)
+{ xchar_t xsrc[32] = {' ','a','b','c',' ',0};
+  xchar_t xtrim_custom_src[32] = {'x','x','a','b','c','x',0};
+  lchar_t xtrim_custom_opt[3] = {'L','x',0};
+  lchar_t xtrim_invalid_opt[3] = {'Q','x',0};
+  xchar_t xout[32] = {0};
+#if defined(LUB_X_IS_L)
+  uchar_t x_trim_nonlatin_opt[3] = {'B', 0x0120, 0};
+  uchar_t usrc[32] = {0x20, 'a', 'b', 'c', 0x20, 0};
+  uchar_t utrim_custom_src[32] = {'x','a','b','c','x','x',0};
+  uchar_t utrim_opt[2] = {'B', 0};
+  uchar_t utrim_custom_opt[3] = {'R','x',0};
+#endif
 
-    ltrim = llsnptrim(ltrim_custom_src, 32, ltrim_custom_opt, &len);
-    assert(ltrim == ltrim_custom_src + 2 && len == 4);
+  size_t len = 0;
 
-    ltrim = llsnptrim(ltrim_custom_src, 32, ltrim_invalid_opt, &len);
-    assert(LUB_PTR_ERR(ltrim, LUB_OPT_RESERVED));
-    assert(len == 0);
+  const xchar_t *xtrim = xlsnptrim(xsrc, 32, (const lchar_t *)"B", &len);
+  assert(xtrim == xsrc + 1 && len == 3);
 
-    ltrim = lusnptrim(lsrc, 32, lu_trim_nonlatin_opt, &len);
-    assert(ltrim == lsrc && len == 5);
+  xtrim = xlsnptrim(xtrim_custom_src, 32, xtrim_custom_opt, &len);
+  assert(xtrim == xtrim_custom_src + 2 && len == 4);
 
-    const uchar_t *ultrim = ulsnptrim(usrc, 32, NULL, &len);
-    assert(ultrim == usrc + 1 && len == 3);
+  xtrim = xlsnptrim(xtrim_custom_src, 32, xtrim_invalid_opt, &len);
+  assert(LUB_PTR_ERR(xtrim, LUB_OPT_RESERVED));
+  assert(len == 0);
 
-    const uchar_t *utrim = uusnptrim(usrc, 32, utrim_opt, &len);
-    assert(utrim == usrc + 1 && len == 3);
+#if defined(LUB_X_IS_L)
+  xtrim = xusnptrim(xsrc, 32, x_trim_nonlatin_opt, &len);
+  assert(xtrim == xsrc && len == 5);
 
-    utrim = uusnptrim(utrim_custom_src, 32, utrim_custom_opt, &len);
-    assert(utrim == utrim_custom_src && len == 4);
+  const uchar_t *ultrim = uusnptrim(usrc, 32, NULL, &len);
+  assert(ultrim == usrc + 1 && len == 3);
 
-        assert(llsnnreverse(lout, 32, lsrc, 32) != NULL);
-    assert(lout[0] == ' ' && lout[1] == 'c' && lout[2] == 'b' && lout[3] == 'a');
+  const uchar_t *utrim = uusnptrim(usrc, 32, utrim_opt, &len);
+  assert(utrim == usrc + 1 && len == 3);
 
-        assert(llsnnpad(lout, 8, (const lchar_t *)"abc", 3,
-                        (const lchar_t[]){'R', 'x', 0}) != NULL);
-    assert(strncmp((const char *)lout, "abcxxxxx", 8) == 0);
+  utrim = uusnptrim(utrim_custom_src, 32, utrim_custom_opt, &len);
+  assert(utrim == utrim_custom_src && len == 4);
+#endif
 
-    assert(llsnnreplace(lout, 16, (const lchar_t *)"aabbcc", 6,
-                       (const lchar_t *)"b|z", '|', 0) != NULL);
-    assert(strcmp((const char *)lout, "aazzcc") == 0);
+  assert(xxsnnreverse(xout, 32, xsrc, 32) != NULL);
+  assert(xout[0] == ' ' && xout[1] == 'c' && xout[2] == 'b' && xout[3] == 'a');
 
-    printf("Advanced operation tests passed.\n");
+  assert(xlsnnpad(xout, 8, (const xchar_t *)"abc", 3,
+                  (const xchar_t[]){'R', 'x', 0}) != NULL);
+  { const xchar_t expected_pad[9] = {'a','b','c','x','x','x','x','x',0};
+    assert(xlsnncmp(xout, 8, expected_pad, 8) == 0);
+  }
 
+#if defined(LUB_X_IS_L)
+  assert(xlsnnreplace(xout, 16, (const xchar_t *)"aabbcc", 6,
+                      (const xchar_t *)"b|z", '|', 0) != NULL);
+  { const xchar_t expected_replace[7] = {'a','a','z','z','c','c',0};
+    assert(xlsnncmp(xout, 6, expected_replace, 6) == 0);
+  }
+#endif
+
+  printf("Advanced operation tests passed for LUB_X=%s.\n",
+         LUB_STRINGIFY(LUB_X));
 }

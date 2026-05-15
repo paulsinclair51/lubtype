@@ -12,6 +12,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+
 #include "lubtype_test_declarations.h"
 #include "../lubtype.h"
 
@@ -22,7 +23,8 @@
  * Also checks edge cases for null and non-alphabetic input.
  * This file is compiled twice: once with -DLUB_X_IS_L and once with -DLUB_X_IS_U.
  */
-void LUB_PASTE(LUB_PASTE(run_, LUB_X), charclass_tests)(void)
+
+void LUB_PASTE(run_charclass_tests_, LUB_X)(void)
 { // Test: isxalpha
   assert(isxalpha((xchar_t)'A'));
   assert(isxalpha((xchar_t)'z'));
@@ -54,6 +56,7 @@ void LUB_PASTE(LUB_PASTE(run_, LUB_X), charclass_tests)(void)
   // Non-alphabetic character passthrough
   assert(xxtoupper((xchar_t)'!') == (xchar_t)'!');
   assert(xxtolower((xchar_t)'!') == (xchar_t)'!');
-  printf("x-macro character classification/conversion tests passed for LUB_X=%s.\n",
+
+  printf("Character classification/conversion tests passed for LUB_X=%s.\n",
          LUB_STRINGIFY(LUB_X));
 }

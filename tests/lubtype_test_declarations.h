@@ -10,12 +10,13 @@
 #define LUBTYPE_TEST_DECLARATIONS_H
 
 extern void run_error_edge_tests(void);
-extern void run_advanced_ops_tests(void);
-extern void run_lcmp_search_tests(void);
-extern void run_ucmp_search_tests(void);
+extern void run_advanced_ops_tests_l(void);
+extern void run_advanced_ops_tests_u(void);
+extern void run_cmp_search_tests_l(void);
+extern void run_cmp_search_tests_u(void);
 extern void run_strlen_validation_tests(void);
-extern void run_lcharclass_tests(void);
-extern void run_ucharclass_tests(void);
+extern void run_charclass_tests_l(void);
+extern void run_charclass_tests_u(void);
 extern void run_reserved_matrix_tests(void);
 extern void run_search_family_tests(void);
 extern void run_span_count_tests(void);
