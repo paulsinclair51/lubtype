@@ -27,119 +27,6 @@ static lub_test_result_t test_result;
 #define IXHEX_CONCRETE(c) isuhex((c))
 #endif
 
-/* Forward declarations for x-macro alias mapping tests */
-static void test_alpha_alias_mapping(void);
-static void test_digit_alias_mapping(void);
-static void test_alnum_alias_mapping(void);
-static void test_latin_alias_mapping(void);
-static void test_name1c_alias_mapping(void);
-static void test_namec_alias_mapping(void);
-static void test_upper_alias_mapping(void);
-static void test_lower_alias_mapping(void);
-static void test_cntrl_alias_mapping(void);
-static void test_print_alias_mapping(void);
-static void test_graph_alias_mapping(void);
-static void test_punct_alias_mapping(void);
-static void test_blank_alias_mapping(void);
-static void test_space_alias_mapping(void);
-static void test_hex_alias_mapping(void);
-
-/**
- * @brief Run tests for x-macro character classification and
- *        conversion functions.
- *
- * Tests isxalpha, isxupper, isxlower, isxdigit, isxalnum, xxtoupper, xxtolower.
- * Also checks edge cases for null and non-alphabetic input.
- * This file is compiled twice: once with -DLUB_X_IS_L and once
- * with -DLUB_X_IS_U.
- */
-
-lub_test_result_t LUB_PASTE(run_charclass_tests_, LUB_X)(void)
-{ test_result = (lub_test_result_t){0};
-// Test: isxalpha
-  LUB_ASSERT(isxalpha((xchar_t)'A'));
-  LUB_ASSERT(isxalpha((xchar_t)'z'));
-  LUB_ASSERT(!isxalpha((xchar_t)'1'));
-  // Test: isxupper
-  LUB_ASSERT(isxupper((xchar_t)'Z'));
-  LUB_ASSERT(!isxupper((xchar_t)'a'));
-  // Test: isxlower
-  LUB_ASSERT(isxlower((xchar_t)'a'));
-  LUB_ASSERT(!isxlower((xchar_t)'Z'));
-  // Test: isxdigit
-  LUB_ASSERT(isxdigit((xchar_t)'5'));
-  LUB_ASSERT(!isxdigit((xchar_t)'A'));
-  // Test: isxalnum
-  LUB_ASSERT(isxalnum((xchar_t)'9'));
-  LUB_ASSERT(isxalnum((xchar_t)'B'));
-  LUB_ASSERT(!isxalnum((xchar_t)'!'));
-  // Additional x-macro character-class aliases.
-  LUB_ASSERT(isxblank((xchar_t)' '));
-  LUB_ASSERT(!isxblank((xchar_t)'A'));
-  LUB_ASSERT(isxcntrl((xchar_t)'\n'));
-  LUB_ASSERT(!isxcntrl((xchar_t)'A'));
-  LUB_ASSERT(isxprint((xchar_t)'A'));
-  LUB_ASSERT(!isxprint((xchar_t)'\n'));
-  LUB_ASSERT(isxpunct((xchar_t)'!'));
-  LUB_ASSERT(!isxpunct((xchar_t)'A'));
-  LUB_ASSERT(isxspace((xchar_t)' '));
-  LUB_ASSERT(!isxspace((xchar_t)'A'));
-  LUB_ASSERT(isxgraph((xchar_t)'!'));
-  LUB_ASSERT(!isxgraph((xchar_t)' '));
-  LUB_ASSERT(isxhex((xchar_t)'F'));
-  LUB_ASSERT(!isxhex((xchar_t)'G'));
-  LUB_ASSERT(ixhex((xchar_t)'f') == IXHEX_CONCRETE((xchar_t)'f'));
-  LUB_ASSERT(ixhex((xchar_t)'g') == IXHEX_CONCRETE((xchar_t)'g'));
-  LUB_ASSERT(isxlatin((xchar_t)'A'));
-  LUB_ASSERT(isxname1c((xchar_t)'A'));
-  LUB_ASSERT(!isxname1c((xchar_t)'1'));
-  LUB_ASSERT(isxnamec((xchar_t)'_'));
-  LUB_ASSERT(isxnamec((xchar_t)'1'));
-  LUB_ASSERT(!isxnamec((xchar_t)'-'));
-  // Test: xxtoupper, xxtolower
-  LUB_ASSERT(xxtoupper((xchar_t)'a') == (xchar_t)'A');
-  LUB_ASSERT(xxtolower((xchar_t)'Z') == (xchar_t)'z');
-  // Null/zero edge cases
-  LUB_ASSERT(!isxalpha((xchar_t)0));
-  LUB_ASSERT(!isxupper((xchar_t)0));
-  LUB_ASSERT(!isxlower((xchar_t)0));
-  LUB_ASSERT(!isxdigit((xchar_t)0));
-  LUB_ASSERT(!isxalnum((xchar_t)0));
-  LUB_ASSERT(xxtoupper((xchar_t)0) == (xchar_t)0);
-  LUB_ASSERT(xxtolower((xchar_t)0) == (xchar_t)0);
-  // Non-alphabetic character passthrough
-  LUB_ASSERT(xxtoupper((xchar_t)'!') == (xchar_t)'!');
-  LUB_ASSERT(xxtolower((xchar_t)'!') == (xchar_t)'!');
-
-  /* Run x-macro alias mapping tests for character classification */
-  test_alpha_alias_mapping();
-  test_digit_alias_mapping();
-  test_alnum_alias_mapping();
-  test_latin_alias_mapping();
-  test_name1c_alias_mapping();
-  test_namec_alias_mapping();
-  test_upper_alias_mapping();
-  test_lower_alias_mapping();
-  test_cntrl_alias_mapping();
-  test_print_alias_mapping();
-  test_graph_alias_mapping();
-  test_punct_alias_mapping();
-  test_blank_alias_mapping();
-  test_space_alias_mapping();
-  test_hex_alias_mapping();
-
-  printf("Character classification/conversion tests passed for LUB_X=%s.\n",
-         LUB_STRINGIFY(LUB_X));
-  return test_result;
-}
-
-/**
- * @brief X-macro alias mapping tests for character classification functions.
- * 
- * Tests that the polymorphic isx* macros correctly map to islx* or isux* 
- * implementations based on LUB_X_IS_L or LUB_X_IS_U conditional compilation.
- */
-
 static xchar_t *make_xstr_local_charclass(const char *src, xchar_t *dst, size_t cap) {
 	size_t i = 0;
 	if (!dst || !cap) return (xchar_t *)NULL;
@@ -402,3 +289,93 @@ static void test_hex_alias_mapping(void) {
 #endif
 	}
 }
+
+/**
+ * @brief Run tests for x-macro character classification and
+ *        conversion functions.
+ *
+ * Tests isxalpha, isxupper, isxlower, isxdigit, isxalnum, xxtoupper, xxtolower.
+ * Also checks edge cases for null and non-alphabetic input.
+ * This file is compiled twice: once with -DLUB_X_IS_L and once
+ * with -DLUB_X_IS_U.
+ */
+
+lub_test_result_t LUB_PASTE(run_charclass_tests_, LUB_X)(void)
+{ test_result = (lub_test_result_t){0};
+// Test: isxalpha
+  LUB_ASSERT(isxalpha((xchar_t)'A'));
+  LUB_ASSERT(isxalpha((xchar_t)'z'));
+  LUB_ASSERT(!isxalpha((xchar_t)'1'));
+  // Test: isxupper
+  LUB_ASSERT(isxupper((xchar_t)'Z'));
+  LUB_ASSERT(!isxupper((xchar_t)'a'));
+  // Test: isxlower
+  LUB_ASSERT(isxlower((xchar_t)'a'));
+  LUB_ASSERT(!isxlower((xchar_t)'Z'));
+  // Test: isxdigit
+  LUB_ASSERT(isxdigit((xchar_t)'5'));
+  LUB_ASSERT(!isxdigit((xchar_t)'A'));
+  // Test: isxalnum
+  LUB_ASSERT(isxalnum((xchar_t)'9'));
+  LUB_ASSERT(isxalnum((xchar_t)'B'));
+  LUB_ASSERT(!isxalnum((xchar_t)'!'));
+  // Additional x-macro character-class aliases.
+  LUB_ASSERT(isxblank((xchar_t)' '));
+  LUB_ASSERT(!isxblank((xchar_t)'A'));
+  LUB_ASSERT(isxcntrl((xchar_t)'\n'));
+  LUB_ASSERT(!isxcntrl((xchar_t)'A'));
+  LUB_ASSERT(isxprint((xchar_t)'A'));
+  LUB_ASSERT(!isxprint((xchar_t)'\n'));
+  LUB_ASSERT(isxpunct((xchar_t)'!'));
+  LUB_ASSERT(!isxpunct((xchar_t)'A'));
+  LUB_ASSERT(isxspace((xchar_t)' '));
+  LUB_ASSERT(!isxspace((xchar_t)'A'));
+  LUB_ASSERT(isxgraph((xchar_t)'!'));
+  LUB_ASSERT(!isxgraph((xchar_t)' '));
+  LUB_ASSERT(isxhex((xchar_t)'F'));
+  LUB_ASSERT(!isxhex((xchar_t)'G'));
+  LUB_ASSERT(ixhex((xchar_t)'f') == IXHEX_CONCRETE((xchar_t)'f'));
+  LUB_ASSERT(ixhex((xchar_t)'g') == IXHEX_CONCRETE((xchar_t)'g'));
+  LUB_ASSERT(isxlatin((xchar_t)'A'));
+  LUB_ASSERT(isxname1c((xchar_t)'A'));
+  LUB_ASSERT(!isxname1c((xchar_t)'1'));
+  LUB_ASSERT(isxnamec((xchar_t)'_'));
+  LUB_ASSERT(isxnamec((xchar_t)'1'));
+  LUB_ASSERT(!isxnamec((xchar_t)'-'));
+  // Test: xxtoupper, xxtolower
+  LUB_ASSERT(xxtoupper((xchar_t)'a') == (xchar_t)'A');
+  LUB_ASSERT(xxtolower((xchar_t)'Z') == (xchar_t)'z');
+  // Null/zero edge cases
+  LUB_ASSERT(!isxalpha((xchar_t)0));
+  LUB_ASSERT(!isxupper((xchar_t)0));
+  LUB_ASSERT(!isxlower((xchar_t)0));
+  LUB_ASSERT(!isxdigit((xchar_t)0));
+  LUB_ASSERT(!isxalnum((xchar_t)0));
+  LUB_ASSERT(xxtoupper((xchar_t)0) == (xchar_t)0);
+  LUB_ASSERT(xxtolower((xchar_t)0) == (xchar_t)0);
+  // Non-alphabetic character passthrough
+  LUB_ASSERT(xxtoupper((xchar_t)'!') == (xchar_t)'!');
+  LUB_ASSERT(xxtolower((xchar_t)'!') == (xchar_t)'!');
+
+  /* Run x-macro alias mapping tests for character classification */
+  test_alpha_alias_mapping();
+  test_digit_alias_mapping();
+  test_alnum_alias_mapping();
+  test_latin_alias_mapping();
+  test_name1c_alias_mapping();
+  test_namec_alias_mapping();
+  test_upper_alias_mapping();
+  test_lower_alias_mapping();
+  test_cntrl_alias_mapping();
+  test_print_alias_mapping();
+  test_graph_alias_mapping();
+  test_punct_alias_mapping();
+  test_blank_alias_mapping();
+  test_space_alias_mapping();
+  test_hex_alias_mapping();
+
+  printf("Character classification/conversion tests passed for LUB_X=%s.\n",
+         LUB_STRINGIFY(LUB_X));
+  return test_result;
+}
+
