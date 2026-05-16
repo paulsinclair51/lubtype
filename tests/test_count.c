@@ -1,5 +1,5 @@
 /**
- * @file test_span_count.c
+ * @file test_count.c
  * @brief Tests for lubtype.h character counting functions.
  *
  * @note Each test file requires a file-scoped `static lub_test_result_t test_result;`

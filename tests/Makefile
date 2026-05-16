@@ -14,7 +14,7 @@ TEST_SOURCES = \
 	test_strlen_validation.c \
 	test_reserved_matrix.c \
 	test_search_families.c \
-	test_span_count.c \
+	test_count.c \
 	test_core_families.c \
 	test_type_matrix.c \
 	test_utilities.c \
