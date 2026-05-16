@@ -99,7 +99,7 @@ static lub_test_result_t merge_results(lub_test_result_t a, lub_test_result_t b)
 static void write_test_category(FILE *report, size_t index, const char *label,
                                 lub_test_result_t result) {
 	fprintf(report,
-	        " %2zu. %-44s  pass: %4zu  fail: %4zu  exception: %zu\n",
+	        " %2zu. %-35s  pass: %5zu  fail: %5zu  exception: %zu\n",
 	        index, label,
 	        result.pass, result.fail, result.exception);
 }
