@@ -2,3 +2,5 @@
 *.a
 *.so
 *.out
+tests/lubtype_tests
+tests/lubtype_tests_report.txt
