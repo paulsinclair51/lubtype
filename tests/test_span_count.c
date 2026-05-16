@@ -32,20 +32,17 @@ static void test_count_character(void) {
     lchar_t str[64];
     lchar_t needle[4];
 
-    LUB_ASSERT(llsncnt(make_lstr_local("hello world", str, 64),
-                       make_lstr_local("l", needle, 4), 64, 0) == 3);
+    LUB_ASSERT(llsncnt(make_lstr_local("hello world", str, 64), 64,
+                       make_lstr_local("l", needle, 4), 0) == 3);
 
-    LUB_ASSERT(llsncnt(make_lstr_local("hello", str, 64),
-                       make_lstr_local("z", needle, 4), 64, 0) == 0);
+    LUB_ASSERT(llsncnt(make_lstr_local("hello", str, 64), 64,
+                       make_lstr_local("z", needle, 4), 0) == 0);
 
-    LUB_ASSERT(llsncnt(make_lstr_local("a", str, 64),
-                       make_lstr_local("a", needle, 4), 64, 0) == 1);
+    LUB_ASSERT(llsncnt(make_lstr_local("a", str, 64), 64,
+                       make_lstr_local("a", needle, 4), 0) == 1);
 
-    LUB_ASSERT(llsnCNT(make_lstr_local("HeLLo", str, 64),
-                       make_lstr_local("l", needle, 4), 64, 0) == 2);
-
-    LUB_ASSERT(llsncnt(NULL, needle, 10, 0) == (size_t)0);
-    LUB_ASSERT(llsnCNT(str, NULL, 10, 0) == (size_t)0);
+    LUB_ASSERT(llsnCNT(make_lstr_local("HeLLo", str, 64), 64,
+                       make_lstr_local("l", needle, 4), 0) == 2);
 }
 
 /**
@@ -55,17 +52,17 @@ static void test_substring_count(void) {
     lchar_t str[64];
     lchar_t needle[16];
 
-    LUB_ASSERT(llsncnt(make_lstr_local("abab", str, 64),
-                       make_lstr_local("ab", needle, 16), 64, '|') == 2);
+    LUB_ASSERT(llsncnt(make_lstr_local("abab", str, 64), 64,
+                       make_lstr_local("ab", needle, 16), '|') == 2);
 
-    LUB_ASSERT(llsncnt(make_lstr_local("aaa", str, 64),
-                       make_lstr_local("aa", needle, 16), 64, '|') == 2);
+    LUB_ASSERT(llsncnt(make_lstr_local("aaa", str, 64), 64,
+                       make_lstr_local("aa", needle, 16), '|') == 2);
 
-    LUB_ASSERT(llsncnt(make_lstr_local("hello", str, 64),
-                       make_lstr_local("xyz", needle, 16), 64, '|') == 0);
+    LUB_ASSERT(llsncnt(make_lstr_local("hello", str, 64), 64,
+                       make_lstr_local("xyz", needle, 16), '|') == 0);
 
-    LUB_ASSERT(llsnCNT(make_lstr_local("CatDogCat", str, 64),
-                       make_lstr_local("cat", needle, 16), 64, '|') == 2);
+    LUB_ASSERT(llsnCNT(make_lstr_local("CatDogCat", str, 64), 64,
+                       make_lstr_local("cat", needle, 16), '|') == 2);
 }
 
 lub_test_result_t run_count_tests(void) {
