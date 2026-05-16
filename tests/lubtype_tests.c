@@ -312,8 +312,8 @@ int main(int argc, char **argv) {
 	               merge_results(run_guarded(run_skip_tests_l),
 	                             run_guarded(run_skip_tests_u)));
 	RUN_AND_REPORT(14, "X-macro aliases -x",
-	               merge_results(run_guarded(run_xmacro_alias_tests_l),
-	                             run_guarded(run_xmacro_alias_tests_u)));
+	               merge_results(run_guarded(run_xmacros_tests_l),
+	                             run_guarded(run_xmacros_tests_u)));
 
 #undef RUN_AND_REPORT
 

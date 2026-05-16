@@ -23,6 +23,24 @@
 
 static lub_test_result_t test_result;
 
+#if defined(LUB_X_IS_L)
+#define XLTOCASE_CONCRETE(c) lltocase((c))
+#define XLTOLOWER_CONCRETE(c) lltolower((c))
+#define XLTOUPPER_CONCRETE(c) lltoupper((c))
+#define XUTOCASE_CONCRETE(c, lrep) lutocase((c), (lrep))
+#define XUTOLOWER_CONCRETE(c, lrep) lutolower((c), (lrep))
+#define XUTOUPPER_CONCRETE(c, lrep) lutoupper((c), (lrep))
+#define XXTOCASE_CONCRETE(c) lltocase((c))
+#else
+#define XLTOCASE_CONCRETE(c) ultocase((c))
+#define XLTOLOWER_CONCRETE(c) ultolower((c))
+#define XLTOUPPER_CONCRETE(c) ultoupper((c))
+#define XUTOCASE_CONCRETE(c, lrep) uutocase((c))
+#define XUTOLOWER_CONCRETE(c, lrep) uutolower((c))
+#define XUTOUPPER_CONCRETE(c, lrep) uutoupper((c))
+#define XXTOCASE_CONCRETE(c) uutocase((c))
+#endif
+
 /**
  * @brief Run tests for advanced string operations
  *        (trim, reverse, pad, replace,
@@ -72,6 +90,18 @@ lub_test_result_t LUB_PASTE(run_advanced_ops_tests_, LUB_X)(void)
 
   LUB_ASSERT(xxsnnreverse(xout, 32, xsrc, 32) != NULL);
   LUB_ASSERT(xout[0] == ' ' && xout[1] == 'c' && xout[2] == 'b' && xout[3] == 'a');
+
+  {
+    xchar_t xc = (xchar_t)'a';
+    xchar_t xu = (xchar_t)'A';
+    LUB_ASSERT(xltocase(xc) == XLTOCASE_CONCRETE(xc));
+    LUB_ASSERT(xltolower(xu) == XLTOLOWER_CONCRETE(xu));
+    LUB_ASSERT(xltoupper(xc) == XLTOUPPER_CONCRETE(xc));
+    LUB_ASSERT(xutocase(xu, (xchar_t)'?') == XUTOCASE_CONCRETE(xu, (xchar_t)'?'));
+    LUB_ASSERT(xutolower(xu, (xchar_t)'?') == XUTOLOWER_CONCRETE(xu, (xchar_t)'?'));
+    LUB_ASSERT(xutoupper(xc, (xchar_t)'?') == XUTOUPPER_CONCRETE(xc, (xchar_t)'?'));
+    LUB_ASSERT(xxtocase(xc) == XXTOCASE_CONCRETE(xc));
+  }
 
   LUB_ASSERT(xlsnnpad(xout, 8, (const xchar_t *)"abc", 3,
                   (const xchar_t[]){'R', 'x', 0}) != NULL);

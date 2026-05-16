@@ -281,8 +281,8 @@ extern lub_test_result_t run_utilities_tests_u(void);
 extern lub_test_result_t run_fuzz_edge_tests(void);
 extern lub_test_result_t run_skip_tests_l(void);
 extern lub_test_result_t run_skip_tests_u(void);
-extern lub_test_result_t run_xmacro_alias_tests_l(void);
-extern lub_test_result_t run_xmacro_alias_tests_u(void);
+extern lub_test_result_t run_xmacros_tests_l(void);
+extern lub_test_result_t run_xmacros_tests_u(void);
 /** @} */
 
 #endif

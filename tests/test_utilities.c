@@ -23,6 +23,18 @@
 
 static lub_test_result_t test_result;
 
+#if defined(LUB_X_IS_L)
+#define XTRUNC_CONCRETE(s) isltruncstr((const lchar_t *)(s))
+#define XTRIM_CONCRETE(s) isltrimstr((const lchar_t *)(s))
+#define XPAD_CONCRETE(s) islpadstr((const lchar_t *)(s))
+#define XNEEDLE_CONCRETE(s) islneedlestr((const lchar_t *)(s))
+#else
+#define XTRUNC_CONCRETE(s) isutruncstr((const uchar_t *)(s))
+#define XTRIM_CONCRETE(s) isutrimstr((const uchar_t *)(s))
+#define XPAD_CONCRETE(s) isupadstr((const uchar_t *)(s))
+#define XNEEDLE_CONCRETE(s) isuneedlestr((const uchar_t *)(s))
+#endif
+
 /**
  * @brief Helper: Create a local xchar_t string from ASCII C string.
  */
@@ -199,11 +211,44 @@ static void test_pad_and_repeat(void) {
 #endif /* LUB_X_IS_L */
 }
 
+static void test_option_alias_validators(void) {
+    xchar_t trunc_r[8], trim_b[8], pad_l[8], needle_ci[8], invalid[8], empty[2];
+
+    make_xstr_local("R..", trunc_r, 8);
+    make_xstr_local("Bx", trim_b, 8);
+    make_xstr_local("L_", pad_l, 8);
+    make_xstr_local("I|", needle_ci, 8);
+    make_xstr_local("Qx", invalid, 8);
+    empty[0] = (xchar_t)0;
+    empty[1] = (xchar_t)0;
+
+    LUB_ASSERT(isxtruncstr(trunc_r) == XTRUNC_CONCRETE(trunc_r));
+    LUB_ASSERT(isxtrimstr(trim_b) == XTRIM_CONCRETE(trim_b));
+    LUB_ASSERT(isxpadstr(pad_l) == XPAD_CONCRETE(pad_l));
+    LUB_ASSERT(isxneedlestr(needle_ci) == XNEEDLE_CONCRETE(needle_ci));
+
+    LUB_ASSERT(isxtruncstr(invalid) == XTRUNC_CONCRETE(invalid));
+    LUB_ASSERT(isxtrimstr(invalid) == XTRIM_CONCRETE(invalid));
+    LUB_ASSERT(isxpadstr(invalid) == XPAD_CONCRETE(invalid));
+    LUB_ASSERT(isxneedlestr(invalid) == XNEEDLE_CONCRETE(invalid));
+
+    LUB_ASSERT(isxtruncstr(empty) == XTRUNC_CONCRETE(empty));
+    LUB_ASSERT(isxtrimstr(empty) == XTRIM_CONCRETE(empty));
+    LUB_ASSERT(isxpadstr(empty) == XPAD_CONCRETE(empty));
+    LUB_ASSERT(isxneedlestr(empty) == XNEEDLE_CONCRETE(empty));
+
+    LUB_ASSERT(isxtruncstr(NULL) == XTRUNC_CONCRETE(NULL));
+    LUB_ASSERT(isxtrimstr(NULL) == XTRIM_CONCRETE(NULL));
+    LUB_ASSERT(isxpadstr(NULL) == XPAD_CONCRETE(NULL));
+    LUB_ASSERT(isxneedlestr(NULL) == XNEEDLE_CONCRETE(NULL));
+}
+
 lub_test_result_t LUB_PASTE(run_utilities_tests_, LUB_X)(void) {
     test_result = (lub_test_result_t){0};
     test_reverse();
     test_trim();
     test_pad_and_repeat();
+    test_option_alias_validators();
 
     printf("Utilities tests passed for LUB_X=%s.\n", LUB_STRINGIFY(LUB_X));
     return test_result;

@@ -21,6 +21,12 @@
 
 static lub_test_result_t test_result;
 
+#if defined(LUB_X_IS_L)
+#define IXHEX_CONCRETE(c) islhex((c))
+#else
+#define IXHEX_CONCRETE(c) isuhex((c))
+#endif
+
 /**
  * @brief Run tests for x-macro character classification and
  *        conversion functions.
@@ -50,6 +56,29 @@ lub_test_result_t LUB_PASTE(run_charclass_tests_, LUB_X)(void)
   LUB_ASSERT(isxalnum((xchar_t)'9'));
   LUB_ASSERT(isxalnum((xchar_t)'B'));
   LUB_ASSERT(!isxalnum((xchar_t)'!'));
+  // Additional x-macro character-class aliases.
+  LUB_ASSERT(isxblank((xchar_t)' '));
+  LUB_ASSERT(!isxblank((xchar_t)'A'));
+  LUB_ASSERT(isxcntrl((xchar_t)'\n'));
+  LUB_ASSERT(!isxcntrl((xchar_t)'A'));
+  LUB_ASSERT(isxprint((xchar_t)'A'));
+  LUB_ASSERT(!isxprint((xchar_t)'\n'));
+  LUB_ASSERT(isxpunct((xchar_t)'!'));
+  LUB_ASSERT(!isxpunct((xchar_t)'A'));
+  LUB_ASSERT(isxspace((xchar_t)' '));
+  LUB_ASSERT(!isxspace((xchar_t)'A'));
+  LUB_ASSERT(isxgraph((xchar_t)'!'));
+  LUB_ASSERT(!isxgraph((xchar_t)' '));
+  LUB_ASSERT(isxhex((xchar_t)'F'));
+  LUB_ASSERT(!isxhex((xchar_t)'G'));
+  LUB_ASSERT(ixhex((xchar_t)'f') == IXHEX_CONCRETE((xchar_t)'f'));
+  LUB_ASSERT(ixhex((xchar_t)'g') == IXHEX_CONCRETE((xchar_t)'g'));
+  LUB_ASSERT(isxlatin((xchar_t)'A'));
+  LUB_ASSERT(isxname1c((xchar_t)'A'));
+  LUB_ASSERT(!isxname1c((xchar_t)'1'));
+  LUB_ASSERT(isxnamec((xchar_t)'_'));
+  LUB_ASSERT(isxnamec((xchar_t)'1'));
+  LUB_ASSERT(!isxnamec((xchar_t)'-'));
   // Test: xxtoupper, xxtolower
   LUB_ASSERT(xxtoupper((xchar_t)'a') == (xchar_t)'A');
   LUB_ASSERT(xxtolower((xchar_t)'Z') == (xchar_t)'z');

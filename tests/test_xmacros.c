@@ -1,5 +1,5 @@
 /**
- * @file test_xmacro_aliases.c
+ * @file test_xmacros.c
  * @brief X-macro alias mapping tests (isx* -> isl* and isu*).
  *
  * @note Compiled twice: -DLUB_X_IS_L for Latin, -DLUB_X_IS_U for Unicode.
@@ -69,7 +69,7 @@ static void test_qname_alias_mapping(void) {
 	X(test_reserved_alias_mapping) \
 	X(test_qname_alias_mapping)
 
-lub_test_result_t LUB_PASTE(run_xmacro_alias_tests_, LUB_X)(void) {
+lub_test_result_t LUB_PASTE(run_xmacros_tests_, LUB_X)(void) {
 	test_result = (lub_test_result_t){0};
 #define RUN_TEST(fn) fn();
 	XMACRO_ALIAS_TESTS(RUN_TEST)

@@ -58,8 +58,8 @@ XSKIP_L_OBJ = test_skip_l.o
 XSKIP_U_OBJ = test_skip_u.o
 
 # X-macro alias coverage object files (compiled from same source, different defines)
-XXMACROALIASES_L_OBJ = test_xmacro_aliases_l.o
-XXMACROALIASES_U_OBJ = test_xmacro_aliases_u.o
+XXMACROS_L_OBJ = test_xmacros_l.o
+XXMACROS_U_OBJ = test_xmacros_u.o
 
 # All x-macro objects combined
 X_OBJECTS = $(XERROREDGE_L_OBJ) $(XERROREDGE_U_OBJ) \
@@ -72,7 +72,7 @@ X_OBJECTS = $(XERROREDGE_L_OBJ) $(XERROREDGE_U_OBJ) \
 			$(XCOREFAMILY_L_OBJ) $(XCOREFAMILY_U_OBJ) \
 			$(XUTILITIES_L_OBJ) $(XUTILITIES_U_OBJ) \
 			$(XSKIP_L_OBJ) $(XSKIP_U_OBJ) \
-			$(XXMACROALIASES_L_OBJ) $(XXMACROALIASES_U_OBJ)
+			$(XXMACROS_L_OBJ) $(XXMACROS_U_OBJ)
 
 all: lubtype_tests
 
@@ -124,10 +124,10 @@ $(XSKIP_U_OBJ): test_skip.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_U -c $< -o $@
 
 # Explicit rules for x-macro alias coverage object files
-$(XXMACROALIASES_L_OBJ): test_xmacro_aliases.c
+$(XXMACROS_L_OBJ): test_xmacros.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_L -c $< -o $@
 
-$(XXMACROALIASES_U_OBJ): test_xmacro_aliases.c
+$(XXMACROS_U_OBJ): test_xmacros.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_U -c $< -o $@
 
 $(XERROREDGE_U_OBJ): test_error_edge.c
