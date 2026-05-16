@@ -123,9 +123,9 @@ static volatile sig_atomic_t guard_active = 0;
  * Catches unhandled signals (SIGSEGV, SIGABRT, SIGBUS) during test
  * module execution and siglongjmps back to the guard point
  * (run_guarded). This results in the entire category being marked
- * as exception:1.
+ * as exception: 1.
  *
- * @note Modern per-assert signal trapping is now done within
+ * @note Modern per-assert signal trapping is done within
  *       LUB_ASSERT macro (in lubtype_test_declarations.h), so
  *       this category-level handler acts as a backstop for
  *       unguarded crashes.
@@ -311,7 +311,7 @@ int main(int argc, char **argv) {
 	RUN_AND_REPORT(13, "Skip functions -x",
 	               merge_results(run_guarded(run_skip_tests_l),
 	                             run_guarded(run_skip_tests_u)));
-	RUN_AND_REPORT(14, "X-macro aliases -x",
+	RUN_AND_REPORT(14, "Miscellaneous x-macros -x",
 	               merge_results(run_guarded(run_xmacros_tests_l),
 	                             run_guarded(run_xmacros_tests_u)));
 
