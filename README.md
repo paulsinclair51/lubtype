@@ -350,7 +350,7 @@ To build with gcc instead of clang:
 make -C tests CC=gcc run
 ```
 
-The checked-in test runner writes lubtype_tests_report.txt to its current working directory when executed.
+The checked-in test runner writes lubtype_tests_report.txt next to the test executable when executed.
 
 ## Continuous Integration
 
