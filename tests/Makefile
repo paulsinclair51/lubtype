@@ -11,7 +11,6 @@ LUB_DEFINITIONS_OBJ = lubdefinitions.o
 
 TEST_SOURCES = \
 	lubtype_tests.c \
-	test_strlen_validation.c \
 	test_reserved_matrix.c \
 	test_search_families.c \
 	test_count.c \
@@ -39,8 +38,16 @@ XCHARCLASS_U_OBJ = test_charclass_u.o
 XCMPSEARCH_L_OBJ = test_cmp_search_l.o
 XCMPSEARCH_U_OBJ = test_cmp_search_u.o
 
+# X-macro strlen_validation object files (compiled from same source, different defines)
+XSTRLENVAL_L_OBJ = test_strlen_validation_l.o
+XSTRLENVAL_U_OBJ = test_strlen_validation_u.o
+
 # All x-macro objects combined
-X_OBJECTS = $(XERROREDGE_L_OBJ) $(XERROREDGE_U_OBJ) $(XADVANCEDOPS_L_OBJ) $(XADVANCEDOPS_U_OBJ) $(XCHARCLASS_L_OBJ) $(XCHARCLASS_U_OBJ) $(XCMPSEARCH_L_OBJ) $(XCMPSEARCH_U_OBJ)
+X_OBJECTS = $(XERROREDGE_L_OBJ) $(XERROREDGE_U_OBJ) \
+            $(XADVANCEDOPS_L_OBJ) $(XADVANCEDOPS_U_OBJ) \
+            $(XCHARCLASS_L_OBJ) $(XCHARCLASS_U_OBJ) \
+            $(XCMPSEARCH_L_OBJ) $(XCMPSEARCH_U_OBJ) \
+            $(XSTRLENVAL_L_OBJ) $(XSTRLENVAL_U_OBJ)
 
 all: lubtype_tests
 
@@ -80,6 +87,12 @@ $(XCMPSEARCH_L_OBJ): test_cmp_search.c
 $(XCMPSEARCH_U_OBJ): test_cmp_search.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_U -c $< -o $@
 
+# Explicit rules for x-macro strlen_validation object files
+$(XSTRLENVAL_L_OBJ): test_strlen_validation.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_L -c $< -o $@
+
+$(XSTRLENVAL_U_OBJ): test_strlen_validation.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_U -c $< -o $@
 
 # Link one test suite executable with all x-macro variants.
 lubtype_tests: $(TEST_OBJECTS) $(X_OBJECTS) $(LUB_DEFINITIONS_OBJ)
