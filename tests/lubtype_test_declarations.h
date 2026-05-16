@@ -9,6 +9,8 @@
 #ifndef LUBTYPE_TEST_DECLARATIONS_H
 #define LUBTYPE_TEST_DECLARATIONS_H
 
+#include <setjmp.h>
+#include <signal.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,7 +20,7 @@
  *
  * pass      - assertions that ran and were true
  * fail      - assertions that ran and were false
- * exception - category did not complete (fault, abort, signal, etc.)
+ * exception - assertion or category did not complete (fault, abort, signal, etc.)
  */
 typedef struct {
 	size_t pass;
@@ -26,19 +28,43 @@ typedef struct {
 	size_t exception;
 } lub_test_result_t;
 
+typedef void (*lubtype_sighandler_t)(int);
+
+static jmp_buf lubtype_assert_env;
+static volatile sig_atomic_t lubtype_assert_guard_active = 0;
+
+static inline void lubtype_assert_signal_handler(int sig) {
+	if (lubtype_assert_guard_active) {
+		lubtype_assert_guard_active = 0;
+		longjmp(lubtype_assert_env, sig ? sig : 1);
+	}
+}
+
 static inline void lubtype_assert_fail(const char *expr, const char *file, int line) {
 	fprintf(stderr, "Assertion failed: %s (%s:%d)\n", expr, file, line);
-	abort();
 }
 
 #define LUB_ASSERT(expr) \
 	do { \
-		if (expr) { \
-			++test_result.pass; \
+		lubtype_sighandler_t _old_segv = signal(SIGSEGV, lubtype_assert_signal_handler); \
+		lubtype_sighandler_t _old_abrt = signal(SIGABRT, lubtype_assert_signal_handler); \
+		lubtype_sighandler_t _old_bus = signal(SIGBUS, lubtype_assert_signal_handler); \
+		int _jump_code = setjmp(lubtype_assert_env); \
+		if (_jump_code == 0) { \
+			lubtype_assert_guard_active = 1; \
+			if (expr) { \
+				++test_result.pass; \
+			} else { \
+				++test_result.fail; \
+				lubtype_assert_fail(#expr, __FILE__, __LINE__); \
+			} \
+			lubtype_assert_guard_active = 0; \
 		} else { \
-			++test_result.fail; \
-			lubtype_assert_fail(#expr, __FILE__, __LINE__); \
+			++test_result.exception; \
 		} \
+		signal(SIGSEGV, _old_segv); \
+		signal(SIGABRT, _old_abrt); \
+		signal(SIGBUS, _old_bus); \
 	} while (0)
 
 extern lub_test_result_t run_error_edge_tests(void);

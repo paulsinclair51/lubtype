@@ -43,6 +43,7 @@ static void fill_random_uchar(uchar_t *buf, size_t len) {
 static void fuzz_copy_append_cat(void) {
     lchar_t src[128], dst[128];
     uchar_t usrc[128], udst[128];
+    int all_ok = 1;
     for (int i = 0; i < 1000; ++i) {
         size_t len = rand() % 127;
         fill_random_lchar(src, len); src[len] = 0;
@@ -53,10 +54,13 @@ static void fuzz_copy_append_cat(void) {
         ulsnncpy(udst, sizeof(udst), src, len + 1, NULL);
         llsnncat(dst, sizeof(dst), src, len + 1, NULL);
         uusnncat(udst, sizeof(udst), usrc, len + 1, NULL);
-        // Current API contract: results stay null-terminated within bounds.
-        LUB_ASSERT(!LUB_SIZE_ERR(lcsnlen(dst, sizeof(dst)), 0));
-        LUB_ASSERT(!LUB_SIZE_ERR(ucsnlen(udst, sizeof(udst)), 0));
+        /* Treat the fuzz loop as one logical test: all iterations must satisfy bounds. */
+        if (LUB_SIZE_ERR(lcsnlen(dst, sizeof(dst)), 0) ||
+            LUB_SIZE_ERR(ucsnlen(udst, sizeof(udst)), 0)) {
+            all_ok = 0;
+        }
     }
+    LUB_ASSERT(all_ok);
 }
 
 // Test: error paths (null, overflow, invalid)
