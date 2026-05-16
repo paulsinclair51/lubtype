@@ -11,7 +11,7 @@
 #include "lubtype_test_declarations.h"
 #include <stdio.h>
 
-static size_t test_count = 0;
+static lub_test_result_t test_result;
 
 /**
  * @brief Run tests for error and edge cases in string operations.
@@ -19,8 +19,8 @@ static size_t test_count = 0;
  * Tests null pointer handling, over-max-length, and empty string cases for
  * lcslen and lcsnlen. Prints a message on success.
  */
-size_t run_error_edge_tests(void) {
-    test_count = 0;
+lub_test_result_t run_error_edge_tests(void) {
+    test_result = (lub_test_result_t){0};
     lchar_t lsrc[8] = {'a','b','c','\0'};
     uchar_t usrc[8] = {'a','b','c',0};
     lchar_t ldst[16] = {0};
@@ -49,5 +49,5 @@ size_t run_error_edge_tests(void) {
 
     printf("Error/edge case tests passed.\n");
 
-    return test_count;
+    return test_result;
 }

@@ -16,7 +16,7 @@
 #include "../lubtype.h"
 #include "lubtype_test_declarations.h"
 
-static size_t test_count = 0;
+static lub_test_result_t test_result;
 
 // Helper: fill buffer with random bytes
 /**
@@ -118,12 +118,12 @@ static void test_overlapping_buffers(void) {
     LUB_ASSERT(!LUB_SIZE_ERR(lcsnlen(out, sizeof(out)), 0));
 }
 
-size_t run_fuzz_edge_tests(void) {
-    test_count = 0;
+lub_test_result_t run_fuzz_edge_tests(void) {
+    test_result = (lub_test_result_t){0};
     srand(42);
     fuzz_copy_append_cat();
     test_error_paths();
     test_overlapping_buffers();
     printf("Fuzz/edge-case tests passed.\n");
-    return test_count;
+    return test_result;
 }

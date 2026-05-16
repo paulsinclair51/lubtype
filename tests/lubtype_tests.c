@@ -6,10 +6,14 @@
  * For license details, see the LICENSE file in the project root.
  */
 
+/* Enable POSIX.1-2008 (sigaction, sigsetjmp, siglongjmp, sigjmp_buf). */
+#define _POSIX_C_SOURCE 200809L
+
 #include "../lubtype.h"
 #include "lubtype_test_declarations.h"
 
-#include <assert.h>
+#include <setjmp.h>
+#include <signal.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -39,8 +43,65 @@ static const char *report_path_from_argv0(const char *argv0, char *buffer, size_
 	return buffer;
 }
 
-static void write_test_category(FILE *report, size_t index, const char *label, size_t count) {
-	fprintf(report, " %2zu. %s (%zu test%s)\n", index, label, count, count == 1 ? "" : "s");
+/**
+ * @brief Run fn with a signal trap; catch any crash/abort as exception.
+ *
+ * Installs handlers for SIGSEGV, SIGABRT, and SIGBUS that longjmp back
+ * to the guard point, setting exception=1 in the returned result.
+ * Handlers are restored to their previous disposition after each call.
+ */
+static sigjmp_buf  guard_env;
+static volatile sig_atomic_t guard_active = 0;
+
+static void guard_signal_handler(int sig) {
+	(void)sig;
+	if (guard_active) {
+		guard_active = 0;
+		siglongjmp(guard_env, 1);
+	}
+}
+
+static lub_test_result_t run_guarded(lub_test_result_t (*fn)(void)) {
+	struct sigaction sa, old_segv, old_abrt, old_bus;
+	sa.sa_handler = guard_signal_handler;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	sigaction(SIGSEGV, &sa, &old_segv);
+	sigaction(SIGABRT, &sa, &old_abrt);
+	sigaction(SIGBUS,  &sa, &old_bus);
+
+	guard_active = 1;
+	lub_test_result_t result = {0, 0, 0};
+
+	if (sigsetjmp(guard_env, 1) == 0) {
+		result = fn();
+		guard_active = 0;
+	} else {
+		result = (lub_test_result_t){0, 0, 1};
+	}
+
+	sigaction(SIGSEGV, &old_segv, NULL);
+	sigaction(SIGABRT, &old_abrt, NULL);
+	sigaction(SIGBUS,  &old_bus,  NULL);
+
+	return result;
+}
+
+/** @brief Merge two result structs by summing each field. */
+static lub_test_result_t merge_results(lub_test_result_t a, lub_test_result_t b) {
+	return (lub_test_result_t){
+		a.pass + b.pass,
+		a.fail + b.fail,
+		a.exception + b.exception
+	};
+}
+
+static void write_test_category(FILE *report, size_t index, const char *label,
+                                lub_test_result_t result) {
+	fprintf(report,
+	        " %2zu. %-44s  pass: %4zu  fail: %4zu  exception: %zu\n",
+	        index, label,
+	        result.pass, result.fail, result.exception);
 }
 
 /**
@@ -50,7 +111,7 @@ static void write_test_category(FILE *report, size_t index, const char *label, s
  */
 int main(int argc, char **argv) {
 	char report_path[1024];
-	size_t total_asserts = 0;
+	lub_test_result_t totals = {0, 0, 0};
 	const char *resolved_report_path = (argc > 0 && argv && argv[0])
 		? report_path_from_argv0(argv[0], report_path, sizeof(report_path))
 		: "lubtype_tests_report.txt";
@@ -63,7 +124,7 @@ int main(int argc, char **argv) {
 	/* Keep report output on disk even if a test assertion aborts execution. */
 	(void)setvbuf(report, NULL, _IONBF, 0);
 
-	// Write header with date/time
+	/* Write header with date/time */
 	time_t now = time(NULL);
 	char timebuf[64];
 	strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M:%S", localtime(&now));
@@ -73,38 +134,57 @@ int main(int argc, char **argv) {
 	fprintf(report, "----------------------------------------\n");
 	fprintf(report, "Test categories executed (in order):\n");
 
-#define RUN_AND_REPORT(idx, label, expr) \
+#define RUN_AND_REPORT(idx, label, result_expr) \
 	do { \
-		size_t category_count = (size_t)(expr); \
-		write_test_category(report, (idx), (label), category_count); \
-		total_asserts += category_count; \
+		lub_test_result_t _cat = (result_expr); \
+		write_test_category(report, (idx), (label), _cat); \
+		totals = merge_results(totals, _cat); \
 	} while (0)
 
-	RUN_AND_REPORT(1, "Error/edge cases", run_error_edge_tests());
-	RUN_AND_REPORT(2, "Advanced operations for LUB_X = l and u", run_advanced_ops_tests_l() + run_advanced_ops_tests_u());
-	RUN_AND_REPORT(3, "Compare/search for LUB_X = l and u", run_cmp_search_tests_l() + run_cmp_search_tests_u());
-	RUN_AND_REPORT(4, "String length/validation", run_strlen_validation_tests());
-	RUN_AND_REPORT(5, "Charclass for LUB_X = l and u", run_charclass_tests_l() + run_charclass_tests_u());
-	RUN_AND_REPORT(6, "Reserved/matrix", run_reserved_matrix_tests());
-	RUN_AND_REPORT(7, "Search families", run_search_family_tests());
-	RUN_AND_REPORT(8, "Span/count", run_span_count_tests());
-	RUN_AND_REPORT(9, "Core families", run_core_family_tests());
-	RUN_AND_REPORT(10, "Type matrix", run_type_matrix_tests());
-	RUN_AND_REPORT(11, "Utilities", run_utilities_tests());
-	RUN_AND_REPORT(12, "Fuzz/edge cases", run_fuzz_edge_tests());
-	RUN_AND_REPORT(13, "Skip functions", run_skip_tests());
+	RUN_AND_REPORT(1,  "Error/edge cases",
+	               run_guarded(run_error_edge_tests));
+	RUN_AND_REPORT(2,  "Advanced operations (l and u)",
+	               merge_results(run_guarded(run_advanced_ops_tests_l),
+	                             run_guarded(run_advanced_ops_tests_u)));
+	RUN_AND_REPORT(3,  "Compare/search (l and u)",
+	               merge_results(run_guarded(run_cmp_search_tests_l),
+	                             run_guarded(run_cmp_search_tests_u)));
+	RUN_AND_REPORT(4,  "String length/validation",
+	               run_guarded(run_strlen_validation_tests));
+	RUN_AND_REPORT(5,  "Charclass (l and u)",
+	               merge_results(run_guarded(run_charclass_tests_l),
+	                             run_guarded(run_charclass_tests_u)));
+	RUN_AND_REPORT(6,  "Reserved/matrix",
+	               run_guarded(run_reserved_matrix_tests));
+	RUN_AND_REPORT(7,  "Search families",
+	               run_guarded(run_search_family_tests));
+	RUN_AND_REPORT(8,  "Span/count",
+	               run_guarded(run_span_count_tests));
+	RUN_AND_REPORT(9,  "Core families",
+	               run_guarded(run_core_family_tests));
+	RUN_AND_REPORT(10, "Type matrix",
+	               run_guarded(run_type_matrix_tests));
+	RUN_AND_REPORT(11, "Utilities",
+	               run_guarded(run_utilities_tests));
+	RUN_AND_REPORT(12, "Fuzz/edge cases",
+	               run_guarded(run_fuzz_edge_tests));
+	RUN_AND_REPORT(13, "Skip functions",
+	               run_guarded(run_skip_tests));
 
 #undef RUN_AND_REPORT
 
 	fprintf(report, "----------------------------------------\n");
-	fprintf(report, "Total tests executed: %zu\n", total_asserts);
+	fprintf(report, "Totals:  pass: %zu  fail: %zu  exception: %zu\n",
+	        totals.pass, totals.fail, totals.exception);
 	fprintf(report, "----------------------------------------\n");
 
-	// Write completion message
-	fprintf(report, "\nAll tests completed successfully.\n");
-	fprintf(report, "No failures detected (assertions would abort execution).\n");
+	if (totals.fail == 0 && totals.exception == 0) {
+		fprintf(report, "\nAll tests passed.\n");
+	} else {
+		fprintf(report, "\nTest run completed with failures or exceptions.\n");
+	}
 	fclose(report);
 
-	printf("All tests completed. Report written to %s\n", resolved_report_path);
-	return 0;
+	printf("Tests completed. Report written to %s\n", resolved_report_path);
+	return (totals.fail > 0 || totals.exception > 0) ? 1 : 0;
 }

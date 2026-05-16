@@ -18,7 +18,7 @@
 #include "lubtype_test_declarations.h"
 #include "../lubtype.h"
 
-static size_t test_count = 0;
+static lub_test_result_t test_result;
 
 /**
  * @brief Run tests for advanced string operations
@@ -26,8 +26,8 @@ static size_t test_count = 0;
  *        split).
  */
 
-size_t LUB_PASTE(run_advanced_ops_tests_, LUB_X)(void)
-{ test_count = 0;
+lub_test_result_t LUB_PASTE(run_advanced_ops_tests_, LUB_X)(void)
+{ test_result = (lub_test_result_t){0};
   xchar_t xsrc[32] = {' ','a','b','c',' ',0};
   xchar_t xtrim_custom_src[32] = {'x','x','a','b','c','x',0};
   lchar_t xtrim_custom_opt[3] = {'L','x',0};
@@ -86,5 +86,5 @@ size_t LUB_PASTE(run_advanced_ops_tests_, LUB_X)(void)
 
   printf("Advanced operation tests passed for LUB_X=%s.\n",
          LUB_STRINGIFY(LUB_X));
-  return test_count;
+  return test_result;
 }

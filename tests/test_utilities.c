@@ -12,7 +12,7 @@
 #include "../lubtype.h"
 #include "lubtype_test_declarations.h"
 
-static size_t test_count = 0;
+static lub_test_result_t test_result;
 
 static lchar_t *make_lstr_local(const char *src, lchar_t *dst, size_t cap) {
     size_t i = 0;
@@ -156,11 +156,11 @@ static void test_pad_and_repeat(void) {
     LUB_ASSERT(eq_lstr_ascii_local(out, ""));
 }
 
-size_t run_utilities_tests(void) {
-    test_count = 0;
+lub_test_result_t run_utilities_tests(void) {
+    test_result = (lub_test_result_t){0};
     test_reverse();
     test_trim();
     test_pad_and_repeat();
 
-    return test_count;
+    return test_result;
 }

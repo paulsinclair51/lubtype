@@ -12,7 +12,7 @@
 #include "../lubtype.h"
 #include "lubtype_test_declarations.h"
 
-static size_t test_count = 0;
+static lub_test_result_t test_result;
 
 /* ---- helpers ------------------------------------------------------------ */
 
@@ -270,8 +270,8 @@ static void test_sn_bound_zero(void) {
 
 /* ---- entry point -------------------------------------------------------- */
 
-size_t run_skip_tests(void) {
-    test_count = 0;
+lub_test_result_t run_skip_tests(void) {
+    test_result = (lub_test_result_t){0};
     test_llsnskip_explicit_skipset();
     test_llsnskip_default_whitespace();
     test_llsnskip_error_paths();
@@ -289,5 +289,5 @@ size_t run_skip_tests(void) {
     test_skipset_consecutive_skip_chars();
     test_sn_bound_zero();
 
-    return test_count;
+    return test_result;
 }

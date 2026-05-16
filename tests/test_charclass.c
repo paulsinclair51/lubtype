@@ -16,7 +16,7 @@
 #include "lubtype_test_declarations.h"
 #include "../lubtype.h"
 
-static size_t test_count = 0;
+static lub_test_result_t test_result;
 
 /**
  * @brief Run tests for x-macro character classification and conversion functions.
@@ -26,8 +26,8 @@ static size_t test_count = 0;
  * This file is compiled twice: once with -DLUB_X_IS_L and once with -DLUB_X_IS_U.
  */
 
-size_t LUB_PASTE(run_charclass_tests_, LUB_X)(void)
-{ test_count = 0;
+lub_test_result_t LUB_PASTE(run_charclass_tests_, LUB_X)(void)
+{ test_result = (lub_test_result_t){0};
 // Test: isxalpha
   LUB_ASSERT(isxalpha((xchar_t)'A'));
   LUB_ASSERT(isxalpha((xchar_t)'z'));
@@ -62,5 +62,5 @@ size_t LUB_PASTE(run_charclass_tests_, LUB_X)(void)
 
   printf("Character classification/conversion tests passed for LUB_X=%s.\n",
          LUB_STRINGIFY(LUB_X));
-  return test_count;
+  return test_result;
 }

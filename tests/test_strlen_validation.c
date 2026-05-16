@@ -11,7 +11,7 @@
 #include "lubtype_test_declarations.h"
 #include <stdio.h>
 
-static size_t test_count = 0;
+static lub_test_result_t test_result;
 
 /**
  * @brief Run tests for string length and validation functions.
@@ -19,8 +19,8 @@ static size_t test_count = 0;
  * Tests lcsnlen, ucsnlen, and string classification helpers for
  * correct behavior and edge cases.
  */
-size_t run_strlen_validation_tests(void) {
-    test_count = 0;
+lub_test_result_t run_strlen_validation_tests(void) {
+    test_result = (lub_test_result_t){0};
     lchar_t lstr[16] = {'a','b','c','\0'};
     uchar_t ustr[16] = {L'a',L'b',L'c',0};
     // Test: bounded length API (current surface).
@@ -62,5 +62,5 @@ size_t run_strlen_validation_tests(void) {
     LUB_ASSERT(isunhexstr(hexu, 0));
     printf("String length/validation tests passed.\n");
 
-    return test_count;
+    return test_result;
 }

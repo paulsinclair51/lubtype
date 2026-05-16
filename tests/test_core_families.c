@@ -12,7 +12,7 @@
 #include "../lubtype.h"
 #include "lubtype_test_declarations.h"
 
-static size_t test_count = 0;
+static lub_test_result_t test_result;
 
 /**
  * @brief Create a local Latin string from ASCII text.
@@ -160,10 +160,10 @@ static void test_copy_and_cat_error_behavior(void) {
     // version, so avoid asserting legacy overlap-error outcomes here.
 }
 
-size_t run_core_family_tests(void) {
-    test_count = 0;
+lub_test_result_t run_core_family_tests(void) {
+    test_result = (lub_test_result_t){0};
     test_copy_variants();
     test_cat_basic();
     test_copy_and_cat_error_behavior();
-    return test_count;
+    return test_result;
 }

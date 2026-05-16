@@ -12,7 +12,7 @@
 #include "../lubtype.h"
 #include "lubtype_test_declarations.h"
 
-static size_t test_count = 0;
+static lub_test_result_t test_result;
 
 /**
  * @brief Create a local Latin string from ASCII text.
@@ -173,8 +173,8 @@ static void test_pfx_and_sfx_matching(void) {
     LUB_ASSERT(result == 0);
 }
 
-size_t run_search_family_tests(void) {
-    test_count = 0;
+lub_test_result_t run_search_family_tests(void) {
+    test_result = (lub_test_result_t){0};
     test_chr_search_with_m_semantics();
     test_chr_search_case_insensitive();
     test_str_search_with_m_semantics();
@@ -182,5 +182,5 @@ size_t run_search_family_tests(void) {
     test_cmp_basic_and_case_insensitive();
     test_pfx_and_sfx_matching();
 
-    return test_count;
+    return test_result;
 }

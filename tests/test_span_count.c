@@ -12,7 +12,7 @@
 #include "../lubtype.h"
 #include "lubtype_test_declarations.h"
 
-static size_t test_count = 0;
+static lub_test_result_t test_result;
 
 /**
  * @brief Create a local Latin string from ASCII text.
@@ -78,10 +78,10 @@ static void test_substring_count(void) {
     LUB_ASSERT(result == 2);
 }
 
-size_t run_span_count_tests(void) {
-    test_count = 0;
+lub_test_result_t run_span_count_tests(void) {
+    test_result = (lub_test_result_t){0};
     test_count_character();
     test_substring_count();
 
-    return test_count;
+    return test_result;
 }

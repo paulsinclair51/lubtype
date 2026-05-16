@@ -12,7 +12,7 @@
 #include "../lubtype.h"
 #include "lubtype_test_declarations.h"
 
-static size_t test_count = 0;
+static lub_test_result_t test_result;
 
 /**
  * @brief Create a local ucstr_t from ASCII string.
@@ -181,10 +181,10 @@ static void test_matrix_consistency_cmp_pfx_sfx(void) {
     LUB_ASSERT(uusnnSFXCMP(ulhs, 63, urhs, 63) == 0);
 }
 
-size_t run_reserved_matrix_tests(void) {
-    test_count = 0;
+lub_test_result_t run_reserved_matrix_tests(void) {
+    test_result = (lub_test_result_t){0};
     test_isureserved_oracle_crosscheck();
     test_matrix_consistency_cmp_pfx_sfx();
 
-    return test_count;
+    return test_result;
 }

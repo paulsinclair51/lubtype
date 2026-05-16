@@ -16,7 +16,7 @@
 #include "lubtype_test_declarations.h"
 #include "../lubtype.h"
 
-static size_t test_count = 0;
+static lub_test_result_t test_result;
 
 static void test_search_delim_negative_m(void)
 { const xchar_t hay[] = {'a','b','a','b','a',0};
@@ -54,8 +54,8 @@ static void test_search_empty_token(void)
  * Each block checks a specific function or family for
  * correct behavior and edge cases.
  */
-size_t LUB_PASTE(run_cmp_search_tests_, LUB_X)(void)
-{ test_count = 0;
+lub_test_result_t LUB_PASTE(run_cmp_search_tests_, LUB_X)(void)
+{ test_result = (lub_test_result_t){0};
   xchar_t s1[16] = {'a','b','c','\0'};
   xchar_t s2[16] = {'a','b','c','\0'};
   xchar_t s3[16] = {'a','b','d','\0'};
@@ -76,5 +76,5 @@ size_t LUB_PASTE(run_cmp_search_tests_, LUB_X)(void)
 
   printf("Comparison/search tests passed for LUB_X=%s.\n",
          LUB_STRINGIFY(LUB_X));
-  return test_count;
+  return test_result;
 }

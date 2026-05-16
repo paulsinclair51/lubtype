@@ -12,7 +12,7 @@
 #include "../lubtype.h"
 #include "lubtype_test_declarations.h"
 
-static size_t test_count = 0;
+static lub_test_result_t test_result;
 
 static const lchar_t *make_lstr_local(const char *src, lchar_t *dst, size_t cap) {
     size_t i = 0;
@@ -103,10 +103,10 @@ static void test_prefix_suffix_cmp_matrix(void) {
     LUB_ASSERT(uusnnsfxcmp((const uchar_t *)make_ustr_local("suffix", u1, 32), 32, (const uchar_t *)make_ustr_local("fix", u2, 32), 32) == 0);
 }
 
-size_t run_type_matrix_tests(void) {
-    test_count = 0;
+lub_test_result_t run_type_matrix_tests(void) {
+    test_result = (lub_test_result_t){0};
     test_cross_type_copy_and_cat_matrix();
     test_compare_matrix();
     test_prefix_suffix_cmp_matrix();
-    return test_count;
+    return test_result;
 }
