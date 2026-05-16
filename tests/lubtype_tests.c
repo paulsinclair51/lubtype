@@ -1,6 +1,39 @@
 /**
  * @file lubtype_tests.c
- * @brief Aggregates and runs all lubtype.h regression and unit tests.
+ * @brief Main aggregator and runner for lubtype.h regression and unit tests.
+ *
+ * This module serves as the test suite orchestrator for lubtype.h, coordinating
+ * execution of 13 test categories defined across separate test modules. Each
+ * category tests a distinct feature family of lubtype.h (e.g., advanced
+ * operations, character classification, substring searching).
+ *
+ * @section test_framework Test Framework Architecture
+ *
+ * The test framework uses a two-level signal guarding approach:
+ *
+ * **Category-Level Guarding (this file):** The run_guarded() wrapper catches
+ * unhandled process terminations (SIGSEGV, SIGABRT, SIGBUS) that occur during
+ * entire test module execution. These are recorded as category-level exceptions.
+ * Note: Modern assert-level guarding is handled within LUB_ASSERT macro in the
+ * individual test files (see lubtype_test_declarations.h), so category-level
+ * exceptions are now rare but retained for defensive programming.
+ *
+ * **Assert-Level Guarding (test modules):** Each LUB_ASSERT macro wraps signal
+ * handlers around individual assertions, enabling fine-grained detection of
+ * faults (segfaults, aborts) at the assertion level rather than crashing the
+ * entire test suite. This allows counting: pass (assertion true), fail
+ * (assertion false), and exception (assertion did not complete due to
+ * signal/fault).
+ *
+ * @section reporting Test Report Output
+ *
+ * After all categories complete, a summary report is written to
+ * "lubtype_tests_report.txt" (or a path derived from argv[0]). The report includes:
+ * - Timestamp of test execution
+ * - Per-category pass/fail/exception counts
+ * - Grand totals across all categories
+ * - Overall pass/fail summary
+ *
  * @copyright Copyright (c) 2026 paulsinclair51
  * SPDX-License-Identifier: MIT
  * For license details, see the LICENSE file in the project root.
@@ -20,6 +53,23 @@
 #include <string.h>
 #include <time.h>
 
+/**
+ * @brief Derive the output report path from the executable's argv[0].
+ *
+ * Extracts the directory component from argv[0] (if present) and appends
+ * "lubtype_tests_report.txt" to place the report alongside the test binary.
+ * If argv[0] contains no directory separator or the derived path would exceed
+ * buffer capacity, returns the default filename "lubtype_tests_report.txt"
+ * (written to the current working directory).
+ *
+ * @param argv0       The program name/path (typically argv[0] from main)
+ * @param buffer      Destination buffer for the result (must not be NULL)
+ * @param buffer_size Size of buffer in bytes (must be large enough for
+ *                    directory + filename)
+ *
+ * @return Pointer to the report path (either buffer contents or static
+ *         default filename)
+ */
 static const char *report_path_from_argv0(const char *argv0, char *buffer, size_t buffer_size) {
 	const char *slash = strrchr(argv0, '/');
 	const char *backslash = strrchr(argv0, '\\');
@@ -49,10 +99,36 @@ static const char *report_path_from_argv0(const char *argv0, char *buffer, size_
  * Installs handlers for SIGSEGV, SIGABRT, and SIGBUS that longjmp back
  * to the guard point, setting exception=1 in the returned result.
  * Handlers are restored to their previous disposition after each call.
+ *
+ * @section context Category-Level Guard
+ *
+ * This is the category-level guard. Individual assertions within
+ * test functions now have their own signal guards (LUB_ASSERT macro in
+ * lubtype_test_declarations.h), so category-level exceptions are rare
+ * but possible for unguarded faults.
+ *
+ * @param fn Function pointer to test function returning lub_test_result_t
+ *
+ * @return Result from fn (if no signal), or {0, 0, 1} if signal caught
  */
 static sigjmp_buf  guard_env;
 static volatile sig_atomic_t guard_active = 0;
 
+/**
+ * @brief Category-level signal handler for test guard.
+ *
+ * Catches unhandled signals (SIGSEGV, SIGABRT, SIGBUS) during test
+ * module execution and siglongjmps back to the guard point
+ * (run_guarded). This results in the entire category being marked
+ * as exception:1.
+ *
+ * @note Modern per-assert signal trapping is now done within
+ *       LUB_ASSERT macro (in lubtype_test_declarations.h), so
+ *       this category-level handler acts as a backstop for
+ *       unguarded crashes.
+ *
+ * @param sig The caught signal number (SIGSEGV, SIGABRT, or SIGBUS)
+ */
 static void guard_signal_handler(int sig) {
 	(void)sig;
 	if (guard_active) {
@@ -87,7 +163,19 @@ static lub_test_result_t run_guarded(lub_test_result_t (*fn)(void)) {
 	return result;
 }
 
-/** @brief Merge two result structs by summing each field. */
+/**
+ * @brief Merge two result structs by summing each field.
+ *
+ * Used to combine results from paired test functions (e.g., uppercase and lowercase
+ * variants) into a single category result. For example, Advanced Operations tests
+ * both Latin (run_advanced_ops_tests_l) and Unicode (run_advanced_ops_tests_u)
+ * variants; their results are merged into one.
+ *
+ * @param a First result struct
+ * @param b Second result struct
+ *
+ * @return New result with pass/fail/exception sums
+ */
 static lub_test_result_t merge_results(lub_test_result_t a, lub_test_result_t b) {
 	return (lub_test_result_t){
 		a.pass + b.pass,
@@ -96,6 +184,19 @@ static lub_test_result_t merge_results(lub_test_result_t a, lub_test_result_t b)
 	};
 }
 
+/**
+ * @brief Write a single test category result line to the report.
+ *
+ * Formats and writes one line of the test report showing category index,
+ * label, and pass/fail/exception counts.
+ *
+ * Format: " %2zu. %-35s  pass: %5zu  fail: %5zu  exception: %zu\n"
+ *
+ * @param report The open FILE* for the report
+ * @param index  Category index (1-13)
+ * @param label  Display name of the category (e.g., "Error/edge cases")
+ * @param result The lub_test_result_t struct with pass/fail/exception counts
+ */
 static void write_test_category(FILE *report, size_t index, const char *label,
                                 lub_test_result_t result) {
 	fprintf(report,
@@ -107,7 +208,21 @@ static void write_test_category(FILE *report, size_t index, const char *label,
 /**
  * @brief Main entry point for all lubtype.h tests.
  *
- * Runs all test modules in sequence and prints a summary message.
+ * Initializes the test report file, executes 13 test categories in sequence,
+ * accumulates results, and writes a summary report. Each category result is
+ * passed through run_guarded() to catch unhandled signals at category level
+ * (though most per-assert signal handling is done within test functions).
+ *
+ * @section report_location Report File Location
+ * The report is written to:
+ * 1. Directory alongside the executable (if argv[0] contains path) + "lubtype_tests_report.txt", or
+ * 2. Current working directory + "lubtype_tests_report.txt" (fallback)
+ *
+ * @section buffering Unbuffered I/O
+ * Report file uses unbuffered I/O to ensure output is written immediately,
+ * even if a test assertion triggers process abort/termination.
+ *
+ * @return 0 if all tests passed (fail=0, exception=0); 1 otherwise
  */
 int main(int argc, char **argv) {
 	char report_path[1024];
@@ -134,6 +249,18 @@ int main(int argc, char **argv) {
 	fprintf(report, "----------------------------------------\n");
 	fprintf(report, "Test categories executed (in order):\n");
 
+/**
+ * @def RUN_AND_REPORT(idx, label, result_expr)
+ * @brief Macro to execute a test category and record its result.
+ *
+ * Executes the test expression (result_expr), writes a single report line
+ * via write_test_category(), and accumulates the result into totals.
+ *
+ * @param idx         Category index (1-13, written to report)
+ * @param label       Display name of category (written to report)
+ * @param result_expr Expression evaluating to lub_test_result_t
+ *                    (typically a run_guarded() or merge_results() call)
+ */
 #define RUN_AND_REPORT(idx, label, result_expr) \
 	do { \
 		lub_test_result_t _cat = (result_expr); \
