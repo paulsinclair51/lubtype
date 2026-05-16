@@ -1,12 +1,12 @@
 /**
- * @file test_strlen_validation.c
- * @brief X-macro tests for string length and validation functions
+ * @file test_strlen_strclass.c
+ * @brief X-macro tests for string length and classification functions
  *        in lubtype.h.
  *
  * @note Compiled twice: once with -DLUB_X_IS_L for Latin (lchar_t)
  *       and once with -DLUB_X_IS_U for Unicode (uchar_t). Each
  *       compilation produces a separate object file and function:
- *       run_strlen_validation_tests_l and run_strlen_validation_tests_u.
+ *       run_strlen_strclass_tests_l and run_strlen_strclass_tests_u.
  *       Requires `static lub_test_result_t test_result;` at file scope.
  * @copyright Copyright (c) 2026 paulsinclair51
  * SPDX-License-Identifier: MIT
@@ -25,13 +25,13 @@
 static lub_test_result_t test_result;
 
 /**
- * @brief Run tests for string length and validation functions.
+ * @brief Run tests for string length and classification functions.
  *
  * Tests xcsnlen and string classification helpers for correct
  * behavior and edge cases. Compiled twice for Latin (lchar_t)
  * and Unicode (uchar_t).
  */
-lub_test_result_t LUB_PASTE(run_strlen_validation_tests_, LUB_X)(void) {
+lub_test_result_t LUB_PASTE(run_strlen_strclass_tests_, LUB_X)(void) {
     test_result = (lub_test_result_t){0};
     xchar_t xstr[16] = {'a', 'b', 'c', '\0'};
     // Test: bounded length API.
@@ -66,7 +66,7 @@ lub_test_result_t LUB_PASTE(run_strlen_validation_tests_, LUB_X)(void) {
     LUB_ASSERT(!isunlatinstr(non_latin_u, 1));
 #endif
 
-    printf("String length/validation tests passed for LUB_X=%s.\n",
+    printf("String length and classification tests passed for LUB_X=%s.\n",
            LUB_STRINGIFY(LUB_X));
     return test_result;
 }

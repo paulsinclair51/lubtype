@@ -282,10 +282,10 @@ int main(int argc, char **argv) {
 	RUN_AND_REPORT(3,  "Compare/search (l and u)",
 	               merge_results(run_guarded(run_cmp_search_tests_l),
 	                             run_guarded(run_cmp_search_tests_u)));
-	RUN_AND_REPORT(4,  "String length/validation (l and u)",
+	RUN_AND_REPORT(4,  "String length and classification (l and u)",
 	               merge_results(
-	                   run_guarded(run_strlen_validation_tests_l),
-	                   run_guarded(run_strlen_validation_tests_u)));
+	                   run_guarded(run_strlen_strclass_tests_l),
+	                   run_guarded(run_strlen_strclass_tests_u)));
 	RUN_AND_REPORT(5,  "Character classification (l and u)",
 	               merge_results(run_guarded(run_charclass_tests_l),
 	                             run_guarded(run_charclass_tests_u)));

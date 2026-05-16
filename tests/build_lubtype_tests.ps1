@@ -85,11 +85,11 @@ if ($IsWindows) {
     Invoke-Checked "cl $baseFlags /DLUB_X_IS_U /c test_charclass.c /Fo:test_charclass_u.obj"
     $objectFiles += 'test_charclass_u.obj'
 
-    Invoke-Checked "cl $baseFlags /DLUB_X_IS_L /c test_strlen_validation.c /Fo:test_strlen_validation_l.obj"
-    $objectFiles += 'test_strlen_validation_l.obj'
+    Invoke-Checked "cl $baseFlags /DLUB_X_IS_L /c test_strlen_strclass.c /Fo:test_strlen_strclass_l.obj"
+    $objectFiles += 'test_strlen_strclass_l.obj'
 
-    Invoke-Checked "cl $baseFlags /DLUB_X_IS_U /c test_strlen_validation.c /Fo:test_strlen_validation_u.obj"
-    $objectFiles += 'test_strlen_validation_u.obj'
+    Invoke-Checked "cl $baseFlags /DLUB_X_IS_U /c test_strlen_strclass.c /Fo:test_strlen_strclass_u.obj"
+    $objectFiles += 'test_strlen_strclass_u.obj'
 
     Invoke-Checked "cl /nologo /Fe:lubtype_tests.exe $($objectFiles -join ' ')"
 
@@ -130,11 +130,11 @@ else {
     Invoke-Checked "$ccExe $baseFlags -DLUB_X_IS_U -c test_charclass.c -o test_charclass_u.o"
     $objectFiles += 'test_charclass_u.o'
 
-    Invoke-Checked "$ccExe $baseFlags -DLUB_X_IS_L -c test_strlen_validation.c -o test_strlen_validation_l.o"
-    $objectFiles += 'test_strlen_validation_l.o'
+    Invoke-Checked "$ccExe $baseFlags -DLUB_X_IS_L -c test_strlen_strclass.c -o test_strlen_strclass_l.o"
+    $objectFiles += 'test_strlen_strclass_l.o'
 
-    Invoke-Checked "$ccExe $baseFlags -DLUB_X_IS_U -c test_strlen_validation.c -o test_strlen_validation_u.o"
-    $objectFiles += 'test_strlen_validation_u.o'
+    Invoke-Checked "$ccExe $baseFlags -DLUB_X_IS_U -c test_strlen_strclass.c -o test_strlen_strclass_u.o"
+    $objectFiles += 'test_strlen_strclass_u.o'
 
     Invoke-Checked "$ccExe $baseFlags -o lubtype_tests $($objectFiles -join ' ')"
 
