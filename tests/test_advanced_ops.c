@@ -1,7 +1,7 @@
 /**
  * @file test_advanced_ops.c
  * @brief X-macro tests for advanced string operations in lubtype.h
- *        (trim/reverse/pad/replace/split).
+ *        (trim/reverse/pad/replace).
  *
  * @note Compiled twice: -DLUB_X_IS_L for Latin, -DLUB_X_IS_U for Unicode.
  *       Each test file needs `static lub_test_result_t test_result;`.
@@ -43,9 +43,42 @@ static lub_test_result_t test_result;
 
 /**
  * @brief Run tests for advanced string operations
- *        (trim, reverse, pad, replace,
- *        split).
+ *        (trim, reverse, pad, replace).
  */
+
+static void test_replace_family(void)
+{
+  xchar_t out[64] = {0};
+
+  /* xxsnnreplace: verify m semantics (nth, last, all). */
+  {
+    const xchar_t src[] = {'a','a','a',0};
+    const xchar_t map[] = {'a','|','x',0};
+    const xchar_t expected_m2[] = {'a','x','a',0};
+    const xchar_t expected_last[] = {'a','a','x',0};
+    const xchar_t expected_all[] = {'x','x','x',0};
+
+    LUB_ASSERT(xxsnnreplace(out, 64, src, 3, map, '|', 2) != NULL);
+    LUB_ASSERT(xxsnncmp(out, 3, expected_m2, 3) == 0);
+
+    LUB_ASSERT(xxsnnreplace(out, 64, src, 3, map, '|', -1) != NULL);
+    LUB_ASSERT(xxsnncmp(out, 3, expected_last, 3) == 0);
+
+    LUB_ASSERT(xxsnnreplace(out, 64, src, 3, map, '|', 0) != NULL);
+    LUB_ASSERT(xxsnncmp(out, 3, expected_all, 3) == 0);
+  }
+
+  /* Multi-pair map requires m == 0; m != 0 should fail. */
+  {
+    const xchar_t src[] = {'a','b','a',0};
+    const xchar_t map_multi[] = {'a','|','x','|','b','|','y',0};
+    const xchar_t expected_all[] = {'x','y','x',0};
+
+    LUB_ASSERT(xxsnnreplace(out, 64, src, 3, map_multi, '|', 1) == NULL);
+    LUB_ASSERT(xxsnnreplace(out, 64, src, 3, map_multi, '|', 0) != NULL);
+    LUB_ASSERT(xxsnncmp(out, 3, expected_all, 3) == 0);
+  }
+}
 
 lub_test_result_t LUB_PASTE(run_advanced_ops_tests_, LUB_X)(void)
 { test_result = (lub_test_result_t){0};
@@ -109,13 +142,7 @@ lub_test_result_t LUB_PASTE(run_advanced_ops_tests_, LUB_X)(void)
     LUB_ASSERT(xlsnncmp(xout, 8, expected_pad, 8) == 0);
   }
 
-#if defined(LUB_X_IS_L)
-  LUB_ASSERT(xlsnnreplace(xout, 16, (const xchar_t *)"aabbcc", 6,
-                      (const xchar_t *)"b|z", '|', 0) != NULL);
-  { const xchar_t expected_replace[7] = {'a','a','z','z','c','c',0};
-    LUB_ASSERT(xlsnncmp(xout, 6, expected_replace, 6) == 0);
-  }
-#endif
+  test_replace_family();
 
   printf("Advanced operation tests passed for LUB_X=%s.\n",
          LUB_STRINGIFY(LUB_X));

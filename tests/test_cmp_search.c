@@ -51,11 +51,63 @@ static void test_search_empty_token(void)
   LUB_ASSERT(xxsnstrm(one, 4, empty, 0, 1) == NULL);
 }
 
+static void test_search_m_zero_returns_null(void)
+{ const xchar_t hay[] = {'a','b','a','b','a',0};
+  const xchar_t needle_delim[] = {'a','b',0};
+  const xchar_t needle_set[] = {'a','b',0};
+  LUB_ASSERT(xxsnstrm(hay, 16, needle_delim, '|', 0) == NULL);
+  LUB_ASSERT(xxsnSTRM(hay, 16, needle_delim, '|', 0) == NULL);
+  LUB_ASSERT(xxsnstrm(hay, 16, needle_set, 0, 0) == NULL);
+  LUB_ASSERT(xxsnSTRM(hay, 16, needle_set, 0, 0) == NULL);
+}
+
+static void test_search_forward_and_reverse_indexing(void)
+{ const xchar_t hay[] = {'a','b','a','b','a',0};
+  const xchar_t needle[] = {'a','b','a',0};
+  LUB_ASSERT(xxsnstrm(hay, 16, needle, '|', 1) == hay);
+  LUB_ASSERT(xxsnstrm(hay, 16, needle, '|', 2) == hay + 2);
+  LUB_ASSERT(xxsnstrm(hay, 16, needle, '|', -1) == hay + 2);
+  LUB_ASSERT(xxsnstrm(hay, 16, needle, '|', -2) == hay);
+  LUB_ASSERT(xxsnstrm(hay, 16, needle, '|', 3) == NULL);
+}
+
+static void test_search_case_sensitive_vs_insensitive(void)
+{ const xchar_t hay[] = {'A','b','a','B','a',0};
+  const xchar_t needle[] = {'a','b','a',0};
+  LUB_ASSERT(xxsnstrm(hay, 16, needle, '|', 1) == NULL);
+  LUB_ASSERT(xxsnSTRM(hay, 16, needle, '|', 1) == hay);
+}
+
+static void test_count_case_sensitive_vs_insensitive(void)
+{ const xchar_t hay[] = {'A','B','a','b',0};
+  const xchar_t needle[] = {'a','b',0};
+  LUB_ASSERT(xxsncnt(hay, 16, needle, '|') == 1);
+  LUB_ASSERT(xxsnCNT(hay, 16, needle, '|') > xxsncnt(hay, 16, needle, '|'));
+}
+
+static void test_compare_fixed_prefix_suffix_boundaries(void)
+{ const xchar_t s1[] = {'A','b','c','d',0};
+  const xchar_t s2[] = {'a','b','c','x',0};
+  LUB_ASSERT(xxsnnfxdcmp(s1, 3, s2, 3) < 0);
+  LUB_ASSERT(xxsnnFXDCMP(s1, 3, s2, 3) == 0);
+  LUB_ASSERT(xxsnnpfxcmp(s1, 4, (const xchar_t[]){'A','b',0}, 2) == 0);
+  LUB_ASSERT(xxsnnpfxcmp(s1, 4, (const xchar_t[]){'a','b',0}, 2) != 0);
+  LUB_ASSERT(xxsnnPFXCMP(s1, 4, (const xchar_t[]){'a','b',0}, 2) == 0);
+  LUB_ASSERT(xxsnnsfxcmp(s1, 4, (const xchar_t[]){'c','d',0}, 2) == 0);
+  LUB_ASSERT(xxsnnsfxcmp(s1, 4, (const xchar_t[]){'C','D',0}, 2) != 0);
+  LUB_ASSERT(xxsnnSFXCMP(s1, 4, (const xchar_t[]){'C','D',0}, 2) == 0);
+}
+
 #define CMP_SEARCH_TESTS(X) \
   X(test_search_delim_negative_m) \
   X(test_search_charset_negative_m) \
   X(test_search_case_insensitive) \
-  X(test_search_empty_token)
+  X(test_search_empty_token) \
+  X(test_search_m_zero_returns_null) \
+  X(test_search_forward_and_reverse_indexing) \
+  X(test_search_case_sensitive_vs_insensitive) \
+  X(test_count_case_sensitive_vs_insensitive) \
+  X(test_compare_fixed_prefix_suffix_boundaries)
 
 /**
  * @brief Run tests for compare and search functions.

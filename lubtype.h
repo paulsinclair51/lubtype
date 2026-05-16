@@ -278,7 +278,7 @@ gcc -DLUB_X_IS_U -c myfile.c -o myfile.o
 #include <wctype.h>
 
 // Allow functions to be invoked from C++.
-#ifdef __cplusplus
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
@@ -7264,7 +7264,7 @@ int llsnprintf
 
 #endif // LUB_DEFINITIONS
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 }
 #endif
 
