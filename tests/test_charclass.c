@@ -27,6 +27,23 @@ static lub_test_result_t test_result;
 #define IXHEX_CONCRETE(c) isuhex((c))
 #endif
 
+/* Forward declarations for x-macro alias mapping tests */
+static void test_alpha_alias_mapping(void);
+static void test_digit_alias_mapping(void);
+static void test_alnum_alias_mapping(void);
+static void test_latin_alias_mapping(void);
+static void test_name1c_alias_mapping(void);
+static void test_namec_alias_mapping(void);
+static void test_upper_alias_mapping(void);
+static void test_lower_alias_mapping(void);
+static void test_cntrl_alias_mapping(void);
+static void test_print_alias_mapping(void);
+static void test_graph_alias_mapping(void);
+static void test_punct_alias_mapping(void);
+static void test_blank_alias_mapping(void);
+static void test_space_alias_mapping(void);
+static void test_hex_alias_mapping(void);
+
 /**
  * @brief Run tests for x-macro character classification and
  *        conversion functions.
@@ -94,7 +111,294 @@ lub_test_result_t LUB_PASTE(run_charclass_tests_, LUB_X)(void)
   LUB_ASSERT(xxtoupper((xchar_t)'!') == (xchar_t)'!');
   LUB_ASSERT(xxtolower((xchar_t)'!') == (xchar_t)'!');
 
+  /* Run x-macro alias mapping tests for character classification */
+  test_alpha_alias_mapping();
+  test_digit_alias_mapping();
+  test_alnum_alias_mapping();
+  test_latin_alias_mapping();
+  test_name1c_alias_mapping();
+  test_namec_alias_mapping();
+  test_upper_alias_mapping();
+  test_lower_alias_mapping();
+  test_cntrl_alias_mapping();
+  test_print_alias_mapping();
+  test_graph_alias_mapping();
+  test_punct_alias_mapping();
+  test_blank_alias_mapping();
+  test_space_alias_mapping();
+  test_hex_alias_mapping();
+
   printf("Character classification/conversion tests passed for LUB_X=%s.\n",
          LUB_STRINGIFY(LUB_X));
   return test_result;
+}
+
+/**
+ * @brief X-macro alias mapping tests for character classification functions.
+ * 
+ * Tests that the polymorphic isx* macros correctly map to islx* or isux* 
+ * implementations based on LUB_X_IS_L or LUB_X_IS_U conditional compilation.
+ */
+
+static xchar_t *make_xstr_local_charclass(const char *src, xchar_t *dst, size_t cap) {
+	size_t i = 0;
+	if (!dst || !cap) return (xchar_t *)NULL;
+	for (; src && src[i] && i + 1 < cap; ++i) dst[i] = (xchar_t)(unsigned char)src[i];
+	dst[i] = (xchar_t)0;
+	return dst;
+}
+
+static void test_alpha_alias_mapping(void) {
+	static const char *samples[] = {
+		"abc", "ABC", "aBc", "123", "a1b", ""
+	};
+	xchar_t buf[64];
+	size_t i;
+
+	for (i = 0; i < sizeof(samples) / sizeof(samples[0]); ++i) {
+		make_xstr_local_charclass(samples[i], buf, 64);
+#if defined(LUB_X_IS_L)
+		LUB_ASSERT(isxalpha(buf[0]) == islalpha(buf[0]));
+#else
+		LUB_ASSERT(isxalpha(buf[0]) == isualpha(buf[0]));
+#endif
+	}
+}
+
+static void test_digit_alias_mapping(void) {
+	static const char *samples[] = {
+		"0123456789", "abc", "a1b", ""
+	};
+	xchar_t buf[64];
+	size_t i;
+
+	for (i = 0; i < sizeof(samples) / sizeof(samples[0]); ++i) {
+		make_xstr_local_charclass(samples[i], buf, 64);
+#if defined(LUB_X_IS_L)
+		LUB_ASSERT(isxdigit(buf[0]) == isldigit(buf[0]));
+#else
+		LUB_ASSERT(isxdigit(buf[0]) == isudigit(buf[0]));
+#endif
+	}
+}
+
+static void test_alnum_alias_mapping(void) {
+	static const char *samples[] = {
+		"abc", "123", "a1b", "!@#", ""
+	};
+	xchar_t buf[64];
+	size_t i;
+
+	for (i = 0; i < sizeof(samples) / sizeof(samples[0]); ++i) {
+		make_xstr_local_charclass(samples[i], buf, 64);
+#if defined(LUB_X_IS_L)
+		LUB_ASSERT(isxalnum(buf[0]) == islalnum(buf[0]));
+#else
+		LUB_ASSERT(isxalnum(buf[0]) == isualnum(buf[0]));
+#endif
+	}
+}
+
+static void test_latin_alias_mapping(void) {
+	static const char *samples[] = {
+		"a", "Z", "5", " ", "\t"
+	};
+	xchar_t buf[64];
+	size_t i;
+
+	for (i = 0; i < sizeof(samples) / sizeof(samples[0]); ++i) {
+		make_xstr_local_charclass(samples[i], buf, 64);
+#if defined(LUB_X_IS_L)
+		LUB_ASSERT(isxlatin(buf[0]) == isllatin(buf[0]));
+#else
+		LUB_ASSERT(isxlatin(buf[0]) == isulatin(buf[0]));
+#endif
+	}
+}
+
+static void test_name1c_alias_mapping(void) {
+	static const char *samples[] = {
+		"a", "Z", "_", "5", " ", ""
+	};
+	xchar_t buf[64];
+	size_t i;
+
+	for (i = 0; i < sizeof(samples) / sizeof(samples[0]); ++i) {
+		make_xstr_local_charclass(samples[i], buf, 64);
+#if defined(LUB_X_IS_L)
+		LUB_ASSERT(isxname1c(buf[0]) == islname1c(buf[0]));
+#else
+		LUB_ASSERT(isxname1c(buf[0]) == isuname1c(buf[0]));
+#endif
+	}
+}
+
+static void test_namec_alias_mapping(void) {
+	static const char *samples[] = {
+		"a", "Z", "_", "5", " ", ""
+	};
+	xchar_t buf[64];
+	size_t i;
+
+	for (i = 0; i < sizeof(samples) / sizeof(samples[0]); ++i) {
+		make_xstr_local_charclass(samples[i], buf, 64);
+#if defined(LUB_X_IS_L)
+		LUB_ASSERT(isxnamec(buf[0]) == islnamec(buf[0]));
+#else
+		LUB_ASSERT(isxnamec(buf[0]) == isunamec(buf[0]));
+#endif
+	}
+}
+
+static void test_upper_alias_mapping(void) {
+	static const char *samples[] = {
+		"A", "Z", "a", "z", "5"
+	};
+	xchar_t buf[64];
+	size_t i;
+
+	for (i = 0; i < sizeof(samples) / sizeof(samples[0]); ++i) {
+		make_xstr_local_charclass(samples[i], buf, 64);
+#if defined(LUB_X_IS_L)
+		LUB_ASSERT(isxupper(buf[0]) == islupper(buf[0]));
+#else
+		LUB_ASSERT(isxupper(buf[0]) == isuupper(buf[0]));
+#endif
+	}
+}
+
+static void test_lower_alias_mapping(void) {
+	static const char *samples[] = {
+		"A", "Z", "a", "z", "5"
+	};
+	xchar_t buf[64];
+	size_t i;
+
+	for (i = 0; i < sizeof(samples) / sizeof(samples[0]); ++i) {
+		make_xstr_local_charclass(samples[i], buf, 64);
+#if defined(LUB_X_IS_L)
+		LUB_ASSERT(isxlower(buf[0]) == isllower(buf[0]));
+#else
+		LUB_ASSERT(isxlower(buf[0]) == isulower(buf[0]));
+#endif
+	}
+}
+
+static void test_cntrl_alias_mapping(void) {
+	static const char *samples[] = {
+		"\t", "\n", "\r", "a", " "
+	};
+	xchar_t buf[64];
+	size_t i;
+
+	for (i = 0; i < sizeof(samples) / sizeof(samples[0]); ++i) {
+		make_xstr_local_charclass(samples[i], buf, 64);
+#if defined(LUB_X_IS_L)
+		LUB_ASSERT(isxcntrl(buf[0]) == islcntrl(buf[0]));
+#else
+		LUB_ASSERT(isxcntrl(buf[0]) == isucntrl(buf[0]));
+#endif
+	}
+}
+
+static void test_print_alias_mapping(void) {
+	static const char *samples[] = {
+		"a", "Z", "5", " ", "!"
+	};
+	xchar_t buf[64];
+	size_t i;
+
+	for (i = 0; i < sizeof(samples) / sizeof(samples[0]); ++i) {
+		make_xstr_local_charclass(samples[i], buf, 64);
+#if defined(LUB_X_IS_L)
+		LUB_ASSERT(isxprint(buf[0]) == islprint(buf[0]));
+#else
+		LUB_ASSERT(isxprint(buf[0]) == isuprint(buf[0]));
+#endif
+	}
+}
+
+static void test_graph_alias_mapping(void) {
+	static const char *samples[] = {
+		"a", "Z", "5", "!", " "
+	};
+	xchar_t buf[64];
+	size_t i;
+
+	for (i = 0; i < sizeof(samples) / sizeof(samples[0]); ++i) {
+		make_xstr_local_charclass(samples[i], buf, 64);
+#if defined(LUB_X_IS_L)
+		LUB_ASSERT(isxgraph(buf[0]) == islgraph(buf[0]));
+#else
+		LUB_ASSERT(isxgraph(buf[0]) == isugraph(buf[0]));
+#endif
+	}
+}
+
+static void test_punct_alias_mapping(void) {
+	static const char *samples[] = {
+		"!", ".", ",", "a", "5"
+	};
+	xchar_t buf[64];
+	size_t i;
+
+	for (i = 0; i < sizeof(samples) / sizeof(samples[0]); ++i) {
+		make_xstr_local_charclass(samples[i], buf, 64);
+#if defined(LUB_X_IS_L)
+		LUB_ASSERT(isxpunct(buf[0]) == islpunct(buf[0]));
+#else
+		LUB_ASSERT(isxpunct(buf[0]) == isupunct(buf[0]));
+#endif
+	}
+}
+
+static void test_blank_alias_mapping(void) {
+	static const char *samples[] = {
+		" ", "\t", "a", "5"
+	};
+	xchar_t buf[64];
+	size_t i;
+
+	for (i = 0; i < sizeof(samples) / sizeof(samples[0]); ++i) {
+		make_xstr_local_charclass(samples[i], buf, 64);
+#if defined(LUB_X_IS_L)
+		LUB_ASSERT(isxblank(buf[0]) == islblank(buf[0]));
+#else
+		LUB_ASSERT(isxblank(buf[0]) == isublank(buf[0]));
+#endif
+	}
+}
+
+static void test_space_alias_mapping(void) {
+	static const char *samples[] = {
+		" ", "\t", "\n", "a", "5"
+	};
+	xchar_t buf[64];
+	size_t i;
+
+	for (i = 0; i < sizeof(samples) / sizeof(samples[0]); ++i) {
+		make_xstr_local_charclass(samples[i], buf, 64);
+#if defined(LUB_X_IS_L)
+		LUB_ASSERT(isxspace(buf[0]) == islspace(buf[0]));
+#else
+		LUB_ASSERT(isxspace(buf[0]) == isuspace(buf[0]));
+#endif
+	}
+}
+
+static void test_hex_alias_mapping(void) {
+	static const char *samples[] = {
+		"0", "9", "a", "f", "A", "F", "g", "x"
+	};
+	xchar_t buf[64];
+	size_t i;
+
+	for (i = 0; i < sizeof(samples) / sizeof(samples[0]); ++i) {
+		make_xstr_local_charclass(samples[i], buf, 64);
+#if defined(LUB_X_IS_L)
+		LUB_ASSERT(isxhex(buf[0]) == islhex(buf[0]));
+#else
+		LUB_ASSERT(isxhex(buf[0]) == isuhex(buf[0]));
+#endif
+	}
 }

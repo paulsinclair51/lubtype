@@ -24,6 +24,11 @@
 
 static lub_test_result_t test_result;
 
+/* Forward declarations for x-macro alias mapping tests */
+static void test_nlatinstr_alias_mapping(void);
+static void test_nalphastr_alias_mapping(void);
+static void test_nhexstr_alias_mapping(void);
+
 /**
  * @brief Run tests for string length and classification functions.
  *
@@ -66,7 +71,78 @@ lub_test_result_t LUB_PASTE(run_strlen_strclass_tests_, LUB_X)(void) {
     LUB_ASSERT(!isunlatinstr(non_latin_u, 1));
 #endif
 
+    /* Run x-macro alias mapping tests for string classification */
+    test_nlatinstr_alias_mapping();
+    test_nalphastr_alias_mapping();
+    test_nhexstr_alias_mapping();
+
     printf("String length and classification tests passed for LUB_X=%s.\n",
            LUB_STRINGIFY(LUB_X));
     return test_result;
+}
+
+/**
+ * @brief X-macro alias mapping tests for string classification functions.
+ * 
+ * Tests that the polymorphic isxn* string classification macros correctly 
+ * map to islnx* or isunx* implementations.
+ */
+
+static xchar_t *make_xstr_local_strlen(const char *src, xchar_t *dst, size_t cap) {
+	size_t i = 0;
+	if (!dst || !cap) return (xchar_t *)NULL;
+	for (; src && src[i] && i + 1 < cap; ++i) dst[i] = (xchar_t)(unsigned char)src[i];
+	dst[i] = (xchar_t)0;
+	return dst;
+}
+
+static void test_nlatinstr_alias_mapping(void) {
+	static const char *samples[] = {
+		"abc", "123abc", "Latin_1", ""
+	};
+	xchar_t buf[64];
+	size_t i;
+
+	for (i = 0; i < sizeof(samples) / sizeof(samples[0]); ++i) {
+		make_xstr_local_strlen(samples[i], buf, 64);
+#if defined(LUB_X_IS_L)
+		LUB_ASSERT(isxnlatinstr(buf, 64) == islnlatinstr(buf, 64));
+#else
+		LUB_ASSERT(isxnlatinstr(buf, 64) == isunlatinstr(buf, 64));
+#endif
+	}
+}
+
+static void test_nalphastr_alias_mapping(void) {
+	static const char *samples[] = {
+		"abc", "abcABC", "123", "abc123"
+	};
+	xchar_t buf[64];
+	size_t i;
+
+	for (i = 0; i < sizeof(samples) / sizeof(samples[0]); ++i) {
+		make_xstr_local_strlen(samples[i], buf, 64);
+#if defined(LUB_X_IS_L)
+		LUB_ASSERT(isxnalphastr(buf, 64) == islnalphastr(buf, 64));
+#else
+		LUB_ASSERT(isxnalphastr(buf, 64) == isunalphastr(buf, 64));
+#endif
+	}
+}
+
+static void test_nhexstr_alias_mapping(void) {
+	static const char *samples[] = {
+		"0123456789abcdef", "ABCDEF", "0xg", ""
+	};
+	xchar_t buf[64];
+	size_t i;
+
+	for (i = 0; i < sizeof(samples) / sizeof(samples[0]); ++i) {
+		make_xstr_local_strlen(samples[i], buf, 64);
+#if defined(LUB_X_IS_L)
+		LUB_ASSERT(isxnhexstr(buf, 64) == islnhexstr(buf, 64));
+#else
+		LUB_ASSERT(isxnhexstr(buf, 64) == isunhexstr(buf, 64));
+#endif
+	}
 }
