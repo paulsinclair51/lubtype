@@ -12,6 +12,8 @@
 #include "../lubtype.h"
 #include "lubtype_test_declarations.h"
 
+static size_t test_count = 0;
+
 static const lchar_t *make_lstr_local(const char *src, lchar_t *dst, size_t cap) {
     size_t i = 0;
     if (!dst || !cap) return (const lchar_t *)NULL;
@@ -50,59 +52,61 @@ static void test_cross_type_copy_and_cat_matrix(void) {
     lchar_t ldst[33], lsrc[33];
     uchar_t udst[33], usrc[33];
 
-    assert(llsnncpy(ldst, 32, (lchar_t *)make_lstr_local("ab", lsrc, 33), 32, NULL) != NULL);
-    assert(eq_lstr_ascii_local(ldst, "ab"));
-    assert(llsnncat(ldst, 32, (lchar_t *)make_lstr_local("cd", lsrc, 33), 32, NULL) != NULL);
-    assert(eq_lstr_ascii_local(ldst, "abcd"));
+    LUB_ASSERT(llsnncpy(ldst, 32, (lchar_t *)make_lstr_local("ab", lsrc, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_lstr_ascii_local(ldst, "ab"));
+    LUB_ASSERT(llsnncat(ldst, 32, (lchar_t *)make_lstr_local("cd", lsrc, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_lstr_ascii_local(ldst, "abcd"));
 
-    assert(uusnncpy(udst, 32, (uchar_t *)make_ustr_local("ab", usrc, 33), 32, NULL) != NULL);
-    assert(eq_ustr_ascii_local(udst, "ab"));
-    assert(uusnncat(udst, 32, (uchar_t *)make_ustr_local("cd", usrc, 33), 32, NULL) != NULL);
-    assert(eq_ustr_ascii_local(udst, "abcd"));
+    LUB_ASSERT(uusnncpy(udst, 32, (uchar_t *)make_ustr_local("ab", usrc, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_ustr_ascii_local(udst, "ab"));
+    LUB_ASSERT(uusnncat(udst, 32, (uchar_t *)make_ustr_local("cd", usrc, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_ustr_ascii_local(udst, "abcd"));
 
-    assert(lusnncpy(ldst, 32, (uchar_t *)make_ustr_local("xy", usrc, 33), 32, NULL, '?') != NULL);
-    assert(eq_lstr_ascii_local(ldst, "xy"));
-    assert(lusnncat(ldst, 32, (uchar_t *)make_ustr_local("zz", usrc, 33), 32, NULL, '?') != NULL);
-    assert(eq_lstr_ascii_local(ldst, "xyzz"));
+    LUB_ASSERT(lusnncpy(ldst, 32, (uchar_t *)make_ustr_local("xy", usrc, 33), 32, NULL, '?') != NULL);
+    LUB_ASSERT(eq_lstr_ascii_local(ldst, "xy"));
+    LUB_ASSERT(lusnncat(ldst, 32, (uchar_t *)make_ustr_local("zz", usrc, 33), 32, NULL, '?') != NULL);
+    LUB_ASSERT(eq_lstr_ascii_local(ldst, "xyzz"));
 
-    assert(ulsnncpy(udst, 32, (lchar_t *)make_lstr_local("mn", lsrc, 33), 32, NULL) != NULL);
-    assert(eq_ustr_ascii_local(udst, "mn"));
-    assert(ulsnncat(udst, 32, (lchar_t *)make_lstr_local("op", lsrc, 33), 32, NULL) != NULL);
-    assert(eq_ustr_ascii_local(udst, "mnop"));
+    LUB_ASSERT(ulsnncpy(udst, 32, (lchar_t *)make_lstr_local("mn", lsrc, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_ustr_ascii_local(udst, "mn"));
+    LUB_ASSERT(ulsnncat(udst, 32, (lchar_t *)make_lstr_local("op", lsrc, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_ustr_ascii_local(udst, "mnop"));
 }
 
 static void test_compare_matrix(void) {
     lchar_t l1[32], l2[32];
     uchar_t u1[32], u2[32];
 
-    assert(llsnncmp(make_lstr_local("Match", l1, 32), 32, make_lstr_local("Match", l2, 32), 32) == 0);
-    assert(lusnncmp(make_lstr_local("Match", l1, 32), 32, (const uchar_t *)make_ustr_local("Match", u1, 32), 32) == 0);
-    assert(ulsnncmp((const uchar_t *)make_ustr_local("Match", u1, 32), 32, make_lstr_local("Match", l2, 32), 32) == 0);
-    assert(uusnncmp((const uchar_t *)make_ustr_local("Match", u1, 32), 32, (const uchar_t *)make_ustr_local("Match", u2, 32), 32) == 0);
+    LUB_ASSERT(llsnncmp(make_lstr_local("Match", l1, 32), 32, make_lstr_local("Match", l2, 32), 32) == 0);
+    LUB_ASSERT(lusnncmp(make_lstr_local("Match", l1, 32), 32, (const uchar_t *)make_ustr_local("Match", u1, 32), 32) == 0);
+    LUB_ASSERT(ulsnncmp((const uchar_t *)make_ustr_local("Match", u1, 32), 32, make_lstr_local("Match", l2, 32), 32) == 0);
+    LUB_ASSERT(uusnncmp((const uchar_t *)make_ustr_local("Match", u1, 32), 32, (const uchar_t *)make_ustr_local("Match", u2, 32), 32) == 0);
 
-    assert(llsnnCMP(make_lstr_local("MiXeD", l1, 32), 32, make_lstr_local("mixed", l2, 32), 32) == 0);
-    assert(lusnnCMP(make_lstr_local("MiXeD", l1, 32), 32, (const uchar_t *)make_ustr_local("mixed", u1, 32), 32) == 0);
-    assert(ulsnnCMP((const uchar_t *)make_ustr_local("MiXeD", u1, 32), 32, make_lstr_local("mixed", l2, 32), 32) == 0);
-    assert(uusnnCMP((const uchar_t *)make_ustr_local("MiXeD", u1, 32), 32, (const uchar_t *)make_ustr_local("mixed", u2, 32), 32) == 0);
+    LUB_ASSERT(llsnnCMP(make_lstr_local("MiXeD", l1, 32), 32, make_lstr_local("mixed", l2, 32), 32) == 0);
+    LUB_ASSERT(lusnnCMP(make_lstr_local("MiXeD", l1, 32), 32, (const uchar_t *)make_ustr_local("mixed", u1, 32), 32) == 0);
+    LUB_ASSERT(ulsnnCMP((const uchar_t *)make_ustr_local("MiXeD", u1, 32), 32, make_lstr_local("mixed", l2, 32), 32) == 0);
+    LUB_ASSERT(uusnnCMP((const uchar_t *)make_ustr_local("MiXeD", u1, 32), 32, (const uchar_t *)make_ustr_local("mixed", u2, 32), 32) == 0);
 }
 
 static void test_prefix_suffix_cmp_matrix(void) {
     lchar_t l1[32], l2[32];
     uchar_t u1[32], u2[32];
 
-    assert(llsnnpfxcmp(make_lstr_local("prefix", l1, 32), 32, make_lstr_local("pre", l2, 32), 32) == 0);
-    assert(lusnnpfxcmp(make_lstr_local("prefix", l1, 32), 32, (const uchar_t *)make_ustr_local("pre", u1, 32), 32) == 0);
-    assert(ulsnnpfxcmp((const uchar_t *)make_ustr_local("prefix", u1, 32), 32, make_lstr_local("pre", l2, 32), 32) == 0);
-    assert(uusnnpfxcmp((const uchar_t *)make_ustr_local("prefix", u1, 32), 32, (const uchar_t *)make_ustr_local("pre", u2, 32), 32) == 0);
+    LUB_ASSERT(llsnnpfxcmp(make_lstr_local("prefix", l1, 32), 32, make_lstr_local("pre", l2, 32), 32) == 0);
+    LUB_ASSERT(lusnnpfxcmp(make_lstr_local("prefix", l1, 32), 32, (const uchar_t *)make_ustr_local("pre", u1, 32), 32) == 0);
+    LUB_ASSERT(ulsnnpfxcmp((const uchar_t *)make_ustr_local("prefix", u1, 32), 32, make_lstr_local("pre", l2, 32), 32) == 0);
+    LUB_ASSERT(uusnnpfxcmp((const uchar_t *)make_ustr_local("prefix", u1, 32), 32, (const uchar_t *)make_ustr_local("pre", u2, 32), 32) == 0);
 
-    assert(llsnnsfxcmp(make_lstr_local("suffix", l1, 32), 32, make_lstr_local("fix", l2, 32), 32) == 0);
-    assert(lusnnsfxcmp(make_lstr_local("suffix", l1, 32), 32, (const uchar_t *)make_ustr_local("fix", u1, 32), 32) == 0);
-    assert(ulsnnsfxcmp((const uchar_t *)make_ustr_local("suffix", u1, 32), 32, make_lstr_local("fix", l2, 32), 32) == 0);
-    assert(uusnnsfxcmp((const uchar_t *)make_ustr_local("suffix", u1, 32), 32, (const uchar_t *)make_ustr_local("fix", u2, 32), 32) == 0);
+    LUB_ASSERT(llsnnsfxcmp(make_lstr_local("suffix", l1, 32), 32, make_lstr_local("fix", l2, 32), 32) == 0);
+    LUB_ASSERT(lusnnsfxcmp(make_lstr_local("suffix", l1, 32), 32, (const uchar_t *)make_ustr_local("fix", u1, 32), 32) == 0);
+    LUB_ASSERT(ulsnnsfxcmp((const uchar_t *)make_ustr_local("suffix", u1, 32), 32, make_lstr_local("fix", l2, 32), 32) == 0);
+    LUB_ASSERT(uusnnsfxcmp((const uchar_t *)make_ustr_local("suffix", u1, 32), 32, (const uchar_t *)make_ustr_local("fix", u2, 32), 32) == 0);
 }
 
-void run_type_matrix_tests(void) {
+size_t run_type_matrix_tests(void) {
+    test_count = 0;
     test_cross_type_copy_and_cat_matrix();
     test_compare_matrix();
     test_prefix_suffix_cmp_matrix();
+    return test_count;
 }

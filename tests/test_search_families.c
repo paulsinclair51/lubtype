@@ -12,6 +12,8 @@
 #include "../lubtype.h"
 #include "lubtype_test_declarations.h"
 
+static size_t test_count = 0;
+
 /**
  * @brief Create a local Latin string from ASCII text.
  */
@@ -33,27 +35,27 @@ static void test_chr_search_with_m_semantics(void) {
 
     result = llsnstrm(make_lstr_local("hello world", haystack, 64),
                       64, make_lstr_local("l", needle, 4), 0, 1);
-    assert(result != NULL && *result == 'l');
+    LUB_ASSERT(result != NULL && *result == 'l');
 
     result = llsnstrm(make_lstr_local("hello world", haystack, 64),
                       64, make_lstr_local("l", needle, 4), 0, 2);
-    assert(result != NULL && *result == 'l');
+    LUB_ASSERT(result != NULL && *result == 'l');
 
     result = llsnstrm(make_lstr_local("hello world", haystack, 64),
                       64, make_lstr_local("l", needle, 4), 0, 0);
-    assert(result == NULL);
+    LUB_ASSERT(result == NULL);
 
     result = llsnstrm(make_lstr_local("hello", haystack, 64),
                       64, make_lstr_local("z", needle, 4), 0, 1);
-    assert(result == NULL);
+    LUB_ASSERT(result == NULL);
 
     result = llsnstrm(make_lstr_local("hello world", haystack, 64),
                       64, make_lstr_local("l", needle, 4), 0, -1);
-    assert(result != NULL && *result == 'l');
+    LUB_ASSERT(result != NULL && *result == 'l');
 
     result = llsnstrm(make_lstr_local("hello world", haystack, 64),
                       64, make_lstr_local("l", needle, 4), 0, -2);
-    assert(result != NULL && *result == 'l');
+    LUB_ASSERT(result != NULL && *result == 'l');
 }
 
 /**
@@ -66,11 +68,11 @@ static void test_chr_search_case_insensitive(void) {
 
     result = llsnSTRM(make_lstr_local("Hello World", haystack, 64),
                       64, make_lstr_local("h", needle, 4), 0, 1);
-    assert(result != NULL);
+    LUB_ASSERT(result != NULL);
 
     result = llsnSTRM(make_lstr_local("Hello World", haystack, 64),
                       64, make_lstr_local("h", needle, 4), 0, -1);
-    assert(result != NULL);
+    LUB_ASSERT(result != NULL);
 }
 
 /**
@@ -83,19 +85,19 @@ static void test_str_search_with_m_semantics(void) {
 
     result = llsnstrm(make_lstr_local("cat dog cat", haystack, 64),
                       64, make_lstr_local("cat", needle, 16), '|', 1);
-    assert(result != NULL);
+    LUB_ASSERT(result != NULL);
 
     result = llsnstrm(make_lstr_local("cat dog cat", haystack, 64),
                       64, make_lstr_local("cat", needle, 16), '|', 2);
-    assert(result != NULL);
+    LUB_ASSERT(result != NULL);
 
     result = llsnstrm(make_lstr_local("cat dog cat", haystack, 64),
                       64, make_lstr_local("xyz", needle, 16), '|', 1);
-    assert(result == NULL);
+    LUB_ASSERT(result == NULL);
 
     result = llsnstrm(make_lstr_local("cat dog cat", haystack, 64),
                       64, make_lstr_local("cat", needle, 16), '|', -1);
-    assert(result != NULL);
+    LUB_ASSERT(result != NULL);
 }
 
 /**
@@ -108,10 +110,10 @@ static void test_str_search_case_insensitive(void) {
 
     result = llsnSTRM(make_lstr_local("CAT dog cat", haystack, 64),
                       64, make_lstr_local("cat", needle, 16), '|', 1);
-    assert(result != NULL);
+    LUB_ASSERT(result != NULL);
 
     result = llsnSTRM(make_lstr_local("CAT dog CAT", haystack, 64),                      64, make_lstr_local("cat", needle, 16), '|', 2);
-    assert(result != NULL);
+    LUB_ASSERT(result != NULL);
 }
 
 static void test_cmp_basic_and_case_insensitive(void) {
@@ -121,23 +123,23 @@ static void test_cmp_basic_and_case_insensitive(void) {
 
     cmp_result = llsnncmp(make_lstr_local("hello", s1, 64), 64,
                           make_lstr_local("hello", s2, 64), 64);
-    assert(cmp_result == 0);
+    LUB_ASSERT(cmp_result == 0);
 
     cmp_result = llsnncmp(make_lstr_local("apple", s1, 64), 64,
                           make_lstr_local("banana", s2, 64), 64);
-    assert(cmp_result < 0);
+    LUB_ASSERT(cmp_result < 0);
 
     cmp_result = llsnncmp(make_lstr_local("zebra", s1, 64), 64,
                           make_lstr_local("apple", s2, 64), 64);
-    assert(cmp_result > 0);
+    LUB_ASSERT(cmp_result > 0);
 
     cmp_result = llsnnCMP(make_lstr_local("Hello", s1, 64), 64,
                           make_lstr_local("HELLO", s2, 64), 64);
-    assert(cmp_result == 0);
+    LUB_ASSERT(cmp_result == 0);
 
     cmp_result = llsnnCMP(make_lstr_local("hello", s1, 64), 64,
                           make_lstr_local("world", s2, 64), 64);
-    assert(cmp_result != 0);
+    LUB_ASSERT(cmp_result != 0);
 }
 
 static void test_pfx_and_sfx_matching(void) {
@@ -148,30 +150,31 @@ static void test_pfx_and_sfx_matching(void) {
 
     result = llsnnpfxcmp(make_lstr_local("hello world", str, 64), 64,
                          make_lstr_local("hello", pfx, 64), 64);
-    assert(result == 0);
+    LUB_ASSERT(result == 0);
 
     result = llsnnpfxcmp(make_lstr_local("hello world", str, 64), 64,
                          make_lstr_local("world", pfx, 64), 64);
-    assert(result != 0);
+    LUB_ASSERT(result != 0);
 
     result = llsnnsfxcmp(make_lstr_local("hello world", str, 64), 64,
                          make_lstr_local("world", sfx, 64), 64);
-    assert(result == 0);
+    LUB_ASSERT(result == 0);
 
     result = llsnnsfxcmp(make_lstr_local("hello world", str, 64), 64,
                          make_lstr_local("hello", sfx, 64), 64);
-    assert(result != 0);
+    LUB_ASSERT(result != 0);
 
     result = llsnnPFXCMP(make_lstr_local("Hello World", str, 64), 64,
                          make_lstr_local("HELLO", pfx, 64), 64);
-    assert(result == 0);
+    LUB_ASSERT(result == 0);
 
     result = llsnnSFXCMP(make_lstr_local("Hello World", str, 64), 64,
                          make_lstr_local("WORLD", sfx, 64), 64);
-    assert(result == 0);
+    LUB_ASSERT(result == 0);
 }
 
-void run_search_family_tests(void) {
+size_t run_search_family_tests(void) {
+    test_count = 0;
     test_chr_search_with_m_semantics();
     test_chr_search_case_insensitive();
     test_str_search_with_m_semantics();
@@ -179,4 +182,5 @@ void run_search_family_tests(void) {
     test_cmp_basic_and_case_insensitive();
     test_pfx_and_sfx_matching();
 
+    return test_count;
 }

@@ -16,6 +16,8 @@
 #include "lubtype_test_declarations.h"
 #include "../lubtype.h"
 
+static size_t test_count = 0;
+
 /**
  * @brief Run tests for x-macro character classification and conversion functions.
  *
@@ -24,39 +26,41 @@
  * This file is compiled twice: once with -DLUB_X_IS_L and once with -DLUB_X_IS_U.
  */
 
-void LUB_PASTE(run_charclass_tests_, LUB_X)(void)
-{ // Test: isxalpha
-  assert(isxalpha((xchar_t)'A'));
-  assert(isxalpha((xchar_t)'z'));
-  assert(!isxalpha((xchar_t)'1'));
+size_t LUB_PASTE(run_charclass_tests_, LUB_X)(void)
+{ test_count = 0;
+// Test: isxalpha
+  LUB_ASSERT(isxalpha((xchar_t)'A'));
+  LUB_ASSERT(isxalpha((xchar_t)'z'));
+  LUB_ASSERT(!isxalpha((xchar_t)'1'));
   // Test: isxupper
-  assert(isxupper((xchar_t)'Z'));
-  assert(!isxupper((xchar_t)'a'));
+  LUB_ASSERT(isxupper((xchar_t)'Z'));
+  LUB_ASSERT(!isxupper((xchar_t)'a'));
   // Test: isxlower
-  assert(isxlower((xchar_t)'a'));
-  assert(!isxlower((xchar_t)'Z'));
+  LUB_ASSERT(isxlower((xchar_t)'a'));
+  LUB_ASSERT(!isxlower((xchar_t)'Z'));
   // Test: isxdigit
-  assert(isxdigit((xchar_t)'5'));
-  assert(!isxdigit((xchar_t)'A'));
+  LUB_ASSERT(isxdigit((xchar_t)'5'));
+  LUB_ASSERT(!isxdigit((xchar_t)'A'));
   // Test: isxalnum
-  assert(isxalnum((xchar_t)'9'));
-  assert(isxalnum((xchar_t)'B'));
-  assert(!isxalnum((xchar_t)'!'));
+  LUB_ASSERT(isxalnum((xchar_t)'9'));
+  LUB_ASSERT(isxalnum((xchar_t)'B'));
+  LUB_ASSERT(!isxalnum((xchar_t)'!'));
   // Test: xxtoupper, xxtolower
-  assert(xxtoupper((xchar_t)'a') == (xchar_t)'A');
-  assert(xxtolower((xchar_t)'Z') == (xchar_t)'z');
+  LUB_ASSERT(xxtoupper((xchar_t)'a') == (xchar_t)'A');
+  LUB_ASSERT(xxtolower((xchar_t)'Z') == (xchar_t)'z');
   // Null/zero edge cases
-  assert(!isxalpha((xchar_t)0));
-  assert(!isxupper((xchar_t)0));
-  assert(!isxlower((xchar_t)0));
-  assert(!isxdigit((xchar_t)0));
-  assert(!isxalnum((xchar_t)0));
-  assert(xxtoupper((xchar_t)0) == (xchar_t)0);
-  assert(xxtolower((xchar_t)0) == (xchar_t)0);
+  LUB_ASSERT(!isxalpha((xchar_t)0));
+  LUB_ASSERT(!isxupper((xchar_t)0));
+  LUB_ASSERT(!isxlower((xchar_t)0));
+  LUB_ASSERT(!isxdigit((xchar_t)0));
+  LUB_ASSERT(!isxalnum((xchar_t)0));
+  LUB_ASSERT(xxtoupper((xchar_t)0) == (xchar_t)0);
+  LUB_ASSERT(xxtolower((xchar_t)0) == (xchar_t)0);
   // Non-alphabetic character passthrough
-  assert(xxtoupper((xchar_t)'!') == (xchar_t)'!');
-  assert(xxtolower((xchar_t)'!') == (xchar_t)'!');
+  LUB_ASSERT(xxtoupper((xchar_t)'!') == (xchar_t)'!');
+  LUB_ASSERT(xxtolower((xchar_t)'!') == (xchar_t)'!');
 
   printf("Character classification/conversion tests passed for LUB_X=%s.\n",
          LUB_STRINGIFY(LUB_X));
+  return test_count;
 }

@@ -1,20 +1,11 @@
 LUBTYPE TEST SUITE REPORT
-Generated: 2026-05-16 00:43:04
+Generated: 2026-05-16 01:41:05
 ----------------------------------------
 Test categories executed (in order):
   1. Error/edge cases (12 tests)
-  2. Advanced operations for LUB_X=l and u (24 tests)
-  3. Compare/search for LUB_X=l and u (22 tests)
+  2. Advanced operations for LUB_X = l and u (22 tests)
+  3. Compare/search for LUB_X = l and u (22 tests)
   4. String length/validation (19 tests)
-  5. Charclass for LUB_X=l and u (46 tests)
-  6. Reserved/matrix (42 tests)
+  5. Charclass for LUB_X = l and u (46 tests)
+  6. Reserved/matrix (120 tests)
   7. Search families (25 tests)
-  8. Span/count (10 tests)
-  9. Core families (62 tests)
- 10. Type matrix (32 tests)
- 11. Utilities (42 tests)
- 12. Fuzz/edge cases (11 tests)
- 13. Skip functions (37 tests)
-----------------------------------------
-Total tests executed: 384
-----------------------------------------

@@ -12,6 +12,8 @@
 #include "../lubtype.h"
 #include "lubtype_test_declarations.h"
 
+static size_t test_count = 0;
+
 /**
  * @brief Create a local Latin string from ASCII text.
  */
@@ -63,84 +65,84 @@ static void test_copy_variants(void) {
     lchar_t dst_l[33], src_l[33];
     uchar_t dst_u[33], src_u[33];
 
-    assert(llsnncpy(dst_l, 32, make_lstr_local("hello", src_l, 33), 32, NULL) != NULL);
-    assert(eq_lstr_ascii_local(dst_l, "hello"));
-    assert(llsnncpyc(dst_l, 32, make_lstr_local("HELLO", src_l, 33), 32, NULL) != NULL);
-    assert(eq_lstr_ascii_local(dst_l, "hello"));
-    assert(llsnnCPYC(dst_l, 32, make_lstr_local("hello", src_l, 33), 32, NULL) != NULL);
-    assert(eq_lstr_ascii_local(dst_l, "HELLO"));
+    LUB_ASSERT(llsnncpy(dst_l, 32, make_lstr_local("hello", src_l, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_lstr_ascii_local(dst_l, "hello"));
+    LUB_ASSERT(llsnncpyc(dst_l, 32, make_lstr_local("HELLO", src_l, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_lstr_ascii_local(dst_l, "hello"));
+    LUB_ASSERT(llsnnCPYC(dst_l, 32, make_lstr_local("hello", src_l, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_lstr_ascii_local(dst_l, "HELLO"));
 
-    assert(uusnncpy(dst_u, 32, make_ustr_local("foo", src_u, 33), 32, NULL) != NULL);
-    assert(eq_ustr_ascii_local(dst_u, "foo"));
-    assert(uusnncpyc(dst_u, 32, make_ustr_local("BAR", src_u, 33), 32, NULL) != NULL);
-    assert(eq_ustr_ascii_local(dst_u, "bar"));
-    assert(uusnnCPYC(dst_u, 32, make_ustr_local("baz", src_u, 33), 32, NULL) != NULL);
-    assert(eq_ustr_ascii_local(dst_u, "BAZ"));
+    LUB_ASSERT(uusnncpy(dst_u, 32, make_ustr_local("foo", src_u, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_ustr_ascii_local(dst_u, "foo"));
+    LUB_ASSERT(uusnncpyc(dst_u, 32, make_ustr_local("BAR", src_u, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_ustr_ascii_local(dst_u, "bar"));
+    LUB_ASSERT(uusnnCPYC(dst_u, 32, make_ustr_local("baz", src_u, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_ustr_ascii_local(dst_u, "BAZ"));
 
-    assert(lusnncpy(dst_l, 32, make_ustr_local("abc", src_u, 33), 32, NULL, '?') != NULL);
-    assert(eq_lstr_ascii_local(dst_l, "abc"));
-    assert(lusnncpyc(dst_l, 32, make_ustr_local("DEF", src_u, 33), 32, NULL, '?') != NULL);
-    assert(eq_lstr_ascii_local(dst_l, "def"));
-    assert(lusnnCPYC(dst_l, 32, make_ustr_local("ghi", src_u, 33), 32, NULL, '?') != NULL);
-    assert(eq_lstr_ascii_local(dst_l, "GHI"));
+    LUB_ASSERT(lusnncpy(dst_l, 32, make_ustr_local("abc", src_u, 33), 32, NULL, '?') != NULL);
+    LUB_ASSERT(eq_lstr_ascii_local(dst_l, "abc"));
+    LUB_ASSERT(lusnncpyc(dst_l, 32, make_ustr_local("DEF", src_u, 33), 32, NULL, '?') != NULL);
+    LUB_ASSERT(eq_lstr_ascii_local(dst_l, "def"));
+    LUB_ASSERT(lusnnCPYC(dst_l, 32, make_ustr_local("ghi", src_u, 33), 32, NULL, '?') != NULL);
+    LUB_ASSERT(eq_lstr_ascii_local(dst_l, "GHI"));
 
-    assert(ulsnncpy(dst_u, 32, make_lstr_local("123", src_l, 33), 32, NULL) != NULL);
-    assert(eq_ustr_ascii_local(dst_u, "123"));
-    assert(ulsnncpyc(dst_u, 32, make_lstr_local("ABC", src_l, 33), 32, NULL) != NULL);
-    assert(eq_ustr_ascii_local(dst_u, "abc"));
+    LUB_ASSERT(ulsnncpy(dst_u, 32, make_lstr_local("123", src_l, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_ustr_ascii_local(dst_u, "123"));
+    LUB_ASSERT(ulsnncpyc(dst_u, 32, make_lstr_local("ABC", src_l, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_ustr_ascii_local(dst_u, "abc"));
 }
 
 static void test_cat_basic(void) {
     lchar_t dst[33], src[33];
     uchar_t udst[33], usrc[33];
 
-    assert(llsnncpy(dst, 32, make_lstr_local("hello", src, 33), 32, NULL) != NULL);
-    assert(llsnncat(dst, 32, make_lstr_local(" world", src, 33), 32, NULL) != NULL);
-    assert(eq_lstr_ascii_local(dst, "hello world"));
+    LUB_ASSERT(llsnncpy(dst, 32, make_lstr_local("hello", src, 33), 32, NULL) != NULL);
+    LUB_ASSERT(llsnncat(dst, 32, make_lstr_local(" world", src, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_lstr_ascii_local(dst, "hello world"));
 
-    assert(llsnncpy(dst, 32, make_lstr_local("foo", src, 33), 32, NULL) != NULL);
-    assert(llsnncatc(dst, 32, make_lstr_local("BAR", src, 33), 32, NULL) != NULL);
-    assert(eq_lstr_ascii_local(dst, "foobar"));
+    LUB_ASSERT(llsnncpy(dst, 32, make_lstr_local("foo", src, 33), 32, NULL) != NULL);
+    LUB_ASSERT(llsnncatc(dst, 32, make_lstr_local("BAR", src, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_lstr_ascii_local(dst, "foobar"));
 
-    assert(llsnncpy(dst, 32, make_lstr_local("foo", src, 33), 32, NULL) != NULL);
-    assert(llsnnCATC(dst, 32, make_lstr_local("baz", src, 33), 32, NULL) != NULL);
-    assert(eq_lstr_ascii_local(dst, "fooBAZ"));
+    LUB_ASSERT(llsnncpy(dst, 32, make_lstr_local("foo", src, 33), 32, NULL) != NULL);
+    LUB_ASSERT(llsnnCATC(dst, 32, make_lstr_local("baz", src, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_lstr_ascii_local(dst, "fooBAZ"));
 
-    assert(uusnncpy(udst, 32, make_ustr_local("abc", usrc, 33), 32, NULL) != NULL);
-    assert(uusnncat(udst, 32, make_ustr_local("def", usrc, 33), 32, NULL) != NULL);
-    assert(eq_ustr_ascii_local(udst, "abcdef"));
+    LUB_ASSERT(uusnncpy(udst, 32, make_ustr_local("abc", usrc, 33), 32, NULL) != NULL);
+    LUB_ASSERT(uusnncat(udst, 32, make_ustr_local("def", usrc, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_ustr_ascii_local(udst, "abcdef"));
 
-    assert(uusnncpy(udst, 32, make_ustr_local("foo", usrc, 33), 32, NULL) != NULL);
-    assert(uusnncatc(udst, 32, make_ustr_local("BAR", usrc, 33), 32, NULL) != NULL);
-    assert(eq_ustr_ascii_local(udst, "foobar"));
+    LUB_ASSERT(uusnncpy(udst, 32, make_ustr_local("foo", usrc, 33), 32, NULL) != NULL);
+    LUB_ASSERT(uusnncatc(udst, 32, make_ustr_local("BAR", usrc, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_ustr_ascii_local(udst, "foobar"));
 
-    assert(uusnncpy(udst, 32, make_ustr_local("foo", usrc, 33), 32, NULL) != NULL);
-    assert(uusnnCATC(udst, 32, make_ustr_local("baz", usrc, 33), 32, NULL) != NULL);
-    assert(eq_ustr_ascii_local(udst, "fooBAZ"));
+    LUB_ASSERT(uusnncpy(udst, 32, make_ustr_local("foo", usrc, 33), 32, NULL) != NULL);
+    LUB_ASSERT(uusnnCATC(udst, 32, make_ustr_local("baz", usrc, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_ustr_ascii_local(udst, "fooBAZ"));
 
-    assert(llsnncpy(dst, 32, make_lstr_local("abc", src, 33), 32, NULL) != NULL);
-    assert(lusnncat(dst, 32, make_ustr_local("def", usrc, 33), 32, NULL, '?') != NULL);
-    assert(eq_lstr_ascii_local(dst, "abcdef"));
+    LUB_ASSERT(llsnncpy(dst, 32, make_lstr_local("abc", src, 33), 32, NULL) != NULL);
+    LUB_ASSERT(lusnncat(dst, 32, make_ustr_local("def", usrc, 33), 32, NULL, '?') != NULL);
+    LUB_ASSERT(eq_lstr_ascii_local(dst, "abcdef"));
 
-    assert(llsnncpy(dst, 32, make_lstr_local("foo", src, 33), 32, NULL) != NULL);
-    assert(lusnncatc(dst, 32, make_ustr_local("BAR", usrc, 33), 32, NULL, '?') != NULL);
-    assert(eq_lstr_ascii_local(dst, "foobar"));
+    LUB_ASSERT(llsnncpy(dst, 32, make_lstr_local("foo", src, 33), 32, NULL) != NULL);
+    LUB_ASSERT(lusnncatc(dst, 32, make_ustr_local("BAR", usrc, 33), 32, NULL, '?') != NULL);
+    LUB_ASSERT(eq_lstr_ascii_local(dst, "foobar"));
 
-    assert(llsnncpy(dst, 32, make_lstr_local("foo", src, 33), 32, NULL) != NULL);
-    assert(lusnnCATC(dst, 32, make_ustr_local("baz", usrc, 33), 32, NULL, '?') != NULL);
-    assert(eq_lstr_ascii_local(dst, "fooBAZ"));
+    LUB_ASSERT(llsnncpy(dst, 32, make_lstr_local("foo", src, 33), 32, NULL) != NULL);
+    LUB_ASSERT(lusnnCATC(dst, 32, make_ustr_local("baz", usrc, 33), 32, NULL, '?') != NULL);
+    LUB_ASSERT(eq_lstr_ascii_local(dst, "fooBAZ"));
 
-    assert(uusnncpy(udst, 32, make_ustr_local("abc", usrc, 33), 32, NULL) != NULL);
-    assert(ulsnncat(udst, 32, make_lstr_local("def", src, 33), 32, NULL) != NULL);
-    assert(eq_ustr_ascii_local(udst, "abcdef"));
+    LUB_ASSERT(uusnncpy(udst, 32, make_ustr_local("abc", usrc, 33), 32, NULL) != NULL);
+    LUB_ASSERT(ulsnncat(udst, 32, make_lstr_local("def", src, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_ustr_ascii_local(udst, "abcdef"));
 
-    assert(uusnncpy(udst, 32, make_ustr_local("foo", usrc, 33), 32, NULL) != NULL);
-    assert(ulsnncatc(udst, 32, make_lstr_local("BAR", src, 33), 32, NULL) != NULL);
-    assert(eq_ustr_ascii_local(udst, "foobar"));
+    LUB_ASSERT(uusnncpy(udst, 32, make_ustr_local("foo", usrc, 33), 32, NULL) != NULL);
+    LUB_ASSERT(ulsnncatc(udst, 32, make_lstr_local("BAR", src, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_ustr_ascii_local(udst, "foobar"));
 
-    assert(uusnncpy(udst, 32, make_ustr_local("foo", usrc, 33), 32, NULL) != NULL);
-    assert(ulsnnCATC(udst, 32, make_lstr_local("baz", src, 33), 32, NULL) != NULL);
-    assert(eq_ustr_ascii_local(udst, "fooBAZ"));
+    LUB_ASSERT(uusnncpy(udst, 32, make_ustr_local("foo", usrc, 33), 32, NULL) != NULL);
+    LUB_ASSERT(ulsnnCATC(udst, 32, make_lstr_local("baz", src, 33), 32, NULL) != NULL);
+    LUB_ASSERT(eq_ustr_ascii_local(udst, "fooBAZ"));
 }
 
 static void test_copy_and_cat_error_behavior(void) {
@@ -148,18 +150,20 @@ static void test_copy_and_cat_error_behavior(void) {
 
     dst[0] = 'X';
     dst[1] = 0;
-    assert(llsnncpy(NULL, 32, make_lstr_local("abc", src, 33), 32, NULL) == NULL);
-    assert(dst[0] == 'X');
+    LUB_ASSERT(llsnncpy(NULL, 32, make_lstr_local("abc", src, 33), 32, NULL) == NULL);
+    LUB_ASSERT(dst[0] == 'X');
 
-    assert(llsnncpy(dst, 32, NULL, 32, NULL) != NULL);
-    assert(dst[0] == 0);
+    LUB_ASSERT(llsnncpy(dst, 32, NULL, 32, NULL) != NULL);
+    LUB_ASSERT(dst[0] == 0);
 
     // Mixed-type overlap behavior is implementation-dependent in current
     // version, so avoid asserting legacy overlap-error outcomes here.
 }
 
-void run_core_family_tests(void) {
+size_t run_core_family_tests(void) {
+    test_count = 0;
     test_copy_variants();
     test_cat_basic();
     test_copy_and_cat_error_behavior();
+    return test_count;
 }

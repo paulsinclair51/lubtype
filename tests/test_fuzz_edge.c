@@ -16,6 +16,8 @@
 #include "../lubtype.h"
 #include "lubtype_test_declarations.h"
 
+static size_t test_count = 0;
+
 // Helper: fill buffer with random bytes
 /**
  * @brief Fill a buffer with random lchar_t values.
@@ -52,8 +54,8 @@ static void fuzz_copy_append_cat(void) {
         llsnncat(dst, sizeof(dst), src, len + 1, NULL);
         uusnncat(udst, sizeof(udst), usrc, len + 1, NULL);
         // Current API contract: results stay null-terminated within bounds.
-        assert(!LUB_SIZE_ERR(lcsnlen(dst, sizeof(dst)), 0));
-        assert(!LUB_SIZE_ERR(ucsnlen(udst, sizeof(udst)), 0));
+        LUB_ASSERT(!LUB_SIZE_ERR(lcsnlen(dst, sizeof(dst)), 0));
+        LUB_ASSERT(!LUB_SIZE_ERR(ucsnlen(udst, sizeof(udst)), 0));
     }
 }
 
@@ -64,17 +66,17 @@ static void fuzz_copy_append_cat(void) {
 static void test_error_paths(void) {
     lchar_t buf[8] = {0};
     // Null target pointers return NULL in current implementation.
-    assert(llsnncpy(NULL, 8, buf, 8, NULL) == NULL);
-    assert(ulsnncpy(NULL, 8, buf, 8, NULL) == NULL);
+    LUB_ASSERT(llsnncpy(NULL, 8, buf, 8, NULL) == NULL);
+    LUB_ASSERT(ulsnncpy(NULL, 8, buf, 8, NULL) == NULL);
     // Bound-edge copy (current implementation may not append a terminator
     // when source length equals tn).
     memset(buf, 'A', sizeof(buf));
     buf[7] = 0;
     llsnncpy(buf, sizeof(buf), (lchar_t*)"ABCDEFGH", 8, NULL);
-    assert(buf[0] == (lchar_t)'A');
+    LUB_ASSERT(buf[0] == (lchar_t)'A');
     // Invalid input
-    assert(lcsnlen(NULL, 10) == 0);
-    assert(ucsnlen(NULL, 10) == 0);
+    LUB_ASSERT(lcsnlen(NULL, 10) == 0);
+    LUB_ASSERT(ucsnlen(NULL, 10) == 0);
 }
 
 // Test: overlapping buffers
@@ -104,22 +106,24 @@ static void test_overlapping_buffers(void) {
     ubuf[7] = 0;
     lusnncat(buf, sizeof(buf), ubuf, 7, NULL, '?');
     ulsnncat(ubuf, sizeof(ubuf), buf, 7, NULL);
-    assert(!LUB_SIZE_ERR(lcsnlen(buf, sizeof(buf)), 0));
-    assert(!LUB_SIZE_ERR(ucsnlen(ubuf, sizeof(ubuf)), 0));
+    LUB_ASSERT(!LUB_SIZE_ERR(lcsnlen(buf, sizeof(buf)), 0));
+    LUB_ASSERT(!LUB_SIZE_ERR(ucsnlen(ubuf, sizeof(ubuf)), 0));
 
     // Error substitution: Unicode->Latin with out-of-range
     uchar_t uni_bad[8] = {0x1234, 0x20, 0x7F, 0x100, 0};
     lchar_t out[8];
     out[0] = 0;
     lusnncat(out, sizeof(out), uni_bad, 8, NULL, '?');
-    assert(out[0] == '?');
-    assert(!LUB_SIZE_ERR(lcsnlen(out, sizeof(out)), 0));
+    LUB_ASSERT(out[0] == '?');
+    LUB_ASSERT(!LUB_SIZE_ERR(lcsnlen(out, sizeof(out)), 0));
 }
 
-void run_fuzz_edge_tests(void) {
+size_t run_fuzz_edge_tests(void) {
+    test_count = 0;
     srand(42);
     fuzz_copy_append_cat();
     test_error_paths();
     test_overlapping_buffers();
     printf("Fuzz/edge-case tests passed.\n");
+    return test_count;
 }

@@ -67,57 +67,38 @@ int main(int argc, char **argv) {
 	time_t now = time(NULL);
 	char timebuf[64];
 	strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M:%S", localtime(&now));
+
 	fprintf(report, "LUBTYPE TEST SUITE REPORT\n");
 	fprintf(report, "Generated: %s\n", timebuf);
 	fprintf(report, "----------------------------------------\n");
 	fprintf(report, "Test categories executed (in order):\n");
-	write_test_category(report, 1, "Error/edge cases", 12);
-	total_asserts += 12;
-	write_test_category(report, 2, "Advanced operations for LUB_X = l and u", 24);
-	total_asserts += 24;
-	write_test_category(report, 3, "Compare/search for LUB_X = l and u", 22);
-	total_asserts += 22;
-	write_test_category(report, 4, "String length/validation", 19);
-	total_asserts += 19;
-	write_test_category(report, 5, "Charclass for LUB_X = l and u", 46);
-	total_asserts += 46;
-	write_test_category(report, 6, "Reserved/matrix", 42);
-	total_asserts += 42;
-	write_test_category(report, 7, "Search families", 25);
-	total_asserts += 25;
-	write_test_category(report, 8, "Span/count", 10);
-	total_asserts += 10;
-	write_test_category(report, 9, "Core families", 62);
-	total_asserts += 62;
-	write_test_category(report, 10, "Type matrix", 32);
-	total_asserts += 32;
-	write_test_category(report, 11, "Utilities", 42);
-	total_asserts += 42;
-	write_test_category(report, 12, "Fuzz/edge cases", 11);
-	total_asserts += 11;
-	write_test_category(report, 13, "Skip functions", 37);
-	total_asserts += 37;
+
+#define RUN_AND_REPORT(idx, label, expr) \
+	do { \
+		size_t category_count = (size_t)(expr); \
+		write_test_category(report, (idx), (label), category_count); \
+		total_asserts += category_count; \
+	} while (0)
+
+	RUN_AND_REPORT(1, "Error/edge cases", run_error_edge_tests());
+	RUN_AND_REPORT(2, "Advanced operations for LUB_X = l and u", run_advanced_ops_tests_l() + run_advanced_ops_tests_u());
+	RUN_AND_REPORT(3, "Compare/search for LUB_X = l and u", run_cmp_search_tests_l() + run_cmp_search_tests_u());
+	RUN_AND_REPORT(4, "String length/validation", run_strlen_validation_tests());
+	RUN_AND_REPORT(5, "Charclass for LUB_X = l and u", run_charclass_tests_l() + run_charclass_tests_u());
+	RUN_AND_REPORT(6, "Reserved/matrix", run_reserved_matrix_tests());
+	RUN_AND_REPORT(7, "Search families", run_search_family_tests());
+	RUN_AND_REPORT(8, "Span/count", run_span_count_tests());
+	RUN_AND_REPORT(9, "Core families", run_core_family_tests());
+	RUN_AND_REPORT(10, "Type matrix", run_type_matrix_tests());
+	RUN_AND_REPORT(11, "Utilities", run_utilities_tests());
+	RUN_AND_REPORT(12, "Fuzz/edge cases", run_fuzz_edge_tests());
+	RUN_AND_REPORT(13, "Skip functions", run_skip_tests());
+
+#undef RUN_AND_REPORT
+
 	fprintf(report, "----------------------------------------\n");
 	fprintf(report, "Total tests executed: %zu\n", total_asserts);
 	fprintf(report, "----------------------------------------\n");
-
-	// Run all test modules
-	run_error_edge_tests();
-	run_advanced_ops_tests_l();
-	run_advanced_ops_tests_u();
-	run_cmp_search_tests_l();
-	run_cmp_search_tests_u();
-	run_strlen_validation_tests();
-	run_charclass_tests_l();
-	run_charclass_tests_u();
-	run_reserved_matrix_tests();
-	run_search_family_tests();
-	run_span_count_tests();
-	run_core_family_tests();
-	run_type_matrix_tests();
-	run_utilities_tests();
-	run_fuzz_edge_tests();
-	run_skip_tests();
 
 	// Write completion message
 	fprintf(report, "\nAll tests completed successfully.\n");

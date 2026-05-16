@@ -12,6 +12,8 @@
 #include "../lubtype.h"
 #include "lubtype_test_declarations.h"
 
+static size_t test_count = 0;
+
 /**
  * @brief Create a local Latin string from ASCII text.
  */
@@ -33,22 +35,22 @@ static void test_count_character(void) {
 
     result = llsncnt(make_lstr_local("hello world", str, 64),
                      make_lstr_local("l", needle, 4), 64, 0);
-    assert(result == 3);
+    LUB_ASSERT(result == 3);
 
     result = llsncnt(make_lstr_local("hello", str, 64),
                      make_lstr_local("z", needle, 4), 64, 0);
-    assert(result == 0);
+    LUB_ASSERT(result == 0);
 
     result = llsncnt(make_lstr_local("a", str, 64),
                      make_lstr_local("a", needle, 4), 64, 0);
-    assert(result == 1);
+    LUB_ASSERT(result == 1);
 
     result = llsnCNT(make_lstr_local("HeLLo", str, 64),
                      make_lstr_local("l", needle, 4), 64, 0);
-    assert(result == 2);
+    LUB_ASSERT(result == 2);
 
-    assert(llsncnt(NULL, needle, 10, 0) == (size_t)0);
-    assert(llsnCNT(str, NULL, 10, 0) == (size_t)0);
+    LUB_ASSERT(llsncnt(NULL, needle, 10, 0) == (size_t)0);
+    LUB_ASSERT(llsnCNT(str, NULL, 10, 0) == (size_t)0);
 }
 
 /**
@@ -61,23 +63,25 @@ static void test_substring_count(void) {
 
     result = llsncnt(make_lstr_local("abab", str, 64),
                      make_lstr_local("ab", needle, 16), 64, '|');
-    assert(result == 2);
+    LUB_ASSERT(result == 2);
 
     result = llsncnt(make_lstr_local("aaa", str, 64),
                      make_lstr_local("aa", needle, 16), 64, '|');
-    assert(result == 2);
+    LUB_ASSERT(result == 2);
 
     result = llsncnt(make_lstr_local("hello", str, 64),
                      make_lstr_local("xyz", needle, 16), 64, '|');
-    assert(result == 0);
+    LUB_ASSERT(result == 0);
 
     result = llsnCNT(make_lstr_local("CatDogCat", str, 64),
                      make_lstr_local("cat", needle, 16), 64, '|');
-    assert(result == 2);
+    LUB_ASSERT(result == 2);
 }
 
-void run_span_count_tests(void) {
+size_t run_span_count_tests(void) {
+    test_count = 0;
     test_count_character();
     test_substring_count();
 
+    return test_count;
 }

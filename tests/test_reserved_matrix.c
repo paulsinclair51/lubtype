@@ -12,6 +12,8 @@
 #include "../lubtype.h"
 #include "lubtype_test_declarations.h"
 
+static size_t test_count = 0;
+
 /**
  * @brief Create a local ucstr_t from ASCII string.
  */
@@ -97,26 +99,26 @@ static void test_isureserved_oracle_crosscheck(void) {
         int expected = oracle_isureserved_ascii_local(positives[i]);
         int actual = isureserved(make_ustr_local(positives[i], buf, 64));
         int lactual = islreserved(make_lstr_local(positives[i], lbuf, 64));
-        assert(expected == 1);
-        assert(actual == expected);
-        assert(lactual == expected);
+        LUB_ASSERT(expected == 1);
+        LUB_ASSERT(actual == expected);
+        LUB_ASSERT(lactual == expected);
     }
 
     for (i = 0; i < sizeof(negatives) / sizeof(negatives[0]); ++i) {
         int expected = oracle_isureserved_ascii_local(negatives[i]);
         int actual = isureserved(make_ustr_local(negatives[i], buf, 64));
         int lactual = islreserved(make_lstr_local(negatives[i], lbuf, 64));
-        assert(expected == 0);
-        assert(actual == expected);
-        assert(lactual == expected);
+        LUB_ASSERT(expected == 0);
+        LUB_ASSERT(actual == expected);
+        LUB_ASSERT(lactual == expected);
     }
         // Null/empty are invalid-name errors in current API.
-        assert(isureserved(NULL) == (int)LUB_NAME_INVALID);
-        assert(islreserved(NULL) == (int)LUB_NAME_INVALID);
+        LUB_ASSERT(isureserved(NULL) == (int)LUB_NAME_INVALID);
+        LUB_ASSERT(islreserved(NULL) == (int)LUB_NAME_INVALID);
         buf[0] = 0;
         lbuf[0] = 0;
-        assert(isureserved(buf) == (int)LUB_NAME_INVALID);
-        assert(islreserved(lbuf) == (int)LUB_NAME_INVALID);
+        LUB_ASSERT(isureserved(buf) == (int)LUB_NAME_INVALID);
+        LUB_ASSERT(islreserved(lbuf) == (int)LUB_NAME_INVALID);
 }
 
 static void test_matrix_consistency_cmp_pfx_sfx(void) {
@@ -128,59 +130,61 @@ static void test_matrix_consistency_cmp_pfx_sfx(void) {
     make_ustr_local("Alpha", u1, 64);
     make_ustr_local("alpha", u2, 64);
 
-    assert(llsnncmp(l1, 63, l2, 63) != 0);
-    assert(lusnncmp(l1, 63, u2, 63) != 0);
-    assert(ulsnncmp(u1, 63, l2, 63) != 0);
-    assert(uusnncmp(u1, 63, u2, 63) != 0);
+    LUB_ASSERT(llsnncmp(l1, 63, l2, 63) != 0);
+    LUB_ASSERT(lusnncmp(l1, 63, u2, 63) != 0);
+    LUB_ASSERT(ulsnncmp(u1, 63, l2, 63) != 0);
+    LUB_ASSERT(uusnncmp(u1, 63, u2, 63) != 0);
 
-    assert(llsnnCMP(l1, 63, l2, 63) == 0);
-    assert(lusnnCMP(l1, 63, u2, 63) == 0);
-    assert(ulsnnCMP(u1, 63, l2, 63) == 0);
-    assert(uusnnCMP(u1, 63, u2, 63) == 0);
+    LUB_ASSERT(llsnnCMP(l1, 63, l2, 63) == 0);
+    LUB_ASSERT(lusnnCMP(l1, 63, u2, 63) == 0);
+    LUB_ASSERT(ulsnnCMP(u1, 63, l2, 63) == 0);
+    LUB_ASSERT(uusnnCMP(u1, 63, u2, 63) == 0);
 
-    assert(llsnncmp(l1, LUB_MAX_LSTRLEN, l2, LUB_MAX_LSTRLEN) == llsnncmp(l1, LUB_MAX_LSTRLEN, l2, LUB_MAX_LSTRLEN));
-    assert(lusnncmp(l1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN) == lusnncmp(l1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN));
-    assert(ulsnncmp(u1, LUB_MAX_USTRLEN, l2, LUB_MAX_USTRLEN) == ulsnncmp(u1, LUB_MAX_USTRLEN, l2, LUB_MAX_USTRLEN));
-    assert(uusnncmp(u1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN) == uusnncmp(u1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN));
+    LUB_ASSERT(llsnncmp(l1, LUB_MAX_LSTRLEN, l2, LUB_MAX_LSTRLEN) == llsnncmp(l1, LUB_MAX_LSTRLEN, l2, LUB_MAX_LSTRLEN));
+    LUB_ASSERT(lusnncmp(l1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN) == lusnncmp(l1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN));
+    LUB_ASSERT(ulsnncmp(u1, LUB_MAX_USTRLEN, l2, LUB_MAX_USTRLEN) == ulsnncmp(u1, LUB_MAX_USTRLEN, l2, LUB_MAX_USTRLEN));
+    LUB_ASSERT(uusnncmp(u1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN) == uusnncmp(u1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN));
 
-    assert(llsnnCMP(l1, LUB_MAX_LSTRLEN, l2, LUB_MAX_LSTRLEN) == llsnnCMP(l1, LUB_MAX_LSTRLEN, l2, LUB_MAX_LSTRLEN));
-    assert(lusnnCMP(l1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN) == lusnnCMP(l1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN));
-    assert(ulsnnCMP(u1, LUB_MAX_USTRLEN, l2, LUB_MAX_USTRLEN) == ulsnnCMP(u1, LUB_MAX_USTRLEN, l2, LUB_MAX_USTRLEN));
-    assert(uusnnCMP(u1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN) == uusnnCMP(u1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN));
+    LUB_ASSERT(llsnnCMP(l1, LUB_MAX_LSTRLEN, l2, LUB_MAX_LSTRLEN) == llsnnCMP(l1, LUB_MAX_LSTRLEN, l2, LUB_MAX_LSTRLEN));
+    LUB_ASSERT(lusnnCMP(l1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN) == lusnnCMP(l1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN));
+    LUB_ASSERT(ulsnnCMP(u1, LUB_MAX_USTRLEN, l2, LUB_MAX_USTRLEN) == ulsnnCMP(u1, LUB_MAX_USTRLEN, l2, LUB_MAX_USTRLEN));
+    LUB_ASSERT(uusnnCMP(u1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN) == uusnnCMP(u1, LUB_MAX_USTRLEN, u2, LUB_MAX_USTRLEN));
 
     make_lstr_local("PrefixBodySuffix", llhs, 64);
     make_lstr_local("prefix", lrhs, 64);
     make_ustr_local("PrefixBodySuffix", ulhs, 64);
     make_ustr_local("prefix", urhs, 64);
 
-    assert(llsnnpfxcmp(llhs, 63, lrhs, 63) != 0);
-    assert(lusnnpfxcmp(llhs, 63, urhs, 63) != 0);
-    assert(ulsnnpfxcmp(ulhs, 63, lrhs, 63) != 0);
-    assert(uusnnpfxcmp(ulhs, 63, urhs, 63) != 0);
+    LUB_ASSERT(llsnnpfxcmp(llhs, 63, lrhs, 63) != 0);
+    LUB_ASSERT(lusnnpfxcmp(llhs, 63, urhs, 63) != 0);
+    LUB_ASSERT(ulsnnpfxcmp(ulhs, 63, lrhs, 63) != 0);
+    LUB_ASSERT(uusnnpfxcmp(ulhs, 63, urhs, 63) != 0);
 
-    assert(llsnnPFXCMP(llhs, 63, lrhs, 63) == 0);
-    assert(lusnnPFXCMP(llhs, 63, urhs, 63) == 0);
-    assert(ulsnnPFXCMP(ulhs, 63, lrhs, 63) == 0);
-    assert(uusnnPFXCMP(ulhs, 63, urhs, 63) == 0);
+    LUB_ASSERT(llsnnPFXCMP(llhs, 63, lrhs, 63) == 0);
+    LUB_ASSERT(lusnnPFXCMP(llhs, 63, urhs, 63) == 0);
+    LUB_ASSERT(ulsnnPFXCMP(ulhs, 63, lrhs, 63) == 0);
+    LUB_ASSERT(uusnnPFXCMP(ulhs, 63, urhs, 63) == 0);
 
     make_lstr_local("PrefixBodySuffix", llhs, 64);
     make_lstr_local("suffix", lrhs, 64);
     make_ustr_local("PrefixBodySuffix", ulhs, 64);
     make_ustr_local("suffix", urhs, 64);
 
-    assert(llsnnsfxcmp(llhs, 63, lrhs, 63) != 0);
-    assert(lusnnsfxcmp(llhs, 63, urhs, 63) != 0);
-    assert(ulsnnsfxcmp(ulhs, 63, lrhs, 63) != 0);
-    assert(uusnnsfxcmp(ulhs, 63, urhs, 63) != 0);
+    LUB_ASSERT(llsnnsfxcmp(llhs, 63, lrhs, 63) != 0);
+    LUB_ASSERT(lusnnsfxcmp(llhs, 63, urhs, 63) != 0);
+    LUB_ASSERT(ulsnnsfxcmp(ulhs, 63, lrhs, 63) != 0);
+    LUB_ASSERT(uusnnsfxcmp(ulhs, 63, urhs, 63) != 0);
 
-    assert(llsnnSFXCMP(llhs, 63, lrhs, 63) == 0);
-    assert(lusnnSFXCMP(llhs, 63, urhs, 63) == 0);
-    assert(ulsnnSFXCMP(ulhs, 63, lrhs, 63) == 0);
-    assert(uusnnSFXCMP(ulhs, 63, urhs, 63) == 0);
+    LUB_ASSERT(llsnnSFXCMP(llhs, 63, lrhs, 63) == 0);
+    LUB_ASSERT(lusnnSFXCMP(llhs, 63, urhs, 63) == 0);
+    LUB_ASSERT(ulsnnSFXCMP(ulhs, 63, lrhs, 63) == 0);
+    LUB_ASSERT(uusnnSFXCMP(ulhs, 63, urhs, 63) == 0);
 }
 
-void run_reserved_matrix_tests(void) {
+size_t run_reserved_matrix_tests(void) {
+    test_count = 0;
     test_isureserved_oracle_crosscheck();
     test_matrix_consistency_cmp_pfx_sfx();
 
+    return test_count;
 }
