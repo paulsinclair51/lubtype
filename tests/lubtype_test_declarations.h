@@ -77,7 +77,7 @@ extern lub_test_result_t run_charclass_tests_l(void);
 extern lub_test_result_t run_charclass_tests_u(void);
 extern lub_test_result_t run_reserved_matrix_tests(void);
 extern lub_test_result_t run_search_family_tests(void);
-extern lub_test_result_t run_span_count_tests(void);
+extern lub_test_result_t run_count_tests(void);
 extern lub_test_result_t run_core_family_tests(void);
 extern lub_test_result_t run_type_matrix_tests(void);
 extern lub_test_result_t run_utilities_tests(void);

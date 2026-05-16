@@ -158,8 +158,8 @@ int main(int argc, char **argv) {
 	               run_guarded(run_reserved_matrix_tests));
 	RUN_AND_REPORT(7,  "Search families",
 	               run_guarded(run_search_family_tests));
-	RUN_AND_REPORT(8,  "Span/count",
-	               run_guarded(run_span_count_tests));
+	RUN_AND_REPORT(8,  "Count",
+	               run_guarded(run_count_tests));
 	RUN_AND_REPORT(9,  "Core families",
 	               run_guarded(run_core_family_tests));
 	RUN_AND_REPORT(10, "Type matrix",

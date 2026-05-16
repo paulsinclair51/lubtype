@@ -68,7 +68,7 @@ static void test_substring_count(void) {
                        make_lstr_local("cat", needle, 16), 64, '|') == 2);
 }
 
-lub_test_result_t run_span_count_tests(void) {
+lub_test_result_t run_count_tests(void) {
     test_result = (lub_test_result_t){0};
     test_count_character();
     test_substring_count();
