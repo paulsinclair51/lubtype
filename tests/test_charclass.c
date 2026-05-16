@@ -2,8 +2,8 @@
  * @file test_charclass.c
  * @brief X-macro tests for character classification functions in lubtype.h.
  *
- * @note Compiled twice: with -DLUB_X_IS_L for Latin tests and -DLUB_X_IS_U for Unicode.
- *       Each test file requires a file-scoped `static lub_test_result_t test_result;`.
+ * @note Compiled twice: -DLUB_X_IS_L for Latin, -DLUB_X_IS_U for Unicode.
+ *       Each test file needs `static lub_test_result_t test_result;`.
  * @copyright Copyright (c) 2026 paulsinclair51
  * SPDX-License-Identifier: MIT
  * For license details, see the LICENSE file in the project root.
@@ -22,11 +22,13 @@
 static lub_test_result_t test_result;
 
 /**
- * @brief Run tests for x-macro character classification and conversion functions.
+ * @brief Run tests for x-macro character classification and
+ *        conversion functions.
  *
  * Tests isxalpha, isxupper, isxlower, isxdigit, isxalnum, xxtoupper, xxtolower.
  * Also checks edge cases for null and non-alphabetic input.
- * This file is compiled twice: once with -DLUB_X_IS_L and once with -DLUB_X_IS_U.
+ * This file is compiled twice: once with -DLUB_X_IS_L and once
+ * with -DLUB_X_IS_U.
  */
 
 lub_test_result_t LUB_PASTE(run_charclass_tests_, LUB_X)(void)

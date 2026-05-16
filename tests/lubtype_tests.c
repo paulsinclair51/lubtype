@@ -2,7 +2,8 @@
  * @file lubtype_tests.c
  * @brief Main aggregator and runner for lubtype.h regression and unit tests.
  *
- * This module serves as the test suite orchestrator for lubtype.h, coordinating
+ * This module serves as the test suite orchestrator for lubtype.h,
+ * coordinating
  * execution of 13 test categories defined across separate test modules. Each
  * category tests a distinct feature family of lubtype.h (e.g., advanced
  * operations, character classification, substring searching).
@@ -13,7 +14,8 @@
  *
  * **Category-Level Guarding (this file):** The run_guarded() wrapper catches
  * unhandled process terminations (SIGSEGV, SIGABRT, SIGBUS) that occur during
- * entire test module execution. These are recorded as category-level exceptions.
+ * entire test module execution. These are counted as
+ * category-level exceptions.
  * Note: Modern assert-level guarding is handled within LUB_ASSERT macro in the
  * individual test files (see lubtype_test_declarations.h), so category-level
  * exceptions are now rare but retained for defensive programming.
@@ -28,7 +30,8 @@
  * @section reporting Test Report Output
  *
  * After all categories complete, a summary report is written to
- * "lubtype_tests_report.txt" (or a path derived from argv[0]). The report includes:
+ * "lubtype_tests_report.txt" (or a path derived from argv[0]).
+ * The report includes:
  * - Timestamp of test execution
  * - Per-category pass/fail/exception counts
  * - Grand totals across all categories
@@ -166,8 +169,9 @@ static lub_test_result_t run_guarded(lub_test_result_t (*fn)(void)) {
 /**
  * @brief Merge two result structs by summing each field.
  *
- * Used to combine results from paired test functions (e.g., uppercase and lowercase
- * variants) into a single category result. For example, Advanced Operations tests
+ * Used to combine results from paired test functions (e.g.,
+ * uppercase and lowercase variants) into a single category result.
+ * For example, Advanced Operations tests
  * both Latin (run_advanced_ops_tests_l) and Unicode (run_advanced_ops_tests_u)
  * variants; their results are merged into one.
  *
@@ -215,7 +219,8 @@ static void write_test_category(FILE *report, size_t index, const char *label,
  *
  * @section report_location Report File Location
  * The report is written to:
- * 1. Directory alongside the executable (if argv[0] contains path) + "lubtype_tests_report.txt", or
+ * 1. Directory alongside the executable (if argv[0] contains
+ *    path) + "lubtype_tests_report.txt", or
  * 2. Current working directory + "lubtype_tests_report.txt" (fallback)
  *
  * @section buffering Unbuffered I/O

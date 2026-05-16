@@ -1,9 +1,10 @@
 /**
  * @file test_error_edge.c
- * @brief X-macro tests for error and edge cases in lubtype.h string operations.
+ * @brief X-macro tests for error and edge cases in lubtype.h
+ *        string operations.
  *
- * @note Compiled twice: with -DLUB_X_IS_L for Latin tests and -DLUB_X_IS_U for Unicode.
- *       Each test file requires a file-scoped `static lub_test_result_t test_result;`.
+ * @note Compiled twice: -DLUB_X_IS_L for Latin, -DLUB_X_IS_U for Unicode.
+ *       Each test file needs `static lub_test_result_t test_result;`.
  * @copyright Copyright (c) 2026 paulsinclair51
  * SPDX-License-Identifier: MIT
  * For license details, see the LICENSE file in the project root.
@@ -24,7 +25,8 @@ static lub_test_result_t test_result;
  * @brief Run tests for error and edge cases in string operations.
  *
  * Tests null pointer handling, over-max-length, and empty string cases for
- * bounded string functions. Compiled twice for Latin (lchar_t) and Unicode (uchar_t).
+ * bounded string functions. Compiled twice for Latin (lchar_t)
+ * and Unicode (uchar_t).
  */
 lub_test_result_t LUB_PASTE(run_error_edge_tests_, LUB_X)(void) {
     test_result = (lub_test_result_t){0};

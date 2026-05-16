@@ -1,37 +1,46 @@
 /**
  * @file lubtype_test_declarations.h
- * @brief Shared test infrastructure: result types, assert macros, and function declarations.
+ * @brief Shared test infrastructure: result types, assert macros,
+ *        and function declarations.
  *
- * This header provides the test framework foundation used by all lubtype.h test modules:
+ * This header provides the test framework foundation used by all
+ * lubtype.h test modules:
  *
  * @section result_struct Test Result Structure
  * Each test module returns a lub_test_result_t struct counting:
  * - **pass**: Assertions that evaluated true
  * - **fail**: Assertions that evaluated false
- * - **exception**: Assertions that did not complete (e.g., due to segfault, abort, SIGBUS)
+ * - **exception**: Assertions that did not complete (e.g., due to
+ *   segfault, abort, SIGBUS)
  *
  * @section assert_level_guarding Assert-Level Signal Guarding
- * The LUB_ASSERT macro wraps each assertion with signal handlers to detect faults
- * at assertion granularity. When an assertion is reached:
+ * The LUB_ASSERT macro wraps each assertion with signal handlers
+ * to detect faults at assertion granularity. When an assertion is reached:
  *
- * 1. Install handlers for SIGSEGV (segfault), SIGABRT (abort), SIGBUS (bus error)
+ * 1. Install handlers for SIGSEGV (segfault), SIGABRT (abort),
+ *    SIGBUS (bus error)
  * 2. Set up a setjmp() recovery point (lubtype_assert_env)
  * 3. Mark guard_active = 1 to indicate guard is armed
  * 4. Evaluate the assertion expression
- * 5. If expression is true, increment pass; if false, increment fail and print message
- * 6. If a signal is caught during steps 2-5, longjmp back to recovery point and increment exception
+ * 5. If expression is true, increment pass; if false, increment
+ *    fail and print message
+ * 6. If a signal is caught during steps 2-5, longjmp back to
+ *    recovery point and increment exception
  * 7. Restore original signal handlers
  *
- * This per-assert guarding enables finer-grained exception detection than category-level
- * guarding (which exists in lubtype_tests.c as a defensive backstop).
+ * This per-assert guarding enables finer-grained exception detection
+ * than category-level guarding (which exists in lubtype_tests.c as
+ * a defensive backstop).
  *
  * @section why_signal_handling Why Signal Handling?
- * Without per-assert signal guarding, a segfault or abort during any assertion would:
+ * Without per-assert signal guarding, a segfault or abort during
+ * any assertion would:
  * - Crash the entire test process
  * - Prevent completion of remaining assertions
  * - Lose count of how many tests passed before the crash
  *
- * With per-assert guarding, faults are caught and counted as exceptions, allowing:
+ * With per-assert guarding, faults are caught and counted as
+ * exceptions, allowing:
  * - Continued execution of remaining assertions
  * - Accurate reporting of pass/fail/exception per category
  * - Test suite completion even if some assertions encounter faults
@@ -45,12 +54,13 @@
  * Each test module declares a file-scoped static lub_test_result_t:
  *   static lub_test_result_t test_result;
  *
- * The LUB_ASSERT macro modifies this struct. The run_*() function resets it to zero,
- * runs all assertions, and returns the final counts.
+ * The LUB_ASSERT macro modifies this struct. The run_*() function
+ * resets it to zero, runs all assertions, and returns the final counts.
  *
  * @section posix_requirement POSIX Requirement
- * This header requires POSIX.1-2008 features (sigaction, setjmp, signal). The including
- * file must define _POSIX_C_SOURCE 200809L before including system headers.
+ * This header requires POSIX.1-2008 features (sigaction, setjmp, signal).
+ * The including file must define _POSIX_C_SOURCE 200809L
+ * before including system headers.
  *
  * @copyright Copyright (c) 2026 paulsinclair51
  * SPDX-License-Identifier: MIT
@@ -72,17 +82,20 @@
  *
  * Tracks the outcomes of all assertions within a test category:
  * - **pass**: Number of assertions that evaluated to true
- * - **fail**: Number of assertions that evaluated to false (evaluated but condition failed)
- * - **exception**: Number of assertions that did not complete due to signal/fault
+ * - **fail**: Number of assertions that evaluated to false
+ *   (evaluated but condition failed)
+ * - **exception**: Number of assertions that did not complete
+ *   due to signal/fault
  *
- * @note The semantics of "exception" differ from traditional exception handling:
- *       It represents a detected fault (segfault, abort, bus error) during assertion
- *       evaluation, caught by signal handlers and longjmp recovery. It is NOT a C++
- *       or runtime exception but rather a counted fault event.
+ * @note The semantics of "exception" differ from traditional
+ *       exception handling: It represents a detected fault
+ *       (segfault, abort, bus error) during assertion evaluation,
+ *       caught by signal handlers and longjmp recovery. It is NOT
+ *       a C++ or runtime exception but a counted fault event.
  *
- * @note If an assertion encounters a signal, the signal's pass/fail/exception counts
- *       are not incremented again at the category level, as the assert-level guard
- *       already captured it.
+ * @note If an assertion encounters a signal, the signal's
+ *       pass/fail/exception counts are not incremented again at
+ *       the category level, as the assert-level guard already captured it.
  */
 typedef struct {
 	size_t pass;
@@ -139,7 +152,8 @@ static inline void lubtype_assert_fail(const char *expr, const char *file, int l
  * Each assertion is guarded and one of three outcomes is recorded:
  * - **pass**: expr evaluates to true
  * - **fail**: expr evaluates to false
- * - **exception**: expr evaluation is interrupted by signal (segfault, abort, bus error)
+ * - **exception**: expr evaluation is interrupted by signal
+ *   (segfault, abort, bus error)
  *
  * @section implementation Implementation Details
  * The macro performs the following steps:
@@ -147,10 +161,12 @@ static inline void lubtype_assert_fail(const char *expr, const char *file, int l
  * 1. **Install signal handlers**: Sets up handlers for SIGSEGV, SIGABRT, SIGBUS
  *    to catch faults during expression evaluation.
  *
- * 2. **Set recovery point**: Calls setjmp() to establish a point to return to if a
- *    signal is caught. Returns 0 on initial call, non-zero if longjmped from handler.
+ * 2. **Set recovery point**: Calls setjmp() to establish a point
+ *    to return to if a signal is caught. Returns 0 on initial
+ *    call, non-zero if longjmped from handler.
  *
- * 3. **Arm guard**: Sets lubtype_assert_guard_active = 1 to indicate handlers are active.
+ * 3. **Arm guard**: Sets lubtype_assert_guard_active = 1 to
+ *    indicate handlers are active.
  *
  * 4. **Evaluate expression**: If setjmp returned 0 (normal path):
  *    - Evaluate expr
@@ -163,7 +179,8 @@ static inline void lubtype_assert_fail(const char *expr, const char *file, int l
  *    - Increment test_result.exception
  *    - Guard is already disarmed by signal handler
  *
- * 6. **Restore handlers**: Restore original signal handlers for SIGSEGV, SIGABRT, SIGBUS.
+ * 6. **Restore handlers**: Restore original signal handlers for
+ *    SIGSEGV, SIGABRT, SIGBUS.
  *
  * @section signal_flow Signal Handling Flow
  * If a signal occurs during expression evaluation (step 4):
@@ -204,7 +221,7 @@ static inline void lubtype_assert_fail(const char *expr, const char *file, int l
 		lubtype_sighandler_t _old_segv = signal(SIGSEGV, lubtype_assert_signal_handler); \
 		lubtype_sighandler_t _old_abrt = signal(SIGABRT, lubtype_assert_signal_handler); \
 		lubtype_sighandler_t _old_bus = signal(SIGBUS, lubtype_assert_signal_handler); \
-		/* Set recovery point for longjmp; returns 0 on initial call, sig on longjmp */ \
+		/* setjmp: returns 0 on initial call, non-zero signal on longjmp */ \
 		int _jump_code = setjmp(lubtype_assert_env); \
 		/* Normal path (_jump_code == 0): evaluate expression */ \
 		if (_jump_code == 0) { \
@@ -233,7 +250,8 @@ static inline void lubtype_assert_fail(const char *expr, const char *file, int l
  * Each function has the signature:
  *   lub_test_result_t run_*_tests[_l|_u](void)
  *
- * Functions suffixed with _l test Latin (lchar_t) variants, _u for Unicode (uchar_t).
+ * Functions suffixed with _l test Latin (lchar_t) variants,
+ * _u for Unicode (uchar_t).
  * Functions without suffix test character-encoding-neutral APIs.
  *
  * @note The result of each function is a struct with pass/fail/exception counts

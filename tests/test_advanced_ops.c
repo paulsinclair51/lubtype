@@ -3,8 +3,8 @@
  * @brief X-macro tests for advanced string operations in lubtype.h
  *        (trim/reverse/pad/replace/split).
  *
- * @note Compiled twice: with -DLUB_X_IS_L for Latin tests and -DLUB_X_IS_U for Unicode.
- *       Each test file requires a file-scoped `static lub_test_result_t test_result;`.
+ * @note Compiled twice: -DLUB_X_IS_L for Latin, -DLUB_X_IS_U for Unicode.
+ *       Each test file needs `static lub_test_result_t test_result;`.
  * @copyright Copyright (c) 2026 paulsinclair51
  * SPDX-License-Identifier: MIT
  * For license details, see the LICENSE file in the project root.

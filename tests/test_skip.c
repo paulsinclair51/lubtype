@@ -2,7 +2,7 @@
  * @file test_skip.c
  * @brief Tests for llsnskip, ulsnskip, and uusnskip in lubtype.h.
  *
- * @note Each test file requires a file-scoped `static lub_test_result_t test_result;`
+ * @note Requires `static lub_test_result_t test_result;` at file scope.
  *       that LUB_ASSERT macros modify to track pass/fail/exception counts.
  * @copyright Copyright (c) 2026 paulsinclair51
  * SPDX-License-Identifier: MIT

@@ -58,7 +58,8 @@ static void fuzz_copy_append_cat(void) {
         ulsnncpy(udst, sizeof(udst), src, len + 1, NULL);
         llsnncat(dst, sizeof(dst), src, len + 1, NULL);
         uusnncat(udst, sizeof(udst), usrc, len + 1, NULL);
-        /* Treat the fuzz loop as one logical test: all iterations must satisfy bounds. */
+        /* Treat the fuzz loop as one logical test: all iterations
+         * must satisfy bounds. */
         if (LUB_SIZE_ERR(lcsnlen(dst, sizeof(dst)), 0) ||
             LUB_SIZE_ERR(ucsnlen(udst, sizeof(udst)), 0)) {
             all_ok = 0;
