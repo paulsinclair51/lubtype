@@ -228,7 +228,7 @@ static inline void lubtype_assert_fail(const char *expr, const char *file, int l
 
 /**
  * @name Test Function Declarations
- * @brief Extern declarations for all 16 test module functions.
+ * @brief Extern declarations for all 18 test module functions.
  *
  * Each function has the signature:
  *   lub_test_result_t run_*_tests[_l|_u](void)
@@ -240,7 +240,8 @@ static inline void lubtype_assert_fail(const char *expr, const char *file, int l
  *       from all assertions executed within that module.
  * @{
  */
-extern lub_test_result_t run_error_edge_tests(void);
+extern lub_test_result_t run_error_edge_tests_l(void);
+extern lub_test_result_t run_error_edge_tests_u(void);
 extern lub_test_result_t run_advanced_ops_tests_l(void);
 extern lub_test_result_t run_advanced_ops_tests_u(void);
 extern lub_test_result_t run_cmp_search_tests_l(void);

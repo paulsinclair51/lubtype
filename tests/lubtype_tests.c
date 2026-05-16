@@ -268,8 +268,9 @@ int main(int argc, char **argv) {
 		totals = merge_results(totals, _cat); \
 	} while (0)
 
-	RUN_AND_REPORT(1,  "Error/edge cases",
-	               run_guarded(run_error_edge_tests));
+	RUN_AND_REPORT(1,  "Error/edge cases (l and u)",
+	               merge_results(run_guarded(run_error_edge_tests_l),
+	                             run_guarded(run_error_edge_tests_u)));
 	RUN_AND_REPORT(2,  "Advanced operations (l and u)",
 	               merge_results(run_guarded(run_advanced_ops_tests_l),
 	                             run_guarded(run_advanced_ops_tests_u)));

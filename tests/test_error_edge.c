@@ -1,13 +1,17 @@
 /**
  * @file test_error_edge.c
- * @brief Tests for error and edge cases in lubtype.h string operations.
+ * @brief X-macro tests for error and edge cases in lubtype.h string operations.
  *
- * @note Each test file requires a file-scoped `static lub_test_result_t test_result;`
- *       that LUB_ASSERT macros modify to track pass/fail/exception counts.
+ * @note Compiled twice: with -DLUB_X_IS_L for Latin tests and -DLUB_X_IS_U for Unicode.
+ *       Each test file requires a file-scoped `static lub_test_result_t test_result;`.
  * @copyright Copyright (c) 2026 paulsinclair51
  * SPDX-License-Identifier: MIT
  * For license details, see the LICENSE file in the project root.
  */
+
+#if !defined(LUB_X_IS_L) && !defined(LUB_X_IS_U)
+#define LUB_X_IS_L
+#endif
 
 #include <assert.h>
 #include "../lubtype.h"
@@ -20,37 +24,49 @@ static lub_test_result_t test_result;
  * @brief Run tests for error and edge cases in string operations.
  *
  * Tests null pointer handling, over-max-length, and empty string cases for
- * lcslen and lcsnlen. Prints a message on success.
+ * bounded string functions. Compiled twice for Latin (lchar_t) and Unicode (uchar_t).
  */
-lub_test_result_t run_error_edge_tests(void) {
+lub_test_result_t LUB_PASTE(run_error_edge_tests_, LUB_X)(void) {
     test_result = (lub_test_result_t){0};
-    lchar_t lsrc[8] = {'a','b','c','\0'};
+    xchar_t xsrc[8] = {'a','b','c','\0'};
+    xchar_t xdst[16] = {0};
+
+#if defined(LUB_X_IS_L)
+    // Cross-type uchar tests under Latin variant
     uchar_t usrc[8] = {'a','b','c',0};
-    lchar_t ldst[16] = {0};
     uchar_t udst[16] = {0};
+#endif
 
     // Length behavior for NULL and bounded scans.
-    LUB_ASSERT(lcsnlen(NULL, 10) == 0);
-    LUB_ASSERT(ucsnlen(NULL, 10) == 0);
-    LUB_ASSERT(lcsnlen(lsrc, 100) == 3);
-    LUB_ASSERT(ucsnlen(usrc, 100) == 3);
+    LUB_ASSERT(xcsnlen(NULL, 10) == 0);
+    LUB_ASSERT(xcsnlen(xsrc, 100) == 3);
 
     // Copy behavior using current bounded APIs.
-    LUB_ASSERT(llsnncpy(ldst, 16, lsrc, 8, NULL) != NULL);
-    LUB_ASSERT(ldst[0] == 'a' && ldst[1] == 'b' && ldst[2] == 'c' && ldst[3] == 0);
-    LUB_ASSERT(ulsnncpy(udst, 16, lsrc, 8, NULL) != NULL);
-    LUB_ASSERT(udst[0] == 'a' && udst[1] == 'b' && udst[2] == 'c' && udst[3] == 0);
+    LUB_ASSERT(xxsnncpy(xdst, 16, xsrc, 8, NULL) != NULL);
+    LUB_ASSERT(xdst[0] == 'a' && xdst[1] == 'b' && xdst[2] == 'c' && xdst[3] == 0);
 
     // Null target returns NULL for bounded copy/cat helpers.
-    LUB_ASSERT(llsnncpy(NULL, 16, lsrc, 8, NULL) == NULL);
-    LUB_ASSERT(llsnncat(NULL, 16, lsrc, 8, NULL) == NULL);
+    LUB_ASSERT(xxsnncpy(NULL, 16, xsrc, 8, NULL) == NULL);
+    LUB_ASSERT(xxsnncat(NULL, 16, xsrc, 8, NULL) == NULL);
 
     // Concatenate behavior using current bounded API.
-    ldst[0] = 'x'; ldst[1] = 0;
-    LUB_ASSERT(llsnncat(ldst, 16, lsrc, 8, NULL) != NULL);
-    LUB_ASSERT(ldst[0] == 'x' && ldst[1] == 'a' && ldst[2] == 'b' && ldst[3] == 'c' && ldst[4] == 0);
+    xdst[0] = 'x'; xdst[1] = 0;
+    LUB_ASSERT(xxsnncat(xdst, 16, xsrc, 8, NULL) != NULL);
+    LUB_ASSERT(xdst[0] == 'x' && xdst[1] == 'a' && xdst[2] == 'b' && xdst[3] == 'c' && xdst[4] == 0);
 
-    printf("Error/edge case tests passed.\n");
+#if defined(LUB_X_IS_L)
+    // Cross-type operations (uchar source) under Latin variant
+    LUB_ASSERT(ucsnlen(NULL, 10) == 0);
+    LUB_ASSERT(ucsnlen(usrc, 100) == 3);
+
+    LUB_ASSERT(ulsnncpy(xdst, 16, usrc, 8, NULL) != NULL);
+    LUB_ASSERT(xdst[0] == 'a' && xdst[1] == 'b' && xdst[2] == 'c' && xdst[3] == 0);
+
+    LUB_ASSERT(ulsnncat(xdst, 16, usrc, 8, NULL) != NULL);
+#endif
+
+    printf("Error/edge case tests passed for LUB_X=%s.\n",
+           LUB_STRINGIFY(LUB_X));
 
     return test_result;
 }
