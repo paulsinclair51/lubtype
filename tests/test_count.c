@@ -76,10 +76,15 @@ static void test_substring_count(void) {
                        make_xstr_local("cat", needle, 16), '|') == 2);
 }
 
+#define COUNT_TESTS(X) \
+    X(test_count_character) \
+    X(test_substring_count)
+
 lub_test_result_t LUB_PASTE(run_count_tests_, LUB_X)(void) {
     test_result = (lub_test_result_t){0};
-    test_count_character();
-    test_substring_count();
+    #define RUN_TEST(fn) fn();
+    COUNT_TESTS(RUN_TEST)
+    #undef RUN_TEST
     printf("Count tests passed for LUB_X=%s.\n", LUB_STRINGIFY(LUB_X));
     return test_result;
 }

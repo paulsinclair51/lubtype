@@ -184,10 +184,15 @@ static void test_matrix_consistency_cmp_pfx_sfx(void) {
     LUB_ASSERT(uusnnSFXCMP(ulhs, 63, urhs, 63) == 0);
 }
 
+#define RESERVED_MATRIX_TESTS(X) \
+    X(test_isureserved_oracle_crosscheck) \
+    X(test_matrix_consistency_cmp_pfx_sfx)
+
 lub_test_result_t run_reserved_matrix_tests(void) {
     test_result = (lub_test_result_t){0};
-    test_isureserved_oracle_crosscheck();
-    test_matrix_consistency_cmp_pfx_sfx();
+    #define RUN_TEST(fn) fn();
+    RESERVED_MATRIX_TESTS(RUN_TEST)
+    #undef RUN_TEST
 
     return test_result;
 }

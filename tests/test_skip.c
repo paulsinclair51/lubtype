@@ -1,16 +1,22 @@
 /**
  * @file test_skip.c
- * @brief Tests for llsnskip, ulsnskip, and uusnskip in lubtype.h.
+ * @brief X-macro tests for xxsnskip in lubtype.h, plus ulsnskip cross-type
+ *        tests under LUB_X_IS_U.
  *
- * @note Requires `static lub_test_result_t test_result;` at file scope.
- *       that LUB_ASSERT macros modify to track pass/fail/exception counts.
+ * @note Compiled twice: -DLUB_X_IS_L for Latin, -DLUB_X_IS_U for Unicode.
+ *       Each test file needs `static lub_test_result_t test_result;`.
  * @copyright Copyright (c) 2026 paulsinclair51
  * SPDX-License-Identifier: MIT
  * For license details, see the LICENSE file in the project root.
  */
 
+#if !defined(LUB_X_IS_L) && !defined(LUB_X_IS_U)
+#define LUB_X_IS_L
+#endif
+
 #include <assert.h>
 #include <stddef.h>
+#include <stdio.h>
 
 #include "../lubtype.h"
 #include "lubtype_test_declarations.h"
@@ -19,14 +25,24 @@ static lub_test_result_t test_result;
 
 /* ---- helpers ------------------------------------------------------------ */
 
-static lchar_t *make_ls(const char *src, lchar_t *dst, size_t cap) {
+static xchar_t *make_xs(const char *src, xchar_t *dst, size_t cap) {
     size_t i = 0;
-    if (!dst || !cap) return (lchar_t *)NULL;
-    for (; src && src[i] && i + 1 < cap; ++i) dst[i] = (lchar_t)(unsigned char)src[i];
-    dst[i] = (lchar_t)0;
+    if (!dst || !cap) return (xchar_t *)NULL;
+    for (; src && src[i] && i + 1 < cap; ++i) dst[i] = (xchar_t)(unsigned char)src[i];
+    dst[i] = (xchar_t)0;
     return dst;
 }
 
+/* Check that an xchar_t* pointer equals a given ASCII suffix of the original. */
+static int xptr_eq(const xchar_t *p, const char *expected) {
+    size_t i = 0;
+    if (!p || !expected) return 0;
+    for (; expected[i]; ++i)
+        if (p[i] != (xchar_t)(unsigned char)expected[i]) return 0;
+    return p[i] == (xchar_t)0;
+}
+
+#if defined(LUB_X_IS_U)
 static uchar_t *make_us(const char *src, uchar_t *dst, size_t cap) {
     size_t i = 0;
     if (!dst || !cap) return (uchar_t *)NULL;
@@ -34,16 +50,6 @@ static uchar_t *make_us(const char *src, uchar_t *dst, size_t cap) {
     dst[i] = (uchar_t)0;
     return dst;
 }
-
-/* Check that a lchar_t* pointer equals a given ASCII suffix of the original. */
-static int lptr_eq(const lchar_t *p, const char *expected) {
-    size_t i = 0;
-    if (!p || !expected) return 0;
-    for (; expected[i]; ++i)
-        if (p[i] != (lchar_t)(unsigned char)expected[i]) return 0;
-    return p[i] == (lchar_t)0;
-}
-
 static int uptr_eq(const uchar_t *p, const char *expected) {
     size_t i = 0;
     if (!p || !expected) return 0;
@@ -51,74 +57,86 @@ static int uptr_eq(const uchar_t *p, const char *expected) {
         if (p[i] != (uchar_t)(unsigned char)expected[i]) return 0;
     return p[i] == (uchar_t)0;
 }
+/* Check that an lchar_t* pointer equals a given ASCII suffix (for ulsnskip skip-sets). */
+static lchar_t *make_ls(const char *src, lchar_t *dst, size_t cap) {
+    size_t i = 0;
+    if (!dst || !cap) return (lchar_t *)NULL;
+    for (; src && src[i] && i + 1 < cap; ++i) dst[i] = (lchar_t)(unsigned char)src[i];
+    dst[i] = (lchar_t)0;
+    return dst;
+}
+#endif /* LUB_X_IS_U */
 
 /* ---- llsnskip ----------------------------------------------------------- */
 
-static void test_llsnskip_explicit_skipset(void) {
-    lchar_t s[32];
-    lchar_t sk[8];
+/* ---- xxsnskip ----------------------------------------------------------- */
+
+static void test_xxsnskip_explicit_skipset(void) {
+    xchar_t s[32];
+    xchar_t sk[8];
 
     /* Skip leading 'a' and 'b' characters; stop at 'c'. */
-    LUB_ASSERT(lptr_eq(llsnskip(make_ls("aaabbc_rest", s, 32),
-                             32, make_ls("ab", sk, 8)), "c_rest"));
+    LUB_ASSERT(xptr_eq(xxsnskip(make_xs("aaabbc_rest", s, 32),
+                             32, make_xs("ab", sk, 8)), "c_rest"));
 
     /* First char not in skip-set; pointer unchanged. */
-    LUB_ASSERT(lptr_eq(llsnskip(make_ls("xyz", s, 32),
-                             32, make_ls("ab", sk, 8)), "xyz"));
+    LUB_ASSERT(xptr_eq(xxsnskip(make_xs("xyz", s, 32),
+                             32, make_xs("ab", sk, 8)), "xyz"));
 
     /* All characters in skip-set; pointer reaches null terminator. */
-    {   lchar_t *r = llsnskip(make_ls("aaa", s, 32), 32, make_ls("a", sk, 8));
-        LUB_ASSERT(r && *r == (lchar_t)0);
+    {   xchar_t *r = xxsnskip(make_xs("aaa", s, 32), 32, make_xs("a", sk, 8));
+        LUB_ASSERT(r && *r == (xchar_t)0);
     }
 
     /* Empty source; returns pointer to null terminator. */
-    {   lchar_t *r = llsnskip(make_ls("", s, 32), 32, make_ls("ab", sk, 8));
-        LUB_ASSERT(r && *r == (lchar_t)0);
+    {   xchar_t *r = xxsnskip(make_xs("", s, 32), 32, make_xs("ab", sk, 8));
+        LUB_ASSERT(r && *r == (xchar_t)0);
     }
 
     /* Single-character match at start. */
-    LUB_ASSERT(lptr_eq(llsnskip(make_ls("xhello", s, 32),
-                             32, make_ls("x", sk, 8)), "hello"));
+    LUB_ASSERT(xptr_eq(xxsnskip(make_xs("xhello", s, 32),
+                             32, make_xs("x", sk, 8)), "hello"));
 }
 
-static void test_llsnskip_default_whitespace(void) {
-    lchar_t s[32];
+static void test_xxsnskip_default_whitespace(void) {
+    xchar_t s[32];
 
     /* Leading spaces skipped; stops at 'h'. */
-    LUB_ASSERT(lptr_eq(llsnskip(make_ls("   hello", s, 32), 32, NULL), "hello"));
+    LUB_ASSERT(xptr_eq(xxsnskip(make_xs("   hello", s, 32), 32, NULL), "hello"));
 
     /* Mixed whitespace (space + tab). */
-    {   lchar_t mixed[16];
+    {   xchar_t mixed[16];
         mixed[0] = ' '; mixed[1] = '\t'; mixed[2] = 'w'; mixed[3] = 0;
-        LUB_ASSERT(lptr_eq(llsnskip(mixed, 16, NULL), "w"));
+        LUB_ASSERT(xptr_eq(xxsnskip(mixed, 16, NULL), "w"));
     }
 
     /* Empty skip string "" triggers whitespace default. */
-    {   lchar_t sk[4] = {0};
-        LUB_ASSERT(lptr_eq(llsnskip(make_ls("  hi", s, 32), 32, sk), "hi"));
+    {   xchar_t sk[4] = {0};
+        LUB_ASSERT(xptr_eq(xxsnskip(make_xs("  hi", s, 32), 32, sk), "hi"));
     }
 
     /* No leading whitespace; pointer unchanged. */
-    LUB_ASSERT(lptr_eq(llsnskip(make_ls("hello", s, 32), 32, NULL), "hello"));
+    LUB_ASSERT(xptr_eq(xxsnskip(make_xs("hello", s, 32), 32, NULL), "hello"));
 
     /* All whitespace; pointer at null terminator. */
-    {   lchar_t *r = llsnskip(make_ls("   ", s, 32), 32, NULL);
-        LUB_ASSERT(r && *r == (lchar_t)0);
+    {   xchar_t *r = xxsnskip(make_xs("   ", s, 32), 32, NULL);
+        LUB_ASSERT(r && *r == (xchar_t)0);
     }
 
     /* Empty source with default skip. */
-    {   lchar_t *r = llsnskip(make_ls("", s, 32), 32, NULL);
-        LUB_ASSERT(r && *r == (lchar_t)0);
+    {   xchar_t *r = xxsnskip(make_xs("", s, 32), 32, NULL);
+        LUB_ASSERT(r && *r == (xchar_t)0);
     }
 }
 
-static void test_llsnskip_error_paths(void) {
+static void test_xxsnskip_error_paths(void) {
     /* NULL source returns NULL. */
-    LUB_ASSERT(llsnskip(NULL, 32, NULL) == NULL);
+    LUB_ASSERT(xxsnskip(NULL, 32, NULL) == NULL);
 }
 
 /* ---- ulsnskip ----------------------------------------------------------- */
 
+#if defined(LUB_X_IS_U)
 static void test_ulsnskip_explicit_skipset(void) {
     uchar_t s[32];
     lchar_t sk[8];
@@ -173,64 +191,19 @@ static void test_ulsnskip_error_paths(void) {
     /* NULL source returns NULL. */
     LUB_ASSERT(ulsnskip(NULL, 32, NULL) == NULL);
 }
+#endif /* LUB_X_IS_U */
 
-/* ---- uusnskip ----------------------------------------------------------- */
-
-static void test_uusnskip_explicit_skipset(void) {
-    uchar_t s[32];
-    uchar_t sk[8];
-
-    /* Skip punctuation; stop at letter. */
-    LUB_ASSERT(uptr_eq(uusnskip(make_us("...,text", s, 32),
-                             32, make_us(".,", sk, 8)), "text"));
-
-    /* No chars from skip-set at start. */
-    LUB_ASSERT(uptr_eq(uusnskip(make_us("text", s, 32),
-                             32, make_us(".,", sk, 8)), "text"));
-
-    /* All chars in skip-set. */
-    {   uchar_t *r = uusnskip(make_us("...", s, 32), 32, make_us(".", sk, 8));
-        LUB_ASSERT(r && *r == (uchar_t)0);
-    }
-
-    /* Empty source. */
-    {   uchar_t *r = uusnskip(make_us("", s, 32), 32, make_us(".", sk, 8));
-        LUB_ASSERT(r && *r == (uchar_t)0);
-    }
-}
-
-static void test_uusnskip_default_whitespace(void) {
-    uchar_t s[32];
-
-    /* Leading spaces. */
-    LUB_ASSERT(uptr_eq(uusnskip(make_us("  data", s, 32), 32, NULL), "data"));
-
-    /* No whitespace. */
-    LUB_ASSERT(uptr_eq(uusnskip(make_us("data", s, 32), 32, NULL), "data"));
-
-    /* All whitespace. */
-    {   uchar_t *r = uusnskip(make_us("   ", s, 32), 32, NULL);
-        LUB_ASSERT(r && *r == (uchar_t)0);
-    }
-
-    /* Empty source. */
-    {   uchar_t *r = uusnskip(make_us("", s, 32), 32, NULL);
-        LUB_ASSERT(r && *r == (uchar_t)0);
-    }
-}
-
-static void test_uusnskip_error_paths(void) {
-    /* NULL source returns NULL. */
-    LUB_ASSERT(uusnskip(NULL, 32, NULL) == NULL);
-}
 
 static void test_null_skip_defaults_whitespace_all_variants(void) {
-    lchar_t ls[16];
-    uchar_t us[16];
+    xchar_t xs[16];
 
-    LUB_ASSERT(lptr_eq(llsnskip(make_ls("   a", ls, 16), 16, NULL), "a"));
-    LUB_ASSERT(uptr_eq(ulsnskip(make_us("\t\tb", us, 16), 16, NULL), "b"));
-    LUB_ASSERT(uptr_eq(uusnskip(make_us("  c", us, 16), 16, NULL), "c"));
+    LUB_ASSERT(xptr_eq(xxsnskip(make_xs("   a", xs, 16), 16, NULL), "a"));
+#if defined(LUB_X_IS_U)
+    {
+        uchar_t us[16];
+        LUB_ASSERT(uptr_eq(ulsnskip(make_us("\t\tb", us, 16), 16, NULL), "b"));
+    }
+#endif
 }
 
 /* ---- skip-set loop correctness ------------------------------------------ */
@@ -238,24 +211,19 @@ static void test_null_skip_defaults_whitespace_all_variants(void) {
 static void test_skipset_first_char_is_stop(void) {
     /* Verify that when s[0] is NOT in the skip-set, s itself is returned
      * immediately (no off-by-one advance). */
-    lchar_t ls[8];
-    uchar_t us[8];
+    xchar_t xs[8];
 
-    lchar_t *lp = llsnskip(make_ls("Xabc", ls, 8), 8,
-                            (const lchar_t *)"abc");
-    LUB_ASSERT(lp == ls); /* pointer must be the original s, not s+1 */
-
-    uchar_t *up = uusnskip(make_us("Xabc", us, 8), 8,
-                            (const uchar_t *)"abc");
-    LUB_ASSERT(up == us);
+    xchar_t *xp = xxsnskip(make_xs("Xabc", xs, 8), 8,
+                            (const xchar_t *)"abc");
+    LUB_ASSERT(xp == xs); /* pointer must be the original s, not s+1 */
 }
 
 static void test_skipset_consecutive_skip_chars(void) {
     /* Mix of skip and non-skip chars interleaved — only leading run skipped. */
-    lchar_t ls[16];
-    lchar_t *r = llsnskip(make_ls("aabXab", ls, 16), 16,
-                           (const lchar_t *)"ab");
-    LUB_ASSERT(lptr_eq(r, "Xab"));
+    xchar_t xs[16];
+    xchar_t *r = xxsnskip(make_xs("aabXab", xs, 16), 16,
+                           (const xchar_t *)"ab");
+    LUB_ASSERT(xptr_eq(r, "Xab"));
 }
 
 /* ---- sn bound ----------------------------------------------------------- */
@@ -264,33 +232,40 @@ static void test_sn_bound_zero(void) {
     /* sn=0: lcsnlen/ucsnlen will find the null terminator at position 0 only
      * if the very first byte is '\0'.  For a non-empty string this is treated
      * as unterminated and an error pointer is returned. */
-    lchar_t ls[8];
-    make_ls("hello", ls, 8);
-    lchar_t *r = llsnskip(ls, 0, NULL);
+    xchar_t xs[8];
+    make_xs("hello", xs, 8);
+    xchar_t *r = xxsnskip(xs, 0, NULL);
     /* Should be an error value (non-NULL error pointer) or NULL. */
     LUB_ASSERT(r == NULL || LUB_PTR_ERR(r, 0));
 }
 
+#define SKIP_TESTS_COMMON(X) \
+    X(test_xxsnskip_explicit_skipset) \
+    X(test_xxsnskip_default_whitespace) \
+    X(test_xxsnskip_error_paths) \
+    X(test_null_skip_defaults_whitespace_all_variants) \
+    X(test_skipset_first_char_is_stop) \
+    X(test_skipset_consecutive_skip_chars) \
+    X(test_sn_bound_zero)
+
+#if defined(LUB_X_IS_U)
+#define SKIP_TESTS_U_ONLY(X) \
+    X(test_ulsnskip_explicit_skipset) \
+    X(test_ulsnskip_default_whitespace) \
+    X(test_ulsnskip_error_paths)
+#endif
+
 /* ---- entry point -------------------------------------------------------- */
 
-lub_test_result_t run_skip_tests(void) {
+lub_test_result_t LUB_PASTE(run_skip_tests_, LUB_X)(void) {
     test_result = (lub_test_result_t){0};
-    test_llsnskip_explicit_skipset();
-    test_llsnskip_default_whitespace();
-    test_llsnskip_error_paths();
+    #define RUN_TEST(fn) fn();
+    SKIP_TESTS_COMMON(RUN_TEST)
+#if defined(LUB_X_IS_U)
+    SKIP_TESTS_U_ONLY(RUN_TEST)
+#endif
+    #undef RUN_TEST
 
-    test_ulsnskip_explicit_skipset();
-    test_ulsnskip_default_whitespace();
-    test_ulsnskip_error_paths();
-
-    test_uusnskip_explicit_skipset();
-    test_uusnskip_default_whitespace();
-    test_uusnskip_error_paths();
-
-    test_null_skip_defaults_whitespace_all_variants();
-    test_skipset_first_char_is_stop();
-    test_skipset_consecutive_skip_chars();
-    test_sn_bound_zero();
-
+    printf("Skip tests passed for LUB_X=%s.\n", LUB_STRINGIFY(LUB_X));
     return test_result;
 }

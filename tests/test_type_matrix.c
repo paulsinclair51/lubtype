@@ -106,10 +106,15 @@ static void test_prefix_suffix_cmp_matrix(void) {
     LUB_ASSERT(uusnnsfxcmp((const uchar_t *)make_ustr_local("suffix", u1, 32), 32, (const uchar_t *)make_ustr_local("fix", u2, 32), 32) == 0);
 }
 
+#define TYPE_MATRIX_TESTS(X) \
+    X(test_cross_type_copy_and_cat_matrix) \
+    X(test_compare_matrix) \
+    X(test_prefix_suffix_cmp_matrix)
+
 lub_test_result_t run_type_matrix_tests(void) {
     test_result = (lub_test_result_t){0};
-    test_cross_type_copy_and_cat_matrix();
-    test_compare_matrix();
-    test_prefix_suffix_cmp_matrix();
+    #define RUN_TEST(fn) fn();
+    TYPE_MATRIX_TESTS(RUN_TEST)
+    #undef RUN_TEST
     return test_result;
 }

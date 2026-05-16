@@ -194,17 +194,17 @@ static lub_test_result_t merge_results(lub_test_result_t a, lub_test_result_t b)
  * Formats and writes one line of the test report showing category index,
  * label, and pass/fail/exception counts.
  *
- * Format: " %2zu. %-35s  pass: %5zu  fail: %5zu  exception: %zu\n"
+ * Format: " %2zu. %-35s  pass: %3zu  fail: %3zu  exception: %3zu\n"
  *
  * @param report The open FILE* for the report
- * @param index  Category index (1-13)
+ * @param index  Category index (1-14)
  * @param label  Display name of the category (e.g., "Error/edge cases")
  * @param result The lub_test_result_t struct with pass/fail/exception counts
  */
 static void write_test_category(FILE *report, size_t index, const char *label,
                                 lub_test_result_t result) {
 	fprintf(report,
-	        " %2zu. %-35s  pass: %5zu  fail: %5zu  exception: %zu\n",
+	        " %2zu. %-35s  pass: %3zu  fail: %3zu  exception: %3zu\n",
 	        index, label,
 	        result.pass, result.fail, result.exception);
 }
@@ -212,7 +212,7 @@ static void write_test_category(FILE *report, size_t index, const char *label,
 /**
  * @brief Main entry point for all lubtype.h tests.
  *
- * Initializes the test report file, executes 13 test categories in sequence,
+ * Initializes the test report file, executes 14 test categories in sequence,
  * accumulates results, and writes a summary report. Each category result is
  * passed through run_guarded() to catch unhandled signals at category level
  * (though most per-assert signal handling is done within test functions).
@@ -251,8 +251,9 @@ int main(int argc, char **argv) {
 
 	fprintf(report, "LUBTYPE TEST SUITE REPORT\n");
 	fprintf(report, "Generated: %s\n", timebuf);
-	fprintf(report, "----------------------------------------\n");
-	fprintf(report, "Test categories executed (in order):\n");
+	fprintf(report, "\n");
+	fprintf(report, "Test categories:\n");
+	fprintf(report, "------------------------------------------------------------------------------\n");
 
 /**
  * @def RUN_AND_REPORT(idx, label, result_expr)
@@ -261,7 +262,7 @@ int main(int argc, char **argv) {
  * Executes the test expression (result_expr), writes a single report line
  * via write_test_category(), and accumulates the result into totals.
  *
- * @param idx         Category index (1-13, written to report)
+ * @param idx         Category index (1-14, written to report)
  * @param label       Display name of category (written to report)
  * @param result_expr Expression evaluating to lub_test_result_t
  *                    (typically a run_guarded() or merge_results() call)
@@ -273,46 +274,53 @@ int main(int argc, char **argv) {
 		totals = merge_results(totals, _cat); \
 	} while (0)
 
-	RUN_AND_REPORT(1,  "Error/edge cases (l and u)",
+	RUN_AND_REPORT(1,  "Error/edge cases -x",
 	               merge_results(run_guarded(run_error_edge_tests_l),
 	                             run_guarded(run_error_edge_tests_u)));
-	RUN_AND_REPORT(2,  "Advanced operations (l and u)",
+	RUN_AND_REPORT(2,  "Advanced operations -x",
 	               merge_results(run_guarded(run_advanced_ops_tests_l),
 	                             run_guarded(run_advanced_ops_tests_u)));
-	RUN_AND_REPORT(3,  "Compare/search (l and u)",
+	RUN_AND_REPORT(3,  "Compare/search -x",
 	               merge_results(run_guarded(run_cmp_search_tests_l),
 	                             run_guarded(run_cmp_search_tests_u)));
-	RUN_AND_REPORT(4,  "String length and classification (l and u)",
+	RUN_AND_REPORT(4,  "String length and classification -x",
 	               merge_results(
 	                   run_guarded(run_strlen_strclass_tests_l),
 	                   run_guarded(run_strlen_strclass_tests_u)));
-	RUN_AND_REPORT(5,  "Character classification (l and u)",
+	RUN_AND_REPORT(5,  "Character classification -x",
 	               merge_results(run_guarded(run_charclass_tests_l),
 	                             run_guarded(run_charclass_tests_u)));
 	RUN_AND_REPORT(6,  "Reserved/matrix",
 	               run_guarded(run_reserved_matrix_tests));
-	RUN_AND_REPORT(7,  "Search families",
-	               run_guarded(run_search_family_tests));
-	RUN_AND_REPORT(8,  "Count",
+	RUN_AND_REPORT(7,  "Search families -x",
+	               merge_results(run_guarded(run_search_family_tests_l),
+	                             run_guarded(run_search_family_tests_u)));
+	RUN_AND_REPORT(8,  "Count -x",
 	               merge_results(run_guarded(run_count_tests_l),
 	                             run_guarded(run_count_tests_u)));
-	RUN_AND_REPORT(9,  "Core families",
-	               run_guarded(run_core_family_tests));
+	RUN_AND_REPORT(9,  "Core families -x",
+	               merge_results(run_guarded(run_core_family_tests_l),
+	                             run_guarded(run_core_family_tests_u)));
 	RUN_AND_REPORT(10, "Type matrix",
 	               run_guarded(run_type_matrix_tests));
-	RUN_AND_REPORT(11, "Utilities",
-	               run_guarded(run_utilities_tests));
+	RUN_AND_REPORT(11, "Utilities -x",
+	               merge_results(run_guarded(run_utilities_tests_l),
+	                             run_guarded(run_utilities_tests_u)));
 	RUN_AND_REPORT(12, "Fuzz/edge cases",
 	               run_guarded(run_fuzz_edge_tests));
-	RUN_AND_REPORT(13, "Skip functions",
-	               run_guarded(run_skip_tests));
+	RUN_AND_REPORT(13, "Skip functions -x",
+	               merge_results(run_guarded(run_skip_tests_l),
+	                             run_guarded(run_skip_tests_u)));
+	RUN_AND_REPORT(14, "X-macro aliases -x",
+	               merge_results(run_guarded(run_xmacro_alias_tests_l),
+	                             run_guarded(run_xmacro_alias_tests_u)));
 
 #undef RUN_AND_REPORT
 
-	fprintf(report, "----------------------------------------\n");
+	fprintf(report, "------------------------------------------------------------------------------\n");
+	fprintf(report, "* -x runs with l (Latin) and then u (Unicode)\n\n");
 	fprintf(report, "Totals:  pass: %zu  fail: %zu  exception: %zu\n",
 	        totals.pass, totals.fail, totals.exception);
-	fprintf(report, "----------------------------------------\n");
 
 	if (totals.fail == 0 && totals.exception == 0) {
 		fprintf(report, "\nAll tests passed.\n");

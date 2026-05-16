@@ -12,12 +12,8 @@ LUB_DEFINITIONS_OBJ = lubdefinitions.o
 TEST_SOURCES = \
 	lubtype_tests.c \
 	test_reserved_matrix.c \
-	test_search_families.c \
-	test_core_families.c \
 	test_type_matrix.c \
-	test_utilities.c \
-	test_fuzz_edge.c \
-	test_skip.c
+	test_fuzz_edge.c
 
 TEST_OBJECTS = $(TEST_SOURCES:.c=.o)
 
@@ -45,13 +41,38 @@ XSTRLENSTRCLASS_U_OBJ = test_strlen_strclass_u.o
 XCOUNT_L_OBJ = test_count_l.o
 XCOUNT_U_OBJ = test_count_u.o
 
+# X-macro search_families object files (compiled from same source, different defines)
+XSEARCHFAMILY_L_OBJ = test_search_families_l.o
+XSEARCHFAMILY_U_OBJ = test_search_families_u.o
+
+# X-macro core_families object files (compiled from same source, different defines)
+XCOREFAMILY_L_OBJ = test_core_families_l.o
+XCOREFAMILY_U_OBJ = test_core_families_u.o
+
+# X-macro utilities object files (compiled from same source, different defines)
+XUTILITIES_L_OBJ = test_utilities_l.o
+XUTILITIES_U_OBJ = test_utilities_u.o
+
+# X-macro skip object files (compiled from same source, different defines)
+XSKIP_L_OBJ = test_skip_l.o
+XSKIP_U_OBJ = test_skip_u.o
+
+# X-macro alias coverage object files (compiled from same source, different defines)
+XXMACROALIASES_L_OBJ = test_xmacro_aliases_l.o
+XXMACROALIASES_U_OBJ = test_xmacro_aliases_u.o
+
 # All x-macro objects combined
 X_OBJECTS = $(XERROREDGE_L_OBJ) $(XERROREDGE_U_OBJ) \
             $(XADVANCEDOPS_L_OBJ) $(XADVANCEDOPS_U_OBJ) \
             $(XCHARCLASS_L_OBJ) $(XCHARCLASS_U_OBJ) \
             $(XCMPSEARCH_L_OBJ) $(XCMPSEARCH_U_OBJ) \
 			$(XSTRLENSTRCLASS_L_OBJ) $(XSTRLENSTRCLASS_U_OBJ) \
-			$(XCOUNT_L_OBJ) $(XCOUNT_U_OBJ)
+			$(XCOUNT_L_OBJ) $(XCOUNT_U_OBJ) \
+			$(XSEARCHFAMILY_L_OBJ) $(XSEARCHFAMILY_U_OBJ) \
+			$(XCOREFAMILY_L_OBJ) $(XCOREFAMILY_U_OBJ) \
+			$(XUTILITIES_L_OBJ) $(XUTILITIES_U_OBJ) \
+			$(XSKIP_L_OBJ) $(XSKIP_U_OBJ) \
+			$(XXMACROALIASES_L_OBJ) $(XXMACROALIASES_U_OBJ)
 
 all: lubtype_tests
 
@@ -72,6 +93,41 @@ $(XCOUNT_L_OBJ): test_count.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_L -c $< -o $@
 
 $(XCOUNT_U_OBJ): test_count.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_U -c $< -o $@
+
+# Explicit rules for x-macro search_families object files
+$(XSEARCHFAMILY_L_OBJ): test_search_families.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_L -c $< -o $@
+
+$(XSEARCHFAMILY_U_OBJ): test_search_families.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_U -c $< -o $@
+
+# Explicit rules for x-macro core_families object files
+$(XCOREFAMILY_L_OBJ): test_core_families.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_L -c $< -o $@
+
+$(XCOREFAMILY_U_OBJ): test_core_families.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_U -c $< -o $@
+
+# Explicit rules for x-macro utilities object files
+$(XUTILITIES_L_OBJ): test_utilities.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_L -c $< -o $@
+
+$(XUTILITIES_U_OBJ): test_utilities.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_U -c $< -o $@
+
+# Explicit rules for x-macro skip object files
+$(XSKIP_L_OBJ): test_skip.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_L -c $< -o $@
+
+$(XSKIP_U_OBJ): test_skip.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_U -c $< -o $@
+
+# Explicit rules for x-macro alias coverage object files
+$(XXMACROALIASES_L_OBJ): test_xmacro_aliases.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_L -c $< -o $@
+
+$(XXMACROALIASES_U_OBJ): test_xmacro_aliases.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_U -c $< -o $@
 
 $(XERROREDGE_U_OBJ): test_error_edge.c

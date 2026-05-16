@@ -245,7 +245,7 @@ static inline void lubtype_assert_fail(const char *expr, const char *file, int l
 
 /**
  * @name Test Function Declarations
- * @brief Extern declarations for all 18 test module functions.
+ * @brief Extern declarations for all test module runner functions.
  *
  * Each function has the signature:
  *   lub_test_result_t run_*_tests[_l|_u](void)
@@ -269,14 +269,20 @@ extern lub_test_result_t run_strlen_strclass_tests_u(void);
 extern lub_test_result_t run_charclass_tests_l(void);
 extern lub_test_result_t run_charclass_tests_u(void);
 extern lub_test_result_t run_reserved_matrix_tests(void);
-extern lub_test_result_t run_search_family_tests(void);
+extern lub_test_result_t run_search_family_tests_l(void);
+extern lub_test_result_t run_search_family_tests_u(void);
 extern lub_test_result_t run_count_tests_l(void);
 extern lub_test_result_t run_count_tests_u(void);
-extern lub_test_result_t run_core_family_tests(void);
+extern lub_test_result_t run_core_family_tests_l(void);
+extern lub_test_result_t run_core_family_tests_u(void);
 extern lub_test_result_t run_type_matrix_tests(void);
-extern lub_test_result_t run_utilities_tests(void);
+extern lub_test_result_t run_utilities_tests_l(void);
+extern lub_test_result_t run_utilities_tests_u(void);
 extern lub_test_result_t run_fuzz_edge_tests(void);
-extern lub_test_result_t run_skip_tests(void);
+extern lub_test_result_t run_skip_tests_l(void);
+extern lub_test_result_t run_skip_tests_u(void);
+extern lub_test_result_t run_xmacro_alias_tests_l(void);
+extern lub_test_result_t run_xmacro_alias_tests_u(void);
 /** @} */
 
 #endif

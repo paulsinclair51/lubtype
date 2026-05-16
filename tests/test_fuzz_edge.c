@@ -127,12 +127,17 @@ static void test_overlapping_buffers(void) {
     LUB_ASSERT(!LUB_SIZE_ERR(lcsnlen(out, sizeof(out)), 0));
 }
 
+#define FUZZ_EDGE_TESTS(X) \
+    X(fuzz_copy_append_cat) \
+    X(test_error_paths) \
+    X(test_overlapping_buffers)
+
 lub_test_result_t run_fuzz_edge_tests(void) {
     test_result = (lub_test_result_t){0};
     srand(42);
-    fuzz_copy_append_cat();
-    test_error_paths();
-    test_overlapping_buffers();
+    #define RUN_TEST(fn) fn();
+    FUZZ_EDGE_TESTS(RUN_TEST)
+    #undef RUN_TEST
     printf("Fuzz/edge-case tests passed.\n");
     return test_result;
 }

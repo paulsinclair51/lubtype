@@ -51,6 +51,12 @@ static void test_search_empty_token(void)
   LUB_ASSERT(xxsnstrm(one, 4, empty, 0, 1) == NULL);
 }
 
+#define CMP_SEARCH_TESTS(X) \
+  X(test_search_delim_negative_m) \
+  X(test_search_charset_negative_m) \
+  X(test_search_case_insensitive) \
+  X(test_search_empty_token)
+
 /**
  * @brief Run tests for compare and search functions.
  *
@@ -69,10 +75,9 @@ lub_test_result_t LUB_PASTE(run_cmp_search_tests_, LUB_X)(void)
   LUB_ASSERT(xxsnncmp(s1, 3, s3, 3) < 0);
 
   // Search/count.
-  test_search_delim_negative_m();
-  test_search_charset_negative_m();
-  test_search_case_insensitive();
-  test_search_empty_token();
+  #define RUN_TEST(fn) fn();
+  CMP_SEARCH_TESTS(RUN_TEST)
+  #undef RUN_TEST
   { const xchar_t hay_count[] = {'a','b','c','a','b','c',0};
     const xchar_t needle_count[] = {'a','b',0};
     LUB_ASSERT(xxsncnt(hay_count, 6, needle_count, '|') == 2);
