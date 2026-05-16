@@ -13,7 +13,6 @@ TEST_SOURCES = \
 	lubtype_tests.c \
 	test_reserved_matrix.c \
 	test_search_families.c \
-	test_count.c \
 	test_core_families.c \
 	test_type_matrix.c \
 	test_utilities.c \
@@ -42,12 +41,17 @@ XCMPSEARCH_U_OBJ = test_cmp_search_u.o
 XSTRLENSTRCLASS_L_OBJ = test_strlen_strclass_l.o
 XSTRLENSTRCLASS_U_OBJ = test_strlen_strclass_u.o
 
+# X-macro count object files (compiled from same source, different defines)
+XCOUNT_L_OBJ = test_count_l.o
+XCOUNT_U_OBJ = test_count_u.o
+
 # All x-macro objects combined
 X_OBJECTS = $(XERROREDGE_L_OBJ) $(XERROREDGE_U_OBJ) \
             $(XADVANCEDOPS_L_OBJ) $(XADVANCEDOPS_U_OBJ) \
             $(XCHARCLASS_L_OBJ) $(XCHARCLASS_U_OBJ) \
             $(XCMPSEARCH_L_OBJ) $(XCMPSEARCH_U_OBJ) \
-            $(XSTRLENSTRCLASS_L_OBJ) $(XSTRLENSTRCLASS_U_OBJ)
+			$(XSTRLENSTRCLASS_L_OBJ) $(XSTRLENSTRCLASS_U_OBJ) \
+			$(XCOUNT_L_OBJ) $(XCOUNT_U_OBJ)
 
 all: lubtype_tests
 
@@ -62,6 +66,13 @@ $(LUB_DEFINITIONS_OBJ): $(LUB_DEFINITIONS_SRC)
 # Explicit rules for x-macro error_edge object files
 $(XERROREDGE_L_OBJ): test_error_edge.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_L -c $< -o $@
+
+# Explicit rules for x-macro count object files
+$(XCOUNT_L_OBJ): test_count.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_L -c $< -o $@
+
+$(XCOUNT_U_OBJ): test_count.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_U -c $< -o $@
 
 $(XERROREDGE_U_OBJ): test_error_edge.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -DLUB_X_IS_U -c $< -o $@

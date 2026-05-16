@@ -40,7 +40,6 @@ $sourceFiles = @(
     'test_cmp_search.c',
     'test_reserved_matrix.c',
     'test_search_families.c',
-    'test_count.c',
     'test_core_families.c',
     'test_type_matrix.c',
     'test_utilities.c',
@@ -88,6 +87,12 @@ if ($IsWindows) {
     Invoke-Checked "cl $baseFlags /DLUB_X_IS_L /c test_strlen_strclass.c /Fo:test_strlen_strclass_l.obj"
     $objectFiles += 'test_strlen_strclass_l.obj'
 
+    Invoke-Checked "cl $baseFlags /DLUB_X_IS_L /c test_count.c /Fo:test_count_l.obj"
+    $objectFiles += 'test_count_l.obj'
+
+    Invoke-Checked "cl $baseFlags /DLUB_X_IS_U /c test_count.c /Fo:test_count_u.obj"
+    $objectFiles += 'test_count_u.obj'
+
     Invoke-Checked "cl $baseFlags /DLUB_X_IS_U /c test_strlen_strclass.c /Fo:test_strlen_strclass_u.obj"
     $objectFiles += 'test_strlen_strclass_u.obj'
 
@@ -132,6 +137,12 @@ else {
 
     Invoke-Checked "$ccExe $baseFlags -DLUB_X_IS_L -c test_strlen_strclass.c -o test_strlen_strclass_l.o"
     $objectFiles += 'test_strlen_strclass_l.o'
+
+    Invoke-Checked "$ccExe $baseFlags -DLUB_X_IS_L -c test_count.c -o test_count_l.o"
+    $objectFiles += 'test_count_l.o'
+
+    Invoke-Checked "$ccExe $baseFlags -DLUB_X_IS_U -c test_count.c -o test_count_u.o"
+    $objectFiles += 'test_count_u.o'
 
     Invoke-Checked "$ccExe $baseFlags -DLUB_X_IS_U -c test_strlen_strclass.c -o test_strlen_strclass_u.o"
     $objectFiles += 'test_strlen_strclass_u.o'
