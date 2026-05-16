@@ -1,6 +1,10 @@
 /**
  * @file test_fuzz_edge.c
  * @brief Fuzz and edge-case tests for lubtype.h string operations.
+ *
+ * Includes 1000-iteration random fuzzing loops, NULL pointer tests, and
+ * overlapping buffer scenarios. Each test file requires a file-scoped
+ * `static lub_test_result_t test_result;` that LUB_ASSERT macros modify.
  * @copyright Copyright (c) 2026 paulsinclair51
  * SPDX-License-Identifier: MIT
  * For license details, see the LICENSE file in the project root.

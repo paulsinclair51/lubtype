@@ -1,6 +1,9 @@
 /**
  * @file test_span_count.c
- * @brief Tests for span and count functions in lubtype.h.
+ * @brief Tests for lubtype.h character counting functions.
+ *
+ * @note Each test file requires a file-scoped `static lub_test_result_t test_result;`
+ *       that LUB_ASSERT macros modify to track pass/fail/exception counts.
  * @copyright Copyright (c) 2026 paulsinclair51
  * SPDX-License-Identifier: MIT
  * For license details, see the LICENSE file in the project root.

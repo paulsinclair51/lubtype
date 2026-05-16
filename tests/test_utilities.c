@@ -1,6 +1,9 @@
 /**
  * @file test_utilities.c
- * @brief Tests for utility functions in lubtype.h (reverse/split/length).
+ * @brief Tests for lubtype.h utility functions (reverse/split/length).
+ *
+ * @note Each test file requires a file-scoped `static lub_test_result_t test_result;`
+ *       that LUB_ASSERT macros modify to track pass/fail/exception counts.
  * @copyright Copyright (c) 2026 paulsinclair51
  * SPDX-License-Identifier: MIT
  * For license details, see the LICENSE file in the project root.
@@ -14,6 +17,10 @@
 
 static lub_test_result_t test_result;
 
+/**
+ * @brief Helper: Create a local lchar_t string from ASCII C string.
+ * Null-terminates the result. Returns NULL if dst or cap is invalid.
+ */
 static lchar_t *make_lstr_local(const char *src, lchar_t *dst, size_t cap) {
     size_t i = 0;
     if (!dst || !cap) return (lchar_t *)NULL;
@@ -22,6 +29,10 @@ static lchar_t *make_lstr_local(const char *src, lchar_t *dst, size_t cap) {
     return dst;
 }
 
+/**
+ * @brief Helper: Create a local uchar_t string from ASCII C string.
+ * Null-terminates the result. Returns NULL if dst or cap is invalid.
+ */
 static uchar_t *make_ustr_local(const char *src, uchar_t *dst, size_t cap) {
     size_t i = 0;
     if (!dst || !cap) return (uchar_t *)NULL;
@@ -30,6 +41,10 @@ static uchar_t *make_ustr_local(const char *src, uchar_t *dst, size_t cap) {
     return dst;
 }
 
+/**
+ * @brief Helper: Compare lchar_t string with ASCII C string.
+ * Returns 1 if equal (including null terminators), 0 otherwise.
+ */
 static int eq_lstr_ascii_local(const lchar_t *s, const char *ascii) {
     size_t i = 0;
     if (!s || !ascii) return 0;
@@ -38,6 +53,10 @@ static int eq_lstr_ascii_local(const lchar_t *s, const char *ascii) {
     return s[i] == (lchar_t)0;
 }
 
+/**
+ * @brief Helper: Compare uchar_t string with ASCII C string.
+ * Returns 1 if equal (including null terminators), 0 otherwise.
+ */
 static int eq_ustr_ascii_local(const uchar_t *s, const char *ascii) {
     size_t i = 0;
     if (!s || !ascii) return 0;
