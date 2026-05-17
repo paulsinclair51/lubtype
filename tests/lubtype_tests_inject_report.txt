@@ -1,15 +1,15 @@
-Test Suite Report for lubtype.h Version 1.0.0, 2026-05-17 13:50:09
+Inject Faults Test Report for lubtype.h Version 1.0.0, 2026-05-17 19:22:11
 
      Test Categories                           Pass  Fail  Exception
 --------------------------------------------------------------------
   1. Utilities -x                                95     9
   2. Type matrix                                 32
-  3. Character classification -x (FAULT)          0     2
+  3. Character classification -x (FAULT)        246     6
   4. String length and classification -x         44
   5. Reserved/matrix                            120
   6. Compare/search -x                           64
   7. Search -x                                   50
-  8. Count -x (FAULT)                             0           *
+  8. Count -x (FAULT)                            16           2
   9. Skip -x (FAULT)                              0           *
  10. Core -x                                     66
  11. Advanced -x                                 52
@@ -17,7 +17,7 @@ Test Suite Report for lubtype.h Version 1.0.0, 2026-05-17 13:50:09
  13. Error/edge cases -x                         20     1
  14. Fuzz/edge cases                             10
 ------------------------------------------------------------------
-                                        Total   581    12     2
+                                        Total   843    16     3
 
 -x: run tests for category with x=l (Latin) and then x=u (Unicode)
  *: category-level exception (counts as 1 in exception total).

@@ -380,10 +380,12 @@ static void write_test_category(FILE *report, size_t index, const char *label,
  * run_guarded() to catch unhandled signals at category level.
  *
  * @param report_path Output file path for the report.
+ * @param report_time Shared timestamp string for all reports in this run.
  * @param inject_faults 0 for normal run, 1 for fault-injection run.
  * @return 0 if all tests passed (fail=0, exception=0); 1 otherwise.
  */
-static int write_report(const char *report_path, int inject_faults) {
+static int write_report(const char *report_path, const char *report_time,
+						int inject_faults) {
 	lub_test_result_t total = {0, 0, 0};
 	int cat_exceptions = 0;
 
@@ -399,13 +401,10 @@ static int write_report(const char *report_path, int inject_faults) {
 	*/
 	(void)setvbuf(report, NULL, _IONBF, 0);
 
-	/* Write header with version and date/time. */
-	time_t now = time(NULL);
-	char timebuf[64];
-	strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M:%S", localtime(&now));
-
-	fprintf(report, "Test Suite Report for lubtype.h Version %s, %s\n\n",
-		            LUB_VERSION, timebuf);
+	if (inject_faults) fprintf(report, "Inject Faults ");
+	fprintf(report, "Test Report for lubtype.h Version %s, %s\n\n",
+		            LUB_VERSION,
+		            report_time ? report_time : "unknown time");
 	fprintf(report, "     Test Categories                           Pass  Fail  Exception\n");
 	fprintf(report, "--------------------------------------------------------------------\n");
 
@@ -518,7 +517,17 @@ static int write_report(const char *report_path, int inject_faults) {
 int main(int argc, char **argv) {
 	char report_path[1024];
 	char inject_report_path[1024];
+	char report_time[64];
+	time_t now;
+	struct tm *tm_now;
 	const int has_report_path = (argc > 1 && argv && argv[1] && argv[1][0]);
+
+	now = time(NULL);
+	tm_now = localtime(&now);
+	if (!tm_now || !strftime(report_time, sizeof(report_time), "%Y-%m-%d %H:%M:%S",
+					  tm_now)) {
+		(void)snprintf(report_time, sizeof(report_time), "unknown time");
+	}
 
 	// Derive the normal report path only once
 	const char *resolved_report_path = has_report_path
@@ -533,8 +542,8 @@ int main(int argc, char **argv) {
 	const char *resolved_inject_report_path = inject_report_path_from_report_path(
 		resolved_report_path, inject_report_path, sizeof(inject_report_path));
 
-	int normal_status = write_report(resolved_report_path, 0);
-	int inject_status = write_report(resolved_inject_report_path, 1);
+	int normal_status = write_report(resolved_report_path, report_time, 0);
+	(void)write_report(resolved_inject_report_path, report_time, 1);
 
 	return normal_status;
 }

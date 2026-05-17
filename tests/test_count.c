@@ -37,31 +37,28 @@ static xchar_t *make_xstr_local(const char *src, xchar_t *dst, size_t cap) {
     return dst;
 }
 
-/**
- * @brief Test count functions using single-character needle strings.
- */
-static void test_count_character(void) {
-    xchar_t str[64];
+lub_test_result_t LUB_PASTE(run_count_tests_, LUB_X)(int inject_faults)
+{ test_result = (lub_test_result_t){0};
+  // Test count functions using single-character needle strings.
+  { xchar_t str[64];
     xchar_t needle[4];
-
     LUB_ASSERT(xxsncnt(make_xstr_local("hello world", str, 64), 64,
                        make_xstr_local("l", needle, 4), 0) == 3);
-
     LUB_ASSERT(xxsncnt(make_xstr_local("hello", str, 64), 64,
                        make_xstr_local("z", needle, 4), 0) == 0);
-
     LUB_ASSERT(xxsncnt(make_xstr_local("a", str, 64), 64,
                        make_xstr_local("a", needle, 4), 0) == 1);
-
     LUB_ASSERT(xxsnCNT(make_xstr_local("HeLLo", str, 64), 64,
-                       make_xstr_local("l", needle, 4), 0) == 2);
-}
-
-/**
- * @brief Test substring count functions.
- */
-static void test_substring_count(void) {
-    xchar_t str[64];
+                     make_xstr_local("l", needle, 4), 0) == 2);
+  }
+  if (inject_faults)
+  {  /* Assert-level guard: NULL dereference inside LUB_ASSERT triggers SIGSEGV
+      * which is caught by the per-assert signal handler and counted as an
+      * exception. */
+    LUB_ASSERT(xxsncnt((const xchar_t *)NULL, 64, (const xchar_t *)NULL, 0) > 0);
+  }
+  // Test substring count functions.
+  { xchar_t str[64];
     xchar_t needle[16];
 
     LUB_ASSERT(xxsncnt(make_xstr_local("abab", str, 64), 64,
@@ -75,21 +72,7 @@ static void test_substring_count(void) {
 
     LUB_ASSERT(xxsnCNT(make_xstr_local("CatDogCat", str, 64), 64,
                        make_xstr_local("cat", needle, 16), '|') == 2);
-}
+  }
 
-#define COUNT_TESTS(X) \
-    X(test_count_character) \
-    X(test_substring_count)
-
-lub_test_result_t LUB_PASTE(run_count_tests_, LUB_X)(int inject_faults) {
-    test_result = (lub_test_result_t){0};
-    if (inject_faults) {
-        raise(SIGSEGV);
-        return test_result;
-    }
-    #define RUN_TEST(fn) fn();
-    COUNT_TESTS(RUN_TEST)
-    #undef RUN_TEST
-
-    return test_result;
+  return test_result;
 }
