@@ -328,7 +328,7 @@ lub_test_result_t LUB_PASTE(run_charclass_tests_, LUB_X)(void)
   LUB_ASSERT(!isxprint((xchar_t)'\n'));
   LUB_ASSERT(isxpunct((xchar_t)'!'));
   LUB_ASSERT(!isxpunct((xchar_t)'A'));
-  LUB_ASSERT(isxspace((xchar_t)' '));
+  LUB_ASSERT(isxspace((xchar_t)' '));'''
   LUB_ASSERT(!isxspace((xchar_t)'A'));
   LUB_ASSERT(isxgraph((xchar_t)'!'));
   LUB_ASSERT(!isxgraph((xchar_t)' '));
@@ -374,8 +374,5 @@ lub_test_result_t LUB_PASTE(run_charclass_tests_, LUB_X)(void)
   test_space_alias_mapping();
   test_hex_alias_mapping();
 
-  printf("Character classification/conversion tests passed for LUB_X=%s.\n",
-         LUB_STRINGIFY(LUB_X));
   return test_result;
 }
-

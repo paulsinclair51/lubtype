@@ -85,6 +85,6 @@ lub_test_result_t LUB_PASTE(run_count_tests_, LUB_X)(void) {
     #define RUN_TEST(fn) fn();
     COUNT_TESTS(RUN_TEST)
     #undef RUN_TEST
-    printf("Count tests passed for LUB_X=%s.\n", LUB_STRINGIFY(LUB_X));
+
     return test_result;
 }

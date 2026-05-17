@@ -144,7 +144,5 @@ lub_test_result_t LUB_PASTE(run_advanced_ops_tests_, LUB_X)(void)
 
   test_replace_family();
 
-  printf("Advanced operation tests passed for LUB_X=%s.\n",
-         LUB_STRINGIFY(LUB_X));
   return test_result;
 }

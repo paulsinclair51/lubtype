@@ -67,8 +67,5 @@ lub_test_result_t LUB_PASTE(run_error_edge_tests_, LUB_X)(void) {
     LUB_ASSERT(ulsnncat(xdst, 16, usrc, 8, NULL) != NULL);
 #endif
 
-    printf("Error/edge case tests passed for LUB_X=%s.\n",
-           LUB_STRINGIFY(LUB_X));
-
     return test_result;
 }

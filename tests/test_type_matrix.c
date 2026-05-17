@@ -115,6 +115,8 @@ lub_test_result_t run_type_matrix_tests(void) {
     test_result = (lub_test_result_t){0};
     #define RUN_TEST(fn) fn();
     TYPE_MATRIX_TESTS(RUN_TEST)
+
     #undef RUN_TEST
+    
     return test_result;
 }

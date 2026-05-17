@@ -266,6 +266,5 @@ lub_test_result_t LUB_PASTE(run_skip_tests_, LUB_X)(void) {
 #endif
     #undef RUN_TEST
 
-    printf("Skip tests passed for LUB_X=%s.\n", LUB_STRINGIFY(LUB_X));
     return test_result;
 }

@@ -138,6 +138,6 @@ lub_test_result_t run_fuzz_edge_tests(void) {
     #define RUN_TEST(fn) fn();
     FUZZ_EDGE_TESTS(RUN_TEST)
     #undef RUN_TEST
-    printf("Fuzz/edge-case tests passed.\n");
+
     return test_result;
 }

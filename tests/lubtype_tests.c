@@ -330,10 +330,27 @@ static void write_test_category(FILE *report, size_t index, const char *label,
  *       output is written immediately, in case a following test
  *       assertion triggers an exception.
  */
+
+// Forward declarations for alternate (fault-injecting) test modules
+lub_test_result_t run_charclass_tests_l(void);
+lub_test_result_t run_charclass_tests_u(void);
+lub_test_result_t run_count_tests_l(void);
+lub_test_result_t run_count_tests_u(void);
+lub_test_result_t run_skip_tests_l(void);
+lub_test_result_t run_skip_tests_u(void);
+
 int main(int argc, char **argv) {
 	char report_path[1024];
 	lub_test_result_t total = {0, 0, 0};
 	int cat_exceptions = 0;
+	int inject_faults = 0;
+
+	// Parse command-line for --inject-faults
+	for (int i = 1; i < argc; ++i) {
+		if (strcmp(argv[i], "--inject-faults") == 0) {
+			inject_faults = 1;
+		}
+	}
 
 	const char *resolved_report_path = (argc > 0 && argv && argv[0])
 		? report_path_from_argv0(argv[0], report_path, sizeof(report_path))
@@ -364,59 +381,77 @@ int main(int argc, char **argv) {
 	               merge_x_results(run_guarded(run_utilities_tests_l),
 	                               run_guarded(run_utilities_tests_u)));
 	RUN_AND_REPORT(2, "Type matrix",
-	               run_guarded(run_type_matrix_tests));
-	RUN_AND_REPORT(3, "Character classification -x",
-	               merge_x_results(run_guarded(run_charclass_tests_l),
-	                               run_guarded(run_charclass_tests_u)));
+				   run_guarded(run_type_matrix_tests));
+	if (inject_faults) {
+		RUN_AND_REPORT(3, "Character classification -x (FAULT)",
+			           merge_x_results(run_guarded(run_charclass_tests_l),
+							           run_guarded(run_charclass_tests_u)));
+	} else {
+		RUN_AND_REPORT(3, "Character classification -x",
+			           merge_x_results(run_guarded(run_charclass_tests_l),
+							           run_guarded(run_charclass_tests_u)));
+	}
 	RUN_AND_REPORT(4, "String length and classification -x",
-	               merge_x_results(run_guarded(run_strlen_strclass_tests_l),
-	                             run_guarded(run_strlen_strclass_tests_u)));
+				   merge_x_results(run_guarded(run_strlen_strclass_tests_l),
+								   run_guarded(run_strlen_strclass_tests_u)));
 	RUN_AND_REPORT(5, "Reserved/matrix",
-	               run_guarded(run_reserved_matrix_tests));
+				   run_guarded(run_reserved_matrix_tests));
 	RUN_AND_REPORT(6, "Compare/search -x",
-	               merge_x_results(run_guarded(run_cmp_search_tests_l),
-	                               run_guarded(run_cmp_search_tests_u)));
+				   merge_x_results(run_guarded(run_cmp_search_tests_l),
+								   run_guarded(run_cmp_search_tests_u)));
 	RUN_AND_REPORT(7, "Search -x",
-	               merge_x_results(run_guarded(run_search_family_tests_l),
-	                               run_guarded(run_search_family_tests_u)));
-	RUN_AND_REPORT(8, "Count -x",
-	               merge_x_results(run_guarded(run_count_tests_l),
-	                               run_guarded(run_count_tests_u)));
-	RUN_AND_REPORT(9, "Skip -x",
-	               merge_x_results(run_guarded(run_skip_tests_l),
-	                               run_guarded(run_skip_tests_u)));
+				   merge_x_results(run_guarded(run_search_family_tests_l),
+								   run_guarded(run_search_family_tests_u)));
+	if (inject_faults) {
+		RUN_AND_REPORT(8, "Count -x (FAULT)",
+			           merge_x_results(run_guarded(run_count_tests_l),
+							           run_guarded(run_count_tests_u)));
+	} else {
+		RUN_AND_REPORT(8, "Count -x",
+			           merge_x_results(run_guarded(run_count_tests_l),
+						          	   run_guarded(run_count_tests_u)));
+	}
+	if (inject_faults) {
+		RUN_AND_REPORT(9, "Skip -x (FAULT)",
+			           merge_x_results(run_guarded(run_skip_tests_l),
+						           	   run_guarded(run_skip_tests_u)));
+	} else {
+		RUN_AND_REPORT(9, "Skip -x",
+			           merge_x_results(run_guarded(run_skip_tests_l),
+						       	       run_guarded(run_skip_tests_u)));
+	}
 	RUN_AND_REPORT(10, "Core -x",
-	               merge_x_results(run_guarded(run_core_family_tests_l),
-	                               run_guarded(run_core_family_tests_u)));
+				   merge_x_results(run_guarded(run_core_family_tests_l),
+								   run_guarded(run_core_family_tests_u)));
 	RUN_AND_REPORT(11, "Advanced -x",
-	               merge_x_results(run_guarded(run_advanced_ops_tests_l),
-	                               run_guarded(run_advanced_ops_tests_u)));
+				   merge_x_results(run_guarded(run_advanced_ops_tests_l),
+								   run_guarded(run_advanced_ops_tests_u)));
 	RUN_AND_REPORT(12, "Miscellaneous x-macros -x",
-	               merge_x_results(run_guarded(run_xmacros_tests_l),
-	                               run_guarded(run_xmacros_tests_u)));
+				   merge_x_results(run_guarded(run_xmacros_tests_l),
+								   run_guarded(run_xmacros_tests_u)));
 	RUN_AND_REPORT(13, "Error/edge cases -x",
-	               merge_x_results(run_guarded(run_error_edge_tests_l),
-	                               run_guarded(run_error_edge_tests_u)));
+				   merge_x_results(run_guarded(run_error_edge_tests_l),
+								   run_guarded(run_error_edge_tests_u)));
 	RUN_AND_REPORT(14, "Fuzz/edge cases",
-	               run_guarded(run_fuzz_edge_tests));
+				   run_guarded(run_fuzz_edge_tests));
 
 	fprintf(report, "------------------------------------------------------------------\n");
 	if (!total.fail && !total.exception) {
-        fprintf(report, "                                        Total  %4zu",
-			            total.pass);
+		fprintf(report, "                                        Total  %4zu",
+						total.pass);
 	} else if (!total.fail) {
 		fprintf(report, "                                        Total  %4zu        %4zu",
-			            total.pass, total.exception);
+						total.pass, total.exception);
 	} else if (!total.exception) {
 		fprintf(report, "                                        Total  %4zu  %4zu",
-			            total.pass, total.fail);
+						total.pass, total.fail);
 	} else {
 		fprintf(report, "                                        Total  %4zu  %4zu  %4zu",
-			            total.pass, total.fail, total.exception);
-	}								
+						total.pass, total.fail, total.exception);
+	}
 	fprintf(report, "\n\n-x: run tests for category with x=l (Latin) and then x=u (Unicode)\n");
 	if (cat_exceptions) {
-	    fprintf(report, " *: category-level exception (counts as 1 in exception total).\n");
+		fprintf(report, " *: category-level exception (counts as 1 in exception total).\n");
 	}
 	if (!total.fail && !total.exception) {
 		fprintf(report, "\nAll tests passed.\n");

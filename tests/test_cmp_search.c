@@ -135,7 +135,5 @@ lub_test_result_t LUB_PASTE(run_cmp_search_tests_, LUB_X)(void)
     LUB_ASSERT(xxsncnt(hay_count, 6, needle_count, '|') == 2);
   }
 
-  printf("Comparison/search tests passed for LUB_X=%s.\n",
-         LUB_STRINGIFY(LUB_X));
   return test_result;
 }
