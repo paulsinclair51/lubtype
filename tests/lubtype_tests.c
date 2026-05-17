@@ -15,7 +15,7 @@
  * Use the Makefile or build_lubtype_tests.ps1 to build an executable:
  * 
  * - Linux/macOS: make
- *   (defaults to Makefile in the current directory)
+ *   (defaults to use Makefile in the current directory)
  * 
  * - Windows PowerShell: .\build_lubtype_tests.ps1
  * 
@@ -107,9 +107,11 @@
  * Extracts the directory component from argv[0] (if present) and appends
  * "lubtype_tests_report.txt" to place the report alongside the test binary.
  * If argv[0] contains no directory separator or the derived path would exceed
- * buffer capacity, gracefully falls back to the default filename
- * "lubtype_tests_report.txt" (written to the current working directory).
- * This ensures the report is always written even if argv[0] lacks path info.
+ * buffer capacity, returns the default filename "lubtype_tests_report.txt"
+ * (written to the current working directory).
+ * 
+ * @todo Consider raising error if no directory separator found or buffer_size
+ *       is too small to hold the derived path?
  *
  * @param argv0       The program name/path (typically argv[0] from main).
  * @param buffer      Destination buffer for the result (must not be NULL).
@@ -158,7 +160,7 @@ static const char *report_path_from_argv0(
  * @param fn Function pointer to test function returning lub_test_result_t
  *
  * @return Result from fn (if no signal), or {0, 0, SIZE_MAX} if signal caught
- *         (SIZE_MAX marks category-level exception for report display as *)
+ *         (SIZE_MAX marks category-level exception).
  */
 static sigjmp_buf  guard_env;
 static volatile sig_atomic_t guard_active = 0;
@@ -187,10 +189,9 @@ static void guard_signal_handler(int sig) {
  * @brief Category-level test guard.
  *
  * Runs the test module and siglongjmps back to the guard point (run_guarded).
- * If a signal occurs, returns {0, 0, SIZE_MAX} to mark a category-level exception.
- * This special value displays as * in the report and counts as 1 in totals.
+ * If a signal occurs, returns {0, 0, SIZE_MAX} to mark a category-level exception..
  *
- * @param fn Function pointer to test function
+ * @param fn Function pointer to test function.
  */
 static lub_test_result_t run_guarded(lub_test_result_t (*fn)(void)) {
 	struct sigaction sa, old_segv, old_abrt, old_bus;
@@ -208,7 +209,7 @@ static lub_test_result_t run_guarded(lub_test_result_t (*fn)(void)) {
 		result = fn();
 		guard_active = 0;
 	} else {
-		/* Use SIZE_MAX to mark category-level exception for report display. */
+		/* Use SIZE_MAX to mark category-level exception. */
 		result = (lub_test_result_t){0, 0, SIZE_MAX};
 	}
 
@@ -220,33 +221,34 @@ static lub_test_result_t run_guarded(lub_test_result_t (*fn)(void)) {
 }
 
 /**
- * @name merge_results
- * @brief Merge two result structs by summing each field.
+ * @name merge_x_results
+ * @brief Merge two result structs by adding the two fields.
  *
  * Used to combine results from -x test function runs into a single category result.
  * For example, Advanced Operations tests both Latin (run_advanced_ops_tests_l)
  * and Unicode (run_advanced_ops_tests_u) variants; their results are merged.
  *
  * If either result has a category-level exception (exception == SIZE_MAX),
- * the merged result is marked as category-level exception (SIZE_MAX).
- * Otherwise, exception counts are summed normally.
+ * the merged result is marked as a category-level exception (SIZE_MAX).
+ * Otherwise, exception counts from the two runs are summed normally.
  *
  * @param a First result struct.
  * @param b Second result struct.
  *
- * @return New result with pass/fail/exception sums (exception is SIZE_MAX
- *         if either a or b indicates category-level exception)
+ * @return New result with pass/fail/exception merged for the two runs.
+ * 
+ * @note If either exception count is SIZE_MAX, the merged count for the
+ *       two runs is SIZE_MAX; otherwise, the merged exception count 
+ *       is the sum of the exceptions counts for the two runs (which may
+ *       be 0 if both are 0).
  */ 
-static lub_test_result_t merge_results(lub_test_result_t a, lub_test_result_t b) {
-	/* If either run has category-level exception, mark merged result as such. */
-	size_t exc = (a.exception == SIZE_MAX || b.exception == SIZE_MAX)
-	             ? SIZE_MAX
-	             : a.exception + b.exception;
+static lub_test_result_t merge_x_results(lub_test_result_t a, lub_test_result_t b) {
 	return (lub_test_result_t){
-		a.pass + b.pass,
-		a.fail + b.fail,
-		exc
-	};
+		       a.pass + b.pass,
+		       a.fail + b.fail,
+		       (a.exception == SIZE_MAX || b.exception == SIZE_MAX) ?
+	                SIZE_MAX : a.exception + b.exception
+	       };
 }
 
 /**
@@ -254,38 +256,36 @@ static lub_test_result_t merge_results(lub_test_result_t a, lub_test_result_t b)
  * @brief Write a single test category result line to the report.
  *
  * Formats and writes one line of the test report showing category index,
- * category label, and pass/fail/exception counts.
+ * category label, and pass/fail/exception counts. An exception count
+ * equal to SIZE_MAX displays as * to indicate a category-level exception.
  *
  * @param report The open FILE* for the report.
  * @param index  Category index (1-14).
  * @param label  Display category label (e.g., "Error/edge cases").
- * @param counts Pass/fail/exception counts (exception == SIZE_MAX displays as *).
+ * @param count Pass/fail/exception counts.
  */
 static void write_test_category(FILE *report, size_t index, const char *label,
-								lub_test_result_t counts) {
-	/* Helper: format exception field (SIZE_MAX shows as *, else numeric). */
-	const char *exc_str = (counts.exception == SIZE_MAX) ? "   *" : NULL;
-
-	if (!counts.fail && !counts.exception) {
+								lub_test_result_t count) {
+	if (!count.fail && !count.exception) {
 	  fprintf(report, " %2zu. %-40s  %4zu\n",
-		              index, label, counts.pass);
-	} else if (!counts.fail) {
-		if (exc_str)
-			fprintf(report, " %2zu. %-40s  %4zu        %s\n",
-			            index, label, counts.pass, exc_str);
+		              index, label, count.pass);
+	} else if (!count.fail) {
+		if (count.exception == SIZE_MAX)
+			fprintf(report, " %2zu. %-40s  %4zu           *\n",
+			                index, label, count.pass);
 		else
 			fprintf(report, " %2zu. %-40s  %4zu        %4zu\n",
-			            index, label, counts.pass, counts.exception);
-	} else if (!counts.exception) {
+			                index, label, count.pass, count.exception);
+	} else if (!count.exception) {
 		fprintf(report, " %2zu. %-40s  %4zu  %4zu\n",
-		            index, label, counts.pass, counts.fail);
+		                index, label, count.pass, count.fail);
 	} else {
-		if (exc_str)
-			fprintf(report, " %2zu. %-40s  %4zu  %4zu  %s\n",
-			            index, label, counts.pass, counts.fail, exc_str);
+		if (count.exception == SIZE_MAX)
+			fprintf(report, " %2zu. %-40s  %4zu  %4zu     *\n",
+			            index, label, count.pass, count.fail);
 		else
 			fprintf(report, " %2zu. %-40s  %4zu  %4zu  %4zu\n",
-			            index, label, counts.pass, counts.fail, counts.exception);
+			                index, label, count.pass, count.fail, count.exception);
 	}
 }
 
@@ -294,7 +294,7 @@ static void write_test_category(FILE *report, size_t index, const char *label,
  * @brief Macro to execute a test category and record its result.
  *
  * Executes the test expression (result_expr), writes a single report line
- * via write_test_category(), and accumulates the result into totals.
+ * via write_test_category(), and accumulates the result into total.
  *
  * @param idx         Category index (1-14, written to report)
  * @param label       Display name of category (written to report)
@@ -305,12 +305,18 @@ static void write_test_category(FILE *report, size_t index, const char *label,
 	do { \
 		lub_test_result_t _cat = (result_expr); \
 		write_test_category(report, (idx), (label), _cat); \
-		totals = merge_results(totals, _cat); \
+        total = (lub_test_result_t){ \
+		            total.pass + _cat.pass, \
+		            total.fail + _cat.fail, \
+		            total.exception + \
+					    (_cat.exception == SIZE_MAX ? 1 : _cat.exception) \
+		   	    }; \
+		if (_cat.exception == SIZE_MAX) ++cat_exceptions; \
 	} while (0)
 
 /**
  * @name main
- * @brief Main entry point for all lubtype.h tests.
+ * @brief Main entry point for lubtype.h tests.
  *
  * Initializes the test report file, executes test categories in sequence,
  * accumulates results, and writes a summary report. Each category result is
@@ -326,10 +332,13 @@ static void write_test_category(FILE *report, size_t index, const char *label,
  */
 int main(int argc, char **argv) {
 	char report_path[1024];
-	lub_test_result_t totals = {0, 0, 0};
+	lub_test_result_t total = {0, 0, 0};
+	int cat_exceptions = 0;
+
 	const char *resolved_report_path = (argc > 0 && argv && argv[0])
 		? report_path_from_argv0(argv[0], report_path, sizeof(report_path))
 		: "lubtype_tests_report.txt";
+
 	FILE *report = fopen(resolved_report_path, "w");
 	if (!report) {
 		fprintf(stderr, "[ERROR] Could not open report file for writing.\n");
@@ -337,81 +346,90 @@ int main(int argc, char **argv) {
 	}
 
 	/* Use unbuffered I/O to keep report output on disk even if a
-	   subsequenst test assertion cauases an exception.
+	   subsequent test assertion causes an exception.
 	*/
 	(void)setvbuf(report, NULL, _IONBF, 0);
 
-	/* Write header with date/time. */
+	/* Write header with version and date/time. */
 	time_t now = time(NULL);
 	char timebuf[64];
 	strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M:%S", localtime(&now));
 
 	fprintf(report, "Test Suite Report for lubtype.h Version %s, %s\n\n",
 		            LUB_VERSION, timebuf);
-	fprintf(report, "Test categories                              Pass  Fail  Exception\n");
+	fprintf(report, "     Test Categories                           Pass  Fail  Exception\n");
 	fprintf(report, "--------------------------------------------------------------------\n");
 
 	RUN_AND_REPORT(1, "Utilities -x",
-	               merge_results(run_guarded(run_utilities_tests_l),
-	                             run_guarded(run_utilities_tests_u)));
+	               merge_x_results(run_guarded(run_utilities_tests_l),
+	                               run_guarded(run_utilities_tests_u)));
 	RUN_AND_REPORT(2, "Type matrix",
 	               run_guarded(run_type_matrix_tests));
 	RUN_AND_REPORT(3, "Character classification -x",
-	               merge_results(run_guarded(run_charclass_tests_l),
-	                             run_guarded(run_charclass_tests_u)));
+	               merge_x_results(run_guarded(run_charclass_tests_l),
+	                               run_guarded(run_charclass_tests_u)));
 	RUN_AND_REPORT(4, "String length and classification -x",
-	               merge_results(run_guarded(run_strlen_strclass_tests_l),
+	               merge_x_results(run_guarded(run_strlen_strclass_tests_l),
 	                             run_guarded(run_strlen_strclass_tests_u)));
 	RUN_AND_REPORT(5, "Reserved/matrix",
 	               run_guarded(run_reserved_matrix_tests));
 	RUN_AND_REPORT(6, "Compare/search -x",
-	               merge_results(run_guarded(run_cmp_search_tests_l),
-	                             run_guarded(run_cmp_search_tests_u)));
+	               merge_x_results(run_guarded(run_cmp_search_tests_l),
+	                               run_guarded(run_cmp_search_tests_u)));
 	RUN_AND_REPORT(7, "Search -x",
-	               merge_results(run_guarded(run_search_family_tests_l),
-	                             run_guarded(run_search_family_tests_u)));
+	               merge_x_results(run_guarded(run_search_family_tests_l),
+	                               run_guarded(run_search_family_tests_u)));
 	RUN_AND_REPORT(8, "Count -x",
-	               merge_results(run_guarded(run_count_tests_l),
-	                             run_guarded(run_count_tests_u)));
+	               merge_x_results(run_guarded(run_count_tests_l),
+	                               run_guarded(run_count_tests_u)));
 	RUN_AND_REPORT(9, "Skip -x",
-	               merge_results(run_guarded(run_skip_tests_l),
-	                             run_guarded(run_skip_tests_u)));
+	               merge_x_results(run_guarded(run_skip_tests_l),
+	                               run_guarded(run_skip_tests_u)));
 	RUN_AND_REPORT(10, "Core -x",
-	               merge_results(run_guarded(run_core_family_tests_l),
-	                             run_guarded(run_core_family_tests_u)));
+	               merge_x_results(run_guarded(run_core_family_tests_l),
+	                               run_guarded(run_core_family_tests_u)));
 	RUN_AND_REPORT(11, "Advanced -x",
-	               merge_results(run_guarded(run_advanced_ops_tests_l),
-	                             run_guarded(run_advanced_ops_tests_u)));
+	               merge_x_results(run_guarded(run_advanced_ops_tests_l),
+	                               run_guarded(run_advanced_ops_tests_u)));
 	RUN_AND_REPORT(12, "Miscellaneous x-macros -x",
-	               merge_results(run_guarded(run_xmacros_tests_l),
-	                             run_guarded(run_xmacros_tests_u)));
+	               merge_x_results(run_guarded(run_xmacros_tests_l),
+	                               run_guarded(run_xmacros_tests_u)));
 	RUN_AND_REPORT(13, "Error/edge cases -x",
-	               merge_results(run_guarded(run_error_edge_tests_l),
-	                             run_guarded(run_error_edge_tests_u)));
+	               merge_x_results(run_guarded(run_error_edge_tests_l),
+	                               run_guarded(run_error_edge_tests_u)));
 	RUN_AND_REPORT(14, "Fuzz/edge cases",
 	               run_guarded(run_fuzz_edge_tests));
 
 	fprintf(report, "------------------------------------------------------------------\n");
-	/* Count SIZE_MAX (category-level exception marker) as 1 in total. */
-	size_t total_exception = (totals.exception == SIZE_MAX) ? 1 : totals.exception;
-    fprintf(report, "                                        Total  %4zu  %4zu  %4zu\n\n",
-			        totals.pass, totals.fail, total_exception);
-	fprintf(report, "* -x: run with l (Latin) and then u (Unicode)\n\n");
-
-	/* Determine if tests passed (no failures or exceptions). */
-	int has_exception = (totals.exception == SIZE_MAX) ? 1 : (totals.exception != 0);
-	if (!totals.fail && !has_exception) {
-		fprintf(report, "All tests passed.\n");
-	} else if (!totals.fail) {
-		fprintf(report, "Test run completed with exceptions.\n");
-	} else if (!has_exception) {
-		fprintf(report, "Test run completed with failures.\n");
+	if (!total.fail && !total.exception) {
+        fprintf(report, "                                        Total  %4zu",
+			            total.pass);
+	} else if (!total.fail) {
+		fprintf(report, "                                        Total  %4zu        %4zu",
+			            total.pass, total.exception);
+	} else if (!total.exception) {
+		fprintf(report, "                                        Total  %4zu  %4zu",
+			            total.pass, total.fail);
 	} else {
-		fprintf(report, "Test run completed with failures and exceptions.\n");
+		fprintf(report, "                                        Total  %4zu  %4zu  %4zu",
+			            total.pass, total.fail, total.exception);
+	}								
+	fprintf(report, "\n\n-x: run tests for category with l (Latin) and then u (Unicode)\n");
+	if (cat_exceptions) {
+	    fprintf(report, " *: category-level exception (counts as 1 in exception total).\n");
+	}
+	if (!total.fail && !total.exception) {
+		fprintf(report, "\nAll tests passed.\n");
+	} else if (!total.fail) {
+		fprintf(report, "\nTest run completed with exceptions.\n");
+	} else if (!total.exception) {
+		fprintf(report, "\nTest run completed with failures.\n");
+	} else {
+		fprintf(report, "\nTest run completed with failures and exceptions.\n");
 	}
 	fclose(report);
 
-	return (totals.fail > 0 || totals.exception > 0) ? 1 : 0;
+	return (total.fail > 0 || total.exception > 0) ? 1 : 0;
 }
 
 #undef RUN_AND_REPORT

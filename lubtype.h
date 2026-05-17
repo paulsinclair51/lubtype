@@ -461,9 +461,9 @@ extern "C" {
 #endif // defined macros
 
 // LUB API version major, minor, patch.
-#define LUB_VERSION_MAJOR ((uint8_t)1)
-#define LUB_VERSION_MINOR ((uint8_t)0)
-#define LUB_VERSION_PATCH ((uint8_t)0)
+#define LUB_VERSION_MAJOR 1
+#define LUB_VERSION_MINOR 0
+#define LUB_VERSION_PATCH 0
 
 // LUB API version string in "major.minor.patch" format.
 #define LUB_VERSION \
@@ -497,10 +497,13 @@ extern "C" {
 
 #if defined(LUB_DEFINITIONS)
 
+// Ensure major version is greater than 0.
+LUB_STATIC_ASSERT((uint32_t)LUB_VERSION_MAJOR, major_version_not_zero);
+
 // Ensure version components fit in the encoding fields.
-LUB_STATIC_ASSERT(LUB_VERSION_MAJOR <= 99, major_fits_in_field);
-LUB_STATIC_ASSERT(LUB_VERSION_MINOR <= 99, minor_fits_in_field);
-LUB_STATIC_ASSERT(LUB_VERSION_PATCH <= 99, patch_fits_in_field);
+LUB_STATIC_ASSERT((uint32_t)LUB_VERSION_MAJOR <= 99, major_fits_in_field);
+LUB_STATIC_ASSERT((uint32_t)LUB_VERSION_MINOR <= 99, minor_fits_in_field);
+LUB_STATIC_ASSERT((uint32_t)LUB_VERSION_PATCH <= 99, patch_fits_in_field);
 
 #endif // LUB_DEFINITIONS
 
