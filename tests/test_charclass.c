@@ -300,8 +300,12 @@ static void test_hex_alias_mapping(void) {
  * with -DLUB_X_IS_U.
  */
 
-lub_test_result_t LUB_PASTE(run_charclass_tests_, LUB_X)(void)
+lub_test_result_t LUB_PASTE(run_charclass_tests_, LUB_X)(int inject_faults)
 { test_result = (lub_test_result_t){0};
+	if (inject_faults) {
+		LUB_ASSERT(0 && "Intentional assertion fail");
+		return test_result;
+	}
 // Test: isxalpha
   LUB_ASSERT(isxalpha((xchar_t)'A'));
   LUB_ASSERT(isxalpha((xchar_t)'z'));
@@ -328,7 +332,7 @@ lub_test_result_t LUB_PASTE(run_charclass_tests_, LUB_X)(void)
   LUB_ASSERT(!isxprint((xchar_t)'\n'));
   LUB_ASSERT(isxpunct((xchar_t)'!'));
   LUB_ASSERT(!isxpunct((xchar_t)'A'));
-  LUB_ASSERT(isxspace((xchar_t)' '));'''
+  LUB_ASSERT(isxspace((xchar_t)' '));
   LUB_ASSERT(!isxspace((xchar_t)'A'));
   LUB_ASSERT(isxgraph((xchar_t)'!'));
   LUB_ASSERT(!isxgraph((xchar_t)' '));

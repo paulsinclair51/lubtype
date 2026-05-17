@@ -18,6 +18,7 @@
 
 #include <assert.h>
 #include <stddef.h>
+#include <signal.h>
 #include <stdio.h>
 
 #include "../lubtype.h"
@@ -80,8 +81,12 @@ static void test_substring_count(void) {
     X(test_count_character) \
     X(test_substring_count)
 
-lub_test_result_t LUB_PASTE(run_count_tests_, LUB_X)(void) {
+lub_test_result_t LUB_PASTE(run_count_tests_, LUB_X)(int inject_faults) {
     test_result = (lub_test_result_t){0};
+    if (inject_faults) {
+        raise(SIGSEGV);
+        return test_result;
+    }
     #define RUN_TEST(fn) fn();
     COUNT_TESTS(RUN_TEST)
     #undef RUN_TEST

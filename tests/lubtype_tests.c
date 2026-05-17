@@ -7,38 +7,45 @@
  * test modules. Each category tests a distinct feature of lubtype.h
  * (e.g., Character classification, Compare/search).
  * 
+ * Two test report files are generated: 
+ * 
+ * - lubtype_tests_report.txt: Contains the actual test results.
+ * 
+ * - lubtype_tests_inject_report.txt: Contains results with simulated fails and
+ *   exceptions that are injected into several tests. This allows verification
+ *   of the test framework's ability to detect and report failures and exceptions.
+ *
  * @copyright Copyright (c) 2026 paulsinclair51
  * SPDX-License-Identifier: MIT
  * For license details, see the LICENSE file in the project root.
  * 
  * @section usage Usage
- * Use the Makefile or build_lubtype_tests.ps1 to build an executable:
+ * Build the test suite executable:
  * 
  * - Linux/macOS: make
  *   (defaults to use Makefile in the current directory)
  * 
  * - Windows PowerShell: .\build_lubtype_tests.ps1
  * 
- *  Run the test suite executable to generate the test report
- *  lubtype_tests_report.txt::
+ * Run the test suite executable:
  * 
  * - Linux/macOS: ./lubtype_tests [report_path]
  * 
  * - Windows: .\lubtype_tests.exe [report_path]
  * 
- *  The optional report_path argument allows specifying a
- *  path for the test report file lubtype_tests_report.txt. For example:
+ * The optional report_path sets the path to the directory for the test reports.
+ * For example,
  * 
- * - Linux/macOS: ./lubtype_tests /path/to/report.txt
+ * - Linux/macOS: ./lubtype_tests /path/to/reports/
  * 
- * - Windows: .\lubtype_tests.exe C:\path\to\report.txt
+ * - Windows: .\lubtype_tests.exe C:\path\to\reports\
  * 
- *  If no report_path is provided, the test report is written to
- *  "lubtype_tests_report.txt" in the same directory as the test executable.
+ * If report_path is omitted, the two reports are written to the same
+ * directory as the test executable.
  * 
  * @section report Test Report
  *
- * The test report includes:
+ * A test report includes:
  * 
  * - Timestamp of test execution and version of the tested lubtype.h file.
  * 
@@ -102,18 +109,20 @@
 
 /**
  * @name report_path_from_argv0
- * @brief Derive the output report path from the executable's argv[0].
+ * @brief Derive an output report path from the executable's argv[0].
  *
  * Extracts the directory component from argv[0] (if present) and appends
- * "lubtype_tests_report.txt" to place the report alongside the test binary.
+ * a filename to place the report alongside the test binary.
  * If argv[0] contains no directory separator or the derived path would exceed
- * buffer capacity, returns the default filename "lubtype_tests_report.txt"
+ * buffer capacity, returns default_filename.
  * (written to the current working directory).
  * 
  * @todo Consider raising error if no directory separator found or buffer_size
  *       is too small to hold the derived path?
  *
  * @param argv0       The program name/path (typically argv[0] from main).
+ * @param filename    Output filename to append to executable directory.
+ * @param default_filename Filename to use when no directory can be derived.
  * @param buffer      Destination buffer for the result (must not be NULL).
  * @param buffer_size Size of buffer in bytes (must be large enough for
  *                    directory + filename).
@@ -122,7 +131,11 @@
  *         default filename).
  */
 static const char *report_path_from_argv0(
-	const char *argv0, char *buffer, size_t buffer_size)
+	const char *argv0,
+	const char *filename,
+	const char *default_filename,
+	char *buffer,
+	size_t buffer_size)
 {
 	const char *slash = strrchr(argv0, '/');
 	const char *backslash = strrchr(argv0, '\\');
@@ -132,17 +145,59 @@ static const char *report_path_from_argv0(
 	}
 
 	if (!separator) {
-		return "lubtype_tests_report.txt";
+		return default_filename;
 	}
 
 	size_t prefix_len = (size_t)(separator - argv0) + 1;
-	if (prefix_len + strlen("lubtype_tests_report.txt") + 1 > buffer_size) {
-		return "lubtype_tests_report.txt";
+	if (prefix_len + strlen(filename) + 1 > buffer_size) {
+		return default_filename;
 	}
 
 	memcpy(buffer, argv0, prefix_len);
 	buffer[prefix_len] = '\0';
-	strcat(buffer, "lubtype_tests_report.txt");
+	strcat(buffer, filename);
+	return buffer;
+}
+
+/**
+ * @name inject_report_path_from_report_path
+ * @brief Derive inject report path from a user-provided report path.
+ *
+ * Uses the directory portion of report_path and appends
+ * "lubtype_tests_inject_report.txt". If report_path has no directory
+ * separator or the result would exceed buffer_size, returns the default
+ * filename in current working directory.
+ *
+ * @param report_path User-provided normal report path.
+ * @param buffer Destination buffer for the derived inject report path.
+ * @param buffer_size Size of buffer in bytes.
+ * @return Pointer to the inject report path.
+ */
+static const char *inject_report_path_from_report_path(
+	const char *report_path,
+	char *buffer,
+	size_t buffer_size)
+{
+	const char *inject_filename = "lubtype_tests_inject_report.txt";
+	const char *slash = strrchr(report_path, '/');
+	const char *backslash = strrchr(report_path, '\\');
+	const char *separator = slash;
+	if (!separator || (backslash && backslash > separator)) {
+		separator = backslash;
+	}
+
+	if (!separator) {
+		return inject_filename;
+	}
+
+	size_t prefix_len = (size_t)(separator - report_path) + 1;
+	if (prefix_len + strlen(inject_filename) + 1 > buffer_size) {
+		return inject_filename;
+	}
+
+	memcpy(buffer, report_path, prefix_len);
+	buffer[prefix_len] = '\0';
+	strcat(buffer, inject_filename);
 	return buffer;
 }
 
@@ -186,14 +241,16 @@ static void guard_signal_handler(int sig) {
 
 /**
  * @name run_guarded
- * @brief Category-level test guard.
+ * @brief Category-level test guard for functions with inject_faults parameter.
  *
- * Runs the test module and siglongjmps back to the guard point (run_guarded).
- * If a signal occurs, returns {0, 0, SIZE_MAX} to mark a category-level exception..
+ * Calls test functions that accept an inject_faults parameter. Runs the test
+ * module and siglongjmps back to the guard point.
+ * If a signal occurs, returns {0, 0, SIZE_MAX} to mark a category-level exception.
  *
- * @param fn Function pointer to test function.
+ * @param fn Function pointer to test function (takes int inject_faults parameter).
+ * @param inject_faults Flag to pass to the test function.
  */
-static lub_test_result_t run_guarded(lub_test_result_t (*fn)(void)) {
+static lub_test_result_t run_guarded(lub_test_result_t (*fn)(int), int inject_faults) {
 	struct sigaction sa, old_segv, old_abrt, old_bus;
 	sa.sa_handler = guard_signal_handler;
 	sigemptyset(&sa.sa_mask);
@@ -206,7 +263,7 @@ static lub_test_result_t run_guarded(lub_test_result_t (*fn)(void)) {
 	lub_test_result_t result = {0, 0, 0};
 
 	if (sigsetjmp(guard_env, 1) == 0) {
-		result = fn();
+		result = fn(inject_faults);
 		guard_active = 0;
 	} else {
 		/* Use SIZE_MAX to mark category-level exception. */
@@ -315,50 +372,25 @@ static void write_test_category(FILE *report, size_t index, const char *label,
 	} while (0)
 
 /**
- * @name main
- * @brief Main entry point for lubtype.h tests.
+ * @name write_report
+ * @brief Execute the full test suite and write one report file.
  *
- * Initializes the test report file, executes test categories in sequence,
- * accumulates results, and writes a summary report. Each category result is
- * passed through run_guarded() to catch unhandled signals at category level).
- * 
- * @param argc Argument count.
- * @param argv Argument vector (argv[0] used for report path derivation).
+ * Executes all categories in sequence, accumulates results, and writes a
+ * summary report to report_path. Each category result is passed through
+ * run_guarded() to catch unhandled signals at category level.
+ *
+ * @param report_path Output file path for the report.
+ * @param inject_faults 0 for normal run, 1 for fault-injection run.
  * @return 0 if all tests passed (fail=0, exception=0); 1 otherwise.
- * 
- * @note Unbuffered I/O writes to the report file are used to ensure
- *       output is written immediately, in case a following test
- *       assertion triggers an exception.
  */
-
-// Forward declarations for alternate (fault-injecting) test modules
-lub_test_result_t run_charclass_tests_l(void);
-lub_test_result_t run_charclass_tests_u(void);
-lub_test_result_t run_count_tests_l(void);
-lub_test_result_t run_count_tests_u(void);
-lub_test_result_t run_skip_tests_l(void);
-lub_test_result_t run_skip_tests_u(void);
-
-int main(int argc, char **argv) {
-	char report_path[1024];
+static int write_report(const char *report_path, int inject_faults) {
 	lub_test_result_t total = {0, 0, 0};
 	int cat_exceptions = 0;
-	int inject_faults = 0;
 
-	// Parse command-line for --inject-faults
-	for (int i = 1; i < argc; ++i) {
-		if (strcmp(argv[i], "--inject-faults") == 0) {
-			inject_faults = 1;
-		}
-	}
-
-	const char *resolved_report_path = (argc > 0 && argv && argv[0])
-		? report_path_from_argv0(argv[0], report_path, sizeof(report_path))
-		: "lubtype_tests_report.txt";
-
-	FILE *report = fopen(resolved_report_path, "w");
+	FILE *report = fopen(report_path, "w");
 	if (!report) {
-		fprintf(stderr, "[ERROR] Could not open report file for writing.\n");
+		fprintf(stderr, "[ERROR] Could not open report file '%s' for writing.\n",
+		        report_path ? report_path : "(null)");
 		return 1;
 	}
 
@@ -378,62 +410,62 @@ int main(int argc, char **argv) {
 	fprintf(report, "--------------------------------------------------------------------\n");
 
 	RUN_AND_REPORT(1, "Utilities -x",
-	               merge_x_results(run_guarded(run_utilities_tests_l),
-	                               run_guarded(run_utilities_tests_u)));
+	               merge_x_results(run_guarded(run_utilities_tests_l, inject_faults),
+	                               run_guarded(run_utilities_tests_u, inject_faults)));
 	RUN_AND_REPORT(2, "Type matrix",
-				   run_guarded(run_type_matrix_tests));
+				   run_guarded(run_type_matrix_tests, inject_faults));
 	if (inject_faults) {
 		RUN_AND_REPORT(3, "Character classification -x (FAULT)",
-			           merge_x_results(run_guarded(run_charclass_tests_l),
-							           run_guarded(run_charclass_tests_u)));
+			           merge_x_results(run_guarded(run_charclass_tests_l, inject_faults),
+							           run_guarded(run_charclass_tests_u, inject_faults)));
 	} else {
 		RUN_AND_REPORT(3, "Character classification -x",
-			           merge_x_results(run_guarded(run_charclass_tests_l),
-							           run_guarded(run_charclass_tests_u)));
+			           merge_x_results(run_guarded(run_charclass_tests_l, inject_faults),
+							           run_guarded(run_charclass_tests_u, inject_faults)));
 	}
 	RUN_AND_REPORT(4, "String length and classification -x",
-				   merge_x_results(run_guarded(run_strlen_strclass_tests_l),
-								   run_guarded(run_strlen_strclass_tests_u)));
+				   merge_x_results(run_guarded(run_strlen_strclass_tests_l, inject_faults),
+								   run_guarded(run_strlen_strclass_tests_u, inject_faults)));
 	RUN_AND_REPORT(5, "Reserved/matrix",
-				   run_guarded(run_reserved_matrix_tests));
+				   run_guarded(run_reserved_matrix_tests, inject_faults));
 	RUN_AND_REPORT(6, "Compare/search -x",
-				   merge_x_results(run_guarded(run_cmp_search_tests_l),
-								   run_guarded(run_cmp_search_tests_u)));
+				   merge_x_results(run_guarded(run_cmp_search_tests_l, inject_faults),
+								   run_guarded(run_cmp_search_tests_u, inject_faults)));
 	RUN_AND_REPORT(7, "Search -x",
-				   merge_x_results(run_guarded(run_search_family_tests_l),
-								   run_guarded(run_search_family_tests_u)));
+				   merge_x_results(run_guarded(run_search_family_tests_l, inject_faults),
+								   run_guarded(run_search_family_tests_u, inject_faults)));
 	if (inject_faults) {
 		RUN_AND_REPORT(8, "Count -x (FAULT)",
-			           merge_x_results(run_guarded(run_count_tests_l),
-							           run_guarded(run_count_tests_u)));
+			           merge_x_results(run_guarded(run_count_tests_l, inject_faults),
+							           run_guarded(run_count_tests_u, inject_faults)));
 	} else {
 		RUN_AND_REPORT(8, "Count -x",
-			           merge_x_results(run_guarded(run_count_tests_l),
-						          	   run_guarded(run_count_tests_u)));
+			           merge_x_results(run_guarded(run_count_tests_l, inject_faults),
+						          	   run_guarded(run_count_tests_u, inject_faults)));
 	}
 	if (inject_faults) {
 		RUN_AND_REPORT(9, "Skip -x (FAULT)",
-			           merge_x_results(run_guarded(run_skip_tests_l),
-						           	   run_guarded(run_skip_tests_u)));
+			           merge_x_results(run_guarded(run_skip_tests_l, inject_faults),
+						           	   run_guarded(run_skip_tests_u, inject_faults)));
 	} else {
 		RUN_AND_REPORT(9, "Skip -x",
-			           merge_x_results(run_guarded(run_skip_tests_l),
-						       	       run_guarded(run_skip_tests_u)));
+			           merge_x_results(run_guarded(run_skip_tests_l, inject_faults),
+						       	       run_guarded(run_skip_tests_u, inject_faults)));
 	}
 	RUN_AND_REPORT(10, "Core -x",
-				   merge_x_results(run_guarded(run_core_family_tests_l),
-								   run_guarded(run_core_family_tests_u)));
+				   merge_x_results(run_guarded(run_core_family_tests_l, inject_faults),
+								   run_guarded(run_core_family_tests_u, inject_faults)));
 	RUN_AND_REPORT(11, "Advanced -x",
-				   merge_x_results(run_guarded(run_advanced_ops_tests_l),
-								   run_guarded(run_advanced_ops_tests_u)));
+				   merge_x_results(run_guarded(run_advanced_ops_tests_l, inject_faults),
+								   run_guarded(run_advanced_ops_tests_u, inject_faults)));
 	RUN_AND_REPORT(12, "Miscellaneous x-macros -x",
-				   merge_x_results(run_guarded(run_xmacros_tests_l),
-								   run_guarded(run_xmacros_tests_u)));
+				   merge_x_results(run_guarded(run_xmacros_tests_l, inject_faults),
+								   run_guarded(run_xmacros_tests_u, inject_faults)));
 	RUN_AND_REPORT(13, "Error/edge cases -x",
-				   merge_x_results(run_guarded(run_error_edge_tests_l),
-								   run_guarded(run_error_edge_tests_u)));
+				   merge_x_results(run_guarded(run_error_edge_tests_l, inject_faults),
+								   run_guarded(run_error_edge_tests_u, inject_faults)));
 	RUN_AND_REPORT(14, "Fuzz/edge cases",
-				   run_guarded(run_fuzz_edge_tests));
+				   run_guarded(run_fuzz_edge_tests, inject_faults));
 
 	fprintf(report, "------------------------------------------------------------------\n");
 	if (!total.fail && !total.exception) {
@@ -465,6 +497,46 @@ int main(int argc, char **argv) {
 	fclose(report);
 
 	return (total.fail > 0 || total.exception > 0) ? 1 : 0;
+}
+
+/**
+ * @name main
+ * @brief Main entry point for lubtype.h tests.
+ *
+ * Generates two reports in the report_path directory (see @ref usage) or
+ * the executable's directory if report_path is not provided:
+ * 
+ * - normal run: lubtype_tests_report.txt
+ *
+ * - fault-injection run: lubtype_tests_inject_report.txt
+ * 
+ * @param argc Argument count.
+ * @param argv Argument vector (argv[0] used for report_path derivation).
+ * @return 0 if normal run passed (fail=0, exception=0); 1 otherwise.
+ */
+
+int main(int argc, char **argv) {
+	char report_path[1024];
+	char inject_report_path[1024];
+	const int has_report_path = (argc > 1 && argv && argv[1] && argv[1][0]);
+
+	// Derive the normal report path only once
+	const char *resolved_report_path = has_report_path
+		? argv[1]
+		: ((argc > 0 && argv && argv[0])
+			? report_path_from_argv0(argv[0], "lubtype_tests_report.txt",
+									"lubtype_tests_report.txt",
+									report_path, sizeof(report_path))
+			: "lubtype_tests_report.txt");
+
+	// Always derive the inject report path from the normal report path
+	const char *resolved_inject_report_path = inject_report_path_from_report_path(
+		resolved_report_path, inject_report_path, sizeof(inject_report_path));
+
+	int normal_status = write_report(resolved_report_path, 0);
+	int inject_status = write_report(resolved_inject_report_path, 1);
+
+	return normal_status;
 }
 
 #undef RUN_AND_REPORT

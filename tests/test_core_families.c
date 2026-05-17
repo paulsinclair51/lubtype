@@ -188,7 +188,7 @@ static void test_copy_and_cat_error_behavior(void) {
     X(test_cat_basic) \
     X(test_copy_and_cat_error_behavior)
 
-lub_test_result_t LUB_PASTE(run_core_family_tests_, LUB_X)(void) {
+lub_test_result_t LUB_PASTE(run_core_family_tests_, LUB_X)(int inject_faults) {
     test_result = (lub_test_result_t){0};
     #define RUN_TEST(fn) fn();
     CORE_FAMILY_TESTS(RUN_TEST)

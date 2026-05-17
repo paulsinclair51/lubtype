@@ -13,10 +13,7 @@ TEST_SOURCES = \
 	lubtype_tests.c \
 	test_reserved_matrix.c \
 	test_type_matrix.c \
-	test_fuzz_edge.c \
-	test_charclass_fail.c \
-	test_count_cex.c \
-	test_skip_aex.c
+	test_fuzz_edge.c
 
 TEST_OBJECTS = $(TEST_SOURCES:.c=.o)
 

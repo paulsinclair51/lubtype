@@ -80,7 +80,7 @@ static void test_replace_family(void)
   }
 }
 
-lub_test_result_t LUB_PASTE(run_advanced_ops_tests_, LUB_X)(void)
+lub_test_result_t LUB_PASTE(run_advanced_ops_tests_, LUB_X)(int inject_faults)
 { test_result = (lub_test_result_t){0};
   xchar_t xsrc[32] = {' ','a','b','c',' ',0};
   xchar_t xtrim_custom_src[32] = {'x','x','a','b','c','x',0};

@@ -190,7 +190,7 @@ static void test_pfx_and_sfx_matching(void) {
     X(test_cmp_basic_and_case_insensitive) \
     X(test_pfx_and_sfx_matching)
 
-lub_test_result_t LUB_PASTE(run_search_family_tests_, LUB_X)(void) {
+lub_test_result_t LUB_PASTE(run_search_family_tests_, LUB_X)(int inject_faults) {
     test_result = (lub_test_result_t){0};
     #define RUN_TEST(fn) fn();
     SEARCH_FAMILY_TESTS(RUN_TEST)

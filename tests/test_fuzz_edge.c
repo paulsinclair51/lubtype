@@ -132,7 +132,8 @@ static void test_overlapping_buffers(void) {
     X(test_error_paths) \
     X(test_overlapping_buffers)
 
-lub_test_result_t run_fuzz_edge_tests(void) {
+lub_test_result_t run_fuzz_edge_tests(int inject_faults) {
+	(void)inject_faults;
     test_result = (lub_test_result_t){0};
     srand(42);
     #define RUN_TEST(fn) fn();

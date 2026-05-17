@@ -16,6 +16,7 @@
 
 #include <assert.h>
 #include <stddef.h>
+#include <signal.h>
 #include <stdio.h>
 
 #include "../lubtype.h"
@@ -257,8 +258,12 @@ static void test_sn_bound_zero(void) {
 
 /* ---- entry point -------------------------------------------------------- */
 
-lub_test_result_t LUB_PASTE(run_skip_tests_, LUB_X)(void) {
+lub_test_result_t LUB_PASTE(run_skip_tests_, LUB_X)(int inject_faults) {
     test_result = (lub_test_result_t){0};
+    if (inject_faults) {
+        raise(SIGABRT);
+        return test_result;
+    }
     #define RUN_TEST(fn) fn();
     SKIP_TESTS_COMMON(RUN_TEST)
 #if defined(LUB_X_IS_U)

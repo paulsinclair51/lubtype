@@ -111,7 +111,8 @@ static void test_prefix_suffix_cmp_matrix(void) {
     X(test_compare_matrix) \
     X(test_prefix_suffix_cmp_matrix)
 
-lub_test_result_t run_type_matrix_tests(void) {
+lub_test_result_t run_type_matrix_tests(int inject_faults) {
+	(void)inject_faults;
     test_result = (lub_test_result_t){0};
     #define RUN_TEST(fn) fn();
     TYPE_MATRIX_TESTS(RUN_TEST)

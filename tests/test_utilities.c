@@ -243,7 +243,7 @@ static void test_option_alias_validators(void) {
     LUB_ASSERT(isxneedlestr(NULL) == XNEEDLE_CONCRETE(NULL));
 }
 
-lub_test_result_t LUB_PASTE(run_utilities_tests_, LUB_X)(void) {
+lub_test_result_t LUB_PASTE(run_utilities_tests_, LUB_X)(int inject_faults) {
     test_result = (lub_test_result_t){0};
     test_reverse();
     test_trim();

@@ -90,7 +90,7 @@ static void test_nhexstr_alias_mapping(void) {
  * behavior and edge cases. Compiled twice for Latin (lchar_t)
  * and Unicode (uchar_t).
  */
-lub_test_result_t LUB_PASTE(run_strlen_strclass_tests_, LUB_X)(void) {
+lub_test_result_t LUB_PASTE(run_strlen_strclass_tests_, LUB_X)(int inject_faults) {
     test_result = (lub_test_result_t){0};
     xchar_t xstr[16] = {'a', 'b', 'c', '\0'};
     // Test: bounded length API.

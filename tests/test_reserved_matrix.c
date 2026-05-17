@@ -188,7 +188,8 @@ static void test_matrix_consistency_cmp_pfx_sfx(void) {
     X(test_isureserved_oracle_crosscheck) \
     X(test_matrix_consistency_cmp_pfx_sfx)
 
-lub_test_result_t run_reserved_matrix_tests(void) {
+lub_test_result_t run_reserved_matrix_tests(int inject_faults) {
+	(void)inject_faults;
     test_result = (lub_test_result_t){0};
     #define RUN_TEST(fn) fn();
     RESERVED_MATRIX_TESTS(RUN_TEST)

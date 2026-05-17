@@ -248,41 +248,43 @@ static inline void lubtype_assert_fail(const char *expr, const char *file, int l
  * @brief Extern declarations for all test module runner functions.
  *
  * Each function has the signature:
- *   lub_test_result_t run_*_tests[_l|_u](void)
+ *   lub_test_result_t run_*_tests[_l|_u](int inject_faults)
  *
  * Functions suffixed with _l test Latin (lchar_t) variants,
  * _u for Unicode (uchar_t).
  * Functions without suffix test character-encoding-neutral APIs.
  *
+ * @param inject_faults Flag indicating whether to inject faults (1) or not (0).
+ *
  * @note The result of each function is a struct with pass/fail/exception counts
  *       from all assertions executed within that module.
  * @{
  */
-extern lub_test_result_t run_error_edge_tests_l(void);
-extern lub_test_result_t run_error_edge_tests_u(void);
-extern lub_test_result_t run_advanced_ops_tests_l(void);
-extern lub_test_result_t run_advanced_ops_tests_u(void);
-extern lub_test_result_t run_cmp_search_tests_l(void);
-extern lub_test_result_t run_cmp_search_tests_u(void);
-extern lub_test_result_t run_strlen_strclass_tests_l(void);
-extern lub_test_result_t run_strlen_strclass_tests_u(void);
-extern lub_test_result_t run_charclass_tests_l(void);
-extern lub_test_result_t run_charclass_tests_u(void);
-extern lub_test_result_t run_reserved_matrix_tests(void);
-extern lub_test_result_t run_search_family_tests_l(void);
-extern lub_test_result_t run_search_family_tests_u(void);
-extern lub_test_result_t run_count_tests_l(void);
-extern lub_test_result_t run_count_tests_u(void);
-extern lub_test_result_t run_core_family_tests_l(void);
-extern lub_test_result_t run_core_family_tests_u(void);
-extern lub_test_result_t run_type_matrix_tests(void);
-extern lub_test_result_t run_utilities_tests_l(void);
-extern lub_test_result_t run_utilities_tests_u(void);
-extern lub_test_result_t run_fuzz_edge_tests(void);
-extern lub_test_result_t run_skip_tests_l(void);
-extern lub_test_result_t run_skip_tests_u(void);
-extern lub_test_result_t run_xmacros_tests_l(void);
-extern lub_test_result_t run_xmacros_tests_u(void);
+extern lub_test_result_t run_error_edge_tests_l(int inject_faults);
+extern lub_test_result_t run_error_edge_tests_u(int inject_faults);
+extern lub_test_result_t run_advanced_ops_tests_l(int inject_faults);
+extern lub_test_result_t run_advanced_ops_tests_u(int inject_faults);
+extern lub_test_result_t run_cmp_search_tests_l(int inject_faults);
+extern lub_test_result_t run_cmp_search_tests_u(int inject_faults);
+extern lub_test_result_t run_strlen_strclass_tests_l(int inject_faults);
+extern lub_test_result_t run_strlen_strclass_tests_u(int inject_faults);
+extern lub_test_result_t run_charclass_tests_l(int inject_faults);
+extern lub_test_result_t run_charclass_tests_u(int inject_faults);
+extern lub_test_result_t run_reserved_matrix_tests(int inject_faults);
+extern lub_test_result_t run_search_family_tests_l(int inject_faults);
+extern lub_test_result_t run_search_family_tests_u(int inject_faults);
+extern lub_test_result_t run_count_tests_l(int inject_faults);
+extern lub_test_result_t run_count_tests_u(int inject_faults);
+extern lub_test_result_t run_core_family_tests_l(int inject_faults);
+extern lub_test_result_t run_core_family_tests_u(int inject_faults);
+extern lub_test_result_t run_type_matrix_tests(int inject_faults);
+extern lub_test_result_t run_utilities_tests_l(int inject_faults);
+extern lub_test_result_t run_utilities_tests_u(int inject_faults);
+extern lub_test_result_t run_fuzz_edge_tests(int inject_faults);
+extern lub_test_result_t run_skip_tests_l(int inject_faults);
+extern lub_test_result_t run_skip_tests_u(int inject_faults);
+extern lub_test_result_t run_xmacros_tests_l(int inject_faults);
+extern lub_test_result_t run_xmacros_tests_u(int inject_faults);
 /** @} */
 
 #endif

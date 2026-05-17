@@ -28,7 +28,7 @@ static lub_test_result_t test_result;
  * bounded string functions. Compiled twice for Latin (lchar_t)
  * and Unicode (uchar_t).
  */
-lub_test_result_t LUB_PASTE(run_error_edge_tests_, LUB_X)(void) {
+lub_test_result_t LUB_PASTE(run_error_edge_tests_, LUB_X)(int inject_faults) {
     test_result = (lub_test_result_t){0};
     xchar_t xsrc[8] = {'a','b','c','\0'};
     xchar_t xdst[16] = {0};

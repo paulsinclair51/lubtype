@@ -116,7 +116,7 @@ static void test_compare_fixed_prefix_suffix_boundaries(void)
  * Each block checks a specific function or family for
  * correct behavior and edge cases.
  */
-lub_test_result_t LUB_PASTE(run_cmp_search_tests_, LUB_X)(void)
+lub_test_result_t LUB_PASTE(run_cmp_search_tests_, LUB_X)(int inject_faults)
 { test_result = (lub_test_result_t){0};
   xchar_t s1[16] = {'a','b','c','\0'};
   xchar_t s2[16] = {'a','b','c','\0'};
