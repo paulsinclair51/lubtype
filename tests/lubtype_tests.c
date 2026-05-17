@@ -414,7 +414,7 @@ int main(int argc, char **argv) {
 		fprintf(report, "                                        Total  %4zu  %4zu  %4zu",
 			            total.pass, total.fail, total.exception);
 	}								
-	fprintf(report, "\n\n-x: run tests for category with l (Latin) and then u (Unicode)\n");
+	fprintf(report, "\n\n-x: run tests for category with x=l (Latin) and then x=u (Unicode)\n");
 	if (cat_exceptions) {
 	    fprintf(report, " *: category-level exception (counts as 1 in exception total).\n");
 	}
