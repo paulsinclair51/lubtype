@@ -2,51 +2,92 @@
  * @file lubtype_tests.c
  * @brief Main aggregator and runner for lubtype.h regression and unit tests.
  *
- * This module serves as the test suite orchestrator for lubtype.h,
- * coordinating
- * execution of 13 test categories defined across separate test modules. Each
- * category tests a distinct feature family of lubtype.h (e.g., advanced
- * operations, character classification, substring searching).
- *
- * @section test_framework Test Framework Architecture
- *
- * The test framework uses a two-level signal guarding approach:
- *
- * **Category-Level Guarding (this file):** The run_guarded() wrapper catches
- * unhandled process terminations (SIGSEGV, SIGABRT, SIGBUS) that occur during
- * entire test module execution. These are counted as
- * category-level exceptions.
- * Note: Modern assert-level guarding is handled within LUB_ASSERT macro in the
- * individual test files (see lubtype_test_declarations.h), so category-level
- * exceptions are now rare but retained for defensive programming.
- *
- * **Assert-Level Guarding (test modules):** Each LUB_ASSERT macro wraps signal
- * handlers around individual assertions, enabling fine-grained detection of
- * faults (segfaults, aborts) at the assertion level rather than crashing the
- * entire test suite. This allows counting: pass (assertion true), fail
- * (assertion false), and exception (assertion did not complete due to
- * signal/fault).
- *
- * @section reporting Test Report Output
- *
- * After all categories complete, a summary report is written to
- * "lubtype_tests_report.txt" (or a path derived from argv[0]).
- * The report includes:
- * - Timestamp of test execution
- * - Per-category pass/fail/exception counts
- * - Grand totals across all categories
- * - Overall pass/fail summary
- *
+ * This module serves as the test suite orchestrator for testing lubtype.h,
+ * coordinating execution of test categories defined across separate
+ * test modules. Each category tests a distinct feature of lubtype.h
+ * (e.g., Character classification, Compare/search).
+ * 
  * @copyright Copyright (c) 2026 paulsinclair51
  * SPDX-License-Identifier: MIT
  * For license details, see the LICENSE file in the project root.
+ * 
+ * @section usage Usage
+ * Use the Makefile or build_lubtype_tests.ps1 to build an executable:
+ * 
+ * - Linux/macOS: make (Linux/macOS)
+ *   @todo option to specify Makefile? Or does it default to use that file
+ *         in the current directory?
+ * 
+ * - Windows PowerShell: .\build_lubtype_tests.ps1
+ * 
+ *  Run the test suite executable to generate the test report
+ *  lubtype_tests_report.txt::
+ * 
+ * - Linux/macOS: ./lubtype_tests [report_path]
+ * 
+ * - Windows: .\lubtype_tests.exe [report_path]
+ * 
+ *  The optional report_path argument allows specifying a
+ *  path for the test report file lubtype_tests_report.txt. For example:
+ * 
+ * - Linux/macOS: ./lubtype_tests /path/to/report.txt
+ * 
+ * - Windows: .\lubtype_tests.exe C:\path\to\report.txt
+ * 
+ *  If no report_path is provided, the test report is written to
+ *  "lubtype_tests_report.txt" in the same directory as the test executable.
+ * 
+ * @section report Test Report
+ *
+ * The test report includes:
+ * 
+ * - Timestamp of test execution and version of the tested lubtype.h file.
+ * 
+ * - Per-category pass/fail/exception counts.
+ * 
+ * - Totals across all categories.
+ * 
+ * - Overall pass/fail/exception summary.
+ * 
+ * @note A category (e.g., Character classification) is marked with -x if
+ *       the test .c file includes polymorphic (x) macros such as xxsnncmp
+ *       and uxsnncmp.
+ * 
+ *       The tests in the category are run sequentially with
+ *       the test .c file compiled with LUB_X_IS_L (x maps to l), then with
+ *       LUB_X_IS_U (x maps to u). Their results are aggregated for the report.
+ * 
+ *       See README.md or lubtype.h documentation for details on polymorphic
+ *       (x) macros and how they are used.
+ * 
+ * @section exception_guarding Exception Guarding
+ *
+ * The test framework uses a two-level exception guarding approach using
+ * sigaction and sigsetjmp/siglongjmp to catch unexpected terminations
+ * (e.g., segmentation faults, aborts) during test execution:
+ * 
+ * - Assert-Level Guarding (in test modules)
+ * 
+ *     The LUB_ASSERT macro wraps signal handlers around individual
+ *     assertions, enabling fine-grained detection exceptions at the
+ *     assertion level rather than crashing the entire test suite.
+ *     This allows counting pass (assertion true), fail (assertion false),
+ *     and exception (assertion did not complete due to signal/fault).
+ *
+ * - Category-Level Guarding (in this file)
+ * 
+ *     The run_guarded() wrapper catches unhandled process terminations
+ *     (SIGSEGV, SIGABRT, SIGBUS) that occur during entire test module
+ *     execution. These are counted as category-level exceptions.
+ * 
+ * Note: Assert-level guarding is expected to handle most exceptions,
+ *       so category-level exceptions are rare but detection is provided
+ *       for defensive programming (for instance, if a test module
+ *       causes an exception outside of an assertion).
  */
 
 /* Enable POSIX.1-2008 (sigaction, sigsetjmp, siglongjmp, sigjmp_buf). */
 #define _POSIX_C_SOURCE 200809L
-
-#include "../lubtype.h"
-#include "lubtype_test_declarations.h"
 
 #include <setjmp.h>
 #include <signal.h>
@@ -56,7 +97,11 @@
 #include <string.h>
 #include <time.h>
 
+#include "../lubtype.h"
+#include "lubtype_test_declarations.h"
+
 /**
+ * @name report_path_from_argv0
  * @brief Derive the output report path from the executable's argv[0].
  *
  * Extracts the directory component from argv[0] (if present) and appends
@@ -64,16 +109,21 @@
  * If argv[0] contains no directory separator or the derived path would exceed
  * buffer capacity, returns the default filename "lubtype_tests_report.txt"
  * (written to the current working directory).
+ * 
+ * @todo Consider raising error if no directory separator found or buffer_size
+ *       is too small to hold the derived path?
  *
- * @param argv0       The program name/path (typically argv[0] from main)
- * @param buffer      Destination buffer for the result (must not be NULL)
+ * @param argv0       The program name/path (typically argv[0] from main).
+ * @param buffer      Destination buffer for the result (must not be NULL).
  * @param buffer_size Size of buffer in bytes (must be large enough for
- *                    directory + filename)
+ *                    directory + filename).
  *
  * @return Pointer to the report path (either buffer contents or static
- *         default filename)
+ *         default filename).
  */
-static const char *report_path_from_argv0(const char *argv0, char *buffer, size_t buffer_size) {
+static const char *report_path_from_argv0(
+	const char *argv0, char *buffer, size_t buffer_size)
+{
 	const char *slash = strrchr(argv0, '/');
 	const char *backslash = strrchr(argv0, '\\');
 	const char *separator = slash;
@@ -99,16 +149,13 @@ static const char *report_path_from_argv0(const char *argv0, char *buffer, size_
 /**
  * @brief Run fn with a signal trap; catch any crash/abort as exception.
  *
- * Installs handlers for SIGSEGV, SIGABRT, and SIGBUS that longjmp back
+ * Defines handlers for SIGSEGV, SIGABRT, and SIGBUS that longjmp back
  * to the guard point, setting exception=1 in the returned result.
  * Handlers are restored to their previous disposition after each call.
  *
  * @section context Category-Level Guard
  *
- * This is the category-level guard. Individual assertions within
- * test functions now have their own signal guards (LUB_ASSERT macro in
- * lubtype_test_declarations.h), so category-level exceptions are rare
- * but possible for unguarded faults.
+ * This is the category-level guard.
  *
  * @param fn Function pointer to test function returning lub_test_result_t
  *
@@ -118,19 +165,16 @@ static sigjmp_buf  guard_env;
 static volatile sig_atomic_t guard_active = 0;
 
 /**
- * @brief Category-level signal handler for test guard.
+ * @name guard_signal_handler
+ * @brief Category-level signal handler.
  *
  * Catches unhandled signals (SIGSEGV, SIGABRT, SIGBUS) during test
  * module execution and siglongjmps back to the guard point
- * (run_guarded). This results in the entire category being marked
- * as exception: 1.
+ * (run_guarded).
  *
- * @note Modern per-assert signal trapping is done within
- *       LUB_ASSERT macro (in lubtype_test_declarations.h), so
- *       this category-level handler acts as a backstop for
- *       unguarded crashes.
+ * @param sig The caught signal number (SIGSEGV, SIGABRT, or SIGBUS).
  *
- * @param sig The caught signal number (SIGSEGV, SIGABRT, or SIGBUS)
+ * @return void (does not return to caller; longjmps back to guard point)
  */
 static void guard_signal_handler(int sig) {
 	(void)sig;
@@ -140,6 +184,23 @@ static void guard_signal_handler(int sig) {
 	}
 }
 
+/**
+ * @name run_guarded
+ * @brief Category-level test guard.
+ *
+ * Runs the test module and siglongjmps back to the guard point (run_guarded).
+ * If exception occurs, this results in the category being marked with an * for
+ * its exception count (counted as 1 in the total) in the test report.
+ * 
+ * @todo update report to show * for categories with exceptions,
+ *       and update total in include 1 as the exception count for the category.
+ *       Need to set exception count in returned lub_test_result_t to special
+ *       value, e.g., (size_t)-1 in this case?
+ *
+ * @param sig The caught signal number (SIGSEGV, SIGABRT, or SIGBUS).
+ *            @todo What is sig value if no signal and test module
+ *                  completed?
+ */
 static lub_test_result_t run_guarded(lub_test_result_t (*fn)(void)) {
 	struct sigaction sa, old_segv, old_abrt, old_bus;
 	sa.sa_handler = guard_signal_handler;
@@ -167,19 +228,25 @@ static lub_test_result_t run_guarded(lub_test_result_t (*fn)(void)) {
 }
 
 /**
+ * @name merge_results
  * @brief Merge two result structs by summing each field.
  *
- * Used to combine results from paired test functions (e.g.,
- * uppercase and lowercase variants) into a single category result.
+ * Used to combine results from -x test function runs
+ * into a single category result.
  * For example, Advanced Operations tests
  * both Latin (run_advanced_ops_tests_l) and Unicode (run_advanced_ops_tests_u)
  * variants; their results are merged into one.
  *
- * @param a First result struct
- * @param b Second result struct
+ * @param a First result struct.
+ * @param b Second result struct.
  *
- * @return New result with pass/fail/exception sums
- */
+ * @return New result with pass/fail/exception sums.
+ * 
+ * @todo Handle category exception counts: Category-level exception + test
+ *       module exceptions test module exceptions + category-level exception,
+ *       and category-level exception + category-level exception all result
+ *       in category-level exception.
+ */ 
 static lub_test_result_t merge_results(lub_test_result_t a, lub_test_result_t b) {
 	return (lub_test_result_t){
 		a.pass + b.pass,
@@ -189,74 +256,42 @@ static lub_test_result_t merge_results(lub_test_result_t a, lub_test_result_t b)
 }
 
 /**
+ * @name write_test_category
  * @brief Write a single test category result line to the report.
  *
  * Formats and writes one line of the test report showing category index,
- * label, and pass/fail/exception counts.
+ * category label, and pass/fail/exception counts.
  *
- * Format: " %2zu. %-35s  pass: %3zu  fail: %3zu  exception: %3zu\n"
- *
- * @param report The open FILE* for the report
- * @param index  Category index (1-14)
- * @param label  Display name of the category (e.g., "Error/edge cases")
- * @param result The lub_test_result_t struct with pass/fail/exception counts
+ * @param report The open FILE* for the report.
+ * @param index  Category index (1-14).
+ * @param label  Display category label (e.g., "Error/edge cases").
+ * @param counts Pass/fail/exception counts.
  */
+
+ /**
+  * @todo Update write_test_category to show exception count as * for a category
+  *       with category-level exception for run, if -x runs for either or both
+  *       runs.
+  */
 static void write_test_category(FILE *report, size_t index, const char *label,
-                                lub_test_result_t result) {
-	fprintf(report,
-	        " %2zu. %-35s  pass: %3zu  fail: %3zu  exception: %3zu\n",
-	        index, label,
-	        result.pass, result.fail, result.exception);
+								lub_test_result_t counts) {
+	if (!counts.fail && !counts.exception) {
+	  fprintf(report, " %2zu. %-40s  %4zu\n",
+		              index, label, counts.pass);
+	} else if (!counts.fail) {
+		fprintf(report, " %2zu. %-40s  %4zu        %4zu\n",
+			            index, label, counts.pass, counts.exception);
+	} else if (!counts.exception) {
+		fprintf(report, " %2zu. %-40s  %4zu  %4zu\n",
+			            index, label, counts.pass, counts.fail);
+	} else {
+		fprintf(report, " %2zu. %-40s  %4zu  %4zu  %4zu\n",
+			            index, label, counts.pass, counts.fail, counts.exception);
+	}
 }
 
 /**
- * @brief Main entry point for all lubtype.h tests.
- *
- * Initializes the test report file, executes 14 test categories in sequence,
- * accumulates results, and writes a summary report. Each category result is
- * passed through run_guarded() to catch unhandled signals at category level
- * (though most per-assert signal handling is done within test functions).
- *
- * @section report_location Report File Location
- * The report is written to:
- * 1. Directory alongside the executable (if argv[0] contains
- *    path) + "lubtype_tests_report.txt", or
- * 2. Current working directory + "lubtype_tests_report.txt" (fallback)
- *
- * @section buffering Unbuffered I/O
- * Report file uses unbuffered I/O to ensure output is written immediately,
- * even if a test assertion triggers process abort/termination.
- *
- * @return 0 if all tests passed (fail=0, exception=0); 1 otherwise
- */
-int main(int argc, char **argv) {
-	char report_path[1024];
-	lub_test_result_t totals = {0, 0, 0};
-	const char *resolved_report_path = (argc > 0 && argv && argv[0])
-		? report_path_from_argv0(argv[0], report_path, sizeof(report_path))
-		: "lubtype_tests_report.txt";
-	FILE *report = fopen(resolved_report_path, "w");
-	if (!report) {
-		fprintf(stderr, "[ERROR] Could not open report file for writing.\n");
-		return 1;
-	}
-
-	/* Keep report output on disk even if a test assertion aborts execution. */
-	(void)setvbuf(report, NULL, _IONBF, 0);
-
-	/* Write header with date/time */
-	time_t now = time(NULL);
-	char timebuf[64];
-	strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M:%S", localtime(&now));
-
-	fprintf(report, "LUBTYPE TEST SUITE REPORT\n");
-	fprintf(report, "Generated: %s\n", timebuf);
-	fprintf(report, "\n");
-	fprintf(report, "Test categories:\n");
-	fprintf(report, "------------------------------------------------------------------------------\n");
-
-/**
- * @def RUN_AND_REPORT(idx, label, result_expr)
+ * @def RUN_AND_REPORT
  * @brief Macro to execute a test category and record its result.
  *
  * Executes the test expression (result_expr), writes a single report line
@@ -274,61 +309,108 @@ int main(int argc, char **argv) {
 		totals = merge_results(totals, _cat); \
 	} while (0)
 
-	RUN_AND_REPORT(1,  "Error/edge cases -x",
-	               merge_results(run_guarded(run_error_edge_tests_l),
-	                             run_guarded(run_error_edge_tests_u)));
-	RUN_AND_REPORT(2,  "Advanced operations -x",
-	               merge_results(run_guarded(run_advanced_ops_tests_l),
-	                             run_guarded(run_advanced_ops_tests_u)));
-	RUN_AND_REPORT(3,  "Compare/search -x",
-	               merge_results(run_guarded(run_cmp_search_tests_l),
-	                             run_guarded(run_cmp_search_tests_u)));
-	RUN_AND_REPORT(4,  "String length and classification -x",
-	               merge_results(
-	                   run_guarded(run_strlen_strclass_tests_l),
-	                   run_guarded(run_strlen_strclass_tests_u)));
-	RUN_AND_REPORT(5,  "Character classification -x",
-	               merge_results(run_guarded(run_charclass_tests_l),
-	                             run_guarded(run_charclass_tests_u)));
-	RUN_AND_REPORT(6,  "Reserved/matrix",
-	               run_guarded(run_reserved_matrix_tests));
-	RUN_AND_REPORT(7,  "Search families -x",
-	               merge_results(run_guarded(run_search_family_tests_l),
-	                             run_guarded(run_search_family_tests_u)));
-	RUN_AND_REPORT(8,  "Count -x",
-	               merge_results(run_guarded(run_count_tests_l),
-	                             run_guarded(run_count_tests_u)));
-	RUN_AND_REPORT(9,  "Core families -x",
-	               merge_results(run_guarded(run_core_family_tests_l),
-	                             run_guarded(run_core_family_tests_u)));
-	RUN_AND_REPORT(10, "Type matrix",
-	               run_guarded(run_type_matrix_tests));
-	RUN_AND_REPORT(11, "Utilities -x",
+/**
+ * @name main
+ * @brief Main entry point for all lubtype.h tests.
+ *
+ * Initializes the test report file, executes test categories in sequence,
+ * accumulates results, and writes a summary report. Each category result is
+ * passed through run_guarded() to catch unhandled signals at category level).
+ * 
+ * @param argc Argument count.
+ * @param argv Argument vector (argv[0] used for report path derivation).
+ * @return 0 if all tests passed (fail=0, exception=0); 1 otherwise.
+ * 
+ * @note Unbuffered I/O writes to the report file are used to ensure
+ *       output is written immediately, in case a following test
+ *       assertion triggers an exception.
+ */
+int main(int argc, char **argv) {
+	char report_path[1024];
+	lub_test_result_t totals = {0, 0, 0};
+	const char *resolved_report_path = (argc > 0 && argv && argv[0])
+		? report_path_from_argv0(argv[0], report_path, sizeof(report_path))
+		: "lubtype_tests_report.txt";
+	FILE *report = fopen(resolved_report_path, "w");
+	if (!report) {
+		fprintf(stderr, "[ERROR] Could not open report file for writing.\n");
+		return 1;
+	}
+
+	/* Use unbuffered I/O to keep report output on disk even if a
+	   subsequenst test assertion cauases an exception.
+	*/
+	(void)setvbuf(report, NULL, _IONBF, 0);
+
+	/* Write header with date/time. */
+	time_t now = time(NULL);
+	char timebuf[64];
+	strftime(timebuf, sizeof(timebuf), "%Y-%m-%d %H:%M:%S", localtime(&now));
+
+	fprintf(report, "Test Suite Report for lubtype.h Version %s, %s\n\n",
+		            LUBTYPE_VERSION, timebuf);
+	fprintf(report, "Test categories                              Pass  Fail  Exception\n");
+	fprintf(report, "--------------------------------------------------------------------\n");
+
+	RUN_AND_REPORT(1, "Utilities -x",
 	               merge_results(run_guarded(run_utilities_tests_l),
 	                             run_guarded(run_utilities_tests_u)));
-	RUN_AND_REPORT(12, "Fuzz/edge cases",
-	               run_guarded(run_fuzz_edge_tests));
-	RUN_AND_REPORT(13, "Skip functions -x",
+	RUN_AND_REPORT(2, "Type matrix",
+	               run_guarded(run_type_matrix_tests));
+	RUN_AND_REPORT(3, "Character classification -x",
+	               merge_results(run_guarded(run_charclass_tests_l),
+	                             run_guarded(run_charclass_tests_u)));
+	RUN_AND_REPORT(4, "String length and classification -x",
+	               merge_results(run_guarded(run_strlen_strclass_tests_l),
+	                             run_guarded(run_strlen_strclass_tests_u)));
+	RUN_AND_REPORT(5, "Reserved/matrix",
+	               run_guarded(run_reserved_matrix_tests));
+	RUN_AND_REPORT(6, "Compare/search -x",
+	               merge_results(run_guarded(run_cmp_search_tests_l),
+	                             run_guarded(run_cmp_search_tests_u)));
+	RUN_AND_REPORT(7, "Search -x",
+	               merge_results(run_guarded(run_search_family_tests_l),
+	                             run_guarded(run_search_family_tests_u)));
+	RUN_AND_REPORT(8, "Count -x",
+	               merge_results(run_guarded(run_count_tests_l),
+	                             run_guarded(run_count_tests_u)));
+	RUN_AND_REPORT(9, "Skip -x",
 	               merge_results(run_guarded(run_skip_tests_l),
 	                             run_guarded(run_skip_tests_u)));
-	RUN_AND_REPORT(14, "Miscellaneous x-macros -x",
+	RUN_AND_REPORT(10, "Core -x",
+	               merge_results(run_guarded(run_core_family_tests_l),
+	                             run_guarded(run_core_family_tests_u)));
+	RUN_AND_REPORT(11, "Advanced -x",
+	               merge_results(run_guarded(run_advanced_ops_tests_l),
+	                             run_guarded(run_advanced_ops_tests_u)));
+	RUN_AND_REPORT(12, "Miscellaneous x-macros -x",
 	               merge_results(run_guarded(run_xmacros_tests_l),
 	                             run_guarded(run_xmacros_tests_u)));
+	RUN_AND_REPORT(13, "Error/edge cases -x",
+	               merge_results(run_guarded(run_error_edge_tests_l),
+	                             run_guarded(run_error_edge_tests_u)));
+	RUN_AND_REPORT(14, "Fuzz/edge cases",
+	               run_guarded(run_fuzz_edge_tests));
 
-#undef RUN_AND_REPORT
+	fprintf(report, "------------------------------------------------------------------\n");
+    fprintf(report, "                                        Total  %4zu  %4zu  %4zu\n\n",
+			        totals.pass, totals.fail, totals.exception);
+	fprintf(report, "* -x: run with l (Latin) and then u (Unicode)\n\n");
 
-	fprintf(report, "------------------------------------------------------------------------------\n");
-	fprintf(report, "* -x runs with l (Latin) and then u (Unicode)\n\n");
-	fprintf(report, "Totals:  pass: %zu  fail: %zu  exception: %zu\n",
-	        totals.pass, totals.fail, totals.exception);
-
-	if (totals.fail == 0 && totals.exception == 0) {
-		fprintf(report, "\nAll tests passed.\n");
+	if (!totals.fail && !totals.exception) {
+		fprintf(report, "All tests passed.\n");
+	} else if (!totals.fail) {
+		fprintf(report, "Test run completed with exceptions.\n");
+	} else if (!totals.exception) {
+		fprintf(report, "Test run completed with failures.\n");
 	} else {
-		fprintf(report, "\nTest run completed with failures or exceptions.\n");
+		fprintf(report, "Test run completed with failures and exceptions.\n");
 	}
 	fclose(report);
 
-	printf("Tests completed. Report written to %s\n", resolved_report_path);
 	return (totals.fail > 0 || totals.exception > 0) ? 1 : 0;
 }
+
+#undef RUN_AND_REPORT
+
+/* End of lubtype_tests.c */
