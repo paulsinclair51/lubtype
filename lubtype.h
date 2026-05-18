@@ -69,20 +69,24 @@
  * in the source file or in the compile command.
  *
  * @section PolymorphicMacrosUsage Polymorphic Macros Usage
- * To use the x macros (see @ref PolymorphicMacros), the names of extern
- * functions in the source file must be defined based on LUB_X_IS_L or
- * LUB_X_IS_U. For example:
+ * To use the polymorphic (x) macros (see @ref PolymorphicMacros), first
+ * validate the macros LUB_X_IS_L or LUB_X_IS_U prior to including this
+ * header in the source file:
  * @code
 #if defined(LUB_X_IS_L) && defined(LUB_X_IS_U)
 #error "Both LUB_X_IS_L and LUB_X_IS_U are defined. "
        "Specify either -DLUB_X_IS_L or -DLUB_X_IS_U, but not both. "
-       "If neither is defined, LUB_X_IS_L is defined as a validator-friendly default."
-
+       "If neither is defined, LUB_X_IS_L is defined as a "
+       "validator-friendly default."
 #endif
 #if !defined(LUB_X_IS_L) && !defined(LUB_X_IS_U)
 // Set default.
 #define LUB_X_IS_L
 #endif
+ * @endcode
+ * Secondly, names of non-static functions in the source file must be
+ * defined based on LUB_X_IS_L or LUB_X_IS_U. For example:
+ * @code
 // Define xfunc as lfunc or ufunc based on LUB_X_IS_L or LUB_X_IS_U.
 #if defined(LUB_X_IS_L) 
 #define xfunc lfunc
@@ -90,14 +94,14 @@
 #define xfunc ufunc
 #endif
 
-extern int xfunc(...)
+int xfunc(...)
 { <function body> }
  * @endcode
  * Then compile using the define flag (-D) to define LUB_X_IS_L:
  * @code
 gcc -DLUB_X_IS_L -c myfile.c -o myfile.o
  * @endcode
- * Or to define LUB_X_IS_U:
+ * and compile again to define LUB_X_IS_U:
  * @code
 gcc -DLUB_X_IS_U -c myfile.c -o myfile.o
  * @endcode
@@ -5227,10 +5231,9 @@ lchar_t *lub_trim_ext
 
   if (normalized_len <= tn)
   { for (size_t i = 0; i < normalized_len; ++i)
-    { lub_set_ith_def(xt, t, i, normalized[i], lrep);
-      lub_terminate_ith_def(xt, t, normalized_len);
-      return t;
-    }
+    { lub_set_ith_def(xt, t, i, normalized[i], lrep); }
+    lub_terminate_ith_def(xt, t, normalized_len);
+    return t;
   }
 
   char trunc_mode = 'R';

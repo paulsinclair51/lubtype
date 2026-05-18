@@ -10,18 +10,7 @@
  * For license details, see the LICENSE file in the project root.
  */
 
-#if !defined(LUB_X_IS_L) && !defined(LUB_X_IS_U)
-#define LUB_X_IS_L
-#endif
-
-#include <assert.h>
-#include <stddef.h>
-#include <stdio.h>
-
-#include "../lubtype.h"
 #include "lubtype_test_declarations.h"
-
-static lub_test_result_t test_result;
 
 #if defined(LUB_X_IS_L)
 #define XTRUNC_CONCRETE(s) isltruncstr((const lchar_t *)(s))
@@ -202,7 +191,7 @@ static void test_pad_and_repeat(void) {
         LUB_ASSERT(eq_lstr_ascii_local(out, "h?ixxxxx"));
 
         LUB_ASSERT(lusnnpad(out, 8, usrc_nonlatin, 4, lright_pad_x, 0) ==
-            (lchar_t *)LUB_NON_LATIN_CHAR);
+            (lchar_t *)LUB_NONLATIN_SOURCE);
         LUB_ASSERT(out[0] == (lchar_t)0);
 
         LUB_ASSERT(ulsnnpad(uout, 8, make_lstr_local("hi", src, 32), 32, uright_pad) != NULL);
