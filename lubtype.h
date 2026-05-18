@@ -69,22 +69,8 @@
  * in the source file or in the compile command.
  *
  * @section PolymorphicMacrosUsage Polymorphic Macros Usage
- * To use the polymorphic (x) macros (see @ref PolymorphicMacros), first
- * validate the macros LUB_X_IS_L or LUB_X_IS_U prior to including this
- * header in the source file:
- * @code
-#if defined(LUB_X_IS_L) && defined(LUB_X_IS_U)
-#error "Both LUB_X_IS_L and LUB_X_IS_U are defined. "
-       "Specify either -DLUB_X_IS_L or -DLUB_X_IS_U, but not both. "
-       "If neither is defined, LUB_X_IS_L is defined as a "
-       "validator-friendly default."
-#endif
-#if !defined(LUB_X_IS_L) && !defined(LUB_X_IS_U)
-// Set default.
-#define LUB_X_IS_L
-#endif
- * @endcode
- * Secondly, names of non-static functions in the source file must be
+ * To use the polymorphic (x) macros (see @ref PolymorphicMacros),
+ * names of non-static functions in the source file must be
  * defined based on LUB_X_IS_L or LUB_X_IS_U. For example:
  * @code
 // Define xfunc as lfunc or ufunc based on LUB_X_IS_L or LUB_X_IS_U.
@@ -105,6 +91,10 @@ gcc -DLUB_X_IS_L -c myfile.c -o myfile.o
  * @code
 gcc -DLUB_X_IS_U -c myfile.c -o myfile.o
  * @endcode
+ * @note If a -D option to define LUB_X_IS_L or LUB_X_IS_U is not
+ * specified, LUB_X_IS_L is defined by default. This ensures that the
+ * polymorphic macros have a valid default state and
+ * code is validation-friendly.
  */
 
 /**
@@ -6865,9 +6855,14 @@ int llsnprintf
  * @name LUB_X
  * @brief A macro that defines whether x maps to l or to u for
  *        polymorphic (x) macros.
- *        Value is l if LUB_X_IS_L is defined, u if LUB_X_IS_U is defined.
- *        If neither is defined, LUB_X is not defined and the polymorphic
- *        macros are not defined.
+ * 
+ * - A compile error is reported if LUB_X is defined
+ *   or if both LUB_X_IS_L and LUB_X_IS_U are defined before
+ *   including lubtype.h.
+ * - If LUB_X_IS_L is defined, LUB_X is defined as l.
+ * - If LUB_X_IS_U is defined, LUB_X is defined as u.
+ * - If neither is defined, LUB_X is defined as l and
+ *   LUB_X_IS_L is defined.
  */
 
 #if defined(LUB_X)
@@ -6875,10 +6870,20 @@ int llsnprintf
        "#undef before including lubtype.h."
 #endif
 
+#if defined(LUB_X_IS_L) && defined(LUB_X_IS_U)
+#error "Both LUB_X_IS_L and LUB_X_IS_U are defined. "
+       "Specify on the compile either -DLUB_X_IS_L "
+       "or -DLUB_X_IS_U, but not both. "
+       "If neither is specified, LUB_X_IS_L is defined by default."
+#endif
+
 #if defined(LUB_X_IS_L)
 #define LUB_X l
-#else
+#elif defined(LUB_X_IS_U)
 #define LUB_X u
+#else
+#define LUB_X_IS_L
+#define LUB_X l
 #endif
 
 // Types

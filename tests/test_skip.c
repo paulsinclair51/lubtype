@@ -201,17 +201,19 @@ static void test_skipset_first_char_is_stop(void) {
     /* Verify that when s[0] is NOT in the skip-set, s itself is returned
      * immediately (no off-by-one advance). */
     xchar_t xs[8];
+    xchar_t sk[8];
 
     xchar_t *xp = xxsnskip(make_xs("Xabc", xs, 8), 8,
-                            (const xchar_t *)"abc");
+                            make_xs("abc", sk, 8));
     LUB_ASSERT(xp == xs); /* pointer must be the original s, not s+1 */
 }
 
 static void test_skipset_consecutive_skip_chars(void) {
     /* Mix of skip and non-skip chars interleaved — only leading run skipped. */
     xchar_t xs[16];
+    xchar_t sk[8];
     xchar_t *r = xxsnskip(make_xs("aabXab", xs, 16), 16,
-                           (const xchar_t *)"ab");
+                           make_xs("ab", sk, 8));
     LUB_ASSERT(xptr_eq(r, "Xab"));
 }
 

@@ -27,7 +27,6 @@ lub_test_result_t LUB_PASTE(run_error_edge_tests_, LUB_X)(int inject_faults) {
 #if defined(LUB_X_IS_L)
     // Cross-type uchar tests under Latin variant
     uchar_t usrc[8] = {'a','b','c',0};
-    uchar_t udst[16] = {0};
 #endif
 
     // Length behavior for NULL and bounded scans.
@@ -52,10 +51,10 @@ lub_test_result_t LUB_PASTE(run_error_edge_tests_, LUB_X)(int inject_faults) {
     LUB_ASSERT(ucsnlen(NULL, 10) == 0);
     LUB_ASSERT(ucsnlen(usrc, 100) == 3);
 
-    LUB_ASSERT(ulsnncpy(xdst, 16, usrc, 8, NULL) != NULL);
+    LUB_ASSERT(xusnncpy(xdst, 16, usrc, 8, NULL, 0) != NULL);
     LUB_ASSERT(xdst[0] == 'a' && xdst[1] == 'b' && xdst[2] == 'c' && xdst[3] == 0);
 
-    LUB_ASSERT(ulsnncat(xdst, 16, usrc, 8, NULL) != NULL);
+    LUB_ASSERT(xusnncat(xdst, 16, usrc, 8, NULL, 0) != NULL);
 #endif
 
     return test_result;
