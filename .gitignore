@@ -6,3 +6,5 @@ tests/lubtype_tests
 tests/lubtype_tests_report.txt
 tests/build.log
 tests/build_output.txt
+build.log
+build_run.log
