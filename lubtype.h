@@ -5190,19 +5190,18 @@ lchar_t *lub_trim_ext
   if (tb < sb + s_bytes && sb < tb + t_bytes)
   { return (lchar_t *)LUB_PTR_ERR(LUB_OVERLAP, 0); }
   
-  const lchar_t *trimset = trim;
+  const lchar_t *trimset = (const lchar_t *)NULL;
   if (trim)
-  { if (trim_xt == 'u') {
-    const uchar_t *utrim = (const uchar_t *)trim;
-    if (*utrim && islalpha((int)*utrim))
-     { trimset = (const lchar_t *)(utrim + 1); }
-    if (!*(const uchar_t *)trimset)
-    { trimset = (const lchar_t *)NULL; }
-    else
-    { if (*trimset && islalpha((int)*trimset)) ++trimset;
-      if (trimset && !*trimset) trimset = (const lchar_t *)NULL;
+  { if (trim_xt == 'u')
+    { const uchar_t *utrim = (const uchar_t *)trim;
+      if (*utrim && islalpha((int)*utrim)) ++utrim;
+      trimset = *utrim ? (const lchar_t *)utrim : (const lchar_t *)NULL;
     }
-  }
+    else
+    { const lchar_t *ltrim = trim;
+      if (*ltrim && islalpha((int)*ltrim)) ++ltrim;
+      trimset = *ltrim ? ltrim : (const lchar_t *)NULL;
+    }
   }
 
   size_t normalized_len = 0;

@@ -70,11 +70,27 @@
 #ifndef LUBTYPE_TEST_DECLARATIONS_H
 #define LUBTYPE_TEST_DECLARATIONS_H
 
+#include <assert.h>
 #include <setjmp.h>
 #include <signal.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+
+#if defined(LUB_X_IS_L) && defined(LUB_X_IS_U)
+#error "Both LUB_X_IS_L and LUB_X_IS_U are defined. "
+       "Specify either -DLUB_X_IS_L or -DLUB_X_IS_U, but not both. "
+       "If neither is defined, LUB_X_IS_L is defined as a "
+       "validator-friendly default."
+#endif
+#if !defined(LUB_X_IS_L) && !defined(LUB_X_IS_U)
+// Set default.
+#define LUB_X_IS_L
+#endif
+
+#include "../lubtype.h"
 
 /**
  * @typedef lub_test_result_t
@@ -286,5 +302,12 @@ extern lub_test_result_t run_skip_tests_u(int inject_faults);
 extern lub_test_result_t run_xmacros_tests_l(int inject_faults);
 extern lub_test_result_t run_xmacros_tests_u(int inject_faults);
 /** @} */
+
+/**
+ * @name test_result
+ * @brief File-scoped variable to track assertion outcomes in a test module.
+ */
+
+static lub_test_result_t test_result;
 
 #endif

@@ -10,16 +10,7 @@
  * For license details, see the LICENSE file in the project root.
  */
 
-#if !defined(LUB_X_IS_L) && !defined(LUB_X_IS_U)
-#define LUB_X_IS_L
-#endif
-
-#include <assert.h>
-#include "../lubtype.h"
 #include "lubtype_test_declarations.h"
-#include <stdio.h>
-
-static lub_test_result_t test_result;
 
 /**
  * @brief Run tests for error and edge cases in string operations.

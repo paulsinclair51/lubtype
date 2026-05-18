@@ -482,7 +482,10 @@ static int write_report(const char *report_path, const char *report_time,
 	}
 	fprintf(report, "\n\n-x: run tests for category with x=l (Latin) and then x=u (Unicode)\n");
 	if (cat_exceptions) {
-		fprintf(report, " *: category-level exception (counts as 1 in exception total).\n");
+		fprintf(report, "\n*: category-level exception (counts as 1 in exception total).\n");
+	}
+	if (inject_faults) {
+		fprintf(report, "\nFAULT: indicates faults injected to test fail/exception detection.\n");
 	}
 	if (!total.fail && !total.exception) {
 		fprintf(report, "\nAll tests passed.\n");

@@ -8,16 +8,7 @@
  * For license details, see the LICENSE file in the project root.
  */
 
-#if !defined(LUB_X_IS_L) && !defined(LUB_X_IS_U)
-#define LUB_X_IS_L
-#endif
-
-#include <stddef.h>
-
-#include "../lubtype.h"
 #include "lubtype_test_declarations.h"
-
-static lub_test_result_t test_result;
 
 static xchar_t *make_xstr_local(const char *src, xchar_t *dst, size_t cap) {
 	size_t i = 0;
@@ -27,42 +18,39 @@ static xchar_t *make_xstr_local(const char *src, xchar_t *dst, size_t cap) {
 	return dst;
 }
 
-#if defined(LUB_X_IS_L)
-#define RESERVED_CONCRETE(s) islreserved((const lchar_t *)(s))
-#define QNAME_CONCRETE(s) islqname((const lchar_t *)(s))
-#else
-#define RESERVED_CONCRETE(s) isureserved((const uchar_t *)(s))
-#define QNAME_CONCRETE(s) isuqname((const uchar_t *)(s))
-#endif
-
 static void test_reserved_alias_mapping(void) {
 	static const char *samples[] = {
-		"SELECT", "insert", "VAR_POP", "SELECTX", "my_table", ""
+		"SELECT", "insert", "VAR_POP", "SELECTX", "my_table"
 	};
 	xchar_t buf[64];
 	size_t i;
 
 	for (i = 0; i < sizeof(samples) / sizeof(samples[0]); ++i) {
 		make_xstr_local(samples[i], buf, 64);
-		LUB_ASSERT(isxreserved(buf) == RESERVED_CONCRETE(buf));
+		LUB_ASSERT(isxreserved(buf) == (i < 3 ? 1 : 0));
 	}
 
-	LUB_ASSERT(isxreserved(NULL) == RESERVED_CONCRETE(NULL));
+	make_xstr_local("", buf, 64);
+	LUB_ASSERT(LUB_INT_ERR(isxreserved(buf), LUB_NAME_INVALID));
+	LUB_ASSERT(LUB_INT_ERR(isxreserved(NULL), LUB_NAME_INVALID));
 }
 
 static void test_qname_alias_mapping(void) {
 	static const char *samples[] = {
-		"name", "Name_1", "SELECT", "1bad", "my-name", ""
+		"name", "Name_1", "SELECT", "1bad", "my-name"
 	};
+	static const int expected[] = { 1, 1, 1, 1, 0 };
 	xchar_t buf[64];
 	size_t i;
 
 	for (i = 0; i < sizeof(samples) / sizeof(samples[0]); ++i) {
 		make_xstr_local(samples[i], buf, 64);
-		LUB_ASSERT(isxqname(buf) == QNAME_CONCRETE(buf));
+		LUB_ASSERT(isxqname(buf) == expected[i]);
 	}
 
-	LUB_ASSERT(isxqname(NULL) == QNAME_CONCRETE(NULL));
+	make_xstr_local("", buf, 64);
+	LUB_ASSERT(LUB_INT_ERR(isxqname(buf), LUB_NAME_INVALID));
+	LUB_ASSERT(LUB_INT_ERR(isxqname(NULL), LUB_NAME_INVALID));
 }
 
 #define XMACRO_ALIAS_TESTS(X) \

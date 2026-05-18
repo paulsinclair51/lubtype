@@ -12,18 +12,6 @@
 
 #include "lubtype_test_declarations.h"
 
-#if defined(LUB_X_IS_L)
-#define XTRUNC_CONCRETE(s) isltruncstr((const lchar_t *)(s))
-#define XTRIM_CONCRETE(s) isltrimstr((const lchar_t *)(s))
-#define XPAD_CONCRETE(s) islpadstr((const lchar_t *)(s))
-#define XNEEDLE_CONCRETE(s) islneedlestr((const lchar_t *)(s))
-#else
-#define XTRUNC_CONCRETE(s) isutruncstr((const uchar_t *)(s))
-#define XTRIM_CONCRETE(s) isutrimstr((const uchar_t *)(s))
-#define XPAD_CONCRETE(s) isupadstr((const uchar_t *)(s))
-#define XNEEDLE_CONCRETE(s) isuneedlestr((const uchar_t *)(s))
-#endif
-
 /**
  * @brief Helper: Create a local xchar_t string from ASCII C string.
  */
@@ -112,10 +100,10 @@ static void test_trim(void) {
     xchar_t overlap[32];
     const xchar_t *trim_b = (const xchar_t[]){ 'B', 0 };
     const xchar_t *trim_l = (const xchar_t[]){ 'L', 0 };
-    const xchar_t *trunc_r = (const xchar_t[]){ 'R', '.', '.', 0 };
-    const xchar_t *trunc_l = (const xchar_t[]){ 'L', '.', '.', 0 };
-    const xchar_t *trunc_c = (const xchar_t[]){ 'C', '.', '.', 0 };
-    const xchar_t *trunc_b = (const xchar_t[]){ 'B', '.', '.', 0 };
+    const lchar_t *trunc_r = (const lchar_t[]){ 'R', '.', '.', 0 };
+    const lchar_t *trunc_l = (const lchar_t[]){ 'L', '.', '.', 0 };
+    const lchar_t *trunc_c = (const lchar_t[]){ 'C', '.', '.', 0 };
+    const lchar_t *trunc_b = (const lchar_t[]){ 'B', '.', '.', 0 };
 
     LUB_ASSERT(xxsnntrim(out, 32, make_xstr_local("  foo   bar  ", src, 64), 32,
                      0, trim_b, ' ') != NULL);
@@ -211,25 +199,25 @@ static void test_option_alias_validators(void) {
     empty[0] = (xchar_t)0;
     empty[1] = (xchar_t)0;
 
-    LUB_ASSERT(isxtruncstr(trunc_r) == XTRUNC_CONCRETE(trunc_r));
-    LUB_ASSERT(isxtrimstr(trim_b) == XTRIM_CONCRETE(trim_b));
-    LUB_ASSERT(isxpadstr(pad_l) == XPAD_CONCRETE(pad_l));
-    LUB_ASSERT(isxneedlestr(needle_ci) == XNEEDLE_CONCRETE(needle_ci));
+    LUB_ASSERT(isxtruncstr(trunc_r) == 1);
+    LUB_ASSERT(isxtrimstr(trim_b) == 1);
+    LUB_ASSERT(isxpadstr(pad_l) == 1);
+    LUB_ASSERT(isxneedlestr(needle_ci) == 1);
 
-    LUB_ASSERT(isxtruncstr(invalid) == XTRUNC_CONCRETE(invalid));
-    LUB_ASSERT(isxtrimstr(invalid) == XTRIM_CONCRETE(invalid));
-    LUB_ASSERT(isxpadstr(invalid) == XPAD_CONCRETE(invalid));
-    LUB_ASSERT(isxneedlestr(invalid) == XNEEDLE_CONCRETE(invalid));
+    LUB_ASSERT(LUB_INT_ERR(isxtruncstr(invalid), LUB_OPT_RESERVED));
+    LUB_ASSERT(LUB_INT_ERR(isxtrimstr(invalid), LUB_OPT_RESERVED));
+    LUB_ASSERT(LUB_INT_ERR(isxpadstr(invalid), LUB_OPT_RESERVED));
+    LUB_ASSERT(isxneedlestr(invalid) == 1);
 
-    LUB_ASSERT(isxtruncstr(empty) == XTRUNC_CONCRETE(empty));
-    LUB_ASSERT(isxtrimstr(empty) == XTRIM_CONCRETE(empty));
-    LUB_ASSERT(isxpadstr(empty) == XPAD_CONCRETE(empty));
-    LUB_ASSERT(isxneedlestr(empty) == XNEEDLE_CONCRETE(empty));
+    LUB_ASSERT(isxtruncstr(empty) == 1);
+    LUB_ASSERT(isxtrimstr(empty) == 1);
+    LUB_ASSERT(isxpadstr(empty) == 1);
+    LUB_ASSERT(isxneedlestr(empty) == 1);
 
-    LUB_ASSERT(isxtruncstr(NULL) == XTRUNC_CONCRETE(NULL));
-    LUB_ASSERT(isxtrimstr(NULL) == XTRIM_CONCRETE(NULL));
-    LUB_ASSERT(isxpadstr(NULL) == XPAD_CONCRETE(NULL));
-    LUB_ASSERT(isxneedlestr(NULL) == XNEEDLE_CONCRETE(NULL));
+    LUB_ASSERT(isxtruncstr(NULL) == 1);
+    LUB_ASSERT(isxtrimstr(NULL) == 1);
+    LUB_ASSERT(isxpadstr(NULL) == 1);
+    LUB_ASSERT(isxneedlestr(NULL) == 1);
 }
 
 lub_test_result_t LUB_PASTE(run_utilities_tests_, LUB_X)(int inject_faults) {

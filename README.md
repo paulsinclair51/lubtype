@@ -46,20 +46,29 @@ that expands on the example above.
 All other source files must include lubtype.h without defining LUB_DEFINITIONS
 in the source file or in the compile command.
 
-To use the x macros (see Polymorphic Macros), the names of extern
-functions in the source file must be defined based on LUB_X_IS_L or
-LUB_X_IS_U. For example:
+## Polymorphic Macro Usage
+
+To use the polymorphic (x) macros (see @ref PolymorphicMacros),
+first validate the macros LUB_X_IS_L or LUB_X_IS_U prior to
+including this header in the source file:
 
 ```c
 #if defined(LUB_X_IS_L) && defined(LUB_X_IS_U)
 #error "Both LUB_X_IS_L and LUB_X_IS_U are defined. "
        "Specify either -DLUB_X_IS_L or -DLUB_X_IS_U, but not both. "
-       "If neither is defined, LUB_X_IS_L is defined as a validator-friendly default."
+       "If neither is defined, LUB_X_IS_L is defined as a "
+       "validator-friendly default."
 #endif
 #if !defined(LUB_X_IS_L) && !defined(LUB_X_IS_U)
 // Set default.
 #define LUB_X_IS_L
 #endif
+```
+
+Secondly, names of non-static functions in the source file must be
+defined based on LUB_X_IS_L or LUB_X_IS_U. For example:
+
+```c
 // Define xfunc as lfunc or ufunc based on LUB_X_IS_L or LUB_X_IS_U.
 #if defined(LUB_X_IS_L) 
 #define xfunc lfunc
@@ -67,17 +76,17 @@ LUB_X_IS_U. For example:
 #define xfunc ufunc
 #endif
 
-extern int xfunc(...)
+int xfunc(...)
 { <function body> }
 ```
 
-Then compile using the define flag (-D) to define LUB_X_IS_L:
+Lastly, compile using the define flag (-D) to define LUB_X_IS_L:
 
 ```sh
 gcc -DLUB_X_IS_L -c myfile.c -o myfile.o
 ```
 
-Or to define LUB_X_IS_U:
+and compile again to define LUB_X_IS_U:
 
 ```sh
 gcc -DLUB_X_IS_U -c myfile.c -o myfile.o

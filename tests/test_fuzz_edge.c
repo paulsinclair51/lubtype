@@ -10,17 +10,7 @@
  * For license details, see the LICENSE file in the project root.
  */
 
-// Fuzz and edge-case tests for lubtype.h string operations
-#include <assert.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "../lubtype.h"
 #include "lubtype_test_declarations.h"
-
-static lub_test_result_t test_result;
 
 // Helper: fill buffer with random bytes
 /**

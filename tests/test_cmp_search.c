@@ -10,17 +10,7 @@
  * For license details, see the LICENSE file in the project root.
  */
 
-#if !defined(LUB_X_IS_L) && !defined(LUB_X_IS_U)
-#define LUB_X_IS_L
-#endif
-
-#include <assert.h>
-#include <stdio.h>
-
 #include "lubtype_test_declarations.h"
-#include "../lubtype.h"
-
-static lub_test_result_t test_result;
 
 static void test_search_delim_negative_m(void)
 { const xchar_t hay[] = {'a','b','a','b','a',0};

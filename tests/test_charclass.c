@@ -1,6 +1,7 @@
 /**
  * @file test_charclass.c
- * @brief X-macro tests for character classification functions in lubtype.h.
+ * @brief Polymorphic (x) macro tests for character classification
+ *        functions in lubtype.h.
  *
  * @note Compiled twice: -DLUB_X_IS_L for Latin, -DLUB_X_IS_U for Unicode.
  *       Each test file needs `static lub_test_result_t test_result;`.
@@ -9,19 +10,7 @@
  * For license details, see the LICENSE file in the project root.
  */
 
-#if !defined(LUB_X_IS_L) && !defined(LUB_X_IS_U)
-/* Set a default so code validator does not complain. */
-#define LUB_X_IS_L
-#endif
-
-#include <assert.h>
-#include <stdio.h>
-
 #include "lubtype_test_declarations.h"
-#include "../lubtype.h"
-
-static lub_test_result_t test_result;
-
 
 static xchar_t *make_xstr_local_charclass(const char *src, xchar_t *dst, size_t cap) {
 	size_t i = 0;

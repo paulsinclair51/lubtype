@@ -9,13 +9,7 @@
  * For license details, see the LICENSE file in the project root.
  */
 
-#include <assert.h>
-#include <stddef.h>
-
-#include "../lubtype.h"
 #include "lubtype_test_declarations.h"
-
-static lub_test_result_t test_result;
 
 /**
  * @brief Create a local ucstr_t from ASCII string.
