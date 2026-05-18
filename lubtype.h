@@ -62,7 +62,8 @@
 #include "lubtype.h"
 // End of lubdefinitions.c
  * @endcode
- * The repository includes this sample source file as [lubdefinitions.c](lubdefinitions.c).
+ * This repository includes a sample source file as [lubdefinitions.c](lubdefinitions.c)
+ * that expands on the example above.
  *
  * All other source files must include lubtype.h without defining LUB_DEFINITIONS
  * in the source file or in the compile command.
@@ -72,15 +73,23 @@
  * functions in the source file must be defined based on LUB_X_IS_L or
  * LUB_X_IS_U. For example:
  * @code
+#if defined(LUB_X_IS_L) && defined(LUB_X_IS_U)
+#error "Both LUB_X_IS_L and LUB_X_IS_U are defined. "
+       "Specify either -DLUB_X_IS_L or -DLUB_X_IS_U, but not both. "
+       "If neither is defined, LUB_X_IS_L is defined as a validator-friendly default."
+
+#endif
+#if !defined(LUB_X_IS_L) && !defined(LUB_X_IS_U)
+// Set default.
+#define LUB_X_IS_L
+#endif
+// Define xfunc as lfunc or ufunc based on LUB_X_IS_L or LUB_X_IS_U.
 #if defined(LUB_X_IS_L) 
 #define xfunc lfunc
-#elif defined(LUB_X_IS_U)
-#define xfunc ufunc
 #else
-#error "Neither LUB_X_IS_L nor LUB_X_IS_U. Specify option -DLUB_X_IS_L "
-       "or -DLUB_X_IS_U in compile command. For example, "
-       "gcc -DLUB_X_IS_L -c myfile.c -o myfile.o."
+#define xfunc ufunc
 #endif
+
 extern int xfunc(...)
 { <function body> }
  * @endcode
@@ -355,7 +364,7 @@ extern "C" {
 /**
  * @defgroup StaticAssert Static Assert
  * @name LUB_STATIC_ASSERT
- * @brief Compile-time assertion macro.
+ * @brief Compile-time (static) assertion macro.
  * @param cond Condition to be asserted.
  * @param msg A single token (message) to be displayed if
  *            the assertion fails.
@@ -465,6 +474,18 @@ extern "C" {
 #define LUB_VERSION_MINOR 0
 #define LUB_VERSION_PATCH 0
 
+#if defined(LUB_DEFINITIONS)
+
+// Ensure major version is greater than 0.
+LUB_STATIC_ASSERT((uint32_t)LUB_VERSION_MAJOR, major_version_not_zero);
+
+// Ensure version components fit in the encoding fields.
+LUB_STATIC_ASSERT((uint32_t)LUB_VERSION_MAJOR <= 99, major_fits_in_field);
+LUB_STATIC_ASSERT((uint32_t)LUB_VERSION_MINOR <= 99, minor_fits_in_field);
+LUB_STATIC_ASSERT((uint32_t)LUB_VERSION_PATCH <= 99, patch_fits_in_field);
+
+#endif // LUB_DEFINITIONS
+
 // LUB API version string in "major.minor.patch" format.
 #define LUB_VERSION \
   (LUB_STRINGIFY(LUB_VERSION_MAJOR) "." \
@@ -494,18 +515,6 @@ extern "C" {
     (LUB_VERSION_NUM >=  (uint32_t)(maj) * 10000 + \
                          (uint32_t)(min) * 100 + \
                          (uint32_t)(pat))
-
-#if defined(LUB_DEFINITIONS)
-
-// Ensure major version is greater than 0.
-LUB_STATIC_ASSERT((uint32_t)LUB_VERSION_MAJOR, major_version_not_zero);
-
-// Ensure version components fit in the encoding fields.
-LUB_STATIC_ASSERT((uint32_t)LUB_VERSION_MAJOR <= 99, major_fits_in_field);
-LUB_STATIC_ASSERT((uint32_t)LUB_VERSION_MINOR <= 99, minor_fits_in_field);
-LUB_STATIC_ASSERT((uint32_t)LUB_VERSION_PATCH <= 99, patch_fits_in_field);
-
-#endif // LUB_DEFINITIONS
 
 /** @} */ // End of Versioning.
 
