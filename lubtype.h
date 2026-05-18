@@ -6911,7 +6911,7 @@ int llsnprintf
 
 // int <- Hex digit
 
-#define ixhex(c) LUB_PASTE(LUB_PASTE(is, LUB_X), hex)
+#define ixhex(c) LUB_PASTE(LUB_PASTE(i, LUB_X), hex)(c)
 
 // String length
 

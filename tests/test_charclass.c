@@ -320,8 +320,8 @@ lub_test_result_t LUB_PASTE(run_charclass_tests_, LUB_X)(int inject_faults)
   LUB_ASSERT(!isxgraph((xchar_t)' '));
   LUB_ASSERT(isxhex((xchar_t)'F'));
   LUB_ASSERT(!isxhex((xchar_t)'G'));
-  LUB_ASSERT(ixhex((xchar_t)'f') != 0);
-  LUB_ASSERT(ixhex((xchar_t)'g') == 0);
+	LUB_ASSERT(ixhex((xchar_t)'f') == 15);
+	LUB_ASSERT(ixhex((xchar_t)'g') == -1);
   LUB_ASSERT(isxlatin((xchar_t)'A'));
   LUB_ASSERT(isxname1c((xchar_t)'A'));
   LUB_ASSERT(!isxname1c((xchar_t)'1'));
