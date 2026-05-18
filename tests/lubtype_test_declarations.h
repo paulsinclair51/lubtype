@@ -4,7 +4,11 @@
  *        and function declarations.
  *
  * This header provides the test framework foundation used by all
- * lubtype.h test modules:
+ * lubtype.h test modules.
+ * 
+ * @copyright Copyright (c) 2026 paulsinclair51
+ * SPDX-License-Identifier: MIT
+ * For license details, see the LICENSE file in the project root.
  *
  * @section result_struct Test Result Structure
  * Each test module returns a lub_test_result_t struct counting:
@@ -61,10 +65,6 @@
  * This header requires POSIX.1-2008 features (sigaction, setjmp, signal).
  * The including file must define _POSIX_C_SOURCE 200809L
  * before including system headers.
- *
- * @copyright Copyright (c) 2026 paulsinclair51
- * SPDX-License-Identifier: MIT
- * For license details, see the LICENSE file in the project root.
  */
 
 #ifndef LUBTYPE_TEST_DECLARATIONS_H
@@ -78,17 +78,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-
-#if defined(LUB_X_IS_L) && defined(LUB_X_IS_U)
-#error "Both LUB_X_IS_L and LUB_X_IS_U are defined. "
-       "Specify either -DLUB_X_IS_L or -DLUB_X_IS_U, but not both. "
-       "If neither is defined, LUB_X_IS_L is defined as a "
-       "validator-friendly default."
-#endif
-#if !defined(LUB_X_IS_L) && !defined(LUB_X_IS_U)
-// Set default.
-#define LUB_X_IS_L
-#endif
 
 #include "../lubtype.h"
 
