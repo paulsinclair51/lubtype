@@ -49,23 +49,7 @@ in the source file or in the compile command.
 ## Polymorphic Macro Usage
 
 To use the polymorphic (x) macros (see @ref PolymorphicMacros),
-first validate the macros LUB_X_IS_L or LUB_X_IS_U prior to
-including this header in the source file:
-
-```c
-#if defined(LUB_X_IS_L) && defined(LUB_X_IS_U)
-#error "Both LUB_X_IS_L and LUB_X_IS_U are defined. "
-       "Specify either -DLUB_X_IS_L or -DLUB_X_IS_U, but not both. "
-       "If neither is defined, LUB_X_IS_L is defined as a "
-       "validator-friendly default."
-#endif
-#if !defined(LUB_X_IS_L) && !defined(LUB_X_IS_U)
-// Set default.
-#define LUB_X_IS_L
-#endif
-```
-
-Secondly, names of non-static functions in the source file must be
+names of non-static functions in the source file must be
 defined based on LUB_X_IS_L or LUB_X_IS_U. For example:
 
 ```c
@@ -80,7 +64,7 @@ int xfunc(...)
 { <function body> }
 ```
 
-Lastly, compile using the define flag (-D) to define LUB_X_IS_L:
+Then, compile using the define flag (-D) to define LUB_X_IS_L:
 
 ```sh
 gcc -DLUB_X_IS_L -c myfile.c -o myfile.o
@@ -91,6 +75,8 @@ and compile again to define LUB_X_IS_U:
 ```sh
 gcc -DLUB_X_IS_U -c myfile.c -o myfile.o
 ```
+If a -D option to define LUB_X_IS_L or LUB_X_IS_U is not specified, LUB_X_IS_L is defined by default. This ensures that the polymorphic macros have a valid default state and
+code is validation-friendly.
 
 ## Design Principles
 
